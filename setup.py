@@ -73,7 +73,7 @@ setup(
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
     
-    url='https://github.com/pypa/sampleproject',  # Optional
+    url='https://mlhub.ai',  # Optional
     
     # This should be the name of the organization (or person) which
     # owns the project.
