@@ -37,7 +37,8 @@ import os
 
 MLHUB  = "https://mlhub.ai/"
 if "MLHUB" in os.environ:
-    MLHUB = os.path.join(os.getenv("MLHUB"), "") # Ensure trailing slash.
+    # The following adds a trainling "/" as assumed in the code.
+    MLHUB = os.path.join(os.getenv("MLHUB"), "")
 
 HUB_PATH = "pool/main/"
 
