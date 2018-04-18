@@ -5,7 +5,7 @@
 ########################################################################
 
 APP=mlhub
-VER=1.0.4
+VER=1.0.5 # Add backward compatibility wiht .aipk
 
 APP_FILES = 			\
 	setup.py		\
