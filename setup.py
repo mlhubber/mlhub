@@ -48,7 +48,7 @@ setup(
     # project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     
-    version='1.0.2',  # Required. Also in defaults.py
+    version='1.0.4',  # Required. DO NOT MODIFY. Managed from Makefile.
     
     # This is a one-line description or tagline of what the project does. This
     # corresponds to the "Summary" metadata field:
