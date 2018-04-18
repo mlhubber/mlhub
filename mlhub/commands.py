@@ -281,12 +281,8 @@ def list_model_commands(args):
     # Suggest next step.
     
     if not args.quiet:
-        try:
-            demo = info["commands"]["demo"]
-            msg  = "\nThe demo can be run with:\n\n  $ ml demo {}\n"
-            msg  = msg.format(model)
-        except:
-            msg = ""
+        msg = "Model dependencies are listed using:\n\n  $ {} configure {}\n"
+        msg = msg.format(CMD, model)
         print(msg)
 
 #-----------------------------------------------------------------------
@@ -323,7 +319,7 @@ Configuration is yet to be automated. The following dependencies are required:
         msg = "Once configured run the demonstration:\n\n  $ {} demo {}\n"
         msg = msg.format(CMD, model)
         print(msg)
-        
+
 #-----------------------------------------------------------------------
 # DISPATCH
 
@@ -342,13 +338,13 @@ def dispatch(args):
     
     # If DESC_YAML does not exist then throw an error.
     
-    if not os.path.exists(os.path.join(model_dir, DESC_YAML)):
+    if not os.path.exists(os.path.join(path, DESC_YAML)):
         msg = "{}'{}' does not exist."
         msg.format(APPX, DESC_YAML)
         print(msg, file=sys.stderr)
         sys.exit(1)
 
-    desc = yaml.load(open(os.path.join(model_dir, DESC_YAML), 'r'))
+    desc = yaml.load(open(os.path.join(path, DESC_YAML), 'r'))
         
     language = desc["meta"]["language"]
 
@@ -357,7 +353,7 @@ def dispatch(args):
     script  = desc["commands"][cmd]["script"].split(" ")[0] + " " + param
     command = "{} {}".format(language, script)
     if args.debug:
-        print(DEBUG + "(cd " + model_dir + "; " + command + ")")
+        print(DEBUG + "(cd " + path + "; " + command + ")")
     proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
     if proc.returncode != 0:
