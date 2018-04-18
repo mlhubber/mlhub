@@ -1,22 +1,26 @@
 ########################################################################
 #
-# Version Control - git
+# Makefile template for Version Control - git
+#
+# Copyright 2018 (c) Graham.Williams@togaware.com
+#
+# License: Creative Commons Attribution-ShareAlike 4.0 International.
 #
 ########################################################################
 
 define GIT_HELP
 Support the usual git commands as make targets:
 
-  info	  	Identify the git repository;
-  status  	Status ignoring local files;
+  info	  Identify the git repository;
+  status  Status ignoring local files;
   push
   pull
-  master  	Checkout the master branch;
-  dev     	Checkout the dev branch;
+  master  Checkout the master branch;
+  dev     Checkout the dev branch;
   log
-  flog	  	Show the full log;
+  flog	  Show the full log;
   diff
-  vdiff	  	Show a visual diff using meld.
+  vdiff	  Show a visual diff using meld.
 
 endef
 export GIT_HELP
