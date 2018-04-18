@@ -33,7 +33,7 @@ import sys
 import yaml
 import urllib.request
 
-from mlhub.constants import APPX, INIT_DIR, CMD, MLHUB, META_YAML
+from mlhub.constants import APPX, INIT_DIR, CMD, MLHUB, META_YAML, META_YML
 
 def create_init():
     """Check if the init dir exists and if not then create it."""
@@ -55,15 +55,22 @@ def get_repo(repo):
 def get_repo_meta_data(repo):
     """Read the repositories meta data file and return as a list."""
 
-    url  = repo + META_YAML
-    meta = list(yaml.load_all(urllib.request.urlopen(url).read()))
+    try:
+        url  = repo + META_YAML
+        meta = list(yaml.load_all(urllib.request.urlopen(url).read()))
+    except:
+        url  = repo + META_YML
+        meta = list(yaml.load_all(urllib.request.urlopen(url).read()))
 
     return(meta)
 
 def print_meta_line(entry):
     name    = entry["meta"]["name"]
     version = entry["meta"]["version"]
-    title   = entry["meta"]["title"]
+    try:
+        title   = entry["meta"]["title"]
+    except:
+        title   = entry["meta"]["description"]
 
     # One line message.
 

@@ -41,9 +41,10 @@ import locale
 import importlib.util
 
 from tempfile import TemporaryDirectory
+from shutil import copyfile
 
 import mlhub.utils as utils
-from mlhub.constants import INIT_DIR, DESC_YAML, APP, APPX, CMD, HUB_PATH, EXT, META_YAML, README
+from mlhub.constants import INIT_DIR, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, EXT_AIPK, META_YAML, README, META_YML
 
 # The commands are implemented here in a logical order with each
 # command providing a suggesting of the following command.
@@ -137,9 +138,9 @@ def install_model(args):
 
     # Check preconditions.
     
-    if model.endswith(EXT):
-        msg = "{}command line install of {} file is not yet implemented."
-        msg = msg.format(APPX, EXT)
+    if model.endswith(EXT_MLM) or model.endswith(EXT_AIPK):
+        msg = "{}command line install of model archive file is not yet implemented."
+        msg = msg.format(APPX)
         print(msg, file=sys.stderr)
         sys.exit(1)
 
@@ -167,9 +168,9 @@ def install_model(args):
 
     # Ensure file to be downloaded has the expected filename extension.
 
-    if not url.endswith(EXT):
+    if not (url.endswith(EXT_MLM) or url.endswith(EXT_AIPK)):
         msg = "{}the below url is not a {} file. Malformed '{}' from the repository?\n  {}"
-        msg = msg.format(APPX, EXT, META_YAML, url)
+        msg = msg.format(APPX, EXT_MLM, META_YAML, url)
         print(msg, file=sys.stderr)
         sys.exit(1)
 
@@ -201,6 +202,11 @@ def install_model(args):
     zip = zipfile.ZipFile(local)
     zip.extractall(INIT_DIR)
 
+    # Backward compatibility.
+
+    if url.endswith(EXT_AIPK):
+        copyfile(os.path.join(path, DESC_YML), os.path.join(path, DESC_YAML))
+
     # Informative message about the size of the installed model.
     
     if not args.quiet:
@@ -209,7 +215,7 @@ def install_model(args):
             for f in files:
                 tfilename = os.path.join(pth, f)
                 dsz += os.path.getsize(tfilename)
-        print("Extracted '{}' into\n'{}' ({:,} bytes).".
+        print("Extracted '{}' into\n'{}' ({:,} bytes).\n".
               format(mlmfile, local.split("_")[0], dsz))
             
     # Suggest next step.
@@ -316,7 +322,7 @@ Configuration is yet to be automated. The following dependencies are required:
     # Suggest next step.
     
     if not args.quiet:
-        msg = "Once configured run the demonstration:\n\n  $ {} demo {}\n"
+        msg = "\nOnce configured run the demonstration:\n\n  $ {} demo {}\n"
         msg = msg.format(CMD, model)
         print(msg)
 
@@ -365,7 +371,7 @@ def dispatch(args):
 #------------------------------------------------------------------------
 
 def remove_mlm(args):
-    """Remove downloaded {} files.""".format(EXT)
+    """Remove downloaded {} files.""".format(EXT_MLM)
 
     print("This command is not yet implemented.")
     

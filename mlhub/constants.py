@@ -55,7 +55,9 @@ INIT_DIR = os.path.expanduser("~/.mlhub/")
 APP  = "mlhub"            # The application name.
 APPX = "{}: ".format(APP) # For error messages.
 CMD  = "ml"               # The command line tool.
-EXT  = ".mlm"             # Archive filename extension
+
+EXT_MLM  = ".mlm"         # Archive filename extension
+EXT_AIPK = ".aipk"        # Backward copmatibility
 
 VERSION = "1.0.4" # DO NOT MODIFY. Managed from ../Makefile.
 
@@ -82,13 +84,17 @@ The ML Hub repository is '{}'.
 
 Models are installed into '{}'.
 
-This is version {} of {}.""".format(CMD, EXT, INIT_DIR, MLHUB, INIT_DIR, VERSION, APP)
+This is version {} of {}.""".format(CMD, EXT_MLM, INIT_DIR, MLHUB, INIT_DIR, VERSION, APP)
 
 # Filenames.
 
 README    = "README.txt"
+
 DESC_YAML = "DESCRIPTION.yaml"
 META_YAML = "Packages.yaml"
+
+DESC_YML = "DESCRIPTION.yml"
+META_YML = "Packages.yml"
 
 # Debugging
 
