@@ -57,7 +57,7 @@ APPX = "{}: ".format(APP) # For error messages.
 CMD  = "ml"               # The command line tool.
 EXT  = ".mlm"             # Archive filename extension
 
-VERSION = "1.0.2" # This also needs to be set in setup.py! Automate.
+VERSION = "1.0.4" # DO NOT MODIFY. Managed from ../Makefile.
 
 USAGE = """Usage: {} [<options>] <command> [<command options>] [<model>]
 
@@ -73,6 +73,9 @@ Global commands:
   readme     <model>   View the model's README.
   commands   <model>   List the commands supported by the model.
   configure  <model>   Configure the model's dependencies.
+  demo       <model>   Demostrate the model in action.
+  print      <model>   Technical information about the model.
+  display    <model>   Visual presentaiton of the model.
   remove    [<model>]  Remove a model or remove all models.
 
 The ML Hub repository is '{}'.
