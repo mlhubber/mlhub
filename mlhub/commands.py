@@ -39,6 +39,7 @@ import yaml
 import textwrap
 import locale
 import importlib.util
+import platform
 
 from tempfile import TemporaryDirectory
 from shutil import copyfile
@@ -139,7 +140,7 @@ def install_model(args):
     # Check preconditions.
     
     if model.endswith(EXT_MLM) or model.endswith(EXT_AIPK):
-        msg = "{}command line install of model archive file is not yet implemented."
+        msg = "{}please assist by implementing this command."
         msg = msg.format(APPX)
         print(msg, file=sys.stderr)
         sys.exit(1)
@@ -218,13 +219,37 @@ def install_model(args):
         print("Extracted '{}' into\n'{}' ({:,} bytes).\n".
               format(mlmfile, local.split("_")[0], dsz))
             
-    # Suggest next step.
+    # Suggest next step. README or DOWNLOAD
     
     if not args.quiet:
-        msg = "Model information is available:\n\n  $ ml readme {}\n"
-        msg = msg.format(model)
+        msg = "Model information is available:\n\n  $ {} readme {}\n"
+        msg = msg.format(CMD, model)
         print(msg)
     
+#-----------------------------------------------------------------------
+# DOWNLOAD
+
+def download_model(args):
+    """Download the large pre-built model."""
+
+    # TODO: Will this be a url in the DESCRIPTION file or will it be a
+    # download.sh script. Which ever (maybe either), if it is present
+    # then this command is available and will download the required
+    # file, perhaps from the actual source of the model.
+    
+    model = args.model
+    path  = INIT_DIR + model
+    desc  = os.path.join(path, DESC_YAML)
+   
+    # Check that the model is installed.
+
+    utils.check_model_installed(path)
+    
+    if not args.quiet:
+        msg = "Model information is available:\n\n  $ {} readme {}\n"
+        msg = msg.format(CMD, model)
+        print(msg)
+
 #-----------------------------------------------------------------------
 # README
 
@@ -253,6 +278,15 @@ def readme(args):
         msg = msg.format(CMD, model)
         print(msg)
 
+#------------------------------------------------------------------------
+# LICENSE
+#------------------------------------------------------------------------
+
+def license(args):
+    """Display the mode's LICENSE information."""
+
+    print("Please assist by implementing this command.")
+    
 #-----------------------------------------------------------------------
 # COMMANDS
 
@@ -304,20 +338,36 @@ def configure_model(args):
     # Check that the model is installed.
 
     utils.check_model_installed(path)
-    
-    # For now simply list the declared dependencies for the user to
-    # make sure they have it all installed.
 
-    if not args.quiet:
-        msg = """
+    # If there is a configure script and this is a Ubuntu host, then
+    # run the configure script.
+
+    conf = os.path.join(path, "configure.sh")
+    if platform.dist()[0] in set(['debian', 'Ubuntu']) and os.path.exists(conf):
+        command = "bash configure.sh"
+        if not args.quiet:
+            msg = "Configuration will take place using '{}'.\n"
+            msg = msg.format(conf)
+            print(msg)
+        proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
+        output, errors = proc.communicate()
+        if proc.returncode != 0:
+            print("An error was encountered:\n")
+            print(errors.decode("utf-8"))
+    else:
+        # For now simply list the declared dependencies for the user to
+        # make sure they have it all installed.
+
+        if not args.quiet:
+            msg = """
 Configuration is yet to be automated. The following dependencies are required:
 """
-        print(msg)
+            print(msg)
 
-    info = yaml.load(open(desc, 'r'))
-    msg = info["meta"]["dependencies"]
+        info = yaml.load(open(desc, 'r'))
+        msg = info["meta"]["dependencies"]
 
-    print("  ====> \033[31m" + msg + "\033[0m")
+        print("  ====> \033[31m" + msg + "\033[0m")
 
     # Suggest next step.
     
@@ -367,11 +417,20 @@ def dispatch(args):
         print(errors.decode("utf-8"))
     
 #------------------------------------------------------------------------
+# DONATE
+#------------------------------------------------------------------------
+
+def donate(args):
+    """Consider a donation to the author."""
+
+    print("Please assist by implementing this command: support donations to the author.")
+    
+#------------------------------------------------------------------------
 # CLEAN
 #------------------------------------------------------------------------
 
 def remove_mlm(args):
     """Remove downloaded {} files.""".format(EXT_MLM)
 
-    print("This command is not yet implemented.")
+    print("Please assist by implementing this command.")
     
