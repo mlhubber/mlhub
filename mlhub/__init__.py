@@ -124,6 +124,17 @@ def main():
     parser_install.set_defaults(func=commands.install_model)
 
     #------------------------------------
+    # DOWNLOAD
+    #------------------------------------
+    
+    parser_download = subparsers.add_parser(
+        "download",
+        description="Download the actual (large) pre-built model",
+    )
+    parser_download.add_argument("model")
+    parser_download.set_defaults(func=commands.download_model)
+
+    #------------------------------------
     # README
     #------------------------------------
     
@@ -133,6 +144,17 @@ def main():
     )
     parser_readme.add_argument("model")
     parser_readme.set_defaults(func=commands.readme)
+
+    #------------------------------------
+    # LICENSE
+    #------------------------------------
+    
+    parser_license = subparsers.add_parser(
+        "license",
+        description="Display the model's LICENSE information",
+    )
+    parser_license.add_argument("model")
+    parser_license.set_defaults(func=commands.license)
 
     #------------------------------------
     # COMMANDS
@@ -172,6 +194,17 @@ def main():
     parser_cmd.add_argument("model")
     parser_cmd.add_argument("param", nargs="*")
     parser_cmd.set_defaults(func=commands.dispatch)
+
+    #------------------------------------
+    # DONATE
+    #------------------------------------
+    
+    parser_donate = subparsers.add_parser(
+        "donate",
+        description="Consider a donation to the author",
+    )
+    parser_donate.add_argument("model")
+    parser_donate.set_defaults(func=commands.donate)
 
     #------------------------------------
     # ACTION
