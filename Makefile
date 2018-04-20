@@ -5,7 +5,7 @@
 ########################################################################
 
 APP=mlhub
-VER=1.0.5 # Add backward compatibility wiht .aipk
+VER=1.0.11# Add backward compatibility with .aipk
 
 APP_FILES = 			\
 	setup.py		\
@@ -66,6 +66,11 @@ version:
 
 $(TAR_GZ): $(APP_FILES)
 	tar cvzf $@ $^
+
+.PHONY: pypi
+pypi: version
+	python setup.py sdist
+	twine upload dist/$(APP)-$(VER).tar.gz
 
 .PHONY: dist
 dist: version $(TAR_GZ)
