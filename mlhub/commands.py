@@ -45,7 +45,7 @@ from tempfile import TemporaryDirectory
 from shutil import copyfile
 
 import mlhub.utils as utils
-from mlhub.constants import INIT_DIR, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, EXT_AIPK, META_YAML, README, META_YML
+from mlhub.constants import INIT_DIR, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, META_YAML, README, META_YML
 
 # The commands are implemented here in a logical order with each
 # command providing a suggesting of the following command.
@@ -139,7 +139,7 @@ def install_model(args):
 
     # Check preconditions.
     
-    if model.endswith(EXT_MLM) or model.endswith(EXT_AIPK):
+    if model.endswith(EXT_MLM):
         msg = "{}please assist by implementing this command."
         msg = msg.format(APPX)
         print(msg, file=sys.stderr)
@@ -169,7 +169,7 @@ def install_model(args):
 
     # Ensure file to be downloaded has the expected filename extension.
 
-    if not (url.endswith(EXT_MLM) or url.endswith(EXT_AIPK)):
+    if not url.endswith(EXT_MLM):
         msg = "{}the below url is not a {} file. Malformed '{}' from the repository?\n  {}"
         msg = msg.format(APPX, EXT_MLM, META_YAML, url)
         print(msg, file=sys.stderr)
@@ -203,9 +203,9 @@ def install_model(args):
     zip = zipfile.ZipFile(local)
     zip.extractall(INIT_DIR)
 
-    # Backward compatibility.
+    # Support either .yml or .yaml "cheaply". Should really try and except. 
 
-    if url.endswith(EXT_AIPK):
+    if (not os.path.exists(DESC_YAML)) and os.path.exists(DESC_YML):
         copyfile(os.path.join(path, DESC_YML), os.path.join(path, DESC_YAML))
 
     # Informative message about the size of the installed model.
