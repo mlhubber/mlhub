@@ -42,7 +42,8 @@ import importlib.util
 import platform
 
 from tempfile import TemporaryDirectory
-from shutil import copyfile
+from shutil import move, rmtree
+from distutils.version import StrictVersion
 
 import mlhub.utils as utils
 from mlhub.constants import INIT_DIR, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, META_YAML, README, META_YML
@@ -133,80 +134,124 @@ def install_model(args):
 
     # Setup.
 
-    model = args.model
-    mlhub = utils.get_repo(args.mlhub)
-    meta  = utils.get_repo_meta_data(mlhub)
-
-    # Check preconditions.
+    # Identify local file name to install.
     
-    if model.endswith(EXT_MLM):
-        msg = "{}please assist by implementing this command."
-        msg = msg.format(APPX)
-        print(msg, file=sys.stderr)
-        sys.exit(1)
+    if args.model.endswith(EXT_MLM):
 
-    # Find the first matching entry in the meta data.
-    
-    url = None
-    for entry in meta:
-        if model == entry["meta"]["name"]:
-            url = mlhub + entry["meta"]["filename"]
-            break
+        # Identify the local mlm file to install.
 
-    # If not found suggest how a model might be installed.
+        local   = args.model
+        mlmfile = local
+        model   = local.split("_")[0]
+        version = local.split("_")[1].replace(EXT_MLM, "")
+
+        # Ensure the local init dir exists.
         
-    if url is None:
-        msg = "{}no model named '{}' was found on '{}'."
-        msg = msg.format(APPX, model, mlhub)
-        print(msg, file=sys.stderr)
-        if not args.quiet:
-            msg = "\nYou can list available models with:\n\n  $ {} available.\n"
-            msg = msg.format(CMD)
+        init = utils.create_init()
+        path = os.path.join(init, model)
+
+    else:
+
+        # Obtain the repository meta data from Packages.yaml.
+        
+        model = args.model
+        
+        mlhub = utils.get_repo(args.mlhub)
+        meta  = utils.get_repo_meta_data(mlhub)
+
+        # Find the first matching entry in the meta data.
+
+        url = None
+        for entry in meta:
+            if model == entry["meta"]["name"]:
+                url = mlhub + entry["meta"]["filename"]
+                break
+
+        # If not found suggest how a model might be installed.
+
+        if url is None:
+            msg = "{}no model named '{}' was found on '{}'."
+            msg = msg.format(APPX, model, mlhub)
             print(msg, file=sys.stderr)
-        sys.exit(1)
+            if not args.quiet:
+                msg = "\nYou can list available models with:\n\n  $ {} available\n"
+                msg = msg.format(CMD)
+                print(msg, file=sys.stderr)
+            sys.exit(1)
 
-    if args.debug: print(DEBUG + "model file url is: " + url)
+        if args.debug: print(DEBUG + "model file url is: " + url)
 
-    # Ensure file to be downloaded has the expected filename extension.
+        # Ensure file to be downloaded has the expected filename extension.
 
-    if not url.endswith(EXT_MLM):
-        msg = "{}the below url is not a {} file. Malformed '{}' from the repository?\n  {}"
-        msg = msg.format(APPX, EXT_MLM, META_YAML, url)
-        print(msg, file=sys.stderr)
-        sys.exit(1)
+        if not url.endswith(EXT_MLM):
+            msg = "{}the below url is not a {} file. Malformed '{}' from the repository?\n  {}"
+            msg = msg.format(APPX, EXT_MLM, META_YAML, url)
+            print(msg, file=sys.stderr)
+            sys.exit(1)
 
-    # Further setup.
-    
-    init    = utils.create_init()
-    mlmfile = url.split("/")[-1]
-    local   = os.path.join(init, mlmfile)
-    path    = os.path.join(init, model)
-    
-    # Download the archive from the URL.
-    
-    try:
-        urllib.request.urlretrieve(url, local)
-    except urllib.error.HTTPError as error:
-        msg = "{}'{}' {}."
-        msg = msg.format(APPX, url, error.reason.lower())
-        print(msg, file=sys.stderr)
-        sys.exit(1)
+        # Further setup.
+
+        init    = utils.create_init()
+        mlmfile = url.split("/")[-1]
+        version = mlmfile.split("_")[1].replace(EXT_MLM, "")
+
+        local   = os.path.join(init, mlmfile)
+        path    = os.path.join(init, model)
+
+        # Download the archive from the URL.
+
+        try:
+            urllib.request.urlretrieve(url, local)
+        except urllib.error.HTTPError as error:
+            msg = "{}'{}' {}."
+            msg = msg.format(APPX, url, error.reason.lower())
+            print(msg, file=sys.stderr)
+            sys.exit(1)
+
+        # Informative message about the model location and size.
+
+        if not args.quiet: print("Model " + url + "\n")
+        meta = requests.head(url)
+        dsize = "{:,}".format(int(meta.headers.get("content-length")))
+        if not args.quiet: print("Downloading '{}' ({} bytes) ...\n".
+                                 format(mlmfile, dsize))
+
+    # Check if model is already installed.
         
-    # Informative message about the model location and size.
-        
-    if not args.quiet: print("Model " + url + "\n")
-    meta = requests.head(url)
-    dsize = "{:,}".format(int(meta.headers.get("content-length")))
-    if not args.quiet: print("Downloading '{}' ({} bytes) ...\n".
-                             format(mlmfile, dsize))
-
+    if os.path.exists(path):
+        desc = os.path.join(path, DESC_YAML)
+        info = yaml.load(open(desc, 'r'))
+        installed_version = info['meta']['version']
+        if StrictVersion(installed_version) > StrictVersion(version):
+            msg = "Installed version '{}' of '{}' to be downgraded to version '{}'. Continue [Y/n]? "
+            msg = msg.format(installed_version, model, version)
+            sys.stdout.write(msg)
+            choice = input().lower()
+            if choice == 'n': sys.exit(1)
+        elif StrictVersion(installed_version) == StrictVersion(version):
+            msg = "Installed version '{}' of '{}' to be overwritten. Continue [Y/n]? "
+            msg = msg.format(installed_version, model, version)
+            sys.stdout.write(msg)
+            choice = input().lower()
+            if choice == 'n': sys.exit(1)
+        else:
+            msg = "Replacing '{}' version '{}' with '{}'."
+            msg = msg.format(model, installed_version, version)
+            print(msg)
+        rmtree(path)
+        print()
+    
     zip = zipfile.ZipFile(local)
     zip.extractall(INIT_DIR)
 
-    # Support either .yml or .yaml "cheaply". Should really try and except. 
+    # Support either .yml or .yaml "cheaply". Should really try and
+    # except but eventually will removethe yml file. The yaml authors
+    # suggest .yaml.
 
-    if (not os.path.exists(DESC_YAML)) and os.path.exists(DESC_YML):
-        copyfile(os.path.join(path, DESC_YML), os.path.join(path, DESC_YAML))
+    desc_yml  = os.path.join(path, DESC_YML)
+    desc_yaml = os.path.join(path, DESC_YAML)
+    if (not os.path.exists(desc_yaml)) and os.path.exists(desc_yml):
+        move(desc_yml, desc_yaml)
 
     # Informative message about the size of the installed model.
     
@@ -217,7 +262,7 @@ def install_model(args):
                 tfilename = os.path.join(pth, f)
                 dsz += os.path.getsize(tfilename)
         print("Extracted '{}' into\n'{}' ({:,} bytes).\n".
-              format(mlmfile, local.split("_")[0], dsz))
+              format(mlmfile, path, dsz))
             
     # Suggest next step. README or DOWNLOAD
     
