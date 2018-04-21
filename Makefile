@@ -5,7 +5,7 @@
 ########################################################################
 
 APP=mlhub
-VER=1.0.11# Add backward compatibility with .aipk
+VER=1.0.12# Remove compatibilty - don't maintain multiple archive formats
 
 APP_FILES = 			\
 	setup.py		\
