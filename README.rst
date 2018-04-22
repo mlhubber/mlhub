@@ -13,7 +13,7 @@ The models collected in the ML Hub archive are listed in
 `<https://mlhub.ai/pool/>`_.
 
 The command line tool source package is available as
-`<https://mlhub.ai/dist/mlhub_1.0.11.tar.gz>`_ within
+`<https://mlhub.ai/dist/mlhub_1.0.12.tar.gz>`_ within
 `<https://mlhub.ai/dist/>`_
 
 To install using PyPi::
@@ -22,8 +22,8 @@ To install using PyPi::
 
 To install from the tar.gz file::
   
-  $ wget https://mlhub.ai/dist/mlhub_1.0.11.tar.gz
-  $ pip install mlhub_1.0.11.tar.gz
+  $ wget https://mlhub.ai/dist/mlhub_1.0.12.tar.gz
+  $ pip install mlhub_1.0.12.tar.gz
   $ ml
 
 Once installed you will be able to run the sample rain-tomorrow
