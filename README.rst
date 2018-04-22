@@ -34,14 +34,12 @@ model::
   $ ml installed
   $ ml install   rain-tomorrow
   $ ml readme    rain-tomorrow
-  $ ml license   rain-tomorrow
   $ ml commands  rain-tomorrow
   $ ml configure rain-tomorrow
   $ ml demo      rain-tomorrow
   $ ml print     rain-tomorrow
   $ ml display   rain-tomorrow
   $ ml score     rain-tomorrow
-  $ ml donate    rain-tomorrow
   
 A model is a zip file archived as .mlm files and hosted in a
 repository. The public repository is `<https://mlhub.ai>`_. The *ml*
@@ -49,10 +47,6 @@ command can install the pre-built model locally, ready to run a demo,
 to print and display the model, and to score new data using the
 model. Some models provide ability to retrain the model with user
 provided data.
-
-If you find the model useful, either as is to score your own data or
-as a learning experience, please consider donating to the model's
-author through the **donate** command.
 
 The open source mlhub command line tool (ml) and sample models are
 being hosted on `<https://github.com/mlhubber>`_ and contributoins to
