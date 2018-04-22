@@ -2,7 +2,7 @@
 The Machine Learning Hub
 ========================
 
-**This site is under development.**
+**Under Development**
 
 The machine learning hub is an open source project and resource for
 distributing pre-built machine learning models. The models are
