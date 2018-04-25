@@ -22,8 +22,9 @@ The command line interface can be installed using PyPi::
 
   $ pip install mlhub
 
-Once installed you will be able to run the sample rain-tomorrow
-model::
+Once installed you will be able to run the sample rain-tomorrow model
+assuming that you have the free and open source `R statistical
+software package <https://cran.r-project.org>`_ installed::
 
   $ ml
   $ ml available
@@ -37,6 +38,57 @@ model::
   $ ml display   rain-tomorrow
   $ ml score     rain-tomorrow
 
+Quick Start on the Azure Data Science Virtual Machine
+-----------------------------------------------------
+
+A particularly attractive and simple way to get started with exploring
+the mlhub functionality is to fire up a `Ubuntu Data Science Virtual
+Machine <https://aka.ms/dsvm>`_ on Azure for as little as USD10 per
+month (starting with a B1s server).  You can get free credit from
+Microsoft to `trial the DSVM <https://aka.ms/free>`_.
+
+Using this virtual machine will save a lot of time compared with
+setting up your own machine with the required dependencies, which of
+course you can do if you wish as all the dependencies are open source.
+
+To set up the virtual machine, with an Azure subscription log in to
+the `portal <https://portal.azure.com/>`_ and add a new Data Science
+Virtual Machine for Linux (Ubuntu). You need to provide a name (for
+the virtual machine), a user name and a password, and then create a
+new resource group and give it a name, and finally choose a
+location. Go with all the defaults for everything else, except choose
+a size to suit the budget (B1s is cheap though a D2s is a better
+compute). Note that you are only charged whilst the machine is fired
+up.
+
+Once the DSVM is set up go to its Overview page and click on DNS name
+Configure and provide a name by which to refer to the server publicly
+(e.g., myml.westus2.cloudapp.azure.com).
+
+We now have a server ready to showcase the pre-built Machine Learning
+models. There are several options to connect to the server but a
+recommended one is to use X2Go which supports Linux, Windows, and
+Mac. Install it and point it to your server (e.g.,
+myml.westus2.cloudapp.azure.com) in the setup.
+
+Connect to the DSVM, and the close the Firefox window that pops
+up. Click on the terminal icon down the bottom, and you are ready to
+go. First::
+
+  $ pip install mlhub
+
+and the rest just follows!
+  
+Pre-Built Model Archives
+------------------------
+
+A model is a zip file archived as .mlm files and hosted in a
+repository. The public repository is `<https://mlhub.ai>`_. The *ml*
+command can install the pre-built model locally, ready to run a demo,
+to print and display the model, and to score new data using the
+model. Some models provide ability to retrain the model with user
+provided data.
+
 Alternative Install
 -------------------
 
@@ -49,17 +101,6 @@ To install from the tar.gz file::
   $ wget https://mlhub.ai/dist/mlhub_1.0.12.tar.gz
   $ pip install mlhub_1.0.12.tar.gz
   $ ml
-
-
-Pre-Built Model Archives
-------------------------
-
-A model is a zip file archived as .mlm files and hosted in a
-repository. The public repository is `<https://mlhub.ai>`_. The *ml*
-command can install the pre-built model locally, ready to run a demo,
-to print and display the model, and to score new data using the
-model. Some models provide ability to retrain the model with user
-provided data.
 
 Contributions
 -------------
