@@ -15,16 +15,27 @@
 
 PANDOC_PDF_OPTIONS=-V urlcolor=cyan -V geometry=a4paper -V lang=british -V babel-lang=british --number-sections
 PANDOC_TEX_OPTIONS=$(PANDOC_PDF_OPTIONS) --standalone
-PANDOC_HTML_OPTIONS=
+
+PANDOC_CSS=pandoc.css
+PANDOC_HTML_OPTIONS=--standalone --self-contained
+ifneq ("$(wildcard $(PANDOC_CSS))","")
+  PANDOC_HTML_OPTIONS := $(PANDOC_HTML_OPTIONS) --include-in-header=$(PANDOC_CSS)
+endif
 
 define PANDOC_HELP
+--------------------------------------------
 Conversion of document formats using pandoc:
+--------------------------------------------
 
-  org -> html	Emacs org mode (the original);
-  org -> pdf
-  rst -> pdf	Attempt to improve markdown;
-  md  -> pdf	Mardown documents;
-  pdf -> view	View the generated PDF document.
+  Inpute formats:
+    org   Emacs org mode (the original);
+    rst   Attempt to improve markdown;
+    md    Mardown documents;
+
+  Output foramts:
+    html
+    pdf
+    view  View the generated PDF document.
 
 Example:
 
@@ -32,7 +43,9 @@ Example:
 
 Default conversion options:
 
-  $(PANDOC_PDF_OPTIONS)
+  PDF:  $(PANDOC_PDF_OPTIONS)
+  TEX:  $(PANDOC_TEX_OPTIONS)
+  HTML: $(PANDOC_HTML_OPTIONS)
 
 endef
 export PANDOC_HELP
