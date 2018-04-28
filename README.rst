@@ -2,7 +2,7 @@
 The Machine Learning Hub
 ========================
 
-**Under Development**
+*Under Development*
 
 Introduction
 ------------
@@ -38,14 +38,18 @@ software package <https://cran.r-project.org>`_ installed::
   $ ml display   rain-tomorrow
   $ ml score     rain-tomorrow
 
-Quick Start on the Azure Data Science Virtual Machine
------------------------------------------------------
+Different model packages will have different dependencies and these
+will be installed by the *configure* command.
+  
+Quick Start: Azure DSVM
+-----------------------
 
 A particularly attractive and simple way to get started with exploring
 the mlhub functionality is to fire up a `Ubuntu Data Science Virtual
-Machine <https://aka.ms/dsvm>`_ on Azure for as little as USD10 per
-month (starting with a B1s server).  You can get free credit (USD200)
-from Microsoft to `trial the DSVM <https://aka.ms/free>`_.
+Machine <https://aka.ms/dsvm>`_ (DSVM) on Azure for as little as USD10
+per month for quite a small server or USD90 for a reasonable one.  You
+can get free credit (USD200) from Microsoft to `trial the DSVM
+<https://aka.ms/free>`_.
 
 Using this virtual machine will save a lot of time compared with
 setting up your own machine with the required dependencies, which of
@@ -58,9 +62,9 @@ the virtual machine), a user name and a password, and then create a
 new resource group and give it a name, and finally choose a
 location. Go with all the defaults for everything else, except choose
 a size to suit the budget (B1s is cheap though a D2s is a better
-compute). Note that you are only charged whilst the machine is fired
-up so USD90 per month is no where near what you will spend if you only
-fire up the server when you want.
+interactive experience). Note that you are only charged whilst the
+machine is fired up so USD90 per month is no where near what you will
+spend if you only fire up the server when you need.
 
 Once the DSVM is set up go to its Overview page and click on DNS name
 Configure and provide a name by which to refer to the server publicly
@@ -72,13 +76,14 @@ recommended one is to use `X2Go <http://x2go.org/>`_ which supports
 Linux, Windows, and Mac. Install it and point it to your server (e.g.,
 myml.westus2.cloudapp.azure.com) in the setup.
 
-Connect to the DSVM, and the close the Firefox window that pops
-up. Click on the terminal icon down the bottom, and you are ready to
-go. First::
+Connect to the DSVM.  Close the Firefox window that pops up. Click on
+the terminal icon down the bottom, and you are ready to go::
 
   $ pip install mlhub
+  $ ml
+  $ ml available
 
-and the rest just follows!
+etc.
   
 Pre-Built Model Archives
 ------------------------
