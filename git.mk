@@ -9,7 +9,9 @@
 ########################################################################
 
 define GIT_HELP
+-----------------------------------------------
 Support the usual git commands as make targets:
+-----------------------------------------------
 
   info	  Identify the git repository;
   status  Status ignoring local files;

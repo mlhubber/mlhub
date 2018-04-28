@@ -5,7 +5,7 @@
 ########################################################################
 
 APP=mlhub
-VER=1.0.12# Remove compatibilty - don't maintain multiple archive formats
+VER=1.0.12# Remove compatibilty - do not maintain multiple archive formats
 
 APP_FILES = 			\
 	setup.py		\
@@ -26,12 +26,14 @@ INC_AZURE   = $(INC_BASE)/azure.mk
 INC_CLEAN   = $(INC_BASE)/clean.mk
 
 define HELP
-Generic Makefile
+--------------
+MLHub Makefile
+--------------
 
 Local targets:
 
-  dist		Build the .tar.gz for distribution
-  mlhub		Update mlhub.ai: index and .tar.gz
+  dist		Build the .tar.gz for distribution or pip install
+  mlhub		Update mlhub.ai with index and .tar.gz
 
 endef
 export HELP
@@ -74,6 +76,10 @@ pypi: version
 
 .PHONY: dist
 dist: version $(TAR_GZ)
+
+.PHONY: dsvm01
+dsvm01: dist
+	rsync -avzh $(TAR_GZ) dsvm01.southeastasia.cloudapp.azure.com:
 
 .PHONY: clean
 clean:
