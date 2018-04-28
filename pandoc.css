@@ -1,0 +1,48 @@
+<style type="text/css">
+body
+{
+    margin-left: auto;
+    margin-right: auto;
+
+    margin: auto;
+    padding-right: 1em;
+    padding-left: 1em;
+    max-width: 44em; 
+    font-family: Verdana, sans-serif;
+    font-size: 100%;
+}
+h1
+{
+    font-family: sans-serif;
+    margin-bottom: 0;
+    font-size: 24px;
+    line-height: 36px;
+}
+.title
+{
+    margin: 1em 0 0.5em 0;
+    color : green;
+    text-align: center;
+    font-weight: normal;
+    font-family: sans-serif;   
+    font-size: 36px;
+    line-height: 42px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 2px #aaa;
+}
+.center
+{
+    text-align: center;
+}
+pre
+{
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    background: #faf8f0;
+    border: 1px solid #bebab0;
+    display: block;
+    padding: 0.5em 1em;
+}
+</style>
+
