@@ -14,9 +14,9 @@ sharing pre-built machine learning models. The models are accessed and
 managed using the *ml* command from the *mlhub* package.
 
 The models collected in the ML Hub archive are listed in a
-`Packages.yaml <https://mlhub.ai/Packages.yaml>`_ file and the models
-themselves can be browsed from the `main pool
-<https://mlhub.ai/pool/main/>`_.
+`Packages.yaml <https://mlhub.ai/Packages.yaml>`_ file on `MLHub.ai
+<https://mlhub.ai/>`_ and the models themselves can be browsed from
+the `main pool <https://mlhub.ai/pool/main/>`_.
 
 Quick Start
 -----------
@@ -27,19 +27,29 @@ The command line interface can be installed using PyPi::
 
 Once installed you will be able to run the sample rain-tomorrow model
 assuming that you have the free and open source `R statistical
-software package <https://cran.r-project.org>`_ installed::
+software package <https://cran.r-project.org>`_ installed. The TL;DR
+version is below. Note that you type the command ``ml ...`` and that
+everything from the ``#`` to the end of the line is ignored (it's a
+comment)::
 
-  $ ml
-  $ ml available
-  $ ml installed
-  $ ml install   rain-tomorrow
-  $ ml readme    rain-tomorrow
-  $ ml commands  rain-tomorrow
-  $ ml configure rain-tomorrow
-  $ ml demo      rain-tomorrow
-  $ ml print     rain-tomorrow
-  $ ml display   rain-tomorrow
-  $ ml score     rain-tomorrow
+  $ ml install   rain-tomorrow # Install the model named rain-tomorrow.
+  $ ml demo      rain-tomorrow # Run the demonstration of the model
+  $ ml display   rain-tomorrow # Graphical display of pre-built model.
+
+The following commands are available and below is a brief description
+of each command::
+
+  $ ml                         # Show a usage message.
+  $ ml available               # List of pre-buld models on the MLHub.
+  $ ml installed               # List of pre-built models installed locally
+  $ ml install   rain-tomorrow # Install the model named rain-tomorrow.
+  $ ml readme    rain-tomorrow # View background information about the model.
+  $ ml commands  rain-tomorrow # List of commands supported by the model.
+  $ ml configure rain-tomorrow # Install any required packages.
+  $ ml demo      rain-tomorrow # Run the demonstration of the model
+  $ ml print     rain-tomorrow # Textual summary of the model.
+  $ ml display   rain-tomorrow # Graphical display of pre-built model.
+  $ ml score     rain-tomorrow # Run model on your own data.
 
 Different model packages will have different dependencies and these
 will be installed by the *configure* command.
