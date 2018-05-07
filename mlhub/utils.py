@@ -33,7 +33,7 @@ import sys
 import yaml
 import urllib.request
 
-from mlhub.constants import APPX, INIT_DIR, CMD, MLHUB, META_YAML, META_YML
+from mlhub.constants import APPX, INIT_DIR, CMD, MLHUB, META_YAML, META_YML, DESC_YAML, DESC_YML, debug, DEBUG
 
 def create_init():
     """Check if the init dir exists and if not then create it."""
@@ -88,8 +88,9 @@ def print_meta_line(entry):
 #------------------------------------------------------------------------
 # CHECK MODEL INSTALLED
     
-def check_model_installed(path):
-    
+def check_model_installed(model):
+
+    path = INIT_DIR + model
     if not os.path.exists(path):
         model = os.path.basename(path)
         msg = """{}model '{}' is not installed ({}).
@@ -110,3 +111,23 @@ Available pakages on the ML Hub can be listed with:
         sys.exit(1)
         
     return(True)
+
+#-----------------------------------------------------------------------
+# LOAD DESCRIPTION
+
+def load_description(model):
+
+    desc = os.path.join(INIT_DIR, model, DESC_YAML)
+    if os.path.exists(desc):
+        entry = yaml.load(open(desc))
+    else:
+        desc = os.path.join(INIT_DIR, model, DESC_YML)
+        if os.path.exists(desc):
+            entry = yaml.load(open(desc))
+        else:
+            msg = "{}no '{}' found for '{}'."
+            msg = msg.format(APPX, DESC_YAML, model)
+            print(msg, file=sys.stderr)
+            sys.exit(1)
+    return(entry)
+    
