@@ -46,7 +46,7 @@ from shutil import move, rmtree
 from distutils.version import StrictVersion
 
 import mlhub.utils as utils
-from mlhub.constants import INIT_DIR, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, META_YAML, README, META_YML
+from mlhub.constants import INIT_DIR, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, META_YAML, README, META_YML, DEBUG
 
 # The commands are implemented here in a logical order with each
 # command providing a suggesting of the following command.
@@ -109,14 +109,7 @@ def list_installed(args):
     if mcnt > 0: print("")
     
     for p in models:
-        desc_yaml = os.path.join(INIT_DIR, p, DESC_YAML)
-        if os.path.exists(desc_yaml):
-            entry = yaml.load(open(desc_yaml))
-        else:
-            msg = "{}no '{}' found for '{}'."
-            msg = msg.format(APPX, DESC_YAML, p)
-            print(msg, file=sys.stderr)
-            sys.exit(1)
+        entry = utils.load_description(p)
         utils.print_meta_line(entry)
 
     # Suggest next step.
@@ -179,6 +172,7 @@ def install_model(args):
                 print(msg, file=sys.stderr)
             sys.exit(1)
 
+            
         if args.debug: print(DEBUG + "model file url is: " + url)
 
         # Ensure file to be downloaded has the expected filename extension.
@@ -219,8 +213,7 @@ def install_model(args):
     # Check if model is already installed.
         
     if os.path.exists(path):
-        desc = os.path.join(path, DESC_YAML)
-        info = yaml.load(open(desc, 'r'))
+        info = utils.load_description(model)
         installed_version = info['meta']['version']
         if StrictVersion(installed_version) > StrictVersion(version):
             msg = "Installed version '{}' of '{}' to be downgraded to version '{}'. Continue [Y/n]? "
@@ -283,12 +276,10 @@ def download_model(args):
     # file, perhaps from the actual source of the model.
     
     model = args.model
-    path  = INIT_DIR + model
-    desc  = os.path.join(path, DESC_YAML)
    
     # Check that the model is installed.
 
-    utils.check_model_installed(path)
+    utils.check_model_installed(model)
     
     if not args.quiet:
         msg = "Model information is available:\n\n  $ {} readme {}\n"
@@ -339,22 +330,12 @@ def list_model_commands(args):
     """ List the commands supported by this model."""
 
     model = args.model
-    path  = INIT_DIR + model
-    desc  = os.path.join(path, DESC_YAML)
 
     # Check that the model is installed.
 
-    utils.check_model_installed(path)
+    utils.check_model_installed(model)
     
-    # If DESC_YAML does not exist then throw an error.
-    
-    if not os.path.exists(desc):
-        msg = "{}'{}' does not exist which suggests this model archive is broken."
-        msg - msg.format(APPX, desc)
-        print(msg, file=sys.stderr)
-        sys.exit(1)
-
-    info = yaml.load(open(desc, 'r'))
+    info = utils.load_description(model)
 
     msg = "The model '{}' ({})) supports the following commands:"
     msg = msg.format(model, info['meta']['title'])
@@ -375,14 +356,26 @@ def list_model_commands(args):
 
 def configure_model(args):
     """For now print the list of dependencies."""
+
+    # TODO: Install packages natively for those listed in
+    # dependencies. Then if there is also a configure.sh, then run
+    # that for additoinal setup.
+
+    # if meta.dependencies:
+    #   if python:
+    #     cat dependencies > requirements.txt
+    #     pip install -r requirements.txt
+    #   if R:
+    #     cat dependencies | R CMD INSTALL
+    # if configure.sh:
+    #   sh configure.sh
+    
     
     model = args.model
-    path  = INIT_DIR + model
-    desc  = os.path.join(path, DESC_YAML)
    
     # Check that the model is installed.
 
-    utils.check_model_installed(path)
+    utils.check_model_installed(model)
 
     # If there is a configure script and this is a Ubuntu host, then
     # run the configure script.
@@ -409,7 +402,7 @@ Configuration is yet to be automated. The following dependencies are required:
 """
             print(msg)
 
-        info = yaml.load(open(desc, 'r'))
+        info = utils.load_description(model)
         msg = info["meta"]["dependencies"]
 
         print("  ====> \033[31m" + msg + "\033[0m")
@@ -435,17 +428,9 @@ def dispatch(args):
 
     # Check that the model is installed.
 
-    utils.check_model_installed(path)
+    utils.check_model_installed(model)
     
-    # If DESC_YAML does not exist then throw an error.
-    
-    if not os.path.exists(os.path.join(path, DESC_YAML)):
-        msg = "{}'{}' does not exist."
-        msg.format(APPX, DESC_YAML)
-        print(msg, file=sys.stderr)
-        sys.exit(1)
-
-    desc = yaml.load(open(os.path.join(path, DESC_YAML), 'r'))
+    desc = utils.load_description(model)
         
     language = desc["meta"]["language"]
 
