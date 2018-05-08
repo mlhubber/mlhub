@@ -46,7 +46,7 @@ from shutil import move, rmtree
 from distutils.version import StrictVersion
 
 import mlhub.utils as utils
-from mlhub.constants import INIT_DIR, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, META_YAML, README, META_YML, DEBUG
+from mlhub.constants import MLINIT, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, META_YAML, README, META_YML, DEBUG
 
 # The commands are implemented here in a logical order with each
 # command providing a suggesting of the following command.
@@ -89,12 +89,12 @@ def list_installed(args):
 
     # Find installed models.
 
-    if os.path.exists(INIT_DIR):
-        msg = "in '{}'.".format(INIT_DIR)
-        models = [f for f in os.listdir(INIT_DIR)
-                  if os.path.isdir(os.path.join(INIT_DIR, f))]
+    if os.path.exists(MLINIT):
+        msg = "in '{}'.".format(MLINIT)
+        models = [f for f in os.listdir(MLINIT)
+                  if os.path.isdir(os.path.join(MLINIT, f))]
     else:
-        msg = "since '{}' does not exist.".format(INIT_DIR)
+        msg = "since '{}' does not exist.".format(MLINIT)
         models = []
 
     # Report on how many models we found installed.
@@ -235,7 +235,7 @@ def install_model(args):
         print()
     
     zip = zipfile.ZipFile(local)
-    zip.extractall(INIT_DIR)
+    zip.extractall(MLINIT)
 
     # Support either .yml or .yaml "cheaply". Should really try and
     # except but eventually will removethe yml file. The yaml authors
@@ -295,7 +295,7 @@ def readme(args):
     # Setup.
     
     model  = args.model
-    path   = INIT_DIR + model
+    path   = MLINIT + model
     readme = os.path.join(path, README)
 
     # Check that the model is installed.
@@ -422,7 +422,7 @@ def dispatch(args):
     
     cmd   = args.cmd
     model = args.model
-    path  = INIT_DIR + model
+    path  = MLINIT + model
 
     param = " ".join(args.param)
 

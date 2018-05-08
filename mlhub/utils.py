@@ -33,14 +33,14 @@ import sys
 import yaml
 import urllib.request
 
-from mlhub.constants import APPX, INIT_DIR, CMD, MLHUB, META_YAML, META_YML, DESC_YAML, DESC_YML, debug, DEBUG
+from mlhub.constants import APPX, MLINIT, CMD, MLHUB, META_YAML, META_YML, DESC_YAML, DESC_YML, debug, DEBUG
 
 def create_init():
     """Check if the init dir exists and if not then create it."""
 
-    if not os.path.exists(INIT_DIR): os.makedirs(INIT_DIR)
+    if not os.path.exists(MLINIT): os.makedirs(MLINIT)
 
-    return(INIT_DIR)
+    return(MLINIT)
 
 def get_repo(repo):
     """Determine the repository to use: command line, environment, default."""
@@ -90,7 +90,7 @@ def print_meta_line(entry):
     
 def check_model_installed(model):
 
-    path = INIT_DIR + model
+    path = MLINIT + model
     if not os.path.exists(path):
         model = os.path.basename(path)
         msg = """{}model '{}' is not installed ({}).
@@ -106,7 +106,7 @@ Models can be installed from the ML Hub:
 Available pakages on the ML Hub can be listed with:
 
   $ {} available"""
-        msg = msg.format(APPX, model, INIT_DIR, CMD, CMD, model, CMD)
+        msg = msg.format(APPX, model, MLINIT, CMD, CMD, model, CMD)
         print(msg, file=sys.stderr)
         sys.exit(1)
         
@@ -117,11 +117,11 @@ Available pakages on the ML Hub can be listed with:
 
 def load_description(model):
 
-    desc = os.path.join(INIT_DIR, model, DESC_YAML)
+    desc = os.path.join(MLINIT, model, DESC_YAML)
     if os.path.exists(desc):
         entry = yaml.load(open(desc))
     else:
-        desc = os.path.join(INIT_DIR, model, DESC_YML)
+        desc = os.path.join(MLINIT, model, DESC_YML)
         if os.path.exists(desc):
             entry = yaml.load(open(desc))
         else:

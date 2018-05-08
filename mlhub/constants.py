@@ -43,10 +43,14 @@ if "MLHUB" in os.environ:
 HUB_PATH = "pool/main/"
 
 #------------------------------------------------------------------------
-# The INIT_DIR contains all of the locally installed models.
+# The MLINIT contains all of the locally installed models.
 #------------------------------------------------------------------------
 
-INIT_DIR = os.path.expanduser("~/.mlhub/")
+MLINIT = os.path.expanduser("~/.mlhub/")
+if "MLINIT" in os.environ:
+    # The following adds a trainling "/" as assumed in the code.
+    MLINIT = os.path.join(os.getenv("MLINIT"), "")
+
 
 #------------------------------------------------------------------------
 # Application information.
@@ -84,7 +88,7 @@ The ML Hub repository is '{}'.
 
 Models are installed into '{}'.
 
-This is version {} of {}.""".format(CMD, EXT_MLM, INIT_DIR, MLHUB, INIT_DIR, VERSION, APP)
+This is version {} of {}.""".format(CMD, EXT_MLM, MLINIT, MLHUB, MLINIT, VERSION, APP)
 
 # Filenames.
 
@@ -98,4 +102,5 @@ META_YML = "Packages.yml"
 
 # Debugging
 
+debug = False
 DEBUG = "--> " + APP + ": debug: "

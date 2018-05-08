@@ -32,8 +32,9 @@ import os
 import sys
 import argparse
 import mlhub.commands as commands
+import mlhub.constants as constants
 
-from mlhub.constants import CMD, USAGE, DEBUG, INIT_DIR, MLHUB
+from mlhub.constants import CMD, USAGE, DEBUG, MLINIT, MLHUB
 
 def main():
     """Main program for the command line script."""
@@ -62,7 +63,7 @@ def main():
     # --INIT-DIR
     #------------------------------------
 
-    parser.add_argument('--init-dir', help="Use this as the init dir instead of '{}'.".format(INIT_DIR))
+    parser.add_argument('--init-dir', help="Use this as the init dir instead of '{}'.".format(MLINIT))
 
     #------------------------------------
     # --MLHUB
@@ -217,7 +218,9 @@ def main():
     
     if args.mlhub is not None: mlhub = os.path.join(args.mlhub, "")
     
-    if args.debug: print(DEBUG + str(args))
+    if args.debug:
+        constants.debug = True
+        print(DEBUG + str(args))
     
     if not "func" in args:
         print(USAGE)
