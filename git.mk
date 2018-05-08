@@ -9,12 +9,11 @@
 ########################################################################
 
 define GIT_HELP
------------------------------------------------
 Support the usual git commands as make targets:
------------------------------------------------
 
   info	  Identify the git repository;
-  status  Status ignoring local files;
+  status  Status listing untracked files;
+  qstatus A quieter status ignoring untracked files;
   push
   pull
   master  Checkout the master branch;
@@ -38,6 +37,11 @@ info:
 status:
 	@echo "-------------------------------------------------------"
 	git status
+	@echo "-------------------------------------------------------"
+
+qstatus:
+	@echo "-------------------------------------------------------"
+	git status --untracked-files=no
 	@echo "-------------------------------------------------------"
 
 push:
