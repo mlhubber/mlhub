@@ -23,9 +23,7 @@ ifneq ("$(wildcard $(PANDOC_CSS))","")
 endif
 
 define PANDOC_HELP
---------------------------------------------
 Conversion of document formats using pandoc:
---------------------------------------------
 
   Inpute formats:
     org   Emacs org mode (the original);
@@ -84,5 +82,5 @@ help::
 	pandoc $(PANDOC_PDF_OPTIONS) $< -o $@
 
 %.view: %.pdf
-	evince $<
+	atril $<
 
