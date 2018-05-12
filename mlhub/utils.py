@@ -63,9 +63,21 @@ def get_repo_meta_data(repo):
         url  = repo + META_YAML
         meta = list(yaml.load_all(urllib.request.urlopen(url).read()))
     except:
-        url  = repo + META_YML
-        meta = list(yaml.load_all(urllib.request.urlopen(url).read()))
+        try: 
+            url  = repo + META_YML
+            meta = list(yaml.load_all(urllib.request.urlopen(url).read()))
+        except:
+            msg = """Cannot access the Internet.
 
+To list the models available from an ML Hub you will need an Internet conncetion.
+
+You can list the models already installed locally with:
+
+  $ ml installed
+"""
+            print(msg, file=sys.stderr)
+            sys.exit()
+        
     return(meta)
 
 def print_meta_line(entry):
