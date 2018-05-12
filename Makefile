@@ -5,7 +5,7 @@
 ########################################################################
 
 APP=mlhub
-VER=1.0.12# Remove compatibilty - do not maintain multiple archive formats
+VER=1.1.0# Support MLINIT environment variable. General cleanup.
 
 APP_FILES = 			\
 	setup.py		\

@@ -61,9 +61,9 @@ APPX = "{}: ".format(APP) # For error messages.
 CMD  = "ml"               # The command line tool.
 
 EXT_MLM  = ".mlm"         # Archive filename extension
-EXT_AIPK = ".aipk"        # Backward copmatibility
+EXT_AIPK = ".aipk"        # Backward compatibility
 
-VERSION = "1.0.12" # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "1.1.0" # DO NOT MODIFY. Managed from ../Makefile.
 
 USAGE = """Usage: {} [<options>] <command> [<command options>] [<model>]
 
@@ -88,7 +88,7 @@ The ML Hub repository is '{}'.
 
 Models are installed into '{}'.
 
-This is version {} of {}.""".format(CMD, EXT_MLM, MLINIT, MLHUB, MLINIT, VERSION, APP)
+This is version {} of {}."""
 
 # Filenames.
 
