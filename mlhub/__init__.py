@@ -33,6 +33,7 @@ import sys
 import argparse
 import mlhub.commands as commands
 import mlhub.constants as constants
+import mlhub.utils as utils
 
 from mlhub.constants import CMD, USAGE, DEBUG, MLINIT, MLHUB
 
@@ -70,6 +71,12 @@ def main():
     #------------------------------------
 
     parser.add_argument('--mlhub', help="Use this ML Hub instead of '{}'.".format(MLHUB))
+
+    #------------------------------------
+    # --CMD
+    #------------------------------------
+
+    parser.add_argument('--cmd', help="Command display name instead of '{}'.".format(CMD))
 
     #------------------------------------
     # We support a basic set of commands
@@ -217,13 +224,16 @@ def main():
     # Ensure we have a trainling slash on the mlhub.
     
     if args.mlhub is not None: mlhub = os.path.join(args.mlhub, "")
-    
+
+    if args.cmd is not None: constants.CMD = args.cmd
+    print(constants.CMD)
+
     if args.debug:
         constants.debug = True
         print(DEBUG + str(args))
     
     if not "func" in args:
-        print(USAGE)
+        utils.print_usage()
         return 0
     
     args.func(args)
