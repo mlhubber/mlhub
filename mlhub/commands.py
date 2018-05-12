@@ -76,7 +76,7 @@ def list_available(args):
     # Suggest next step.
     
     if not args.quiet:
-        msg = "\nList the installed models with:\n\n  $ {} installed\n"
+        msg = "\nInstall a model with:\n\n  $ {} install <model>\n"
         msg = msg.format(CMD)
         print(msg)
 
@@ -115,7 +115,7 @@ def list_installed(args):
     # Suggest next step.
     
     if not args.quiet:
-        msg = "\nInstall a model using:\n\n  $ {} install <name>\n"
+        msg = "\nRun a model's demonstration script with:\n\n  $ {} demo <model>\n"
         msg = msg.format(CMD)
         print(msg)
 
@@ -260,7 +260,7 @@ def install_model(args):
     # Suggest next step. README or DOWNLOAD
     
     if not args.quiet:
-        msg = "Model information is available:\n\n  $ {} readme {}\n"
+        msg = "Read the model information with:\n\n  $ {} readme {}\n"
         msg = msg.format(CMD, model)
         print(msg)
     
@@ -300,7 +300,7 @@ def readme(args):
 
     # Check that the model is installed.
 
-    utils.check_model_installed(path)
+    utils.check_model_installed(model)
     
     # Display the README.
     
@@ -371,7 +371,10 @@ def configure_model(args):
     #   sh configure.sh
     
     
+    # Setup.
+    
     model = args.model
+    path  = MLINIT + model
    
     # Check that the model is installed.
 
@@ -432,12 +435,26 @@ def dispatch(args):
     
     desc = utils.load_description(model)
         
-    language = desc["meta"]["language"]
-
-    # Rscript => score.R; python => score.py etc.
-
+    # Obtain the specified script file.
+    
     script  = desc["commands"][cmd]["script"].split(" ")[0] + " " + param
-    command = "{} {}".format(language, script)
+
+    # Determine the interpreter to use
+    #
+    # .R => Rscript; .py => python, etc.
+
+    (root, ext) = os.path.splitext(script)
+    ext = ext.strip()
+    if ext == ".R":
+        interpreter = "Rscript"
+    elif ext == ".py":
+        interpreter = "python"
+    else:
+        msg = "Could not determine an interpreter for extension '{}'".format(ext)
+        print(msg, file=sys.stderr)
+        sys.exit()
+
+    command = "{} {}".format(interpreter, script)
     if args.debug:
         print(DEBUG + "(cd " + path + "; " + command + ")")
     proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
