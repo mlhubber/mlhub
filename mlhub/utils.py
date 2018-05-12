@@ -33,7 +33,11 @@ import sys
 import yaml
 import urllib.request
 
-from mlhub.constants import APPX, MLINIT, CMD, MLHUB, META_YAML, META_YML, DESC_YAML, DESC_YML, debug, DEBUG
+from mlhub.constants import APPX, MLINIT, CMD, MLHUB, META_YAML, META_YML, DESC_YAML, DESC_YML, debug, DEBUG, USAGE, EXT_MLM, VERSION, APP
+
+def print_usage():
+    print(CMD)
+    print(USAGE.format(CMD, EXT_MLM, MLINIT, MLHUB, MLINIT, VERSION, APP))
 
 def create_init():
     """Check if the init dir exists and if not then create it."""
