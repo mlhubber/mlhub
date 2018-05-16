@@ -337,7 +337,7 @@ def list_model_commands(args):
     
     info = utils.load_description(model)
 
-    msg = "The model '{}' ({})) supports the following commands:"
+    msg = "The model '{}' ({}) supports the following commands:"
     msg = msg.format(model, info['meta']['title'])
     msg = textwrap.fill(msg, width=60)
     print(msg + "\n")
