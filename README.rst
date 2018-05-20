@@ -13,10 +13,10 @@ The machine learning hub is an open source project and resource for
 sharing pre-built machine learning models. The models are accessed and
 managed using the *ml* command from the *mlhub* package.
 
-The models collected in the ML Hub archive are listed in a
-`Packages.yaml <https://mlhub.ai/Packages.yaml>`_ file on `MLHub.ai
-<https://mlhub.ai/>`_ and the models themselves can be browsed from
-the `main pool <https://mlhub.ai/pool/main/>`_.
+The models collected in the ML Hub archive are listed as `Packages
+<https://mlhub.ai/Packages.html>`_ on `MLHub.ai <https://mlhub.ai/>`_
+and the models themselves can be browsed from the `main pool
+<https://mlhub.ai/pool/main/>`_.
 
 Quick Start
 -----------
@@ -112,14 +112,14 @@ Alternative Install
 -------------------
 
 A tar.gz containing the mlhub package and the command line interface
-is available as `mlhub_1.1.0.tar.gz
-<https://mlhub.ai/dist/mlhub_1.1.0.tar.gz>`_ within the `distribution
+is available as `mlhub_1.1.1.tar.gz
+<https://mlhub.ai/dist/mlhub_1.1.1.tar.gz>`_ within the `distribution
 <https://mlhub.ai/dist/>`_ folder of the MLHub.
 
 To install from the tar.gz file::
   
-  $ wget https://mlhub.ai/dist/mlhub_1.1.0.tar.gz
-  $ pip install mlhub_1.1.0.tar.gz
+  $ wget https://mlhub.ai/dist/mlhub_1.1.1.tar.gz
+  $ pip install mlhub_1.1.1.tar.gz
   $ ml
 
 Contributions
