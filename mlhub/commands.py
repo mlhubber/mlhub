@@ -46,7 +46,7 @@ from shutil import move, rmtree
 from distutils.version import StrictVersion
 
 import mlhub.utils as utils
-from mlhub.constants import MLINIT, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, META_YAML, README, META_YML, DEBUG
+from mlhub.constants import MLINIT, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, EXT_AIPK, META_YAML, README, META_YML, DEBUG
 
 # The commands are implemented here in a logical order with each
 # command providing a suggesting of the following command.
@@ -177,7 +177,7 @@ def install_model(args):
 
         # Ensure file to be downloaded has the expected filename extension.
 
-        if not url.endswith(EXT_MLM):
+        if not url.endswith(EXT_MLM) and not url.endswith(EXT_AIPK):
             msg = "{}the below url is not a {} file. Malformed '{}' from the repository?\n  {}"
             msg = msg.format(APPX, EXT_MLM, META_YAML, url)
             print(msg, file=sys.stderr)
@@ -187,7 +187,7 @@ def install_model(args):
 
         init    = utils.create_init()
         mlmfile = url.split("/")[-1]
-        version = mlmfile.split("_")[1].replace(EXT_MLM, "")
+        version = mlmfile.split("_")[1].replace(EXT_MLM, "").replace(EXT_AIPK, "")
 
         local   = os.path.join(init, mlmfile)
         path    = os.path.join(init, model)
@@ -355,21 +355,40 @@ def list_model_commands(args):
 # CONFIGURE
 
 def configure_model(args):
-    """For now print the list of dependencies."""
+    """Ensure the user's environment is configured."""
 
     # TODO: Install packages natively for those listed in
     # dependencies. Then if there is also a configure.sh, then run
     # that for additoinal setup.
 
-    # if meta.dependencies:
-    #   if python:
-    #     cat dependencies > requirements.txt
+    # Other ideas re cofiguration
+    #
+    # 1 Construct mlhub container (from Ubuntu) with known starting point
+    #
+    # 2 Assume the user is on a DSVM with free Azure account to test out.
+    #
+    # 3 Read dependencies: and language: and then install as required:
+    #
+    # 4 Assume model packager provides a configure.R script. This is a
+    #   override and no other configuration happens if this is
+    #   supplied. Alternatively this is viewed as a cop-out prividing
+    #   no support from mlhub for the model packager. The preference
+    #   would be to use the dependencies: tag to list the required R
+    #   or python packages.
+    #
+    # So the meta-code might be
+    #
+    #   if file.exists(configure.XX):
+    #     XX configure.XX
+    #   else if language: == "Rscript":
+    #     packages <- dependencies:
+    #     install  <- packages[!(packages %in% installed.packages()[,"Package"])]
+    #     if(length(new.packages)) install.packages(install)
+    #   else if language: == "python":
+    #     packages = dependencies:
+    #     cat pacakges > requirements.txt
     #     pip install -r requirements.txt
-    #   if R:
-    #     cat dependencies | R CMD INSTALL
-    # if configure.sh:
-    #   sh configure.sh
-    
+    #
     
     # Setup.
     
