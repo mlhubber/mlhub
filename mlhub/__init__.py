@@ -226,7 +226,6 @@ def main():
     if args.mlhub is not None: mlhub = os.path.join(args.mlhub, "")
 
     if args.cmd is not None: constants.CMD = args.cmd
-    print(constants.CMD)
 
     if args.debug:
         constants.debug = True
