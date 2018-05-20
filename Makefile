@@ -5,7 +5,7 @@
 ########################################################################
 
 APP=mlhub
-VER=1.1.0# Support MLINIT environment variable. General cleanup.
+VER=1.1.1# Support MLINIT environment variable. General cleanup.
 
 APP_FILES = 			\
 	setup.py		\
@@ -34,6 +34,7 @@ Local targets:
 
   dist		Build the .tar.gz for distribution or pip install
   mlhub		Update mlhub.ai with index and .tar.gz
+  pypi 		Upload new package for pip install.
 
 endef
 export HELP
