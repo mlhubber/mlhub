@@ -9,7 +9,7 @@
 ########################################################################
 
 define GIT_HELP
-Support the usual git commands as make targets:
+GIT Version Control:
 
   info	  Identify the git repository;
   status  Status listing untracked files;
