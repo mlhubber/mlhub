@@ -9,8 +9,10 @@ The Machine Learning Hub
 Introduction
 ------------
 
-The machine learning hub is an open source project and resource for
-sharing pre-built machine learning models. The models are accessed and
+The machine learning hub is an `open source project
+<https://github.com/mlhubber/mlhub>`_ and resource for sharing
+`pre-built machine learning models
+<https://github.com/mlhubber/mlmodels>`_. The models are accessed and
 managed using the *ml* command from the *mlhub* package.
 
 The models collected in the ML Hub archive are listed as `Packages
@@ -21,7 +23,8 @@ and the models themselves can be browsed from the `main pool
 Quick Start
 -----------
 
-The command line interface can be installed using PyPi::
+The command line interface can be installed using `PyPi
+<https://pypi.org/project/mlhub/>`_::
 
   $ pip install mlhub
 
