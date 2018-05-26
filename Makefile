@@ -6,6 +6,7 @@
 
 APP=mlhub
 VER=1.1.1# Support MLINIT environment variable. General cleanup.
+VER=1.1.2# Longer package names in listings.
 
 APP_FILES = 			\
 	setup.py		\
