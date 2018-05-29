@@ -115,14 +115,14 @@ Alternative Install
 -------------------
 
 A tar.gz containing the mlhub package and the command line interface
-is available as `mlhub_1.1.1.tar.gz
-<https://mlhub.ai/dist/mlhub_1.1.1.tar.gz>`_ within the `distribution
+is available as `mlhub_1.1.2.tar.gz
+<https://mlhub.ai/dist/mlhub_1.1.2.tar.gz>`_ within the `distribution
 <https://mlhub.ai/dist/>`_ folder of the MLHub.
 
 To install from the tar.gz file::
   
-  $ wget https://mlhub.ai/dist/mlhub_1.1.1.tar.gz
-  $ pip install mlhub_1.1.1.tar.gz
+  $ wget https://mlhub.ai/dist/mlhub_1.1.2.tar.gz
+  $ pip install mlhub_1.1.2.tar.gz
   $ ml
 
 Contributions
