@@ -111,6 +111,19 @@ to print and display the model, and to score new data using the
 model. Some models provide ability to retrain the model with user
 provided data.
 
+Alternative pip Install
+-----------------------
+
+Depending on your setup of pip, you may need to use::
+
+  $ pip3 install mlhub
+
+The executable may be placed into ``~/.local/bin`` which will need to
+be on your path. Edit your shell startup which is either ``.profile``
+or ``.bashrc``, etc::
+
+  PATH="$HOME/.local/bin:$PATH"
+  
 Alternative Install
 -------------------
 
@@ -124,6 +137,11 @@ To install from the tar.gz file::
   $ wget https://mlhub.ai/dist/mlhub_1.1.2.tar.gz
   $ pip install mlhub_1.1.2.tar.gz
   $ ml
+
+Or download the repo and install:
+
+  $ python3 setup.py install --user
+
 
 Contributions
 -------------
