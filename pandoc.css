@@ -17,10 +17,6 @@
 }
 body
 {
-    margin-left: auto;
-    margin-right: auto;
-
-    margin: auto;
     padding-right: 1em;
     padding-left: 1em;
     max-width: 44em; 
