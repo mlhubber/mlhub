@@ -7,6 +7,7 @@
 APP=mlhub
 VER=1.1.1# Support MLINIT environment variable. General cleanup.
 VER=1.1.2# Longer package names in listings.
+VER=1.1.3# Implement CLEAN and REMOVE
 
 APP_FILES = 			\
 	setup.py		\
@@ -27,11 +28,9 @@ INC_AZURE   = $(INC_BASE)/azure.mk
 INC_CLEAN   = $(INC_BASE)/clean.mk
 
 define HELP
---------------
-MLHub Makefile
---------------
+MLHUB Makefile
 
-Local targets:
+  Local targets:
 
   dist		Build the .tar.gz for distribution or pip install
   mlhub		Update mlhub.ai with index and .tar.gz

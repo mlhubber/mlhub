@@ -30,6 +30,7 @@
 
 import os
 import sys
+import glob
 import requests
 import urllib.request
 import urllib.error
@@ -127,7 +128,7 @@ def install_model(args):
 
     # Setup.
 
-    # Identify local file name to install.
+    # Identify if it is a local file name to install.
     
     if args.model.endswith(EXT_MLM):
 
@@ -238,7 +239,7 @@ def install_model(args):
     zip.extractall(MLINIT)
 
     # Support either .yml or .yaml "cheaply". Should really try and
-    # except but eventually will removethe yml file. The yaml authors
+    # except but eventually will remove the yml file. The yaml authors
     # suggest .yaml.
 
     desc_yml  = os.path.join(path, DESC_YML)
@@ -498,5 +499,31 @@ def donate(args):
 def remove_mlm(args):
     """Remove downloaded {} files.""".format(EXT_MLM)
 
-    print("Please assist by implementing this command.")
+    mlm = glob.glob(os.path.join(MLINIT, "*.mlm"))
+    for m in mlm:
+        msg = "Remove model package archive '{}' [Y/n]? ".format(m)
+        sys.stdout.write(msg)
+        choice = input().lower()
+        if choice == 'y' or choice == '': os.remove(m)
+
+#------------------------------------------------------------------------
+# REMOVE
+#------------------------------------------------------------------------
+
+def remove_model(args):
+    """Remove installed model."""
+
+    # Setup.
     
+    model  = args.model
+    path   = MLINIT + model
+    
+    # Check that the model is installed.
+
+    utils.check_model_installed(model)
+
+    msg = "Remove '{}' [y/N]? ".format(path)
+    sys.stdout.write(msg)
+    choice = input().lower()
+    if choice == 'y': rmtree(path)
+

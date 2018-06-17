@@ -204,6 +204,17 @@ def main():
     parser_cmd.set_defaults(func=commands.dispatch)
 
     #------------------------------------
+    # REMOVE
+    #------------------------------------
+    
+    parser_remove = subparsers.add_parser(
+        "remove",
+        description="Remove installed model",
+    )
+    parser_remove.add_argument("model")
+    parser_remove.set_defaults(func=commands.remove_model)
+
+    #------------------------------------
     # DONATE
     #------------------------------------
     
