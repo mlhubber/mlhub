@@ -35,15 +35,15 @@ Conversion of document formats using pandoc:
     pdf
     view  View the generated PDF document.
 
-Example:
+  Example:
 
-  $ make README.view  # Generate and display .pdf from .org.
+    $ make README.view  # Generate and display .pdf from .org.
 
-Default conversion options:
+  Default conversion options:
 
-  PDF:  $(PANDOC_PDF_OPTIONS)
-  TEX:  $(PANDOC_TEX_OPTIONS)
-  HTML: $(PANDOC_HTML_OPTIONS)
+    PDF:  $(PANDOC_PDF_OPTIONS)
+    TEX:  $(PANDOC_TEX_OPTIONS)
+    HTML: $(PANDOC_HTML_OPTIONS)
 
 endef
 export PANDOC_HELP
