@@ -7,7 +7,8 @@
 APP=mlhub
 VER=1.1.1# Support MLINIT environment variable. General cleanup.
 VER=1.1.2# Longer package names in listings.
-VER=1.1.3# Implement CLEAN and REMOVE
+VER=1.1.3# Implement CLEAN and REMOVE.
+VER=1.1.4# Message before downloading the archive.
 
 APP_FILES = 			\
 	setup.py		\
@@ -32,8 +33,9 @@ MLHUB Makefile
 
   Local targets:
 
-  dist		Build the .tar.gz for distribution or pip install
+  dist		Build the .tar.gz for distribution or pip install.
   mlhub		Update mlhub.ai with index and .tar.gz
+  version	Update the version number across appropriate files.
   pypi 		Upload new package for pip install.
 
 endef
