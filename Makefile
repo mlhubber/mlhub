@@ -10,6 +10,7 @@ VER=1.1.2# Longer package names in listings.
 VER=1.1.3# Implement CLEAN and REMOVE.
 VER=1.1.4# Message before downloading the archive.
 VER=1.1.5# Explicitly use python3
+VER=1.1.6# REMOVE with no arg removes whole mlhub installed base.
 
 APP_FILES = 			\
 	setup.py		\
