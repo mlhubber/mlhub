@@ -26,8 +26,8 @@ Quick Start
 The command line interface can be installed using `PyPi
 <https://pypi.org/project/mlhub/>`_::
 
-  $ pip install mlhub
-
+  $ pip3 install mlhub
+  
 Once installed you will be able to run the sample rain-tomorrow model
 assuming that you have the free and open source `R statistical
 software package <https://cran.r-project.org>`_ installed. The TL;DR
@@ -110,6 +110,13 @@ command can install the pre-built model locally, ready to run a demo,
 to print and display the model, and to score new data using the
 model. Some models provide ability to retrain the model with user
 provided data.
+
+Installing Pip3
+---------------
+
+On Ubuntu this is as simple as::
+
+  $ sudo apt install python3-pip
 
 Alternative pip Install
 -----------------------
