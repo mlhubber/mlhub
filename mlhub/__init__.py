@@ -187,6 +187,17 @@ def main():
     parser_configure.set_defaults(func=commands.configure_model)
 
     #------------------------------------
+    # REMOVE
+    #------------------------------------
+    
+    parser_remove = subparsers.add_parser(
+        "remove",
+        description="Remove installed model",
+    )
+    parser_remove.add_argument("model", nargs="?")
+    parser_remove.set_defaults(func=commands.remove_model)
+
+    #------------------------------------
     # MODEL SPECIFIC COMMANDS
     #
     # Need to make this general or dynamic
@@ -202,17 +213,6 @@ def main():
     parser_cmd.add_argument("model")
     parser_cmd.add_argument("param", nargs="*")
     parser_cmd.set_defaults(func=commands.dispatch)
-
-    #------------------------------------
-    # REMOVE
-    #------------------------------------
-    
-    parser_remove = subparsers.add_parser(
-        "remove",
-        description="Remove installed model",
-    )
-    parser_remove.add_argument("model")
-    parser_remove.set_defaults(func=commands.remove_model)
 
     #------------------------------------
     # DONATE
