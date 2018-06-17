@@ -468,7 +468,7 @@ def dispatch(args):
     if ext == ".R":
         interpreter = "Rscript"
     elif ext == ".py":
-        interpreter = "python"
+        interpreter = "python3"
     else:
         msg = "Could not determine an interpreter for extension '{}'".format(ext)
         print(msg, file=sys.stderr)

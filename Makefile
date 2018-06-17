@@ -9,6 +9,7 @@ VER=1.1.1# Support MLINIT environment variable. General cleanup.
 VER=1.1.2# Longer package names in listings.
 VER=1.1.3# Implement CLEAN and REMOVE.
 VER=1.1.4# Message before downloading the archive.
+VER=1.1.5# Explicitly use python3
 
 APP_FILES = 			\
 	setup.py		\
