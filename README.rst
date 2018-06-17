@@ -10,12 +10,12 @@ Introduction
 ------------
 
 The machine learning hub is an `open source project
-<https://github.com/mlhubber/mlhub>`_ and resource for sharing
-`pre-built machine learning models
-<https://github.com/mlhubber/mlmodels>`_. The models are accessed and
-managed using the *ml* command from the *mlhub* package.
+<https://github.com/mlhubber/mlhub>`_ sharing `pre-built machine
+learning models <https://github.com/mlhubber/mlmodels>`_. The models
+are accessed and managed using the *ml* command from the *mlhub*
+package.
 
-The models collected in the ML Hub archive are listed as `Packages
+The models collected in the ML Hub archive `are listed
 <https://mlhub.ai/Packages.html>`_ on `MLHub.ai <https://mlhub.ai/>`_
 and the models themselves can be browsed from the `main pool
 <https://mlhub.ai/pool/main/>`_.
