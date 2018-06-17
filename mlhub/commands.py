@@ -517,14 +517,18 @@ def remove_model(args):
     # Setup.
     
     model  = args.model
-    path   = MLINIT + model
-    
-    # Check that the model is installed.
+    if model is None:
+        path = MLINIT
+        msg  = "*Completely* remove all installed models in '{}' [y/N]? "
+    else:
+        path = MLINIT + model
+        msg = "Remove '{}' [y/N]? "
+        
+        # Check that the model is installed.
 
-    utils.check_model_installed(model)
+        utils.check_model_installed(model)
 
-    msg = "Remove '{}' [y/N]? ".format(path)
-    sys.stdout.write(msg)
+    sys.stdout.write(msg.format(path))
     choice = input().lower()
     if choice == 'y': rmtree(path)
 
