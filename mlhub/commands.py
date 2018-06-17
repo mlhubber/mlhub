@@ -147,7 +147,7 @@ def install_model(args):
     else:
 
         # Obtain the repository meta data from Packages.yaml.
-        
+
         model = args.model
         
         mlhub = utils.get_repo(args.mlhub)
@@ -193,6 +193,14 @@ def install_model(args):
         local   = os.path.join(init, mlmfile)
         path    = os.path.join(init, model)
 
+        # Informative message about the model location and size.
+
+        if not args.quiet: print("Model " + url + "\n")
+        meta = requests.head(url)
+        dsize = "{:,}".format(int(meta.headers.get("content-length")))
+        if not args.quiet: print("Downloading '{}' ({} bytes) ...\n".
+                                 format(mlmfile, dsize))
+
         # Download the archive from the URL.
 
         try:
@@ -202,14 +210,6 @@ def install_model(args):
             msg = msg.format(APPX, url, error.reason.lower())
             print(msg, file=sys.stderr)
             sys.exit(1)
-
-        # Informative message about the model location and size.
-
-        if not args.quiet: print("Model " + url + "\n")
-        meta = requests.head(url)
-        dsize = "{:,}".format(int(meta.headers.get("content-length")))
-        if not args.quiet: print("Downloading '{}' ({} bytes) ...\n".
-                                 format(mlmfile, dsize))
 
     # Check if model is already installed.
         
