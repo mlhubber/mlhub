@@ -500,6 +500,7 @@ def remove_mlm(args):
     """Remove downloaded {} files.""".format(EXT_MLM)
 
     mlm = glob.glob(os.path.join(MLINIT, "*.mlm"))
+    mlm.sort()
     for m in mlm:
         msg = "Remove model package archive '{}' [Y/n]? ".format(m)
         sys.stdout.write(msg)
