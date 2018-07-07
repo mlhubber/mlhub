@@ -311,7 +311,7 @@ def readme(args):
     # Suggest next step.
 
     if not args.quiet:
-        msg = "Model dependencies are listed using:\n\n  $ {} configure {}\n"
+        msg = "Model dependencies are installed using:\n\n  $ {} configure {}\n"
         msg = msg.format(CMD, model)
         print(msg)
 
@@ -407,7 +407,7 @@ def configure_model(args):
     if platform.dist()[0] in set(['debian', 'Ubuntu']) and os.path.exists(conf):
         command = "bash configure.sh"
         if not args.quiet:
-            msg = "Configuration will take place using '{}'.\n"
+            msg = "Configuration will take place using '{}'."
             msg = msg.format(conf)
             print(msg)
         proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
@@ -442,7 +442,7 @@ Configuration is yet to be automated. The following dependencies are required:
 
 def dispatch(args):
     """Dispatch other commands to the appropriate model provided script."""
-    
+
     cmd   = args.cmd
     model = args.model
     path  = MLINIT + model
@@ -457,7 +457,7 @@ def dispatch(args):
         
     # Obtain the specified script file.
     
-    script  = desc["commands"][cmd]["script"].split(" ")[0] + " " + param
+    script  = desc["commands"][cmd]["script"].split(" ")[0]
 
     # Determine the interpreter to use
     #
@@ -474,7 +474,8 @@ def dispatch(args):
         print(msg, file=sys.stderr)
         sys.exit()
 
-    command = "{} {}".format(interpreter, script)
+    command = "{} {} {}".format(interpreter, script, param)
+
     if args.debug:
         print(DEBUG + "(cd " + path + "; " + command + ")")
     proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
