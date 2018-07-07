@@ -4,7 +4,7 @@ The Machine Learning Hub
 
 .. class:: center
 	   
-*Under Development*
+*--Under Development--*
 
 Introduction
 ------------
@@ -15,10 +15,9 @@ learning models <https://github.com/mlhubber/mlmodels>`_. The models
 are accessed and managed using the *ml* command from the *mlhub*
 package.
 
-The models collected in the ML Hub archive `are listed
-<https://mlhub.ai/Packages.html>`_ on `MLHub.ai <https://mlhub.ai/>`_
-and the models themselves can be browsed from the `main pool
-<https://mlhub.ai/pool/main/>`_.
+Visit the `Repository Index <https://mlhub.ai/Packages.html>`_ on
+`MLHub.ai <https://mlhub.ai/>`_ where the models themselves can be
+browsed from the `main pool <https://mlhub.ai/pool/main/>`_.
 
 Quick Start
 -----------
@@ -110,6 +109,13 @@ command can install the pre-built model locally, ready to run a demo,
 to print and display the model, and to score new data using the
 model. Some models provide ability to retrain the model with user
 provided data.
+
+Contributing Models to ML Hub
+-----------------------------
+
+Anyone is welcome to contribute a pre-built model package to ML
+Hub. Please submit a pull request through
+`github<https://github.com/mlhubber/mlmodels>`_.
 
 Installing Pip3
 ---------------
