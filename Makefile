@@ -11,6 +11,7 @@ VER=1.1.3# Implement CLEAN and REMOVE.
 VER=1.1.4# Message before downloading the archive.
 VER=1.1.5# Explicitly use python3
 VER=1.1.6# REMOVE with no arg removes whole mlhub installed base.
+VER=1.1.7# Fix bug in general script execution with params.
 
 APP_FILES = 			\
 	setup.py		\
