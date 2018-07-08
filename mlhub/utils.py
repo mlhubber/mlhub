@@ -90,15 +90,15 @@ def print_meta_line(entry):
 
     # One line message.
 
-    MAX_TITLE = 25
-    MAX_DESCR = 50
+    MAX_TITLE = 24
+    MAX_DESCR = 44
     
     if len(title) > MAX_DESCR:
         long = "..."
     else:
         long = ""
 
-    FORMATTER = "{0:<TITLE.TITLE} : {1:^6} : {2:<DESCR.DESCR}{3}".replace("TITLE", str(MAX_TITLE)).replace("DESCR", str(MAX_DESCR))
+    FORMATTER = "{0:<TITLE.TITLE} {1:^6} {2:<DESCR.DESCR}{3}".replace("TITLE", str(MAX_TITLE)).replace("DESCR", str(MAX_DESCR))
     print(FORMATTER.format(name, version, title, long))
 
 #------------------------------------------------------------------------
