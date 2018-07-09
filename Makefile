@@ -91,3 +91,6 @@ dsvm01: dist
 .PHONY: clean
 clean:
 	rm -f README.html
+
+realclean:: clean
+	rm -f mlhub_*.tar.gz
