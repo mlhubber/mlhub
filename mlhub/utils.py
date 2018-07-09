@@ -32,6 +32,8 @@ import os
 import sys
 import yaml
 import urllib.request
+import platform
+import subprocess
 
 from mlhub.constants import APPX, MLINIT, CMD, MLHUB, META_YAML, META_YML, DESC_YAML, DESC_YML, debug, DEBUG, USAGE, EXT_MLM, VERSION, APP
 
@@ -69,7 +71,7 @@ def get_repo_meta_data(repo):
         except:
             msg = """Cannot access the Internet.
 
-To list the models available from an ML Hub you will need an Internet conncetion.
+To list the models available from an ML Hub you will need an Internet connection.
 
 You can list the models already installed locally with:
 
@@ -147,3 +149,49 @@ def load_description(model):
             sys.exit(1)
     return(entry)
     
+#-----------------------------------------------------------------------
+# RUN CONFIGURE SCRIPT
+
+def configure(path, script, quiet):
+    """Run the provided configure scripts and handle errors and output."""
+
+    configured = False
+    
+    # For now only tested/working with Ubuntu
+    
+    if platform.dist()[0] in set(['debian', 'Ubuntu']):
+        conf = os.path.join(path, script)
+        if os.path.exists(conf):
+            interp = interpreter(script)
+            if not quiet:
+                msg = "Configuring using '{}'...".format(conf)
+                print(msg)
+            cmd = "{} {}".format(interp, script)
+            proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
+            output, errors = proc.communicate()
+            if proc.returncode != 0:
+                print("An error was encountered:\n")
+                print(errors.decode("utf-8"))
+            configured = True
+
+    return(configured)
+
+#-----------------------------------------------------------------------
+# DETERMINE THE CORRECT INTERPRETER FOR THE GIVEN SCRIPT NAME
+
+def interpreter(script):
+    
+    (root, ext) = os.path.splitext(script)
+    ext = ext.strip()
+    if ext == ".sh":
+        interpreter = "bash"
+    elif ext == ".R":
+        interpreter = "Rscript"
+    elif ext == ".py":
+        interpreter = "python3"
+    else:
+        msg = "Could not determine an interpreter for extension '{}'".format(ext)
+        print(msg, file=sys.stderr)
+        sys.exit()
+
+    return(interpreter)
