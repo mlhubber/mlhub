@@ -40,7 +40,7 @@ import yaml
 import textwrap
 import locale
 import importlib.util
-import platform
+import re
 
 from tempfile import TemporaryDirectory
 from shutil import move, rmtree
@@ -330,6 +330,8 @@ def license(args):
 def list_model_commands(args):
     """ List the commands supported by this model."""
 
+    # Setup.
+    
     model = args.model
 
     # Check that the model is installed.
@@ -338,9 +340,10 @@ def list_model_commands(args):
     
     info = utils.load_description(model)
 
+    title = re.sub("\.$", "", info['meta']['title'])
     msg = "The model '{}' ({}) supports the following commands:"
-    msg = msg.format(model, info['meta']['title'])
-    msg = textwrap.fill(msg, width=60)
+    msg = msg.format(model, title)
+    msg = textwrap.fill(msg, width=75)
     print(msg + "\n")
     
     yaml.dump(info['commands'], sys.stdout, default_flow_style = False)
@@ -348,7 +351,7 @@ def list_model_commands(args):
     # Suggest next step.
     
     if not args.quiet:
-        msg = "Model dependencies are listed using:\n\n  $ {} configure {}\n"
+        msg = "\nModel dependencies are configured using:\n\n  $ {} configure {}\n"
         msg = msg.format(CMD, model)
         print(msg)
 
@@ -400,40 +403,32 @@ def configure_model(args):
 
     utils.check_model_installed(model)
 
-    # If there is a configure script and this is a Ubuntu host, then
-    # run the configure script.
+    # If there are any configure scripts then run them, else print the
+    # list of supplied dependencies if any. Note that Python's 'or' is
+    # lazy evaluation.
 
-    conf = os.path.join(path, "configure.sh")
-    if platform.dist()[0] in set(['debian', 'Ubuntu']) and os.path.exists(conf):
-        command = "bash configure.sh"
-        if not args.quiet:
-            msg = "Configuration will take place using '{}'."
-            msg = msg.format(conf)
-            print(msg)
-        proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
-        output, errors = proc.communicate()
-        if proc.returncode != 0:
-            print("An error was encountered:\n")
-            print(errors.decode("utf-8"))
-    else:
-        # For now simply list the declared dependencies for the user to
-        # make sure they have it all installed.
+    conf = utils.configure(path, "configure.sh", args.quiet)
+    conf = utils.configure(path, "configure.R", args.quiet) or conf
+    conf = utils.configure(path, "configure.py", args.quiet) or conf
 
-        if not args.quiet:
-            msg = """
-Configuration is yet to be automated. The following dependencies are required:
-"""
-            print(msg)
+    if not conf:
+        try:
+            info = utils.load_description(model)
+            deps = info["meta"]["dependencies"]
 
-        info = utils.load_description(model)
-        msg = info["meta"]["dependencies"]
+            if not args.quiet:
+                msg = "No configuration script provided for this model. "
+                msg = msg + "The following dependencies are required:\n"
+                print(msg)
 
-        print("  ====> \033[31m" + msg + "\033[0m")
-
+            print("  ====> \033[31m" + deps + "\033[0m")
+        except:
+            print("No configuration provided (maybe none is required).")
+            
     # Suggest next step.
     
     if not args.quiet:
-        msg = "\nOnce configured run the demonstration:\n\n  $ {} demo {}\n"
+        msg = "\nOnce configured the demo can be run:\n\n  $ {} demo {}\n"
         msg = msg.format(CMD, model)
         print(msg)
 
@@ -457,22 +452,24 @@ def dispatch(args):
         
     # Obtain the specified script file.
     
-    script  = desc["commands"][cmd]["script"].split(" ")[0]
+    try:
+        script  = desc["commands"][cmd]["script"].split(" ")[0]
+    except:
+        msg = """{}The command '{}' was not found for this model.
+
+Try using 'commands' to list all supported commands:
+
+  $ {} commands {}
+""".format(APPX, cmd, CMD, model)
+        print(msg, file=sys.stderr)
+        sys.exit(1)
+        
 
     # Determine the interpreter to use
     #
     # .R => Rscript; .py => python, etc.
 
-    (root, ext) = os.path.splitext(script)
-    ext = ext.strip()
-    if ext == ".R":
-        interpreter = "Rscript"
-    elif ext == ".py":
-        interpreter = "python3"
-    else:
-        msg = "Could not determine an interpreter for extension '{}'".format(ext)
-        print(msg, file=sys.stderr)
-        sys.exit()
+    interpreter = utils.get_interpreter(script)
 
     command = "{} {} {}".format(interpreter, script, param)
 
