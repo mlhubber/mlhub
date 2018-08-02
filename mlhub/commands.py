@@ -98,6 +98,8 @@ def list_installed(args):
         msg = "since '{}' does not exist.".format(MLINIT)
         models = []
 
+    models.sort()
+        
     # Report on how many models we found installed.
         
     mcnt = len(models)
