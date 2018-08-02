@@ -63,7 +63,7 @@ CMD  = "ml"               # The command line tool.
 EXT_MLM  = ".mlm"         # Archive filename extension
 EXT_AIPK = ".aipk"        # Backward compatibility
 
-VERSION = "1.1.8" # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "1.1.9" # DO NOT MODIFY. Managed from ../Makefile.
 
 USAGE = """Usage: {} [<options>] <command> [<command options>] [<model>]
 
@@ -73,7 +73,7 @@ Global commands:
 
   available            List the models available from the repository.
   installed            List the models installed locally.
-  clean                Remove any downloaded {} files from {}.
+  clean                Remove all (downloaded) {} files from {}.
 
   install    <model>   Install the model.
   readme     <model>   View the model's README.
