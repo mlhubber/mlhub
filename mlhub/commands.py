@@ -118,6 +118,10 @@ def list_installed(args):
     # Suggest next step.
     
     if not args.quiet:
+        msg = "\nConfigure a model before demonstration with:\n\n  $ {} configure <model>"
+        msg = msg.format(CMD)
+        print(msg)
+
         msg = "\nRun a model's demonstration script with:\n\n  $ {} demo <model>\n"
         msg = msg.format(CMD)
         print(msg)
@@ -347,13 +351,25 @@ def list_model_commands(args):
     msg = msg.format(model, title)
     msg = textwrap.fill(msg, width=75)
     print(msg + "\n")
+
+    # TODO Separate each  command with empty line.
     
+    # print(info['commands'])
+    # for c in info['commands']:
+    #     print(info['commands']['demo'])
+    #     print(c)
+    #     print(c['script'])
+
     yaml.dump(info['commands'], sys.stdout, default_flow_style = False)
 
     # Suggest next step.
     
     if not args.quiet:
-        msg = "\nModel dependencies are configured using:\n\n  $ {} configure {}\n"
+        msg = "\nModel dependencies are configured using:\n\n  $ {} configure {}"
+        msg = msg.format(CMD, model)
+        print(msg)
+
+        msg = "\nModel information is available using:\n\n  $ {} readme {}\n"
         msg = msg.format(CMD, model)
         print(msg)
 
@@ -471,7 +487,7 @@ Try using 'commands' to list all supported commands:
     #
     # .R => Rscript; .py => python, etc.
 
-    interpreter = utils.get_interpreter(script)
+    interpreter = utils.interpreter(script)
 
     command = "{} {} {}".format(interpreter, script, param)
 
