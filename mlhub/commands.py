@@ -91,11 +91,11 @@ def list_installed(args):
     # Find installed models.
 
     if os.path.exists(MLINIT):
-        msg = "in '{}'.".format(MLINIT)
+        msg = " in '{}'.".format(MLINIT)
         models = [f for f in os.listdir(MLINIT)
                   if os.path.isdir(os.path.join(MLINIT, f))]
     else:
-        msg = "since '{}' does not exist.".format(MLINIT)
+        msg = ". '{}' does not exist.".format(MLINIT)
         models = []
 
     models.sort()
@@ -105,7 +105,7 @@ def list_installed(args):
     mcnt = len(models)
     plural = "s"
     if mcnt == 1: plural = ""
-    print("Found {} model{} installed {}".format(mcnt, plural, msg))
+    print("Found {} model{} installed{}".format(mcnt, plural, msg))
 
     # Report on each of the installed models.
         
@@ -118,16 +118,26 @@ def list_installed(args):
     # Suggest next step.
     
     if not args.quiet:
-        msg = "\nConfigure a model before demonstration with:\n\n  $ {} configure <model>"
-        msg = msg.format(CMD)
-        print(msg)
+        if mcnt > 0:
+            msg = "\nConfigure a model before demonstration with:\n\n  $ {} configure <model>"
+            msg = msg.format(CMD)
+            print(msg)
 
-        msg = "\nRun a model's demonstration script with:\n\n  $ {} demo <model>\n"
-        msg = msg.format(CMD)
-        print(msg)
+            msg = "\nRun a model's demonstration script with:\n\n  $ {} demo <model>\n"
+            msg = msg.format(CMD)
+            print(msg)
+        else:
+            msg = "\nModels available from the repository can be listed with:\n\n  $ {} avaliable"
+            msg = msg.format(CMD)
+            print(msg)
+
+            msg = "\nA model can be installed using:\n\n  $ {} install <model>"
+            msg = msg.format(CMD)
+            print(msg)
 
 #-----------------------------------------------------------------------
 # INSTALL
+#------------------------------------------------------------------------
 
 def install_model(args):
     """Install a model."""
@@ -273,6 +283,7 @@ def install_model(args):
     
 #-----------------------------------------------------------------------
 # DOWNLOAD
+#------------------------------------------------------------------------
 
 def download_model(args):
     """Download the large pre-built model."""
@@ -295,6 +306,7 @@ def download_model(args):
 
 #-----------------------------------------------------------------------
 # README
+#------------------------------------------------------------------------
 
 def readme(args):
     """Display the model's README information."""
@@ -332,6 +344,7 @@ def license(args):
     
 #-----------------------------------------------------------------------
 # COMMANDS
+#------------------------------------------------------------------------
 
 def list_model_commands(args):
     """ List the commands supported by this model."""
@@ -365,16 +378,13 @@ def list_model_commands(args):
     # Suggest next step.
     
     if not args.quiet:
-        msg = "\nModel dependencies are configured using:\n\n  $ {} configure {}"
-        msg = msg.format(CMD, model)
-        print(msg)
-
-        msg = "\nModel information is available using:\n\n  $ {} readme {}\n"
+        msg = "\nOnce configured the demo can be run:\n\n  $ {} demo {}\n"
         msg = msg.format(CMD, model)
         print(msg)
 
 #-----------------------------------------------------------------------
 # CONFIGURE
+#------------------------------------------------------------------------
 
 def configure_model(args):
     """Ensure the user's environment is configured."""
@@ -446,12 +456,13 @@ def configure_model(args):
     # Suggest next step.
     
     if not args.quiet:
-        msg = "\nOnce configured the demo can be run:\n\n  $ {} demo {}\n"
+        msg = "Commands supported by the model are listed using:\n\n  $ {} commands {}\n"
         msg = msg.format(CMD, model)
         print(msg)
 
 #-----------------------------------------------------------------------
 # DISPATCH
+#------------------------------------------------------------------------
 
 def dispatch(args):
     """Dispatch other commands to the appropriate model provided script."""
@@ -467,12 +478,19 @@ def dispatch(args):
     utils.check_model_installed(model)
     
     desc = utils.load_description(model)
+
+    # Obtain the default/chosen language for the package.
+
+    lang = desc["meta"]["languages"]
         
     # Obtain the specified script file.
     
-    try:
-        script  = desc["commands"][cmd]["script"].split(" ")[0]
-    except:
+    script  = cmd + "." + lang
+    
+    if args.debug:
+        print(DEBUG + "execute the script: " + os.path.join(path, script))
+     
+    if not os.path.exists(os.path.join(path, script)):
         msg = """{}The command '{}' was not found for this model.
 
 Try using 'commands' to list all supported commands:
@@ -481,7 +499,6 @@ Try using 'commands' to list all supported commands:
 """.format(APPX, cmd, CMD, model)
         print(msg, file=sys.stderr)
         sys.exit(1)
-        
 
     # Determine the interpreter to use
     #
