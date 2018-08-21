@@ -15,6 +15,7 @@ VER=1.1.7# Fix bug in general script execution with params.
 VER=1.1.8# Output format updates. Allow multiple configure scripts.
 VER=1.1.9# Format updates.
 VER=1.2.0# Add languages - one package supports multiple languages.
+VER=1.2.1# Add R_LIBS for local installed libraries.
 APP_FILES = 			\
 	setup.py		\
 	setup.cfg		\
@@ -81,6 +82,11 @@ $(TAR_GZ): $(APP_FILES)
 pypi: version
 	python setup.py sdist
 	twine upload dist/$(APP)-$(VER).tar.gz
+
+.PHONY: pypi.test
+pypi.test: version
+	python setup.py sdist
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/$(APP)-$(VER).tar.gz
 
 .PHONY: dist
 dist: version $(TAR_GZ)
