@@ -88,12 +88,12 @@ def list_available(args):
 def list_installed(args):
     """List the installed models."""
 
-    # Find installed models.
+    # Find installed models, ignoring special folders like R.
 
     if os.path.exists(MLINIT):
         msg = " in '{}'.".format(MLINIT)
         models = [f for f in os.listdir(MLINIT)
-                  if os.path.isdir(os.path.join(MLINIT, f))]
+                  if os.path.isdir(os.path.join(MLINIT, f)) and f != "R"]
     else:
         msg = ". '{}' does not exist.".format(MLINIT)
         models = []
@@ -360,6 +360,8 @@ def list_model_commands(args):
     info = utils.load_description(model)
 
     title = re.sub("\.$", "", info['meta']['title'])
+    lc = lambda s: s[:1].lower() + s[1:] if s else ''
+    title = lc(title)
     msg = "The model '{}' ({}) supports the following commands:"
     msg = msg.format(model, title)
     msg = textwrap.fill(msg, width=75)
