@@ -186,7 +186,7 @@ def interpreter(script):
     if ext == ".sh":
         interpreter = "bash"
     elif ext == ".R":
-        interpreter = "Rscript"
+        interpreter = "R_LIBS={}/R {}".format(MLINIT, "Rscript")
     elif ext == ".py":
         interpreter = "python3"
     else:
