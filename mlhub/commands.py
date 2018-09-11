@@ -359,22 +359,19 @@ def list_model_commands(args):
     
     info = utils.load_description(model)
 
-    msg = "The model '{}' "
-    if 'title' not in info['meta']:
-        title = None
-        msg_warning = "{}warning: Malformed {} file: missing meta -> title\n"
-        msg_warning = msg_warning.format(APPX, DESC_YML)
-        print(msg_warning, file=sys.stderr)
-    else:
+    try:
         title = re.sub("\.$", "", info['meta']['title'])
         lc = lambda s: s[:1].lower() + s[1:] if s else ''
         title = lc(title)
-        msg += "({}) "
-
-    msg += "supports the following commands:"
-    msg = msg.format(model, title)
-    msg = textwrap.fill(msg, width=75)
-    print(msg + "\n")
+        msg = "The model '{}' ({}) supports the following commands:"
+        msg = msg.format(model, title)
+        msg = textwrap.fill(msg, width=75)
+        print(msg + "\n")
+    except KeyError as e:
+        msg_warning = "{}error: Malformed {} file: missing {}"
+        msg_warning = msg_warning.format(APPX, DESC_YML, str(e))
+        print(msg_warning, file=sys.stderr)
+        sys.exit(1)
 
     # TODO Separate each  command with empty line.
     
