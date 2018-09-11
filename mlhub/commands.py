@@ -359,10 +359,16 @@ def list_model_commands(args):
     
     info = utils.load_description(model)
 
-    title = re.sub("\.$", "", info['meta']['title'])
-    lc = lambda s: s[:1].lower() + s[1:] if s else ''
-    title = lc(title)
-    msg = "The model '{}' ({}) supports the following commands:"
+    msg = "The model '{}' "
+    if 'title' not in info['meta']:
+        title = None
+    else:
+        title = re.sub("\.$", "", info['meta']['title'])
+        lc = lambda s: s[:1].lower() + s[1:] if s else ''
+        title = lc(title)
+        msg += "({}) "
+
+    msg += "supports the following commands:"
     msg = msg.format(model, title)
     msg = textwrap.fill(msg, width=75)
     print(msg + "\n")
