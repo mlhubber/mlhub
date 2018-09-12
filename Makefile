@@ -17,7 +17,8 @@ APP=mlhub
 # VER=1.2.0 Add languages - one package supports multiple languages.
 # VER=1.2.1 Add R_LIBS for local installed libraries.
 # VER=1.2.2# Ignore R folder in INSTALLED.
-VER=1.2.3# Place R_LIBS within model folder.
+#VER=1.2.3# Place R_LIBS within model folder.
+VER=1.2.4# Handle missing title in COMMANDS.
 APP_FILES = 			\
 	setup.py		\
 	setup.cfg		\
