@@ -19,7 +19,8 @@ APP=mlhub
 # VER=1.2.2# Ignore R folder in INSTALLED.
 # VER=1.2.3# Place R_LIBS within model folder.
 # VER=1.2.4# Handle missing title in COMMANDS.
-VER=1.2.5# Allow for URL in INSTALL.
+# VER=1.2.5# Allow for URL in INSTALL.
+VER=1.2.6# Check DISPLAY in MLHUB rather than model.
 APP_FILES = 			\
 	setup.py		\
 	setup.cfg		\

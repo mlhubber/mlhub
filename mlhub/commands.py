@@ -504,10 +504,10 @@ def dispatch(args):
     
     desc = utils.load_description(model)
 
-    # check if cmd needs to use graphic display indicated in DESCRIPTION.yaml
+    # Check if cmd needs to use graphic display indicated in DESCRIPTION.yaml.
 
     if 'display' in desc['meta'] and cmd in desc['meta']['display'] and 'DISPLAY' not in os.environ:
-        msg = "Graphic display not available for command '{}'. Continue [y/N]? "
+        msg = "Graphic display is required but not available for command '{}'. Continue [y/N]? "
         msg = msg.format(cmd)
         sys.stdout.write(msg)
         choice = input().lower()
