@@ -90,7 +90,7 @@ Models are installed into '{}'.
 
 This is version {} of {}.
 
-List the available packages from the repository with:
+List the available models from the repository with:
 
   $ ml available
 """
