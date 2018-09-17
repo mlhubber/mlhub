@@ -487,6 +487,15 @@ def dispatch(args):
     
     desc = utils.load_description(model)
 
+    # check if cmd needs to use graphic display indicated in DESCRIPTION.yaml
+
+    if 'display' in desc['meta'] and cmd in desc['meta']['display'] and 'DISPLAY' not in os.environ:
+        msg = "Graphic display not available for command '{}'. Continue [y/N]? "
+        msg = msg.format(cmd)
+        sys.stdout.write(msg)
+        choice = input().lower()
+        if choice != 'y': sys.exit(1)
+
     # Obtain the default/chosen language for the package.
 
     lang = desc["meta"]["languages"]
