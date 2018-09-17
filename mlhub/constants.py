@@ -75,7 +75,7 @@ Global commands:
   installed            List the models installed locally.
   clean                Remove all (downloaded) {} files from {}.
 
-  install    <model>   Install the model.
+  install    <model>   Install the named model, local model file or URL.
   readme     <model>   View the model's README.
   commands   <model>   List the commands supported by the model.
   configure  <model>   Configure the model's dependencies.
