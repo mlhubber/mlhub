@@ -17,8 +17,9 @@ APP=mlhub
 # VER=1.2.0 Add languages - one package supports multiple languages.
 # VER=1.2.1 Add R_LIBS for local installed libraries.
 # VER=1.2.2# Ignore R folder in INSTALLED.
-#VER=1.2.3# Place R_LIBS within model folder.
-VER=1.2.4# Handle missing title in COMMANDS.
+# VER=1.2.3# Place R_LIBS within model folder.
+# VER=1.2.4# Handle missing title in COMMANDS.
+VER=1.2.5# Allow for URL in INSTALL.
 APP_FILES = 			\
 	setup.py		\
 	setup.cfg		\
@@ -67,10 +68,9 @@ ifneq ("$(wildcard $(INC_CLEAN))","")
 endif
 
 .PHONY: mlhub
-mlhub: version README.html $(TAR_GZ)
-	chmod a+r README.html $(TAR_GZ)
-	rsync -avzh README.html root@mlhub.ai:/var/www/html/index.html
-	rsync -avzh $(TAR_GZ) root@mlhub.ai:/var/www/html/dist/
+mlhub: version $(TAR_GZ)
+	chmod a+r $(TAR_GZ)
+	rsync -avzh $(TAR_GZ) mlhub.ai:webapps/mlhub2/
 
 .PHONY: version
 version:

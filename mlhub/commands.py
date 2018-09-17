@@ -146,7 +146,7 @@ def install_model(args):
 
     # Identify if it is a local file name to install.
     
-    if args.model.endswith(EXT_MLM):
+    if args.model.endswith(EXT_MLM) and not re.findall('http[s]?:', args.model):
 
         # Identify the local mlm file to install.
 
@@ -162,20 +162,29 @@ def install_model(args):
 
     else:
 
-        # Obtain the repository meta data from Packages.yaml.
+        if re.findall('http[s]?:', args.model):
 
-        model = args.model
+            # A specific URL was provided.
+            
+            url = args.model
+            model = url.split("/")[-1].split("_")[0]
+
+        else:
+            
+            # Obtain the repository meta data from Packages.yaml.
+
+            model = args.model
         
-        mlhub = utils.get_repo(args.mlhub)
-        meta  = utils.get_repo_meta_data(mlhub)
+            mlhub = utils.get_repo(args.mlhub)
+            meta  = utils.get_repo_meta_data(mlhub)
 
-        # Find the first matching entry in the meta data.
+            # Find the first matching entry in the meta data.
 
-        url = None
-        for entry in meta:
-            if model == entry["meta"]["name"]:
-                url = mlhub + entry["meta"]["filename"]
-                break
+            url = None
+            for entry in meta:
+                if model == entry["meta"]["name"]:
+                    url = mlhub + entry["meta"]["filename"]
+                    break
 
         # If not found suggest how a model might be installed.
 

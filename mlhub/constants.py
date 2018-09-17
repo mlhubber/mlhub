@@ -63,7 +63,7 @@ CMD  = "ml"               # The command line tool.
 EXT_MLM  = ".mlm"         # Archive filename extension
 EXT_AIPK = ".aipk"        # Backward compatibility
 
-VERSION = "1.2.4" # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "1.2.5" # DO NOT MODIFY. Managed from ../Makefile.
 
 USAGE = """Usage: {} [<options>] <command> [<command options>] [<model>]
 
@@ -88,7 +88,12 @@ The ML Hub repository is '{}'.
 
 Models are installed into '{}'.
 
-This is version {} of {}."""
+This is version {} of {}.
+
+List the available packages from the repository with:
+
+  $ ml available
+"""
 
 # Filenames.
 
