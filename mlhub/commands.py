@@ -169,9 +169,18 @@ def install_model(args):
             url = args.model
             model = url.split("/")[-1].split("_")[0]
 
+            # Check that the URL exists.
+            
+            r = requests.head(url)
+            if not r.status_code == requests.codes.ok:
+                msg = "{}the url '{}' was not found."
+                msg = msg.format(APPX, url)
+                print(msg, file=sys.stderr)
+                sys.exit(1)
+            
         else:
             
-            # Obtain the repository meta data from Packages.yaml.
+            # Or obtain the repository meta data from Packages.yaml.
 
             model = args.model
         
@@ -197,7 +206,6 @@ def install_model(args):
                 msg = msg.format(CMD)
                 print(msg, file=sys.stderr)
             sys.exit(1)
-
             
         if args.debug: print(DEBUG + "model file url is: " + url)
 
