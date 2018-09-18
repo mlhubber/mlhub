@@ -123,7 +123,8 @@ Models can be installed from the ML Hub:
 
 Available pakages on the ML Hub can be listed with:
 
-  $ {} available"""
+  $ {} available
+"""
         msg = msg.format(APPX, model, MLINIT, CMD, CMD, model, CMD)
         print(msg, file=sys.stderr)
         sys.exit(1)
