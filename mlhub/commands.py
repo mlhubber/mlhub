@@ -512,14 +512,14 @@ def dispatch(args):
 
     # Check if cmd needs to use graphic display indicated in DESCRIPTION.yaml.
 
-    if 'display' in desc['meta'] and cmd in desc['meta']['display'] and 'DISPLAY' not in os.environ:
+    if 'display' in desc['meta'] and cmd in desc['meta']['display'] and os.environ.get('DISPLAY', '') == '':
         msg = "Graphic display is required but not available for command '{}'. Continue [y/N]? "
         msg = msg.format(cmd)
         sys.stdout.write(msg)
         choice = input().lower()
         if choice != 'y':
             msg = """To enable DISPLAY be sure to connect to the server using 'ssh -X'
-or else connect to the server's desktop using a local X server like X2Go."""
+or else connect to the server's desktop using a local X server like X2Go.\n"""
             sys.stdout.write(msg)
             sys.exit(1)
 
