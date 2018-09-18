@@ -518,8 +518,10 @@ def dispatch(args):
         sys.stdout.write(msg)
         choice = input().lower()
         if choice != 'y':
-            msg = """To enable DISPLAY be sure to connect to the server using 'ssh -X'
+            msg = """
+To enable DISPLAY be sure to connect to the server using 'ssh -X'
 or else connect to the server's desktop using a local X server like X2Go.
+
 """
             sys.stdout.write(msg)
             sys.exit(1)
