@@ -5,6 +5,7 @@
 ########################################################################
 
 APP=mlhub
+
 # VER=1.1.1 Support MLINIT environment variable. General cleanup.
 # VER=1.1.2 Longer package names in listings.
 # VER=1.1.3 Implement CLEAN and REMOVE.
@@ -20,7 +21,9 @@ APP=mlhub
 # VER=1.2.3# Place R_LIBS within model folder.
 # VER=1.2.4# Handle missing title in COMMANDS.
 # VER=1.2.5# Allow for URL in INSTALL.
-VER=1.2.6# Check DISPLAY in MLHUB rather than model.
+# VER=1.2.6# Check DISPLAY in MLHUB rather than model.
+VER=1.2.7# Check version overwrite before downloading. 
+
 APP_FILES = 			\
 	setup.py		\
 	setup.cfg		\

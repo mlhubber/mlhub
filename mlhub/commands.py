@@ -144,6 +144,8 @@ def install_model(args):
 
     # Setup.
 
+    url = None
+
     # Identify if it is a local file name to install.
     
     if args.model.endswith(EXT_MLM) and not re.findall('http[s]?:', args.model):
@@ -226,24 +228,6 @@ def install_model(args):
         local   = os.path.join(init, mlmfile)
         path    = os.path.join(init, model)
 
-        # Informative message about the model location and size.
-
-        if not args.quiet: print("Model " + url + "\n")
-        meta = requests.head(url)
-        dsize = "{:,}".format(int(meta.headers.get("content-length")))
-        if not args.quiet: print("Downloading '{}' ({} bytes) ...\n".
-                                 format(mlmfile, dsize))
-
-        # Download the archive from the URL.
-
-        try:
-            urllib.request.urlretrieve(url, local)
-        except urllib.error.HTTPError as error:
-            msg = "{}'{}' {}."
-            msg = msg.format(APPX, url, error.reason.lower())
-            print(msg, file=sys.stderr)
-            sys.exit(1)
-
     # Check if model is already installed.
         
     if os.path.exists(path):
@@ -267,7 +251,29 @@ def install_model(args):
             print(msg)
         rmtree(path)
         print()
-    
+
+    # Download the model now if not a local file.
+        
+    if not url is None:
+
+        # Informative message about the model location and size.
+
+        if not args.quiet: print("Model " + url + "\n")
+        meta = requests.head(url)
+        dsize = "{:,}".format(int(meta.headers.get("content-length")))
+        if not args.quiet: print("Downloading '{}' ({} bytes) ...\n".
+                                 format(mlmfile, dsize))
+
+        # Download the archive from the URL.
+
+        try:
+            urllib.request.urlretrieve(url, local)
+        except urllib.error.HTTPError as error:
+            msg = "{}'{}' {}."
+            msg = msg.format(APPX, url, error.reason.lower())
+            print(msg, file=sys.stderr)
+            sys.exit(1)
+
     zip = zipfile.ZipFile(local)
     zip.extractall(MLINIT)
 
@@ -511,7 +517,11 @@ def dispatch(args):
         msg = msg.format(cmd)
         sys.stdout.write(msg)
         choice = input().lower()
-        if choice != 'y': sys.exit(1)
+        if choice != 'y':
+            msg = """To enable DISPLAY be sure to connect to the server using 'ssh -X'
+or else connect to the server's desktop using a local X server like X2Go."""
+            sys.stdout.write(msg)
+            sys.exit(1)
 
     # Obtain the default/chosen language for the package.
 
