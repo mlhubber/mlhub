@@ -43,7 +43,7 @@ def main():
     #------------------------------------
     # COMMAND LINE PARSER
     #------------------------------------
-    
+
     parser = argparse.ArgumentParser(
         prog=CMD,
         description="Access models from the ML Hub.",
@@ -54,12 +54,12 @@ def main():
     #------------------------------------
 
     parser.add_argument('--debug',  action='store_true', help="Display debug information.")
-    
+
     #------------------------------------
     # --QUIET
 
     parser.add_argument('--quiet',  action='store_true', help="Reduce noise.")
-    
+
     #------------------------------------
     # --INIT-DIR
     #------------------------------------
@@ -92,110 +92,62 @@ def main():
     #------------------------------------
     # AVAILABLE
     #------------------------------------
-    
-    parser_available = subparsers.add_parser(
-        "available",
-        aliases=['avail'],
-        description="List the models available from the ML Hub",
-    )
-    parser_available.set_defaults(func=commands.list_available)
+
+    utils.add_subcommand(subparsers, 'available', commands)
 
     #------------------------------------
     # INSTALLED
     #------------------------------------
-    
-    parser_installed = subparsers.add_parser(
-        "installed",
-        description="List the locally installed models",
-    )
-    parser_installed.set_defaults(func=commands.list_installed)
+
+    utils.add_subcommand(subparsers, 'installed', commands)
 
     #------------------------------------
     # CLEAN
     #------------------------------------
-    
-    parser_clean = subparsers.add_parser(
-        "clean",
-        description="Remove downloaded .mlm archive files",
-    )
-    parser_clean.set_defaults(func=commands.remove_mlm)
+
+    utils.add_subcommand(subparsers, 'clean', commands)
 
     #------------------------------------
     # INSTALL
     #------------------------------------
-    
-    parser_install = subparsers.add_parser(
-        "install",
-        description="Locally install a model downloaded from a ML Hub",
-    )
-    parser_install.add_argument("model")
-    parser_install.set_defaults(func=commands.install_model)
+
+    utils.add_subcommand(subparsers, 'install', commands)
 
     #------------------------------------
     # DOWNLOAD
     #------------------------------------
-    
-    parser_download = subparsers.add_parser(
-        "download",
-        description="Download the actual (large) pre-built model",
-    )
-    parser_download.add_argument("model")
-    parser_download.set_defaults(func=commands.download_model)
+
+    utils.add_subcommand(subparsers, 'download', commands)
 
     #------------------------------------
     # README
     #------------------------------------
-    
-    parser_readme = subparsers.add_parser(
-        "readme",
-        description="Display the model's README information",
-    )
-    parser_readme.add_argument("model")
-    parser_readme.set_defaults(func=commands.readme)
+
+    utils.add_subcommand(subparsers, 'readme', commands)
 
     #------------------------------------
     # LICENSE
     #------------------------------------
-    
-    parser_license = subparsers.add_parser(
-        "license",
-        description="Display the model's LICENSE information",
-    )
-    parser_license.add_argument("model")
-    parser_license.set_defaults(func=commands.license)
+
+    utils.add_subcommand(subparsers, 'license', commands)
 
     #------------------------------------
     # COMMANDS
     #------------------------------------
-    
-    parser_cmds = subparsers.add_parser(
-        "commands",
-        description="List all of the commands supported by the model",
-    )
-    parser_cmds.add_argument("model")
-    parser_cmds.set_defaults(func=commands.list_model_commands)
+
+    utils.add_subcommand(subparsers, 'commands', commands)
 
     #------------------------------------
     # CONFIGURE
     #------------------------------------
-    
-    parser_configure = subparsers.add_parser(
-        "configure",
-        description="Configure the dependencies required for the model",
-    )
-    parser_configure.add_argument("model")
-    parser_configure.set_defaults(func=commands.configure_model)
+
+    utils.add_subcommand(subparsers, 'configure', commands)
 
     #------------------------------------
     # REMOVE
     #------------------------------------
-    
-    parser_remove = subparsers.add_parser(
-        "remove",
-        description="Remove installed model",
-    )
-    parser_remove.add_argument("model", nargs="?")
-    parser_remove.set_defaults(func=commands.remove_model)
+
+    utils.add_subcommand(subparsers, 'remove', commands)
 
     #------------------------------------
     # MODEL SPECIFIC COMMANDS
@@ -205,25 +157,13 @@ def main():
     # from the locally installed models?
     #------------------------------------
 
-    parser_cmd = subparsers.add_parser(
-        "demo",
-        aliases = ['print', 'display', 'score', 'rebuild'],
-        description="Model commands",
-    )
-    parser_cmd.add_argument("model")
-    parser_cmd.add_argument("param", nargs="*")
-    parser_cmd.set_defaults(func=commands.dispatch)
+    utils.add_subcommand(subparsers, 'demo', commands)
 
     #------------------------------------
     # DONATE
     #------------------------------------
-    
-    parser_donate = subparsers.add_parser(
-        "donate",
-        description="Consider a donation to the author",
-    )
-    parser_donate.add_argument("model")
-    parser_donate.set_defaults(func=commands.donate)
+
+    utils.add_subcommand(subparsers, 'donate', commands)
 
     #------------------------------------
     # ACTION
@@ -233,7 +173,7 @@ def main():
     args = parser.parse_args(sys.argv)
 
     # Ensure we have a trainling slash on the mlhub.
-    
+
     if args.mlhub is not None: mlhub = os.path.join(args.mlhub, "")
 
     if args.cmd is not None: constants.CMD = args.cmd
@@ -241,11 +181,11 @@ def main():
     if args.debug:
         constants.debug = True
         print(DEBUG + str(args))
-    
+
     if not "func" in args:
         utils.print_usage()
         return 0
-    
+
     args.func(args)
 
 if __name__ == "__main__":

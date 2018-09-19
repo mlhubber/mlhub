@@ -47,7 +47,21 @@ from shutil import move, rmtree
 from distutils.version import StrictVersion
 
 import mlhub.utils as utils
-from mlhub.constants import MLINIT, DESC_YAML, DESC_YML, APP, APPX, CMD, HUB_PATH, EXT_MLM, EXT_AIPK, META_YAML, README, META_YML, DEBUG
+from mlhub.constants import (
+    MLINIT,
+    DESC_YAML,
+    DESC_YML,
+    APP,
+    APPX,
+    CMD,
+    HUB_PATH,
+    EXT_MLM,
+    EXT_AIPK,
+    META_YAML,
+    README,
+    META_YML,
+    DEBUG,
+)
 
 # The commands are implemented here in a logical order with each
 # command providing a suggesting of the following command.
@@ -77,9 +91,7 @@ def list_available(args):
     # Suggest next step.
     
     if not args.quiet:
-        msg = "\nInstall a model with:\n\n  $ {} install <model>\n"
-        msg = msg.format(CMD)
-        print(msg)
+        utils.print_next_step('available')
 
 #------------------------------------------------------------------------
 # INSTALLED
@@ -119,21 +131,9 @@ def list_installed(args):
     
     if not args.quiet:
         if mcnt > 0:
-            msg = "\nConfigure a model before demonstration with:\n\n  $ {} configure <model>"
-            msg = msg.format(CMD)
-            print(msg)
-
-            msg = "\nRun a model's demonstration script with:\n\n  $ {} demo <model>\n"
-            msg = msg.format(CMD)
-            print(msg)
+            utils.print_next_step('installed', scenario='exist')
         else:
-            msg = "\nModels available from the repository can be listed with:\n\n  $ {} avaliable"
-            msg = msg.format(CMD)
-            print(msg)
-
-            msg = "\nA model can be installed using:\n\n  $ {} install <model>"
-            msg = msg.format(CMD)
-            print(msg)
+            utils.print_next_step('installed', scenario='none')
 
 #-----------------------------------------------------------------------
 # INSTALL
@@ -300,9 +300,7 @@ def install_model(args):
     # Suggest next step. README or DOWNLOAD
     
     if not args.quiet:
-        msg = "Read the model information with:\n\n  $ {} readme {}\n"
-        msg = msg.format(CMD, model)
-        print(msg)
+        utils.print_next_step('install', model=model)
     
 #-----------------------------------------------------------------------
 # DOWNLOAD
@@ -323,9 +321,7 @@ def download_model(args):
     utils.check_model_installed(model)
     
     if not args.quiet:
-        msg = "Model information is available:\n\n  $ {} readme {}\n"
-        msg = msg.format(CMD, model)
-        print(msg)
+        utils.print_next_step('download', model=model)
 
 #-----------------------------------------------------------------------
 # README
@@ -352,9 +348,7 @@ def readme(args):
     # Suggest next step.
 
     if not args.quiet:
-        msg = "Model dependencies are installed using:\n\n  $ {} configure {}\n"
-        msg = msg.format(CMD, model)
-        print(msg)
+        utils.print_next_step('readme', model=model)
 
 #------------------------------------------------------------------------
 # LICENSE
@@ -386,9 +380,7 @@ def list_model_commands(args):
     if 'title' not in info['meta']:
         title = None
     else:
-        title = re.sub("\.$", "", info['meta']['title'])
-        lc = lambda s: s[:1].lower() + s[1:] if s else ''
-        title = lc(title)
+        title = utils.lower_first_letter(utils.dropdot(info['meta']['title']))
         msg += "({}) "
 
     msg += "supports the following commands:"
@@ -409,9 +401,7 @@ def list_model_commands(args):
     # Suggest next step.
     
     if not args.quiet:
-        msg = "\nOnce configured the demo can be run:\n\n  $ {} demo {}\n"
-        msg = msg.format(CMD, model)
-        print(msg)
+        utils.print_next_step('commands', model=model)
 
 #-----------------------------------------------------------------------
 # CONFIGURE
@@ -487,9 +477,7 @@ def configure_model(args):
     # Suggest next step.
     
     if not args.quiet:
-        msg = "Commands supported by the model are listed using:\n\n  $ {} commands {}\n"
-        msg = msg.format(CMD, model)
-        print(msg)
+        utils.print_next_step('configure', model=model)
 
 #-----------------------------------------------------------------------
 # DISPATCH
@@ -560,6 +548,11 @@ Try using 'commands' to list all supported commands:
     if proc.returncode != 0:
         print("An error was encountered:\n")
         print(errors.decode("utf-8"))
+    else:
+        # Suggest next step
+
+        if not args.quiet:
+            utils.print_next_step(cmd, description=desc, model=model)
     
 #------------------------------------------------------------------------
 # DONATE
