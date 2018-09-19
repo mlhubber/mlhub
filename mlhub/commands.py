@@ -598,8 +598,14 @@ def remove_model(args):
     
     model  = args.model
     if model is None:
-        path = MLINIT
-        msg  = "*Completely* remove all installed models in '{}' [y/N]? "
+        if os.path.exists(MLINIT):
+            path = MLINIT
+            msg  = "*Completely* remove all installed models in '{}' [y/N]? "
+        else:
+            msg = "The local model folder '{}' does not exist. Nothing to do."
+            msg = msg.format(MLINIT)
+            print(msg)
+            sys.exit(1)
     else:
         path = MLINIT + model
         msg = "Remove '{}' [y/N]? "
