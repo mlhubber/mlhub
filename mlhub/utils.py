@@ -35,7 +35,23 @@ import urllib.request
 import platform
 import subprocess
 
-from mlhub.constants import APPX, MLINIT, CMD, MLHUB, META_YAML, META_YML, DESC_YAML, DESC_YML, debug, DEBUG, USAGE, EXT_MLM, VERSION, APP
+from mlhub.constants import (
+    APPX,
+    MLINIT,
+    CMD,
+    MLHUB,
+    META_YAML,
+    META_YML,
+    DESC_YAML,
+    DESC_YML,
+    debug,
+    DEBUG,
+    USAGE,
+    EXT_MLM,
+    VERSION,
+    APP,
+    COMMANDS,
+)
 
 def print_usage():
     print(CMD)
@@ -196,3 +212,94 @@ def interpreter(script):
         sys.exit()
 
     return(interpreter)
+
+#-----------------------------------------------------------------------
+# ADD SUBCOMMAND
+
+def add_subcommand(subparsers, subcommand, module):
+    """Add subcommand to subparsers."""
+
+    cmd_meta = COMMANDS[subcommand]
+    parser = subparsers.add_parser(
+        subcommand,
+        aliases=cmd_meta.get('alias', ()),
+        description=cmd_meta['description'],
+    )
+
+    if 'argument' in cmd_meta:
+        args = cmd_meta['argument']
+        for name in args:
+            parser.add_argument(name, **args[name])
+
+    if 'func' in cmd_meta:
+        parser.set_defaults(func=getattr(module, cmd_meta['func']))
+
+# -----------------------------------------------------------------------
+# DROP THE PERIOD AFTER A SENTENCE
+
+def dropdot(sentence):
+    import re
+    return(re.sub("\.$", "", sentence))
+
+# -----------------------------------------------------------------------
+# LOWERCASE THE FIRST LETTER OF A SENTENCE
+
+def lower_first_letter(sentence):
+    return(sentence[:1].lower() + sentence[1:] if sentence else '')
+
+
+#-----------------------------------------------------------------------
+# SUGGEST NEXT STEP FOR COMMAND 
+
+def print_next_step(current, description={}, scenario=None, model=''):
+    """Print next step suggestions for the command.
+
+    Args:
+        current (str): the command needs to be given next step suggestion.
+        description(dict): yaml object from DESCRIPTION.yaml
+        scenario (str): certain scenario for the next step.
+        model (str): the model name if needed.
+    """
+
+    if description == {}:
+
+        # Use the order for common commands
+
+        if 'next' not in COMMANDS[current]:
+            return
+
+        steps = COMMANDS[current]['next']
+
+        if scenario != None:
+            steps = steps[scenario]
+    
+        for next in steps:
+            meta = COMMANDS[next]
+    
+            # If there is customized suggestion, use it; otherwise
+            # generate from description.
+
+            if 'argument' in meta and model == '':
+                model = '<model>'
+
+            msg = meta.get('suggestion',
+                           "\nTo " + lower_first_letter(meta['description']) + ":"
+                           "\n\n  $ {} {} {}\n")
+            msg = msg.format(CMD, next, model)
+            print(msg)
+    else:
+
+        # Use the order in DESCRIPTION.yaml
+
+        avail_cmds = list(description['commands'])
+        next_index = avail_cmds.index(current) + 1
+        if next_index < len(avail_cmds):
+            next = avail_cmds[next_index]
+            msg = dropdot(lower_first_letter(description['commands'][next]))
+            msg = "\nTo " + msg + ":\n\n  $ {} {} {}\n"
+            msg = msg.format(CMD, next, model)
+        else:
+            msg = "Thank you for exploring the {} model.".format(model)
+
+        print(msg)
+

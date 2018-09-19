@@ -65,35 +65,166 @@ EXT_AIPK = ".aipk"        # Backward compatibility
 
 VERSION = "1.2.8" # DO NOT MODIFY. Managed from ../Makefile.
 
-USAGE = """Usage: {} [<options>] <command> [<command options>] [<model>]
+# Commands
+
+COMMANDS = {
+    # -------------------------------------------------------------------
+    # 'description': used in the usage by argparse and to genereate next
+    #                step suggestion.
+    # 'suggestion': Maybe give a better suggestion instead of generating
+    #               automatically from 'description'.
+    # 'alias': used by argparse.
+    # 'func': useed by argparse to dispatch to the actual function.
+    # 'next': specify the next possible commands after the command.
+    #         There can be groups of next commands for different scenarios,
+    #         like the command 'installed'.
+    #         Next step order: available, install, readme, configure,
+    #                          commands, demo.
+    # 'confirm': Maybe used for collecting user's confirmation.
+    # 'argument': possible argument for the command used by argparse.
+
+    'available':
+        {'description': "List the models available from the ML Hub",
+               'alias': ['avail'],
+               'usage': "  available            "
+                        "List the models available from the repository.",
+                'func': "list_available",
+                'next': ['install'],
+        },
+
+    'installed':
+        {'description': "List the locally installed models",
+               'usage': "  installed            "
+                        "List the models installed locally.",
+                'func': "list_installed",
+                'next': {'exist': ['configure', 'demo'],
+                          'none': ['available', 'install']},
+        },
+
+    'clean':
+        {'description': "Remove downloaded .mlm archive files",
+               'usage': "  clean                "
+                        "Remove all (downloaded) {} files from {}.",
+             'confirm': "Remove model package archive '{}' [Y/n]? ",
+                'func': "remove_mlm",
+        },
+
+    'install':
+        {'description': "Locally install a model downloaded from a ML Hub",
+            'argument': {'model': {}},
+               'usage': "  install    <model>   "
+                        "Install the named model, local model file or URL.",
+                'func': "install_model",
+                'next': ['readme'],
+        },
+
+    'download':
+        {'description': "Download the actual (large) pre-built model",
+            'argument': {'model': {}},
+                'func': "download_model",
+                'next': ['readme'],
+        },
+
+    'readme':
+        {'description': "Display the model's README information",
+            'argument': {'model': {}},
+               'usage': "  readme     <model>   "
+                        "View the model's README.",
+                'func': "readme",
+                'next': ['configure'],
+        },
+
+    'license':
+        {'description': "Display the model's LICENSE information",
+            'argument': {'model': {}},
+                'func': "license",
+        },
+
+    'commands':
+        {'description': "List all of the commands supported by the model",
+            'argument': {'model': {}},
+               'usage': "  commands   <model>   "
+                        "List the commands supported by the model.",
+                'func': "list_model_commands",
+                'next': ['demo'],
+        },
+
+    'configure':
+        {'description': "Configure the dependencies required for the model",
+            'argument': {'model': {}},
+               'usage': "  configure  <model>   "
+                        "Configure the model's dependencies.",
+                'func': "configure_model",
+                'next': ['commands'],
+        },
+
+    'remove':
+        {'description': "Remove installed model",
+            'argument': {'model': {'nargs': "?"}},
+               'usage': "  remove    [<model>]  "
+                        "Remove a model or remove all models.",
+                'func': "remove_model",
+        },
+
+    'demo':
+        {'description': "Run the model's demonstration",
+               'alias': ['print', 'display', 'score', 'rebuild'],
+            'argument': {'model': {},
+                         'param': {'nargs': "*"}},
+               'usage': "  demo       <model>   "
+                        "Demostrate the model in action.",
+                'func': "dispatch",
+        },
+
+    'donate':
+        {'description': "Consider a donation to the author",
+            'argument': {'model': {}},
+                'func': "donate",
+        },
+
+    'download':
+        {'description': "Download the large pre-built model"},
+
+    'print':
+        {      'usage': "  print      <model>   "
+                        "Technical information about the model."
+        },
+
+    'display':
+        {      'usage': "  display    <model>   "
+                        "Visual presentaiton of the model."
+        },
+}
+
+USAGE = """Usage: {{}} [<options>] <command> [<command options>] [<model>]
 
 Access machine learning models from the ML Hub.
 
 Global commands:
 
-  available            List the models available from the repository.
-  installed            List the models installed locally.
-  clean                Remove all (downloaded) {} files from {}.
+{commands[available][usage]}
+{commands[installed][usage]}
+{commands[clean][usage]}
 
-  install    <model>   Install the named model, local model file or URL.
-  readme     <model>   View the model's README.
-  commands   <model>   List the commands supported by the model.
-  configure  <model>   Configure the model's dependencies.
-  demo       <model>   Demostrate the model in action.
-  print      <model>   Technical information about the model.
-  display    <model>   Visual presentaiton of the model.
-  remove    [<model>]  Remove a model or remove all models.
+{commands[install][usage]}
+{commands[readme][usage]}
+{commands[commands][usage]}
+{commands[configure][usage]}
+{commands[demo][usage]}
+{commands[print][usage]}
+{commands[display][usage]}
+{commands[remove][usage]}
 
-The ML Hub repository is '{}'.
+The ML Hub repository is '{{}}'.
 
-Models are installed into '{}'.
+Models are installed into '{{}}'.
 
-This is version {} of {}.
+This is version {{}} of {{}}.
 
 List the available models from the repository with:
 
   $ ml available
-"""
+""".format(commands=COMMANDS)
 
 # Filenames.
 
