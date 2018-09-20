@@ -609,5 +609,10 @@ def remove_model(args):
 
     sys.stdout.write(msg.format(path))
     choice = input().lower()
-    if choice == 'y': rmtree(path)
+    if choice == 'y':
+        rmtree(path)
+    else:
+        if model is None and not args.quiet:
+            utils.print_next_step('remove')
+            
 
