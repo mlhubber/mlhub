@@ -164,6 +164,7 @@ COMMANDS = {
                'usage': "  remove    [<model>]  "
                         "Remove a model or remove all models.",
                 'func': "remove_model",
+                'next': ['installed'],
         },
 
     'demo':
