@@ -122,7 +122,6 @@ def list_installed(args):
     # Report on each of the installed models.
         
     if mcnt > 0: print("")
-    
     for p in models:
         entry = utils.load_description(p)
         utils.print_meta_line(entry)
@@ -294,7 +293,7 @@ def install_model(args):
             for f in files:
                 tfilename = os.path.join(pth, f)
                 dsz += os.path.getsize(tfilename)
-        print("Extracted '{}' into\n'{}' ({:,} bytes).\n".
+        print("Extracted '{}' into\n'{}' ({:,} bytes).".
               format(mlmfile, path, dsz))
             
     # Suggest next step. README or DOWNLOAD
@@ -609,5 +608,8 @@ def remove_model(args):
 
     sys.stdout.write(msg.format(path))
     choice = input().lower()
-    if choice == 'y': rmtree(path)
-
+    if choice == 'y':
+        rmtree(path)
+    else:
+        if model is None and not args.quiet:
+            utils.print_next_step('remove')

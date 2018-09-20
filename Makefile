@@ -23,7 +23,8 @@ APP=mlhub
 # VER=1.2.5# Allow for URL in INSTALL.
 # VER=1.2.6# Check DISPLAY in MLHUB rather than model.
 # VER=1.2.7# Check version overwrite before downloading. 
-VER=1.2.8# 20180919 Handle REMOVE when MLINIT does not exist.
+# VER=1.2.8# 20180919 Handle REMOVE when MLINIT does not exist.
+VER=1.3.0# 20180919 Re-engineer the whats-next management.
 
 APP_FILES = 			\
 	setup.py		\
