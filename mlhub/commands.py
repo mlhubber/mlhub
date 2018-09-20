@@ -294,7 +294,7 @@ def install_model(args):
             for f in files:
                 tfilename = os.path.join(pth, f)
                 dsz += os.path.getsize(tfilename)
-        print("Extracted '{}' into\n'{}' ({:,} bytes).\n".
+        print("Extracted '{}' into\n'{}' ({:,} bytes).".
               format(mlmfile, path, dsz))
             
     # Suggest next step. README or DOWNLOAD
