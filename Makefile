@@ -24,7 +24,9 @@ APP=mlhub
 # VER=1.2.6# Check DISPLAY in MLHUB rather than model.
 # VER=1.2.7# Check version overwrite before downloading. 
 # VER=1.2.8# 20180919 Handle REMOVE when MLINIT does not exist.
-VER=1.3.0# 20180919 Re-engineer the whats-next management.
+# VER=1.3.0# 20180919 Re-engineer the whats-next management.
+# VER=1.3.1# 20180921 Ensure yaml keys remain in same order as on file.
+VER=1.3.2# 20180921 COMMANDS output is now formatted.
 
 APP_FILES = 			\
 	setup.py		\
@@ -33,7 +35,7 @@ APP_FILES = 			\
 	mlhub/commands.py	\
 	mlhub/utils.py		\
 	mlhub/constants.py	\
-	README.rst		\
+	README.html		\
 	LICENSE	
 
 TAR_GZ = $(APP)_$(VER).tar.gz
