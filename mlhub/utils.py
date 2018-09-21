@@ -31,6 +31,7 @@
 import os
 import sys
 import yaml
+import yamlordereddictloader
 import urllib.request
 import platform
 import subprocess
@@ -154,11 +155,11 @@ def load_description(model):
 
     desc = os.path.join(MLINIT, model, DESC_YAML)
     if os.path.exists(desc):
-        entry = yaml.load(open(desc))
+        entry = yaml.load(open(desc), Loader=yamlordereddictloader.Loader)
     else:
         desc = os.path.join(MLINIT, model, DESC_YML)
         if os.path.exists(desc):
-            entry = yaml.load(open(desc))
+            entry = yaml.load(open(desc), Loader=yamlordereddictloader.Loader)
         else:
             msg = "{}no '{}' found for '{}'."
             msg = msg.format(APPX, DESC_YAML, model)
@@ -292,7 +293,8 @@ def print_next_step(current, description={}, scenario=None, model=''):
         # Use the order in DESCRIPTION.yaml
 
         avail_cmds = list(description['commands'])
-        next_index = avail_cmds.index(current) + 1
+
+        next_index = avail_cmds.index(current) + 1 if current != 'commands' else 0
         if next_index < len(avail_cmds):
             next = avail_cmds[next_index]
             msg = dropdot(lower_first_letter(description['commands'][next]))

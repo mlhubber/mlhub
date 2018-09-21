@@ -78,8 +78,9 @@ COMMANDS = {
     # 'next': specify the next possible commands after the command.
     #         There can be groups of next commands for different scenarios,
     #         like the command 'installed'.
-    #         Next step order: available, install, readme, configure,
-    #                          commands, demo.
+    #         Next step order: 'available', 'install', 'readme', 'configure',
+    #                          'commands' and commands by the order in the
+    #                          model's DESCRIPTION.yaml
     # 'confirm': Maybe used for collecting user's confirmation.
     # 'argument': possible argument for the command used by argparse.
 
@@ -146,7 +147,6 @@ COMMANDS = {
                'usage': "  commands   <model>   "
                         "List the commands supported by the model.",
                 'func': "list_model_commands",
-                'next': ['demo'],
         },
 
     'configure':
