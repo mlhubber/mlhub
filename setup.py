@@ -41,4 +41,5 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     package_data={'.': ['LICENSE']},
     entry_points={'console_scripts': ['ml=mlhub:main']},
+    install_requires=['requests', 'pyyaml', 'yamlordereddictloader', ],
 )
