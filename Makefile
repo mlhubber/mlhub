@@ -88,7 +88,7 @@ $(TAR_GZ): $(APP_FILES)
 	tar cvzf $@ $^
 
 .PHONY: pypi
-pypi: version
+pypi: README.html version
 	python setup.py sdist
 	twine upload dist/$(APP)-$(VER).tar.gz
 
