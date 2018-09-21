@@ -385,17 +385,11 @@ def list_model_commands(args):
     msg += "supports the following commands:"
     msg = msg.format(model, title)
     msg = textwrap.fill(msg, width=75)
-    print(msg + "\n")
+    print(msg)
 
-    # TODO Separate each  command with empty line.
-    
-    # print(info['commands'])
-    # for c in info['commands']:
-    #     print(info['commands']['demo'])
-    #     print(c)
-    #     print(c['script'])
-
-    yaml.dump(dict(info['commands']), sys.stdout, default_flow_style = False)
+    for c in info['commands']:
+        print("\n$ {} {} {}".format(CMD, c, model))
+        print("  " + info['commands'][c])
 
     # Suggest next step.
     
