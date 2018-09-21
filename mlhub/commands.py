@@ -395,12 +395,12 @@ def list_model_commands(args):
     #     print(c)
     #     print(c['script'])
 
-    yaml.dump(info['commands'], sys.stdout, default_flow_style = False)
+    yaml.dump(dict(info['commands']), sys.stdout, default_flow_style = False)
 
     # Suggest next step.
     
     if not args.quiet:
-        utils.print_next_step('commands', model=model)
+        utils.print_next_step('commands', description=info, model=model)
 
 #-----------------------------------------------------------------------
 # CONFIGURE
