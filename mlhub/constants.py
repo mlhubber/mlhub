@@ -111,7 +111,7 @@ COMMANDS = {
         },
 
     'install':
-        {'description': "Locally install a model downloaded from a ML Hub",
+        {'description': "Locally install a model downloaded from an ML Hub",
             'argument': {'model': {}},
                'usage': "  install    <model>   "
                         "Install the named model, local model file or URL.",
