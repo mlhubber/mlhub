@@ -54,6 +54,9 @@ help::
 %.txt: %.rst
 	pandoc $< -o $@
 
+%.md: %.rst
+	pandoc $< -o $@
+
 %.txt: %.md
 	pandoc $< -o $@
 

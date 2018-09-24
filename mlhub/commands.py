@@ -342,7 +342,7 @@ def readme(args):
     # Display the README.
     
     with open(readme, 'r') as f:
-        print(f.read())
+        print(utils.drop_newline(f.read()))
     
     # Suggest next step.
 

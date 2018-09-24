@@ -243,6 +243,13 @@ def dropdot(sentence):
     return(re.sub("\.$", "", sentence))
 
 # -----------------------------------------------------------------------
+# DROP TRAINLING NEWLINES
+
+def drop_newline(paragraph):
+    import re
+    return(re.sub("\n$", "", paragraph))
+
+# -----------------------------------------------------------------------
 # LOWERCASE THE FIRST LETTER OF A SENTENCE
 
 def lower_first_letter(sentence):
@@ -273,7 +280,7 @@ def print_next_step(current, description={}, scenario=None, model=''):
 
         if scenario != None:
             steps = steps[scenario]
-    
+
         for next in steps:
             meta = COMMANDS[next]
     
@@ -285,7 +292,7 @@ def print_next_step(current, description={}, scenario=None, model=''):
 
             msg = meta.get('suggestion',
                            "\nTo " + lower_first_letter(meta['description']) + ":"
-                           "\n\n  $ {} {} {}\n")
+                           "\n\n  $ {} {} {}")
             msg = msg.format(CMD, next, model)
             print(msg)
     else:
@@ -298,10 +305,11 @@ def print_next_step(current, description={}, scenario=None, model=''):
         if next_index < len(avail_cmds):
             next = avail_cmds[next_index]
             msg = dropdot(lower_first_letter(description['commands'][next]))
-            msg = "\nTo " + msg + ":\n\n  $ {} {} {}\n"
+            msg = "\nTo " + msg + ":\n\n  $ {} {} {}"
             msg = msg.format(CMD, next, model)
         else:
-            msg = "\nThank you for exploring the '{}' model.\n".format(model)
+            msg = "\nThank you for exploring the '{}' model.".format(model)
 
         print(msg)
 
+    print("")

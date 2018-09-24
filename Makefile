@@ -26,7 +26,9 @@ APP=mlhub
 # VER=1.2.8# 20180919 Handle REMOVE when MLINIT does not exist.
 # VER=1.3.0# 20180919 Re-engineer the whats-next management.
 # VER=1.3.1# 20180921 Ensure yaml keys remain in same order as on file.
-VER=1.3.2# 20180921 COMMANDS output is now formatted.
+# VER=1.3.2# 20180921 COMMANDS output is now formatted.
+# VER=1.3.5# 20180921 Try README.md for pypi
+VER=1.3.6# 20180924 Back to README.rst? Improve formatting.
 
 APP_FILES = 			\
 	setup.py		\
@@ -35,7 +37,7 @@ APP_FILES = 			\
 	mlhub/commands.py	\
 	mlhub/utils.py		\
 	mlhub/constants.py	\
-	README.html		\
+	README.md		\
 	LICENSE	
 
 TAR_GZ = $(APP)_$(VER).tar.gz
@@ -90,7 +92,7 @@ $(TAR_GZ): $(APP_FILES)
 	tar cvzf $@ $^
 
 .PHONY: pypi
-pypi: README.html version
+pypi: README.md version
 	python setup.py sdist
 	twine upload dist/$(APP)-$(VER).tar.gz
 
@@ -108,7 +110,7 @@ dsvm01: dist
 
 .PHONY: clean
 clean:
-	rm -f README.html
+	rm -f README.html README.md
 
 realclean:: clean
 	rm -f mlhub_*.tar.gz
