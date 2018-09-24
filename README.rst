@@ -46,8 +46,8 @@ of each command::
   $ ml installed               # List of pre-built models installed locally
   $ ml install   rain-tomorrow # Install the model named rain-tomorrow.
   $ ml readme    rain-tomorrow # View background information about the model.
-  $ ml commands  rain-tomorrow # List of commands supported by the model.
   $ ml configure rain-tomorrow # Install required dependencies.
+  $ ml commands  rain-tomorrow # List of commands supported by the model.
   $ ml demo      rain-tomorrow # Run the demonstration of the model
   $ ml print     rain-tomorrow # Textual summary of the model.
   $ ml display   rain-tomorrow # Graphical display of pre-built model.
