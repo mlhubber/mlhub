@@ -37,7 +37,7 @@ APP_FILES = 			\
 	mlhub/commands.py	\
 	mlhub/utils.py		\
 	mlhub/constants.py	\
-	README.md		\
+	README.rst		\
 	LICENSE	
 
 TAR_GZ = $(APP)_$(VER).tar.gz
