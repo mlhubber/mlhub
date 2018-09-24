@@ -28,7 +28,8 @@ APP=mlhub
 # VER=1.3.1# 20180921 Ensure yaml keys remain in same order as on file.
 # VER=1.3.2# 20180921 COMMANDS output is now formatted.
 # VER=1.3.5# 20180921 Try README.md for pypi
-VER=1.3.6# 20180924 Back to README.rst? Improve formatting.
+# VER=1.3.6# 20180924 Back to README.rst? Improve formatting.
+VER=1.3.9# 20180924 Get README.rst formatted on PyPi.
 
 APP_FILES = 			\
 	setup.py		\
