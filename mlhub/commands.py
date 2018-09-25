@@ -388,8 +388,8 @@ def list_model_commands(args):
     print(msg)
 
     for c in info['commands']:
-        print("\n$ {} {} {}".format(CMD, c, model))
-        print("  " + info['commands'][c])
+        print("\n  $ {} {} {}".format(CMD, c, model))
+        print("    " + info['commands'][c])
 
     # Suggest next step.
     
