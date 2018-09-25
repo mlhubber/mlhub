@@ -152,23 +152,23 @@ Alternative Install
 -------------------
 
 A tar.gz containing the mlhub package and the command line interface
-is available as `mlhub_1.3.9.tar.gz`_ within the `distribution
+is available as `mlhub_1.3.10.tar.gz`_ within the `distribution
 folder`_ of the MLHub.
 
 To install from the tar.gz file::
   
-  $ wget https://mlhub.ai/dist/mlhub_1.3.9.tar.gz
-  $ pip install mlhub_1.3.9.tar.gz
+  $ wget https://mlhub.ai/dist/mlhub_1.3.10.tar.gz
+  $ pip install mlhub_1.3.10.tar.gz
   $ ml
 
 Or extract the above downloaded .tar.gz and install::
 
-  $ wget https://mlhub.ai/dist/mlhub_1.3.9.tar.gz
-  $ tar xvf mlhub_1.3.9.tar.gz
+  $ wget https://mlhub.ai/dist/mlhub_1.3.10.tar.gz
+  $ tar xvf mlhub_1.3.10.tar.gz
   $ cd mlhub
   $ python3 setup.py install --user
 
-.. _`mlhub_1.3.9.tar.gz`: https://mlhub.ai/dist/mlhub_1.3.9.tar.gz
+.. _`mlhub_1.3.10.tar.gz`: https://mlhub.ai/dist/mlhub_1.3.10.tar.gz
 .. _`distribution folder`: https://mlhub.ai/dist/
 
 Contributions
