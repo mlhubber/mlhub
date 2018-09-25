@@ -1,0 +1,3 @@
+include mlhub/bash_completion.d/ml.bash
+include README.rst
+include LICENSE

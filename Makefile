@@ -40,7 +40,9 @@ APP_FILES = 			\
 	mlhub/utils.py		\
 	mlhub/constants.py	\
 	README.rst		\
-	LICENSE	
+	LICENSE	                \
+	mlhub/bash_completion.d/ml.bash\
+	MANIFEST.in
 
 TAR_GZ = $(APP)_$(VER).tar.gz
 
