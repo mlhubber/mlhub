@@ -10,7 +10,8 @@ Introduction
 The machine learning hub is an `open source project`_ aimed at easily
 sharing `pre-built machine learning models`_. The models are accessed
 and managed using the *ml* command from the *mlhub* package designed
-to install the model and run a demonstration within 5 minutes.
+to install the model and run a demonstration within 5 minutes.  Each
+model has been tested on Ubuntu (GNU/Linux).
 
 Visit the `repository index`_ on `mlhub.ai`_ where the models
 themselves can be browsed from the `main pool`_.
