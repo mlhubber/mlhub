@@ -32,19 +32,7 @@ APP=mlhub
 # VER=1.3.9# 20180924 Get README.rst formatted on PyPi.
 VER=1.3.10# 20180925 Improve COMMANDS output.
 
-APP_FILES = 			\
-	setup.py		\
-	setup.cfg		\
-	mlhub/__init__.py	\
-	mlhub/commands.py	\
-	mlhub/utils.py		\
-	mlhub/constants.py	\
-	README.rst		\
-	LICENSE	                \
-	mlhub/bash_completion.d/ml.bash\
-	MANIFEST.in
-
-TAR_GZ = $(APP)_$(VER).tar.gz
+TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
 INC_BASE    = .
 INC_PANDOC  = $(INC_BASE)/pandoc.mk
@@ -92,18 +80,16 @@ version:
 	perl -pi -e 's|^VERSION = ".*"|VERSION = "$(VER)"|' mlhub/constants.py
 	perl -pi -e 's|$(APP)_\d+.\d+.\d+|$(APP)_$(VER)|g' README.rst
 
-$(TAR_GZ): $(APP_FILES)
-	tar cvzf $@ $^
+$(TAR_GZ):
+	python setup.py sdist
 
 .PHONY: pypi
-pypi: README.md version
-	python setup.py sdist
-	twine upload dist/$(APP)-$(VER).tar.gz
+pypi: README.md version $(TAR_GZ)
+	twine upload $(TAR_GZ)
 
 .PHONY: pypi.test
-pypi.test: version
-	python setup.py sdist
-	twine upload --repository-url https://test.pypi.org/legacy/ dist/$(APP)-$(VER).tar.gz
+pypi.test: version $(TAR_GZ)
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/$(TAR_GZ)
 
 .PHONY: dist
 dist: version $(TAR_GZ)
