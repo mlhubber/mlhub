@@ -86,6 +86,9 @@ COMMANDS = {
 
     'available':
         {'description': "List the models available from the ML Hub",
+            'argument': {'--name-only': {'help': "List names only",
+                                         'action': "store_true"},
+                        },
                'alias': ['avail'],
                'usage': "  available            "
                         "List the models available from the repository.",
@@ -95,6 +98,9 @@ COMMANDS = {
 
     'installed':
         {'description': "List the locally installed models",
+            'argument': {'--name-only': {'help': "List names only",
+                                         'action': "store_true"},
+                        },
                'usage': "  installed            "
                         "List the models installed locally.",
                 'func': "list_installed",
