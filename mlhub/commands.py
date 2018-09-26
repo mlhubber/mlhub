@@ -105,7 +105,7 @@ def list_installed(args):
     if os.path.exists(MLINIT):
         msg = " in '{}'.".format(MLINIT)
         models = [f for f in os.listdir(MLINIT)
-                  if os.path.isdir(os.path.join(MLINIT, f)) and f != "R"]
+                  if os.path.isdir(os.path.join(MLINIT, f)) and f != "R" and not f.startswith('.')]
     else:
         msg = ". '{}' does not exist.".format(MLINIT)
         models = []
