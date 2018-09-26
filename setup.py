@@ -39,7 +39,15 @@ setup(
     ],
     keywords='machine learning models repository',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    package_data={'.': ['LICENSE']},
+    package_data={
+        '.': ['LICENSE'],
+        'mlhub': ['bash_completion.d/ml.bash']
+    },
     entry_points={'console_scripts': ['ml=mlhub:main']},
-    install_requires=['requests', 'pyyaml', 'yamlordereddictloader', ],
+    install_requires=[
+        'requests',
+        'pyyaml',
+        'yamlordereddictloader',
+    ],
+    include_package_data=True,
 )
