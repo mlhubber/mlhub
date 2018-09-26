@@ -304,8 +304,27 @@ def print_next_step(current, description={}, scenario=None, model=''):
         next_index = avail_cmds.index(current) + 1 if current != 'commands' else 0
         if next_index < len(avail_cmds):
             next = avail_cmds[next_index]
-            msg = dropdot(lower_first_letter(description['commands'][next]))
-            msg = "\nTo " + msg + ":\n\n  $ {} {} {}"
+            next_meta = description['commands'][next]
+
+            if type(next_meta) is str:
+                msg = dropdot(lower_first_letter(next_meta))
+            else:
+                # Handle malformed DESCRIPTION.yaml like
+                # --
+                # commands:
+                #   print:
+                #     description: print a textual summary of the model
+                #   score:
+                #     equired: the name of a CSV file containing a header and 6 columns
+                #     description: apply the model to a supplied dataset
+
+                msg = next_meta.pop('description', None)
+
+            if msg is not None:
+                msg = "\nTo " + msg
+            else:
+                msg = "You may try"
+            msg += ":\n\n  $ {} {} {}"
             msg = msg.format(CMD, next, model)
         else:
             msg = "\nThank you for exploring the '{}' model.".format(model)
