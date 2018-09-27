@@ -29,30 +29,30 @@ The command line interface can be installed using `PyPi`_::
 
   $ pip3 install mlhub
   
-Once installed you will be able to run the sample rain-tomorrow model
+Once installed you will be able to run the sample 'rain' model
 assuming that you have the free and open source `R statistical
 software package`_ installed. The TL;DR version is below. Note that
 you type the command ``ml ...`` and that everything from the ``#`` to
 the end of the line is ignored (it's a comment)::
 
-  $ ml install   rain-tomorrow # Install the model named rain-tomorrow.
-  $ ml demo      rain-tomorrow # Run the demonstration of the model
-  $ ml display   rain-tomorrow # Graphical display of pre-built model.
+  $ ml install   rain # Install the model named 'rain'.
+  $ ml demo      rain # Run the demonstration of the model
+  $ ml display   rain # Graphical display of pre-built model.
 
 The following commands are available and below is a brief description
 of each command::
 
-  $ ml                         # Show a usage message.
-  $ ml available               # List of pre-buld models on the MLHub.
-  $ ml installed               # List of pre-built models installed locally
-  $ ml install   rain-tomorrow # Install the model named rain-tomorrow.
-  $ ml readme    rain-tomorrow # View background information about the model.
-  $ ml configure rain-tomorrow # Install required dependencies.
-  $ ml commands  rain-tomorrow # List of commands supported by the model.
-  $ ml demo      rain-tomorrow # Run the demonstration of the model
-  $ ml print     rain-tomorrow # Textual summary of the model.
-  $ ml display   rain-tomorrow # Graphical display of pre-built model.
-  $ ml score     rain-tomorrow # Run model on your own data.
+  $ ml                # Show a usage message.
+  $ ml available      # List of pre-buld models on the MLHub.
+  $ ml installed      # List of pre-built models installed locally
+  $ ml install   rain # Install the model named 'rain'.
+  $ ml readme    rain # View background information about the model.
+  $ ml configure rain # Install required dependencies.
+  $ ml commands  rain # List of commands supported by the model.
+  $ ml demo      rain # Run the demonstration of the model
+  $ ml print     rain # Textual summary of the model.
+  $ ml display   rain # Graphical display of pre-built model.
+  $ ml score     rain # Run model on your own data.
 
 Different model packages will have different dependencies and these
 will be installed by the *configure* command.
