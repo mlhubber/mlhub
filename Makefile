@@ -40,6 +40,8 @@ VER=1.4.0# 20180927 Auto-complete model names.
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
+BASH_COMPLETION = mlhub/bash_completion.d/ml.bash
+
 INC_BASE    = .
 INC_PANDOC  = $(INC_BASE)/pandoc.mk
 INC_GIT     = $(INC_BASE)/git.mk
@@ -76,9 +78,9 @@ ifneq ("$(wildcard $(INC_CLEAN))","")
 endif
 
 .PHONY: mlhub
-mlhub: version $(TAR_GZ)
+mlhub: version $(TAR_GZ) $(BASH_COMPLETION)
 	chmod a+r $(TAR_GZ)
-	rsync -avzh $(TAR_GZ) mlhub.ai:webapps/mlhub2/
+	rsync -avzh $(TAR_GZ) $(BASH_COMPLETION) mlhub.ai:webapps/mlhub2/
 
 .PHONY: version
 version:
