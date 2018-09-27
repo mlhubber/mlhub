@@ -8,30 +8,45 @@
 #
 ########################################################################
 
+########################################################################
+# GLOBAL VARIABLES
+#
 # I think the geometry for LaTeX should be a4 rather than a4paper to
 # work with newer LaTeX. Should only need lang which pandoc should
 # underneath also set babel-lang but that does not seem to be working
 # 20171230 (reference man page).
 
 PANDOC_PDF_OPTIONS=-V urlcolor=cyan -V geometry=a4paper -V lang=british -V babel-lang=british --number-sections
+
 PANDOC_TEX_OPTIONS=$(PANDOC_PDF_OPTIONS) --standalone
 
 PANDOC_CSS=pandoc.css
+
 PANDOC_HTML_OPTIONS=--standalone --self-contained
+ifneq ("$(wildcard ../$(PANDOC_CSS))","")
+  PANDOC_HTML_OPTIONS := $(PANDOC_HTML_OPTIONS) --include-in-header=../$(PANDOC_CSS)
+endif
 ifneq ("$(wildcard $(PANDOC_CSS))","")
   PANDOC_HTML_OPTIONS := $(PANDOC_HTML_OPTIONS) --include-in-header=$(PANDOC_CSS)
 endif
+
+########################################################################
+# HELP
 
 define PANDOC_HELP
 Conversion of document formats using pandoc:
 
   Inpute formats:
-    org   Emacs org mode (the original);
-    rst   Attempt to improve markdown;
-    md    Mardown documents;
+    org   Emacs org mode (the original).
+    rst   Attempt to improve markdown.
+    md    Mardown documents.
 
   Output foramts:
+    txt   Plain text file with duplicate empty lines removed.
+    md	  Markdown.
+    docx  Microosft Word.
     html
+    tex	  LaTeX.
     pdf
     view  View the generated PDF document.
 
@@ -51,13 +66,16 @@ export PANDOC_HELP
 help::
 	@echo "$$PANDOC_HELP"
 
-%.txt: %.rst
-	pandoc $< -o $@
+########################################################################
+# RULES
 
-%.md: %.rst
-	pandoc $< -o $@
+%.txt: %.rst
+	pandoc -t plain $< | perl -00pe0 > $@
 
 %.txt: %.md
+	pandoc -t plain $< | perl -00pe0 $@
+
+%.md: %.rst
 	pandoc $< -o $@
 
 %.docx: %.org
@@ -67,6 +85,12 @@ help::
 	pandoc -o $@ $<
 
 %.html: %.rst
+	pandoc $(PANDOC_HTML_OPTIONS) -o $@ $<
+ifneq ("$(HTML_MSG)","")
+	sed -i -e "s|</body>|$(HTML_MSG)\n</body>|g" $@
+endif
+
+%.html: %.md
 	pandoc $(PANDOC_HTML_OPTIONS) -o $@ $<
 
 %.tex: %.org
