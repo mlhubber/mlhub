@@ -6,6 +6,11 @@
 
 APP=mlhub
 
+# Version numbers
+#   Major release
+#   Minor update
+#   Bug fix
+
 # VER=1.1.1 Support MLINIT environment variable. General cleanup.
 # VER=1.1.2 Longer package names in listings.
 # VER=1.1.3 Implement CLEAN and REMOVE.
@@ -30,7 +35,8 @@ APP=mlhub
 # VER=1.3.5# 20180921 Try README.md for pypi
 # VER=1.3.6# 20180924 Back to README.rst? Improve formatting.
 # VER=1.3.9# 20180924 Get README.rst formatted on PyPi.
-VER=1.3.10# 20180925 Improve COMMANDS output.
+# VER=1.3.10# 20180925 Improve COMMANDS output.
+VER=1.4.0# 20180927 Auto-complete model names.
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
