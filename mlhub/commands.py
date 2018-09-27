@@ -389,7 +389,30 @@ def list_model_commands(args):
 
     for c in info['commands']:
         print("\n  $ {} {} {}".format(CMD, c, model))
-        print("    " + info['commands'][c])
+
+        c_meta = info['commands'][c]
+        if type(c_meta) is str:
+            print("    " + c_meta)
+        else:
+            # Handle malformed DESCRIPTION.yaml like
+            # --
+            # commands:
+            #   print:
+            #     description: print a textual summary of the model
+            #   score:
+            #     equired: the name of a CSV file containing a header and 6 columns
+            #     description: apply the model to a supplied dataset
+
+            desc = c_meta.get('description', None)
+            if desc is not None:
+                print("    " + desc)
+
+            c_meta = {k:c_meta[k] for k in c_meta if k != 'description'}
+            if len(c_meta) > 0:
+                msg = yaml.dump(c_meta, default_flow_style=False)
+                msg = msg.split('\n')
+                msg = ["    " + ele for ele in msg]
+                print('\n'.join(msg), end='')
 
     # Suggest next step.
     
