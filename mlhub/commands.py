@@ -99,6 +99,9 @@ def list_available(args):
     
     if not args.quiet:
         utils.print_next_step('available')
+        if not os.path.exists(MLINIT):
+            print("Why not give the 'rain' model a go...\n\n" +
+                  "  $ ml install rain\n")
 
 #------------------------------------------------------------------------
 # INSTALLED
