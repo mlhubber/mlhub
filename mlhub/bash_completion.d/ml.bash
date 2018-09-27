@@ -33,8 +33,6 @@ _mlhub_get_lastword() {
 	echo $lastword
 }
 
-
-
 _mlhub() {
     local cur prev firstword lastword
     local complete_words    # possible completion list for current word
@@ -81,6 +79,7 @@ _mlhub() {
 
     available_options="\
 	-h --help\
+        --name-only\
 	"
 
     clean_options="\
@@ -89,6 +88,7 @@ _mlhub() {
 
     installed_options="\
 	-h --help\
+        --name-only\
 	"
 
     commands_options="\
@@ -127,18 +127,40 @@ _mlhub() {
 	# Commands requires a model name
 	commands)
 	    complete_options="${commands_options}"
+
+	    local installed_model=$(ml installed --name-only)
+
+	    # Only one model name is allowed
+	    local typed=0
+	    for model in ${installed_model}; do
+		if [[ "$model" == "$lastword" ]]; then
+		    typed=1
+		fi
+	    done
+
+	    if [[ $typed == 0 ]]; then
+		complete_words=("${installed_model}")
+	    fi
 	    ;;
 	configure)
 	    complete_options="${configure_options}"
+	    local installed_model=$(ml installed --name-only)
+	    complete_words=("${installed_model}")
 	    ;;
 	install)
 	    complete_options="${install_options}"
+	    local available_model=$(ml available --name-only)
+	    complete_words=("${available_model}")
 	    ;;
 	readme)
 	    complete_options="${readme_options}"
+	    local installed_model=$(ml installed --name-only)
+	    complete_words=("${installed_model}")
 	    ;;
 	remove)
 	    complete_options="${remove_options}"
+	    local installed_model=$(ml installed --name-only)
+	    complete_words=("${installed_model}")
 	    ;;
 	*)
 	    complete_words="${global_commands}"

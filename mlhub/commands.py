@@ -78,13 +78,20 @@ def list_available(args):
     mlhub = utils.get_repo(args.mlhub)
     meta  = utils.get_repo_meta_data(mlhub)
 
+    # List model name only.
+
+    if args.name_only:
+        models = [info["meta"]["name"] for info in meta]
+        print('\n'.join(models))
+        return
+
     # Provide some context.
 
     if not args.quiet:
         print("The repository '{}' provides the following models:\n".format(mlhub))
 
     # List the meta data.
-    
+
     for info in meta:
         utils.print_meta_line(info)
 
@@ -105,12 +112,18 @@ def list_installed(args):
     if os.path.exists(MLINIT):
         msg = " in '{}'.".format(MLINIT)
         models = [f for f in os.listdir(MLINIT)
-                  if os.path.isdir(os.path.join(MLINIT, f)) and f != "R"]
+                  if os.path.isdir(os.path.join(MLINIT, f)) and f != "R" and not f.startswith('.')]
     else:
         msg = ". '{}' does not exist.".format(MLINIT)
         models = []
 
     models.sort()
+
+    # Only list model names
+
+    if args.name_only:
+        print('\n'.join(models))
+        return
         
     # Report on how many models we found installed.
         
