@@ -61,6 +61,8 @@ from mlhub.constants import (
     README,
     META_YML,
     DEBUG,
+    COMPLETION_MODELS,
+    COMPLETION_COMMANDS,
 )
 
 # The commands are implemented here in a logical order with each
@@ -94,6 +96,10 @@ def list_available(args):
 
     for info in meta:
         utils.print_meta_line(info)
+
+    # Update bash tab completion
+
+    utils.update_completion_list(COMPLETION_MODELS, {e['meta']['name'] for e in meta})
 
     # Suggest next step.
     
@@ -141,6 +147,9 @@ def list_installed(args):
     for p in models:
         entry = utils.load_description(p)
         utils.print_meta_line(entry)
+
+        # Update available commands for the model for fast bash tab completion.
+        utils.update_completion_list(COMPLETION_COMMANDS, set(entry['commands']))
 
     # Suggest next step.
     
@@ -203,6 +212,10 @@ def install_model(args):
         
             mlhub = utils.get_repo(args.mlhub)
             meta  = utils.get_repo_meta_data(mlhub)
+
+            # Update available models for fast bash tab completion.
+
+            utils.update_completion_list(COMPLETION_MODELS, {e['meta']['name'] for e in meta})
 
             # Find the first matching entry in the meta data.
 
@@ -300,6 +313,12 @@ def install_model(args):
     desc_yaml = os.path.join(path, DESC_YAML)
     if (not os.path.exists(desc_yaml)) and os.path.exists(desc_yml):
         move(desc_yml, desc_yaml)
+
+    # Update available commands for the model for fast bash tab completion.
+
+    info = utils.load_description(model)
+    model_cmds = set(info['commands'])
+    utils.update_completion_list(COMPLETION_COMMANDS, model_cmds)
 
     # Informative message about the size of the installed model.
     
@@ -433,6 +452,9 @@ def list_model_commands(args):
                 msg = msg.split('\n')
                 msg = ["    " + ele for ele in msg]
                 print('\n'.join(msg), end='')
+
+    # Update available commands for the model for fast bash tab completion.
+    utils.update_completion_list(COMPLETION_COMMANDS, set(info['commands']))
 
     # Suggest next step.
     

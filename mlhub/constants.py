@@ -51,6 +51,10 @@ if "MLINIT" in os.environ:
     # The following adds a trainling "/" as assumed in the code.
     MLINIT = os.path.join(os.getenv("MLINIT"), "")
 
+# Cache files for bash completion.
+COMPLETION_DIR = os.path.join(MLINIT, ".config", "completion")
+COMPLETION_COMMANDS = os.path.join(COMPLETION_DIR, "commands")
+COMPLETION_MODELS = os.path.join(COMPLETION_DIR, "models")
 
 #------------------------------------------------------------------------
 # Application information.
@@ -250,3 +254,4 @@ META_YML = "Packages.yml"
 
 debug = False
 DEBUG = "--> " + APP + ": debug: "
+
