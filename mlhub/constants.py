@@ -86,7 +86,7 @@ COMMANDS = {
 
     'available':
         {'description': "List the models available from the ML Hub",
-            'argument': {'--name-only': {'help': "List names only",
+            'argument': {'--name-only': {'help': "List available model names only",
                                          'action': "store_true"},
                         },
                'alias': ['avail'],
@@ -98,7 +98,7 @@ COMMANDS = {
 
     'installed':
         {'description': "List the locally installed models",
-            'argument': {'--name-only': {'help': "List names only",
+            'argument': {'--name-only': {'help': "List installed model names only",
                                          'action': "store_true"},
                         },
                'usage': "  installed            "
@@ -149,7 +149,10 @@ COMMANDS = {
 
     'commands':
         {'description': "List all of the commands supported by the model",
-            'argument': {'model': {}},
+            'argument': {'model': {},
+                         '--name-only': {'help': "List supported command names only",
+                                         'action': "store_true"},
+                        },
                'usage': "  commands   <model>   "
                         "List the commands supported by the model.",
                 'func': "list_model_commands",

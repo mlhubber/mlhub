@@ -391,6 +391,10 @@ def list_model_commands(args):
     
     info = utils.load_description(model)
 
+    if args.name_only:
+        print('\n'.join(list(info['commands'])))
+        return
+    
     msg = "The model '{}' "
     if 'title' not in info['meta']:
         title = None
