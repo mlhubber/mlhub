@@ -56,6 +56,8 @@ COMPLETION_DIR = os.path.join(MLINIT, ".config", "completion")
 COMPLETION_COMMANDS = os.path.join(COMPLETION_DIR, "commands")
 COMPLETION_MODELS = os.path.join(COMPLETION_DIR, "models")
 
+COMPLETION_SCRIPT = os.path.join('bash_completion.d', 'ml.bash')
+
 #------------------------------------------------------------------------
 # Application information.
 #------------------------------------------------------------------------
