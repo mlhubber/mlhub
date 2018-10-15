@@ -63,6 +63,7 @@ from mlhub.constants import (
     DEBUG,
     COMPLETION_MODELS,
     COMPLETION_COMMANDS,
+    COMPLETION_SCRIPT,
 )
 
 # The commands are implemented here in a logical order with each
@@ -500,6 +501,25 @@ def configure_model(args):
     #     cat pacakges > requirements.txt
     #     pip install -r requirements.txt
     #
+
+    if not args.model:
+
+        # Configure ml.  Currently only bash completion.
+
+        import platform
+        sys_version = platform.uname().version.lower()
+        if 'debian' in sys_version or 'ubuntu' in sys_version:
+            path = os.path.dirname(__file__)
+            commands = [
+                'sudo cp {} /etc/bash_completion.d'.format(COMPLETION_SCRIPT),
+                'ml available > /dev/null',
+                'ml installed > /dev/null', ]
+
+            for cmd in commands:
+                print('Executing: ', cmd)
+                subprocess.run(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
+
+        return
     
     # Setup.
     

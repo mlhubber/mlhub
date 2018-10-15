@@ -56,6 +56,8 @@ COMPLETION_DIR = os.path.join(MLINIT, ".config", "completion")
 COMPLETION_COMMANDS = os.path.join(COMPLETION_DIR, "commands")
 COMPLETION_MODELS = os.path.join(COMPLETION_DIR, "models")
 
+COMPLETION_SCRIPT = os.path.join('bash_completion.d', 'ml.bash')
+
 #------------------------------------------------------------------------
 # Application information.
 #------------------------------------------------------------------------
@@ -164,9 +166,9 @@ COMMANDS = {
 
     'configure':
         {'description': "Configure the dependencies required for the model",
-            'argument': {'model': {}},
+            'argument': {'model': {'nargs': "?"}},
                'usage': "  configure  <model>   "
-                        "Configure the model's dependencies.",
+                        "Configure ml or the model's dependencies",
                 'func': "configure_model",
                 'next': ['commands'],
         },
@@ -234,6 +236,11 @@ The ML Hub repository is '{{}}'.
 Models are installed into '{{}}'.
 
 This is version {{}} of {{}}.
+
+For a better experience with bash tab completion:
+
+  $ ml configure
+  $ source /etc/bash_completion.d/ml.bash
 
 List the available models from the repository with:
 
