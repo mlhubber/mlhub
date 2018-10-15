@@ -49,6 +49,16 @@ _mlhub_model_commands() {
     echo $model_commands
 }
 
+# Return the completion words cached in $1
+_mlhub_cached_completion_words() {
+    local words=$(python -c "\
+import mlhub;\
+mlhub.utils.get_completion_list(mlhub.constants.$1)\
+    ")
+
+    echo ${words}
+}
+
 _mlhub() {
     local cur prev firstword i_firstword lastword i_lastword
     local complete_words    # possible completion list for current word
@@ -167,8 +177,7 @@ _mlhub() {
 	    ;;
 	install)
 	    complete_options="${install_options}"
-	    local available_models=$(ml available --name-only)
-	    complete_words=("${available_models}")
+	    complete_words=("$(_mlhub_cached_completion_words COMPLETION_MODELS)")
 	    ;;
 	readme)
 	    complete_options="${readme_options}"
@@ -190,7 +199,7 @@ _mlhub() {
 		#   ml [TAB]
 
 		complete_words="${global_commands}"
-		complete_words+="$(_mlhub_model_commands)"
+		complete_words+="$(_mlhub_cached_completion_words COMPLETION_COMMANDS)"
 		complete_options="${global_options}"
 	    elif [[ ${i_lastword} -ge ${COMP_CWORD} ]] ||
 		     [[ ${i_firstword} -eq ${i_lastword} ]]; then

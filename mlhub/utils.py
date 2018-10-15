@@ -52,6 +52,9 @@ from mlhub.constants import (
     VERSION,
     APP,
     COMMANDS,
+    COMPLETION_DIR,
+    COMPLETION_COMMANDS,
+    COMPLETION_MODELS,
 )
 
 def print_usage():
@@ -64,6 +67,37 @@ def create_init():
     if not os.path.exists(MLINIT): os.makedirs(MLINIT)
 
     return(MLINIT)
+
+def update_completion_list(completion_file, new_words):
+    """Update specific completion list.
+    Args:
+        completion_file (str): full path of the completion file
+        new_words (set): set of new words
+    """
+
+    if not os.path.exists(COMPLETION_DIR):
+        os.makedirs(COMPLETION_DIR)
+
+    if os.path.exists(completion_file):
+        with open(completion_file, 'r') as file:
+            old_words = {line.strip() for line in file if line.strip()}
+
+        models = old_words | new_words
+    else:
+        models = new_words
+
+    with open(completion_file, 'w') as file:
+        file.write('\n'.join(models))
+
+def get_completion_list(completion_file):
+    """Get the list of available words from cached completion file."""
+
+    words = set()
+    if os.path.exists(completion_file):
+        with open(completion_file) as file:
+            words = {line.strip() for line in file if line.strip()}
+
+    print('\n'.join(words))
 
 def get_repo(repo):
     """Determine the repository to use: command line, environment, default."""
