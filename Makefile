@@ -36,7 +36,9 @@ APP=mlhub
 # VER=1.3.6# 20180924 Back to README.rst? Improve formatting.
 # VER=1.3.9# 20180924 Get README.rst formatted on PyPi.
 # VER=1.3.10# 20180925 Improve COMMANDS output.
-VER=1.4.0# 20180927 Auto-complete model names.
+# VER=1.4.0# 20180927 Auto-complete model names.
+# VER=1.4.1# 20180930 Improve auto-complete of commands.
+VER=1.4.2# 20181015 Speed up auto-complete and automate setup.
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
