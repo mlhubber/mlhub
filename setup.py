@@ -8,6 +8,7 @@ https://github.com/pypa/sampleproject
 # Always prefer setuptools over distutils.
 
 from setuptools import setup, find_packages
+from setuptools.command.install import install as _install
 
 # To use a consistent encoding:
 
@@ -21,6 +22,27 @@ here = path.abspath(path.dirname(__file__))
 
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
+
+
+class CustomInstallCommand(_install):
+    """Add post-install for bash completion configuration."""
+
+    def run(self):
+        _install.run(self)  # Do normal install first
+
+        # Configure bash completion on Ubuntu or Debian
+        import os, mlhub, subprocess, platform
+        sys_version = platform.uname().version.lower()
+        if 'debian' in sys_version or 'ubuntu' in sys_version:
+            file_path = os.path.join('mlhub', mlhub.constants.COMPLETION_SCRIPT)
+            commands = [
+                'echo; sudo cp {} /etc/bash_completion.d'.format(file_path),
+                'ml available > /dev/null',
+                'ml installed > /dev/null', ]
+            for cmd in commands:
+                print('Executing: ', cmd)
+                subprocess.run(cmd, shell=True, stderr=subprocess.PIPE)
+
 
 setup(
     name='mlhub',
@@ -50,4 +72,7 @@ setup(
         'yamlordereddictloader',
     ],
     include_package_data=True,
+    cmdclass={
+        'install': CustomInstallCommand,
+    },
 )
