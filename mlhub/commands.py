@@ -595,6 +595,14 @@ or else connect to the server's desktop using a local X server like X2Go.
     # Obtain the default/chosen language for the package.
 
     lang = desc["meta"]["languages"]
+
+    # Deal with malformed 'languages' field
+    
+    lang_opts = {"python": "py", "R": "R"}
+    for k in list(lang_opts):
+        if lang in k:
+            lang = lang_opts[k]
+            break
         
     # Obtain the specified script file.
     
