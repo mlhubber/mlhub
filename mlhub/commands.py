@@ -603,7 +603,7 @@ or else connect to the server's desktop using a local X server like X2Go.
     if args.debug:
         print(DEBUG + "execute the script: " + os.path.join(path, script))
      
-    if not os.path.exists(os.path.join(path, script)):
+    if cmd not in list(desc['commands']) or not os.path.exists(os.path.join(path, script)):
         msg = """{}The command '{}' was not found for this model.
 
 Try using 'commands' to list all supported commands:
