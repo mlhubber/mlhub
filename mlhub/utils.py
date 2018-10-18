@@ -335,7 +335,12 @@ def print_next_step(current, description={}, scenario=None, model=''):
 
         avail_cmds = list(description['commands'])
 
-        next_index = avail_cmds.index(current) + 1 if current != 'commands' else 0
+        try:
+            next_index = avail_cmds.index(current) + 1 if current != 'commands' else 0
+        except:
+            # The command is not described in DESCRIPTION.yaml, ignore it.
+            next_index = len(avail_cmds)
+
         if next_index < len(avail_cmds):
             next = avail_cmds[next_index]
             next_meta = description['commands'][next]
