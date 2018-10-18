@@ -38,7 +38,8 @@ APP=mlhub
 # VER=1.3.10# 20180925 Improve COMMANDS output.
 # VER=1.4.0# 20180927 Auto-complete model names.
 # VER=1.4.1# 20180930 Improve auto-complete of commands.
-VER=1.4.2# 20181015 Speed up auto-complete and automate setup.
+# VER=1.4.2# 20181015 Speed up auto-complete and automate setup.
+VER=1.4.3# 20181018 Handle languages more flexibly.
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
