@@ -627,7 +627,7 @@ Try using 'commands' to list all supported commands:
 
     interpreter = utils.interpreter(script)
 
-    command = "{} {} {}".format(interpreter, script, param)
+    command = "export CMD_CWD='{}'; {} {} {}".format(os.getcwd(), interpreter, script, param)
 
     if args.debug:
         print(DEBUG + "(cd " + path + "; " + command + ")")
