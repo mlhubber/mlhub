@@ -35,7 +35,7 @@ import mlhub.commands as commands
 import mlhub.constants as constants
 import mlhub.utils as utils
 
-from mlhub.constants import CMD, USAGE, DEBUG, MLINIT, MLHUB
+from mlhub.constants import CMD, USAGE, DEBUG, MLINIT, MLHUB, VERSION
 
 def main():
     """Main program for the command line script."""
@@ -48,6 +48,12 @@ def main():
         prog=CMD,
         description="Access models from the ML Hub.",
     )
+
+    #------------------------------------
+    # --VERSION
+    #------------------------------------
+
+    parser.add_argument('--version',  action='store_true',  help="Display version information and exit.")
 
     #------------------------------------
     # --DEBUG
@@ -171,6 +177,10 @@ def main():
 
     sys.argv.pop(0)
     args = parser.parse_args(sys.argv)
+
+    if args.version:
+        print(VERSION)
+        return 0
 
     # Ensure we have a trainling slash on the mlhub.
 

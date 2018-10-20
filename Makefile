@@ -40,7 +40,8 @@ APP=mlhub
 # VER=1.4.1# 20180930 Improve auto-complete of commands.
 # VER=1.4.2# 20181015 Speed up auto-complete and automate setup.
 # VER=1.4.3# 20181018 Handle languages more flexibly.
-VER=1.4.4# 20181020 Improve handling of score command.
+# VER=1.4.4# 20181020 Improve handling of score command.
+VER=1.4.5# 20181020 Add --version.
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
