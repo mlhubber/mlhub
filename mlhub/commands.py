@@ -518,6 +518,8 @@ def configure_model(args):
             for cmd in commands:
                 print('Executing: ', cmd)
                 subprocess.run(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
+                
+            print("\nLast step to make tab completion take effect: \n\n  $ source /etc/bash_completion.d/ml.bash")
 
         return
     
