@@ -71,6 +71,29 @@ EXT_AIPK = ".aipk"        # Backward compatibility
 
 VERSION = "1.4.5" # DO NOT MODIFY. Managed from ../Makefile.
 
+# Options
+
+OPTIONS = {
+    '--version':
+        {'help': "Display version information and exit.",
+         'action': 'store_true',
+        },
+    '--debug':
+        {'help': "Display debug information.",
+         'action': 'store_true',
+        },
+    '--quiet':
+        {'help': "Reduce noise.",
+         'action': 'store_true',
+        },
+    '--init-dir':
+        {'help': "Use this as the init dir instead of '{}'.".format(MLINIT)},
+    '--mlhub':
+        {'help': "Use this ML Hub instead of '{}'.".format(MLHUB)},
+    '--cmd':
+        {'help': "Command display name instead of '{}'.".format(CMD)},
+}
+
 # Commands
 
 COMMANDS = {
@@ -182,15 +205,15 @@ COMMANDS = {
                 'next': ['installed'],
         },
 
-    'demo':
-        {'description': "Run the model's demonstration",
-               'alias': ['print', 'display', 'score', 'rebuild'],
-            'argument': {'model': {},
-                         'param': {'nargs': "*"}},
-               'usage': "  demo       <model>   "
-                        "Demostrate the model in action.",
-                'func': "dispatch",
-        },
+#     'demo':
+#         {'description': "Run the model's demonstration",
+#                'alias': ['print', 'display', 'score', 'rebuild'],
+#             'argument': {'model': {},
+#                          'param': {'nargs': "*"}},
+#                'usage': "  demo       <model>   "
+#                         "Demostrate the model in action.",
+#                 'func': "dispatch",
+#         },
 
     'donate':
         {'description': "Consider a donation to the author",
@@ -198,18 +221,11 @@ COMMANDS = {
                 'func': "donate",
         },
 
-    'download':
-        {'description': "Download the large pre-built model"},
-
-    'print':
-        {      'usage': "  print      <model>   "
-                        "Technical information about the model."
-        },
-
-    'display':
-        {      'usage': "  display    <model>   "
-                        "Visual presentaiton of the model."
-        },
+#     'download':
+#         {'description': "Download the large pre-built model",
+#             'argument': {'model': {}},
+#                 'func': "download_model",
+#         },
 }
 
 USAGE = """Usage: {{}} [<options>] <command> [<command options>] [<model>]
@@ -226,9 +242,6 @@ Global commands:
 {commands[readme][usage]}
 {commands[commands][usage]}
 {commands[configure][usage]}
-{commands[demo][usage]}
-{commands[print][usage]}
-{commands[display][usage]}
 {commands[remove][usage]}
 
 The ML Hub repository is '{{}}'.

@@ -29,154 +29,47 @@
 # THE SOFTWARE.
 
 import os
-import sys
 import argparse
 import mlhub.commands as commands
 import mlhub.constants as constants
 import mlhub.utils as utils
 
-from mlhub.constants import CMD, USAGE, DEBUG, MLINIT, MLHUB, VERSION
+from mlhub.constants import CMD, DEBUG, VERSION, COMMANDS, OPTIONS
 
 def main():
     """Main program for the command line script."""
 
-    #------------------------------------
+    # ------------------------------------
     # COMMAND LINE PARSER
-    #------------------------------------
+    # ------------------------------------
 
     parser = argparse.ArgumentParser(
         prog=CMD,
         description="Access models from the ML Hub.",
     )
 
-    #------------------------------------
-    # --VERSION
-    #------------------------------------
+    optadder = utils.OptionAdder(parser, OPTIONS)
+    optadder.add_alloptions()
 
-    parser.add_argument('--version',  action='store_true',  help="Display version information and exit.")
-
-    #------------------------------------
-    # --DEBUG
-    #------------------------------------
-
-    parser.add_argument('--debug',  action='store_true', help="Display debug information.")
-
-    #------------------------------------
-    # --QUIET
-
-    parser.add_argument('--quiet',  action='store_true', help="Reduce noise.")
-
-    #------------------------------------
-    # --INIT-DIR
-    #------------------------------------
-
-    parser.add_argument('--init-dir', help="Use this as the init dir instead of '{}'.".format(MLINIT))
-
-    #------------------------------------
-    # --MLHUB
-    #------------------------------------
-
-    parser.add_argument('--mlhub', help="Use this ML Hub instead of '{}'.".format(MLHUB))
-
-    #------------------------------------
-    # --CMD
-    #------------------------------------
-
-    parser.add_argument('--cmd', help="Command display name instead of '{}'.".format(CMD))
-
-    #------------------------------------
-    # We support a basic set of commands
-    # and then any model specific
+    # ------------------------------------
+    # We support a basic set of commands and then any model specific
     # commands provided in the archive.
-    #------------------------------------
+    # ------------------------------------
 
-    subparsers = parser.add_subparsers(
+    cmd_parser = argparse.ArgumentParser()  # Another parser for subcommand parsing
+    subparsers = cmd_parser.add_subparsers(
         title='subcommands',
         dest="cmd",
     )
 
-    #------------------------------------
-    # AVAILABLE
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'available', commands)
-
-    #------------------------------------
-    # INSTALLED
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'installed', commands)
-
-    #------------------------------------
-    # CLEAN
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'clean', commands)
-
-    #------------------------------------
-    # INSTALL
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'install', commands)
-
-    #------------------------------------
-    # DOWNLOAD
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'download', commands)
-
-    #------------------------------------
-    # README
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'readme', commands)
-
-    #------------------------------------
-    # LICENSE
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'license', commands)
-
-    #------------------------------------
-    # COMMANDS
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'commands', commands)
-
-    #------------------------------------
-    # CONFIGURE
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'configure', commands)
-
-    #------------------------------------
-    # REMOVE
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'remove', commands)
-
-    #------------------------------------
-    # MODEL SPECIFIC COMMANDS
-    #
-    # Need to make this general or dynamic
-    # based on the comannds available
-    # from the locally installed models?
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'demo', commands)
-
-    #------------------------------------
-    # DONATE
-    #------------------------------------
-
-    utils.add_subcommand(subparsers, 'donate', commands)
+    cmdadder = utils.SubCmdAdder(subparsers, commands, COMMANDS)
+    cmdadder.add_allsubcmds()
 
     #------------------------------------
     # ACTION
     #------------------------------------
 
-    sys.argv.pop(0)
-    args = parser.parse_args(sys.argv)
+    args, extra_args = parser.parse_known_args()
 
     if args.version:
         print(VERSION)
@@ -191,6 +84,20 @@ def main():
     if args.debug:
         constants.debug = True
         print(DEBUG + str(args))
+        print(DEBUG + str(extra_args))
+
+
+    if len(extra_args) > 0:
+        if extra_args[0] in COMMANDS:
+            cmd_parser.parse_args(extra_args, namespace=args)
+        else:
+            # Model-specifice commands
+            
+            setattr(args, 'cmd', extra_args[0])  # command name
+            setattr(args, 'model', extra_args[1])  # model name
+            setattr(args, 'func', commands.dispatch)  # dispatch model command
+            setattr(args, 'param', extra_args[2:])  # parameters of model command
+
 
     if not "func" in args:
         utils.print_usage()
