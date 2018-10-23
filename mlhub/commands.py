@@ -179,8 +179,8 @@ def install_model(args):
 
         local   = args.model
         mlmfile = local
-        model   = local.split("_")[0]
-        version = local.split("_")[1].replace(EXT_MLM, "")
+        model   = os.path.basename(local).split("_")[0]
+        version = os.path.basename(local).split("_")[1].replace(EXT_MLM, "")
 
         # Ensure the local init dir exists.
         
