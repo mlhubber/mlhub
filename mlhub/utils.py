@@ -251,23 +251,61 @@ def interpreter(script):
 #-----------------------------------------------------------------------
 # ADD SUBCOMMAND
 
-def add_subcommand(subparsers, subcommand, module):
-    """Add subcommand to subparsers."""
+class SubCmdAdder(object):
+    """Add the subcommands described in <commands> into <subparsers> with
+corresponding functions defined in <module>."""
 
-    cmd_meta = COMMANDS[subcommand]
-    parser = subparsers.add_parser(
-        subcommand,
-        aliases=cmd_meta.get('alias', ()),
-        description=cmd_meta['description'],
-    )
+    def __init__(self, subparsers, module, commands):
+        """
+        Args:
+            subparsers (argparse.ArgumentParser): to which the subcommand is added.
+            module: the module which defines the actual function for the subcommand.
+            commands (dict): meta info for the subcommand.
+        """
+        self.subparsers = subparsers
+        self.module = module
+        self.commands = commands
 
-    if 'argument' in cmd_meta:
-        args = cmd_meta['argument']
-        for name in args:
-            parser.add_argument(name, **args[name])
+    def add_subcmd(self, subcommand):
+        """Add <subcommand> to subparsers."""
+    
+        cmd_meta = self.commands[subcommand]
+        parser = self.subparsers.add_parser(
+            subcommand,
+            aliases=cmd_meta.get('alias', ()),
+            description=cmd_meta['description'],
+        )
+    
+        if 'argument' in cmd_meta:
+            args = cmd_meta['argument']
+            for name in args:
+                parser.add_argument(name, **args[name])
+    
+        if 'func' in cmd_meta:
+            parser.set_defaults(func=getattr(self.module, cmd_meta['func']))
 
-    if 'func' in cmd_meta:
-        parser.set_defaults(func=getattr(module, cmd_meta['func']))
+    def add_allsubcmds(self):
+        """Add all subcommands described in <self.commands> into <self.subparsers>."""
+        for cmd in self.commands:
+            self.add_subcmd(cmd)
+
+#-----------------------------------------------------------------------
+# ADD GLOBAL OPTIONS ARGUMENT
+
+class OptionAdder(object):
+    """Add the global options described in <options> into <parser>."""
+
+    def __init__(self, parser, options):
+        self.parser = parser
+        self.options = options
+
+    def add_option(self, option):
+        opt = self.options[option]
+        self.parser.add_argument(option, **opt)
+
+    def add_alloptions(self):
+        for opt in self.options:
+            self.add_option(opt)
 
 # -----------------------------------------------------------------------
 # DROP THE PERIOD AFTER A SENTENCE
