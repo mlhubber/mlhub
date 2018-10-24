@@ -133,7 +133,7 @@ COMMANDS = {
                'usage': "  installed            "
                         "List the models installed locally.",
                 'func': "list_installed",
-                'next': {'exist': ['configure', 'demo'],
+                'next': {'exist': ['configure', 'readme', 'commands'],
                           'none': ['available', 'install']},
         },
 
