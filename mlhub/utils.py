@@ -154,6 +154,10 @@ def print_meta_line(entry):
     FORMATTER = "{0:<TITLE.TITLE} {1:^6} {2:<DESCR.DESCR}{3}".replace("TITLE", str(MAX_TITLE)).replace("DESCR", str(MAX_DESCR))
     print(FORMATTER.format(name, version, title, long))
 
+def get_model_version(model):
+    entry = load_description(model)
+    return(entry["meta"]["version"])
+
 #------------------------------------------------------------------------
 # CHECK MODEL INSTALLED
     
@@ -305,7 +309,11 @@ class OptionAdder(object):
 
     def add_option(self, option):
         opt = self.options[option]
-        self.parser.add_argument(option, **opt)
+        opt_alias = [option, ]
+        if 'alias' in opt:
+            opt_alias += opt['alias']
+            del opt['alias']
+        self.parser.add_argument(*opt_alias, **opt)
 
     def add_alloptions(self):
         for opt in self.options:

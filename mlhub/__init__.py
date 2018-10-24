@@ -72,7 +72,10 @@ def main():
     args, extra_args = parser.parse_known_args()
 
     if args.version:
-        print(VERSION)
+        if len(extra_args) == 0:
+            print(VERSION)
+        else:
+            print(utils.get_model_version(extra_args[0]))
         return 0
 
     # Ensure we have a trainling slash on the mlhub.

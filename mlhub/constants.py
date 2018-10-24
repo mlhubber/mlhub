@@ -75,7 +75,8 @@ VERSION = "1.4.8" # DO NOT MODIFY. Managed from ../Makefile.
 
 OPTIONS = {
     '--version':
-        {'help': "Display version information and exit.",
+        {'alias': ['-v',],
+         'help': "Display version information and exit.",
          'action': 'store_true',
         },
     '--debug':
