@@ -160,6 +160,10 @@ def print_meta_line(entry):
 def check_model_installed(model):
 
     path = MLINIT + model
+
+    if (debug):
+        print(DEBUG + "check if model is installed: " + model)
+
     if not os.path.exists(path):
         model = os.path.basename(path)
         msg = """{}model '{}' is not installed ({}).
