@@ -511,7 +511,7 @@ def configure_model(args):
         if 'debian' in sys_version or 'ubuntu' in sys_version:
             path = os.path.dirname(__file__)
             commands = [
-                'sudo cp {} /etc/bash_completion.d'.format(COMPLETION_SCRIPT),
+                'sudo install -m 0644 {} /etc/bash_completion.d'.format(COMPLETION_SCRIPT),
                 'ml available > /dev/null',
                 'ml installed > /dev/null', ]
 
@@ -519,7 +519,7 @@ def configure_model(args):
                 print('Executing: ', cmd)
                 subprocess.run(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
                 
-            print("\nLast step to make tab completion take effect: \n\n  $ source /etc/bash_completion.d/ml.bash")
+            print("\nFor tab completion to take immediate effect: \n\n  $ source /etc/bash_completion.d/ml.bash\n")
 
         return
     
