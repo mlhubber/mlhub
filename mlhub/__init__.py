@@ -92,11 +92,16 @@ def main():
             cmd_parser.parse_args(extra_args, namespace=args)
         else:
             # Model-specifice commands
-            
-            setattr(args, 'cmd', extra_args[0])  # command name
-            setattr(args, 'model', extra_args[1])  # model name
-            setattr(args, 'func', commands.dispatch)  # dispatch model command
-            setattr(args, 'param', extra_args[2:])  # parameters of model command
+
+            try:
+                setattr(args, 'cmd', extra_args[0])  # command name
+                setattr(args, 'model', extra_args[1])  # model name
+                setattr(args, 'func', commands.dispatch)  # dispatch model command
+                setattr(args, 'param', extra_args[2:])  # parameters of model command
+            except:
+                # If user do not provide correct or enough arguments, just show usage now.
+                utils.print_usage()
+                return 0
 
 
     if not "func" in args:
