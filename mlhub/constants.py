@@ -133,7 +133,7 @@ COMMANDS = {
                'usage': "  installed            "
                         "List the models installed locally.",
                 'func': "list_installed",
-                'next': {'exist': ['configure', 'demo'],
+                'next': {'exist': ['configure', 'readme', 'commands'],
                           'none': ['available', 'install']},
         },
 
@@ -191,7 +191,7 @@ COMMANDS = {
         {'description': "Configure the dependencies required for the model",
             'argument': {'model': {'nargs': "?"}},
                'usage': "  configure  <model>   "
-                        "Configure ml or the model's dependencies",
+                        "Configure ml or the model's dependencies.",
                 'func': "configure_model",
                 'next': ['commands'],
         },
