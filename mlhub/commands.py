@@ -427,32 +427,8 @@ def list_model_commands(args):
     msg = textwrap.fill(msg, width=75)
     print(msg)
 
-    for c in info['commands']:
-        print("\n  $ {} {} {}".format(CMD, c, model))
-
-        c_meta = info['commands'][c]
-        if type(c_meta) is str:
-            print("    " + c_meta)
-        else:
-            # Handle malformed DESCRIPTION.yaml like
-            # --
-            # commands:
-            #   print:
-            #     description: print a textual summary of the model
-            #   score:
-            #     equired: the name of a CSV file containing a header and 6 columns
-            #     description: apply the model to a supplied dataset
-
-            desc = c_meta.get('description', None)
-            if desc is not None:
-                print("    " + desc)
-
-            c_meta = {k:c_meta[k] for k in c_meta if k != 'description'}
-            if len(c_meta) > 0:
-                msg = yaml.dump(c_meta, default_flow_style=False)
-                msg = msg.split('\n')
-                msg = ["    " + ele for ele in msg]
-                print('\n'.join(msg), end='')
+    for cmd in info['commands']:
+        utils.print_model_cmd_help(info, cmd)
 
     # Update available commands for the model for fast bash tab completion.
     utils.update_completion_list(COMPLETION_COMMANDS, set(info['commands']))

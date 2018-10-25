@@ -29,6 +29,7 @@
 # THE SOFTWARE.
 
 import os
+import sys
 import argparse
 import mlhub.commands as commands
 import mlhub.constants as constants
@@ -43,12 +44,10 @@ def main():
     # COMMAND LINE PARSER
     # ------------------------------------
 
-    parser = argparse.ArgumentParser(
-        prog=CMD,
-        description="Access models from the ML Hub.",
-    )
+    # Global option parser
 
-    optadder = utils.OptionAdder(parser, OPTIONS)
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    optadder = utils.OptionAdder(parent_parser, OPTIONS)
     optadder.add_alloptions()
 
     # ------------------------------------
@@ -56,58 +55,82 @@ def main():
     # commands provided in the archive.
     # ------------------------------------
 
-    cmd_parser = argparse.ArgumentParser()  # Another parser for subcommand parsing
-    subparsers = cmd_parser.add_subparsers(
+    parser = argparse.ArgumentParser(
+        prog=CMD,
+        description="Access models from the ML Hub.",
+        parents=[parent_parser],
+    )
+    subparsers = parser.add_subparsers(
         title='subcommands',
         dest="cmd",
     )
-
     cmdadder = utils.SubCmdAdder(subparsers, commands, COMMANDS)
     cmdadder.add_allsubcmds()
 
-    #------------------------------------
+    # ------------------------------------
     # ACTION
-    #------------------------------------
+    # ------------------------------------
 
-    args, extra_args = parser.parse_known_args()
+    pos_args = [(i, arg) for i, arg in enumerate(sys.argv[1:])
+                if not arg.startswith('-')]
+    ver_args = [(i, arg) for i, arg in enumerate(sys.argv[1:])
+                if arg == '-v' or arg == '--version']
 
-    if args.version:
-        if len(extra_args) == 0:
-            print(VERSION)
-        else:
-            print(utils.get_model_version(extra_args[0]))
-        return 0
+    if len(pos_args) != 0 and pos_args[0][1] not in COMMANDS:
 
-    # Ensure we have a trainling slash on the mlhub.
+        # Model-specific commands
 
-    if args.mlhub is not None: mlhub = os.path.join(args.mlhub, "")
+        if len(ver_args) != 0:
+            # --------------------------------------------
+            # Query the version of the model, for example
+            #   $ ml rain -v
+            # Otherwise, output the version of ml
+            #   $ ml -v rain
+            # --------------------------------------------
 
-    if args.cmd is not None: constants.CMD = args.cmd
+            model = pos_args[0][1] if ver_args[0][0] > pos_args[0][0] else None
+            print(model, utils.get_version(model))
+            return 0
+ 
+        model_cmd_parser = argparse.ArgumentParser(
+            prog=CMD,
+            parents=[parent_parser],
+            add_help=False)
+        model_cmd_parser.add_argument('cmd', metavar='command')
+        model_cmd_parser.add_argument('model')
+        args, extra_args = model_cmd_parser.parse_known_args(sys.argv[1:])
+
+        # Simple help message for the model-specific command
+        
+        if '--help' in extra_args or '-h' in extra_args:
+            info = utils.load_description(args.model)
+            utils.print_model_cmd_help(info, args.cmd)
+            return 0
+
+        setattr(args, 'func', commands.dispatch)
+        setattr(args, 'param', extra_args)
+    else:
+
+        # Basic common commands
+        
+        args = parser.parse_args()
+
 
     if args.debug:
         constants.debug = True
         print(DEBUG + str(args))
-        print(DEBUG + str(extra_args))
 
+    if args.version:
+        print('ml', utils.get_version())
+        return 0
 
-    if len(extra_args) > 0:
-        if extra_args[0] in COMMANDS:
-            cmd_parser.parse_args(extra_args, namespace=args)
-        else:
-            # Model-specifice commands
+    # Ensure we have a trailing slash on the mlhub.
 
-            try:
-                setattr(args, 'cmd', extra_args[0])  # command name
-                setattr(args, 'model', extra_args[1])  # model name
-                setattr(args, 'func', commands.dispatch)  # dispatch model command
-                setattr(args, 'param', extra_args[2:])  # parameters of model command
-            except:
-                # If user do not provide correct or enough arguments, just show usage now.
-                utils.print_usage()
-                return 0
+    if args.mlhub is not None: constants.MLHUB = os.path.join(args.mlhub, "")
 
+    if args.cmd is not None: constants.CMD = args.cmd
 
-    if not "func" in args:
+    if "func" not in args:
         utils.print_usage()
         return 0
 

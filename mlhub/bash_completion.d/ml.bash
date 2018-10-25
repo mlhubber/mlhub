@@ -201,8 +201,8 @@ _mlhub() {
 		#   ml [TAB]
 
 		complete_words="${global_commands}"
-		complete_words+="$(_mlhub_cached_completion_words COMPLETION_COMMANDS)"
-		complete_words+="$(_mlhub_cached_completion_words COMPLETION_MODELS)"
+		complete_words+=" $(_mlhub_cached_completion_words COMPLETION_COMMANDS)"
+		complete_words+=" $(_mlhub_cached_completion_words COMPLETION_MODELS)"
 		complete_options="${global_options}"
 	    elif [[ ${i_lastword} -ge ${COMP_CWORD} ]] ||
 		     [[ ${i_firstword} -eq ${i_lastword} ]]; then
