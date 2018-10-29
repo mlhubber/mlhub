@@ -121,7 +121,7 @@ def main():
         print(DEBUG + str(args))
 
     if args.version:
-        print('ml', utils.get_version())
+        print('mlhub version', utils.get_version())
         return 0
 
     # Ensure we have a trailing slash on the mlhub.
