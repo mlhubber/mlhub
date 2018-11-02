@@ -415,7 +415,7 @@ def list_model_commands(args):
         print('\n'.join(list(info['commands'])))
         return
     
-    msg = "The model '{}' "
+    msg = "The '{}' model "
     if 'title' not in info['meta']:
         title = None
     else:
