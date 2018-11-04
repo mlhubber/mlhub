@@ -45,7 +45,8 @@ APP=mlhub
 # VER=1.4.6# 20181024 Bug fix argparse handling
 # VER=1.4.7# 20181024 Minor tab completion fix
 # VER=1.4.8# 20181024 Bug fix for demo cmd
-VER=1.4.9# 20181027 model version and model command help
+# VER=1.4.9# 20181027 model version and model command help
+VER=1.4.10# 20181104 cleanup
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
