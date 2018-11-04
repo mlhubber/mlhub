@@ -89,7 +89,7 @@ def main():
             # --------------------------------------------
 
             model = pos_args[0][1] if ver_args[0][0] > pos_args[0][0] else None
-            print(model, utils.get_version(model))
+            print(model, "version", utils.get_version(model))
             return 0
  
         model_cmd_parser = argparse.ArgumentParser(
@@ -121,7 +121,7 @@ def main():
         print(DEBUG + str(args))
 
     if args.version:
-        print('ml', utils.get_version())
+        print('mlhub version', utils.get_version())
         return 0
 
     # Ensure we have a trailing slash on the mlhub.
