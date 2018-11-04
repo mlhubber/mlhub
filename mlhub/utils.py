@@ -321,7 +321,6 @@ corresponding functions defined in <module>."""
     
         if 'func' in cmd_meta:
             parser.set_defaults(func=getattr(self.module, cmd_meta['func']))
-<<<<<<< Updated upstream
 
     def add_allsubcmds(self):
         """Add all subcommands described in <self.commands> into <self.subparsers>."""
@@ -346,28 +345,6 @@ class OptionAdder(object):
             del opt['alias']
         self.parser.add_argument(*opt_alias, **opt)
 
-=======
-
-    def add_allsubcmds(self):
-        """Add all subcommands described in <self.commands> into <self.subparsers>."""
-        for cmd in self.commands:
-            self.add_subcmd(cmd)
-
-#-----------------------------------------------------------------------
-# ADD GLOBAL OPTIONS ARGUMENT
-
-class OptionAdder(object):
-    """Add the global options described in <options> into <parser>."""
-
-    def __init__(self, parser, options):
-        self.parser = parser
-        self.options = options
-
-    def add_option(self, option):
-        opt = self.options[option]
-        self.parser.add_argument(option, **opt)
-
->>>>>>> Stashed changes
     def add_alloptions(self):
         for opt in self.options:
             self.add_option(opt)

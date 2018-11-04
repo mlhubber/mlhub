@@ -29,6 +29,7 @@
 # THE SOFTWARE.
 
 import os
+import sys
 import argparse
 import mlhub.commands as commands
 import mlhub.constants as constants
