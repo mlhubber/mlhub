@@ -254,7 +254,7 @@ def configure(path, script, quiet):
         if os.path.exists(conf):
             interp = interpreter(script)
             if not quiet:
-                msg = "Configuring using '{}'...".format(conf)
+                msg = "Configuring using '{}'...\n".format(conf)
                 print(msg)
             cmd = "{} {}".format(interp, script)
             proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
