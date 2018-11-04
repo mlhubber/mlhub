@@ -29,7 +29,6 @@
 # THE SOFTWARE.
 
 import os
-import sys
 import argparse
 import mlhub.commands as commands
 import mlhub.constants as constants
@@ -67,7 +66,10 @@ def main():
     cmdadder = utils.SubCmdAdder(subparsers, commands, COMMANDS)
     cmdadder.add_allsubcmds()
 
-    # ------------------------------------
+    cmdadder = utils.SubCmdAdder(subparsers, commands, COMMANDS)
+    cmdadder.add_allsubcmds()
+
+    #------------------------------------
     # ACTION
     # ------------------------------------
 
