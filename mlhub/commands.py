@@ -376,10 +376,16 @@ def readme(args):
     utils.check_model_installed(model)
     
     # Display the README.
-    
-    with open(readme, 'r') as f:
-        print(utils.drop_newline(f.read()))
-    
+
+    try:
+        with open(readme, 'r') as f:
+            print(utils.drop_newline(f.read()))
+    except FileNotFoundError:
+        msg = "{}The '{}' model does not have a '{}' file.\n  {}\n"
+        msg = msg.format(APPX, model, README, readme)
+        sys.stdout.write(msg)
+        sys.exit(1)
+
     # Suggest next step.
 
     if not args.quiet:

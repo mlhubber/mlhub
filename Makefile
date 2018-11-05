@@ -48,7 +48,8 @@ APP=mlhub
 # VER=1.4.9# 20181027 model version and model command help
 #VER=1.4.10# 20181104 cleanup
 #VER=1.4.11# 20181104 Bug fix
-VER=1.4.12# 20181104 Bug fix
+#VER=1.4.12# 20181104 Bug fix
+VER=1.4.13# 20181104 Check README.txt
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
