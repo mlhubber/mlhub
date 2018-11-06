@@ -44,7 +44,7 @@ def main():
     # COMMAND LINE PARSER
     # ------------------------------------
 
-    # Global option parser
+    # Global option parser.  See mlhub.constants.OPTIONS
 
     parent_parser = argparse.ArgumentParser(add_help=False)
     optadder = utils.OptionAdder(parent_parser, OPTIONS)
@@ -52,7 +52,7 @@ def main():
 
     # ------------------------------------
     # We support a basic set of commands and then any model specific
-    # commands provided in the archive.
+    # commands provided in the archive.  See mlhub.constants.COMMANDS
     # ------------------------------------
 
     parser = argparse.ArgumentParser(
@@ -67,10 +67,7 @@ def main():
     cmdadder = utils.SubCmdAdder(subparsers, commands, COMMANDS)
     cmdadder.add_allsubcmds()
 
-    cmdadder = utils.SubCmdAdder(subparsers, commands, COMMANDS)
-    cmdadder.add_allsubcmds()
-
-    #------------------------------------
+    # ------------------------------------
     # ACTION
     # ------------------------------------
 
