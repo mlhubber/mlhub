@@ -69,7 +69,7 @@ CMD  = "ml"               # The command line tool.
 EXT_MLM  = ".mlm"         # Archive filename extension
 EXT_AIPK = ".aipk"        # Backward compatibility
 
-VERSION = "1.4.13" # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "1.5.0" # DO NOT MODIFY. Managed from ../Makefile.
 
 # Options
 
@@ -115,93 +115,93 @@ COMMANDS = {
     # 'argument': possible argument for the command used by argparse.
 
     'available':
-        {'description': "List the models available from the ML Hub",
-            'argument': {'--name-only': {'help': "List available model names only",
+        {'description': "List the models available from the ML Hub repository.",
+            'argument': {'--name-only': {'help': "list only the names",
                                          'action': "store_true"},
                         },
                'alias': ['avail'],
                'usage': "  available            "
-                        "List the models available from the repository.",
+                        "list the models available from the ML Hub repository",
                 'func': "list_available",
                 'next': ['install'],
         },
 
     'installed':
-        {'description': "List the locally installed models",
-            'argument': {'--name-only': {'help': "List installed model names only",
+        {'description': "List the locally installed models.",
+            'argument': {'--name-only': {'help': "list only the names",
                                          'action': "store_true"},
                         },
                'usage': "  installed            "
-                        "List the models installed locally.",
+                        "List the models installed locally",
                 'func': "list_installed",
                 'next': {'exist': ['configure', 'readme', 'commands'],
                           'none': ['available', 'install']},
         },
 
     'clean':
-        {'description': "Remove downloaded .mlm archive files",
+        {'description': "Remove downloaded .mlm archive files.",
                'usage': "  clean                "
-                        "Remove all (downloaded) {} files from {}.",
+                        "Remove downloaded model package files",
              'confirm': "Remove model package archive '{}' [Y/n]? ",
                 'func': "remove_mlm",
         },
 
     'install':
-        {'description': "Locally install a model downloaded from an ML Hub",
+        {'description': "Locally install a model downloaded from an ML Hub repository.",
             'argument': {'model': {}},
                'usage': "  install    <model>   "
-                        "Install the named model, local model file or URL.",
+                        "Install a named model, local model file or URL",
                 'func': "install_model",
                 'next': ['readme'],
         },
 
     'download':
-        {'description': "Download the actual (large) pre-built model",
+        {'description': "Download the actual (often large) pre-built model.",
             'argument': {'model': {}},
                 'func': "download_model",
                 'next': ['readme'],
         },
 
     'readme':
-        {'description': "Display the model's README information",
+        {'description': "Display the model's README information.",
             'argument': {'model': {}},
                'usage': "  readme     <model>   "
-                        "View the model's README.",
+                        "View the model's README",
                 'func': "readme",
                 'next': ['configure'],
         },
 
     'license':
-        {'description': "Display the model's LICENSE information",
+        {'description': "Display the model's LICENSE information.",
             'argument': {'model': {}},
                 'func': "license",
         },
 
     'commands':
-        {'description': "List all of the commands supported by the model",
+        {'description': "List all of the commands supported by the model.",
             'argument': {'model': {},
-                         '--name-only': {'help': "List supported command names only",
+                         '--name-only': {'help': "list names only",
                                          'action': "store_true"},
                         },
                'usage': "  commands   <model>   "
-                        "List the commands supported by the model.",
+                        "List the commands supported by the model",
                 'func': "list_model_commands",
         },
 
     'configure':
-        {'description': "Configure the dependencies required for the model",
+        {'description': "Configure the dependencies required for the model.",
             'argument': {'model': {'nargs': "?"}},
                'usage': "  configure  <model>   "
-                        "Configure ml or the model's dependencies.",
+                        "Configure ml or the model's dependencies",
                 'func': "configure_model",
                 'next': ['commands'],
         },
 
     'remove':
-        {'description': "Remove installed model",
+        {'description': "Remove installed model(s).",
             'argument': {'model': {'nargs': "?"}},
                'usage': "  remove    [<model>]  "
-                        "Remove a model or remove all models.",
+                        "Remove a model or remove all models",
                 'func': "remove_model",
                 'next': ['installed'],
         },
@@ -212,21 +212,15 @@ COMMANDS = {
 #             'argument': {'model': {},
 #                          'param': {'nargs': "*"}},
 #                'usage': "  demo       <model>   "
-#                         "Demostrate the model in action.",
+#                         "Demostrate the model in action",
 #                 'func': "dispatch",
 #         },
 
     'donate':
-        {'description': "Consider a donation to the author",
+        {'description': "Consider a donation to the author.",
             'argument': {'model': {}},
                 'func': "donate",
         },
-
-#     'download':
-#         {'description': "Download the large pre-built model",
-#             'argument': {'model': {}},
-#                 'func': "download_model",
-#         },
 }
 
 USAGE = """Usage: {{}} [<options>] <command> [<command options>] [<model>]

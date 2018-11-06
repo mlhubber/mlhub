@@ -263,21 +263,23 @@ def install_model(args):
         info = utils.load_description(model)
         installed_version = info['meta']['version']
         if StrictVersion(installed_version) > StrictVersion(version):
-            msg = "Installed version '{}' of '{}' to be downgraded to version '{}'. Continue [Y/n]? "
-            msg = msg.format(installed_version, model, version)
+            msg = "Downgrade '{}' version '{}' to version '{}' [Y/n]? "
+            msg = msg.format(model, installed_version, version)
             sys.stdout.write(msg)
             choice = input().lower()
             if choice == 'n': sys.exit(1)
         elif StrictVersion(installed_version) == StrictVersion(version):
-            msg = "Installed version '{}' of '{}' to be overwritten. Continue [Y/n]? "
-            msg = msg.format(installed_version, model, version)
+            msg = "Replace '{}' version '{}' with version '{}' [Y/n]? "
+            msg = msg.format(model, installed_version, version)
             sys.stdout.write(msg)
             choice = input().lower()
             if choice == 'n': sys.exit(1)
         else:
-            msg = "Replacing '{}' version '{}' with '{}'."
+            msg = "Upgrade '{}' version '{}' to version '{}' [Y/n]? "
             msg = msg.format(model, installed_version, version)
-            print(msg)
+            sys.stdout.write(msg)
+            choice = input().lower()
+            if choice == 'n': sys.exit(1)
         rmtree(path)
         print()
 
