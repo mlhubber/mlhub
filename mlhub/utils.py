@@ -405,7 +405,7 @@ def print_next_step(current, description={}, scenario=None, model=''):
                 model = '<model>'
 
             msg = meta.get('suggestion',
-                           "\nTo " + lower_first_letter(meta['description']) + ":"
+                           "\nTo " + dropdot(lower_first_letter(meta['description'])) + ":"
                            "\n\n  $ {} {} {}")
             msg = msg.format(CMD, next, model)
             print(msg)
