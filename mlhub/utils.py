@@ -59,7 +59,7 @@ from mlhub.constants import (
 
 def print_usage():
     print(CMD)
-    print(USAGE.format(CMD, EXT_MLM, MLINIT, MLHUB, MLINIT, VERSION, APP))
+    print(USAGE.format(CMD, MLHUB, MLINIT, VERSION, APP))
 
 def create_init():
     """Check if the init dir exists and if not then create it."""
