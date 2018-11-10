@@ -289,7 +289,7 @@ def install_model(args):
 
         # Informative message about the model location and size.
 
-        if not args.quiet: print("Model " + url + "\n")
+        if not args.quiet: print("Package " + url + "\n")
         meta = requests.head(url)
         dsize = "{:,}".format(int(meta.headers.get("content-length")))
         if not args.quiet: print("Downloading '{}' ({} bytes) ...\n".
