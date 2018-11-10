@@ -446,7 +446,7 @@ def print_next_step(current, description={}, scenario=None, model=''):
             msg += ":\n\n  $ {} {} {}"
             msg = msg.format(CMD, next, model)
         else:
-            msg = "\nThank you for exploring the '{}' model.".format(model)
+            msg = "\nThank you for exploring the '{}' model. Visit https://mlhub.ai.".format(model)
 
         print(msg)
 
