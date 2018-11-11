@@ -510,7 +510,7 @@ def configure_model(args):
                 print(msg)
 
             print("  ====> \033[31m" + deps + "\033[0m")
-        except:
+        except KeyError:
             print("No configuration provided (maybe none is required).")
             
     # Suggest next step.

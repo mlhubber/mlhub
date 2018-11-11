@@ -244,8 +244,7 @@ def interpreter(script):
     elif ext == ".py":
         intrprt = "python3"
     else:
-        msg = "Could not determine an interpreter for extension '{}'"
-        print_error_exit(msg, ext)
+        raise UnsupportedScriptExtensionException(ext)
 
     return intrprt
 
@@ -682,4 +681,8 @@ class ModelNotInstalledException(Exception):
 
 
 class ModelReadmeNotFoundException(Exception):
+    pass
+
+
+class UnsupportedScriptExtensionException(Exception):
     pass

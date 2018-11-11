@@ -251,6 +251,10 @@ def main():
             utils.print_commands_suggestions_on_stderr('remove', 'install')
         sys.exit(1)
 
+    except utils.UnsupportedScriptExtensionException as e:
+        msg = "Could not determine an interpreter for extension '{}'"
+        utils.print_error_exit(msg, e.args[0])
+
     except (KeyboardInterrupt, EOFError):  # Catch Ctrl-C and Ctrl-D
         print()
         sys.exit(1)
