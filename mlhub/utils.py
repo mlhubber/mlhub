@@ -456,7 +456,7 @@ def yes_or_no(msg, *params, yes=True):
         yes (bool): Indicates whether the default answer is yes or no.
     """
 
-    print(msg.format(*params) + ' [Y/n]?' if yes else ' [y/N]?', end=' ')
+    print(msg.format(*params) + (' [Y/n]?' if yes else ' [y/N]?'), end=' ')
     choice = input().lower()
 
     answer = True if yes else False
