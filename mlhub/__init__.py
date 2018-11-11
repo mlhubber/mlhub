@@ -255,6 +255,13 @@ def main():
         msg = "Could not determine an interpreter for extension '{}'"
         utils.print_error_exit(msg, e.args[0])
 
+    except utils.CommandNotFoundException as e:
+        msg = "The command '{}' was not found for this model '{}'."
+        utils.print_error(msg, e.args[0], e.args[1])
+        if not args.quiet:
+            utils.print_commands_suggestions_on_stderr('commands')
+        sys.exit(1)
+
     except (KeyboardInterrupt, EOFError):  # Catch Ctrl-C and Ctrl-D
         print()
         sys.exit(1)

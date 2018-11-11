@@ -686,3 +686,7 @@ class ModelReadmeNotFoundException(Exception):
 
 class UnsupportedScriptExtensionException(Exception):
     pass
+
+
+class CommandNotFoundException(Exception):
+    pass

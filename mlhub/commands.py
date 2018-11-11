@@ -541,11 +541,9 @@ def dispatch(args):
     # Check if cmd needs to use graphic display indicated in DESCRIPTION.yaml.
 
     if 'display' in desc['meta'] and cmd in desc['meta']['display'] and os.environ.get('DISPLAY', '') == '':
-        msg = "Graphic display is required but not available for command '{}'. Continue [y/N]? "
-        msg = msg.format(cmd)
-        sys.stdout.write(msg)
-        choice = input().lower()
-        if choice != 'y':
+        msg = "Graphic display is required but not available for command '{}'. Continue"
+        yes = utils.yes_or_no(msg, cmd, yes=False)
+        if not yes:
             msg = """
 To enable DISPLAY be sure to connect to the server using 'ssh -X'
 or else connect to the server's desktop using a local X server like X2Go.
@@ -571,16 +569,10 @@ or else connect to the server's desktop using a local X server like X2Go.
     script = cmd + "." + lang
 
     logger = logging.getLogger(__name__)
-    logger.debug("execute the script: " + os.path.join(path, script))
+    logger.debug("Execute the script: " + os.path.join(path, script))
      
     if cmd not in list(desc['commands']) or not os.path.exists(os.path.join(path, script)):
-        msg = """The command '{}' was not found for this model.
-
-Try using 'commands' to list all supported commands:
-
-  $ {} commands {}
-"""
-        utils.print_error_exit(msg, cmd, CMD, model)
+        raise utils.CommandNotFoundException(cmd, model)
 
     # Determine the interpreter to use
     #
