@@ -340,10 +340,12 @@ def readme(args):
     """Display the model's README information."""
 
     # Setup.
-    
+    logger = logging.getLogger(__name__)
+
     model = args.model
     path = MLINIT + model
     readme_file = os.path.join(path, README)
+    logger.info("Get README of {}.".format(model))
 
     # Check that the model is installed.
 
@@ -351,14 +353,11 @@ def readme(args):
     
     # Display the README.
 
-    try:
-        with open(readme_file, 'r') as f:
-            print(utils.drop_newline(f.read()))
-    except FileNotFoundError:
-        msg = "{}The '{}' model does not have a '{}' file.\n  {}\n"
-        msg = msg.format(APPX, model, README, readme_file)
-        sys.stdout.write(msg)
-        sys.exit(1)
+    if not os.path.exists(readme_file):
+        raise utils.ModelReadmeNotFoundException(model, readme_file)
+
+    with open(readme_file, 'r') as f:
+        print(utils.drop_newline(f.read()))
 
     # Suggest next step.
 

@@ -184,22 +184,8 @@ def check_model_installed(model):
 
     if not os.path.exists(path):
         model = os.path.basename(path)
-        msg = """model '{}' is not installed ({}).
+        raise ModelNotInstalledException(model)
 
-Check for the model name amongst those installed:
-
-  $ {} installed
-
-Models can be installed from the ML Hub:
-
-  $ {} install {}
-
-Available pakages on the ML Hub can be listed with:
-
-  $ {} available
-"""
-        print_error_exit(msg, model, MLINIT, CMD, CMD, model, CMD)
-        
     return True
 
 
@@ -678,4 +664,12 @@ class DescriptionYAMLNotFoundException(Exception):
 
 
 class ModelDownloadHaltException(Exception):
+    pass
+
+
+class ModelNotInstalledException(Exception):
+    pass
+
+
+class ModelReadmeNotFoundException(Exception):
     pass
