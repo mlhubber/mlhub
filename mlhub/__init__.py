@@ -251,6 +251,10 @@ def main():
             utils.print_commands_suggestions_on_stderr('remove', 'install')
         sys.exit(1)
 
+    except (KeyboardInterrupt, EOFError):  # Catch Ctrl-C and Ctrl-D
+        print()
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

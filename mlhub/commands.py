@@ -48,7 +48,6 @@ from mlhub.constants import (
     MLINIT,
     DESC_YAML,
     DESC_YML,
-    APPX,
     CMD,
     EXT_MLM,
     README,
