@@ -642,26 +642,24 @@ def remove_model(args):
     # Setup.
     
     model = args.model
+    path = MLINIT
     if model is None:
         if os.path.exists(MLINIT):
-            path = MLINIT
-            msg = "*Completely* remove all installed models in '{}' [y/N]? "
+            msg = "*Completely* remove all installed models in '{}'"
         else:
             msg = "The local model folder '{}' does not exist. Nothing to do."
             msg = msg.format(MLINIT)
             print(msg)
-            sys.exit(1)
+            return
     else:
-        path = MLINIT + model
-        msg = "Remove '{}' [y/N]? "
+        path = os.path.join(path, model)
+        msg = "Remove '{}'"
         
         # Check that the model is installed.
 
         utils.check_model_installed(model)
 
-    sys.stdout.write(msg.format(path))
-    choice = input().lower()
-    if choice == 'y':
+    if utils.yes_or_no(msg, path, yes=False):
         rmtree(path)
     else:
         if model is None and not args.quiet:
