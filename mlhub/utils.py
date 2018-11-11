@@ -191,6 +191,9 @@ def check_model_installed(model):
 
 def load_description(model):
 
+    logger = logging.getLogger(__name__)
+    logger.info("Load description of {}".format(model))
+
     desc = os.path.join(MLINIT, model, DESC_YAML)
     if os.path.exists(desc):
         entry = yaml.load(open(desc), Loader=yamlordereddictloader.Loader)
@@ -309,6 +312,13 @@ def get_command_suggestion(cmd, description=None, model=''):
         msg = msg.format(CMD, cmd, model)
 
         return msg
+
+
+def print_commands_suggestions_on_stderr(*commands):
+    """Print list of suggestions on how to use the command in commands."""
+
+    for cmd in commands:
+        print_on_stderr(get_command_suggestion(cmd))
 
 
 def print_next_step(current, description=None, scenario=None, model=''):

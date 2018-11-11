@@ -383,8 +383,10 @@ def list_model_commands(args):
     """ List the commands supported by this model."""
 
     # Setup.
-    
+
+    logger = logging.getLogger(__name__)
     model = args.model
+    logger.info("List available commands of '{}'".format(model))
 
     # Check that the model is installed.
 

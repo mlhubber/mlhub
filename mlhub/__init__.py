@@ -216,14 +216,14 @@ def main():
     except utils.RepoAccessException as e:
         utils.print_error("Cannot access the ML Hub repository:\n  {}", e.args[0])
         if not args.quiet:
-            utils.print_on_stderr(utils.get_command_suggestion('installed'))
+            utils.print_commands_suggestions_on_stderr('installed')
         sys.exit(1)
 
     except utils.ModelNotFoundOnRepoException as e:
         msg = "No model named '{}' was found on\n  {}"
         utils.print_error(msg, e.args[0], e.args[1])
         if not args.quiet:
-            utils.print_on_stderr(utils.get_command_suggestion('available'))
+            utils.print_commands_suggestions_on_stderr('available')
         sys.exit(1)
 
     except utils.ModelDownloadHaltException as e:
@@ -231,21 +231,25 @@ def main():
         utils.print_error_exit(msg)
 
     except utils.DescriptionYAMLNotFoundException as e:
-        msg = "No '{}' found for '{}'."
-        utils.print_error_exit(msg, constants.DESC_YAML, e.args[0])
+        msg = "No '{}' found for '{}'.  The model package may be broken."
+        utils.print_error(msg, constants.DESC_YAML, e.args[0])
+        if not args.quiet:
+            utils.print_commands_suggestions_on_stderr('remove', 'install')
+        sys.exit(1)
 
     except utils.ModelNotInstalledException as e:
         msg = "model '{}' is not installed ({})."
         utils.print_error(msg, e.args[0], constants.MLINIT)
         if not args.quiet:
-            utils.print_on_stderr(utils.get_command_suggestion('installed'))
-            utils.print_on_stderr(utils.get_command_suggestion('available'))
-            utils.print_on_stderr(utils.get_command_suggestion('install'))
+            utils.print_commands_suggestions_on_stderr('installed', 'available', 'install')
         sys.exit(1)
 
     except utils.ModelReadmeNotFoundException as e:
-        msg = "The '{}' model does not have a '{}' file.\n  {}\n"
-        utils.print_error_exit(msg, e.args[0], constants.README, e.args[1])
+        msg = "The '{}' model does not have a '{}' file:\n  {}\n"
+        utils.print_error(msg, e.args[0], constants.README, e.args[1])
+        if not args.quiet:
+            utils.print_commands_suggestions_on_stderr('remove', 'install')
+        sys.exit(1)
 
 
 if __name__ == "__main__":
