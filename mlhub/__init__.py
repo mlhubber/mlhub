@@ -30,78 +30,142 @@
 
 import os
 import sys
+import logging
 import argparse
 import mlhub.commands as commands
 import mlhub.constants as constants
 import mlhub.utils as utils
 
-from mlhub.constants import CMD, DEBUG, VERSION, COMMANDS, OPTIONS
+from mlhub.constants import (
+    CMD,
+    APP,
+    VERSION,
+    COMMANDS,
+    OPTIONS,
+)
+
+# ----------------------------------------------------------------------
+# Set up log.
+# ----------------------------------------------------------------------
+
+# Initialize log dir.  Ensure it exists.
+
+utils.create_log_dir()
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Add file log handler to log all into a file
+
+utils.add_log_handler(
+    logger,
+    logging.FileHandler(constants.LOG_FILE),
+    constants.LOG_FILE_LEVEL,
+    constants.LOG_FILE_FORMAT)
+
+logger.info('---------- Start logging ----------')
+# ----------------------------------------------------------------------
+# Set up command line parser and dispatch commands.
+# ----------------------------------------------------------------------
+
 
 def main():
     """Main program for the command line script."""
 
-    # ------------------------------------
+    logger = logging.getLogger(__name__)
+
+    # --------------------------------------------------
     # COMMAND LINE PARSER
-    # ------------------------------------
+    # --------------------------------------------------
 
     # Global option parser.  See mlhub.constants.OPTIONS
 
-    parent_parser = argparse.ArgumentParser(add_help=False)
-    optadder = utils.OptionAdder(parent_parser, OPTIONS)
-    optadder.add_alloptions()
+    logger.info("Create global option parser.")
+    global_option_parser = argparse.ArgumentParser(add_help=False)  # Use custom help message
+    utils.OptionAdder(global_option_parser, OPTIONS).add_alloptions()
 
-    # ------------------------------------
+    # --------------------------------------------------
     # We support a basic set of commands and then any model specific
     # commands provided in the archive.  See mlhub.constants.COMMANDS
-    # ------------------------------------
+    # --------------------------------------------------
 
-    parser = argparse.ArgumentParser(
+    logger.info("Create basic commands parser.")
+    basic_cmd_parser = argparse.ArgumentParser(
         prog=CMD,
         description="Access models from the ML Hub.",
-        parents=[parent_parser],
-    )
-    subparsers = parser.add_subparsers(
+        parents=[global_option_parser])
+    subparsers = basic_cmd_parser.add_subparsers(
         title='subcommands',
-        dest="cmd",
-    )
-    cmdadder = utils.SubCmdAdder(subparsers, commands, COMMANDS)
-    cmdadder.add_allsubcmds()
+        dest="cmd")
+    utils.SubCmdAdder(subparsers, commands, COMMANDS).add_allsubcmds()
 
-    # ------------------------------------
-    # ACTION
-    # ------------------------------------
+    # --------------------------------------------------
+    # Parse version
+    # --------------------------------------------------
 
-    pos_args = [(i, arg) for i, arg in enumerate(sys.argv[1:])
-                if not arg.startswith('-')]
-    ver_args = [(i, arg) for i, arg in enumerate(sys.argv[1:])
-                if arg == '-v' or arg == '--version']
+    logger.info("Parse global options.")
+    args, extra_args = global_option_parser.parse_known_args(sys.argv[1:])
 
-    if len(pos_args) != 0 and pos_args[0][1] not in COMMANDS:
+    if args.debug:  # Add console log handler to log debug message to console
+        logger.info('Enable printing out debug log on console.')
+        utils.add_log_handler(
+            logger,
+            logging.StreamHandler(),
+            logging.DEBUG,
+            constants.LOG_CONSOLE_FORMAT)
 
-        # Model-specific commands
+    logger.debug('args: {}, extra_args: {}'.format(args, extra_args))
 
-        if len(ver_args) != 0:
-            # --------------------------------------------
-            # Query the version of the model, for example
-            #   $ ml rain -v
-            # Otherwise, output the version of ml
-            #   $ ml -v rain
-            # --------------------------------------------
+    # Get the first positional argument.
 
-            model = pos_args[0][1] if ver_args[0][0] > pos_args[0][0] else None
+    pos_args = [arg for i, arg in enumerate(extra_args) if not arg.startswith('-')]
+    first_pos_arg = pos_args[0] if len(pos_args) != 0 else None
+    logger.debug('First positional argument: {}'.format(first_pos_arg))
+
+    if args.version:
+        logger.info('Query version.')
+
+        # --------------------------------------------------
+        # Query the version of the model, for example
+        #   $ ml rain -v
+        # Otherwise, output the version of ml
+        #   $ ml -v rain
+        # --------------------------------------------------
+
+        first_pos_arg_index = [i for i, x in enumerate(sys.argv[1:]) if x == first_pos_arg]
+
+        # Optional version args
+
+        ver_args = [(i, arg) for i, arg in enumerate(sys.argv[1:])
+                    if arg == '-v' or arg == '--version']
+
+        if first_pos_arg is not None and first_pos_arg_index[0] < ver_args[0][0]:  # model version
+            model = first_pos_arg
             print(model, "version", utils.get_version(model))
-            return 0
- 
+        else:  # mlhub version
+            print(APP, "version", utils.get_version())
+
+        return 0
+
+    # --------------------------------------------------
+    # Parse command line args for basic commands or model specific commands
+    # --------------------------------------------------
+
+    if first_pos_arg is not None and first_pos_arg not in COMMANDS:
+
+        logger.info("Parse model specific dommands.")
         model_cmd_parser = argparse.ArgumentParser(
             prog=CMD,
-            parents=[parent_parser],
-            add_help=False)
+            parents=[global_option_parser],
+            add_help=False)  # Use custom help message
         model_cmd_parser.add_argument('cmd', metavar='command')
         model_cmd_parser.add_argument('model')
         args, extra_args = model_cmd_parser.parse_known_args(sys.argv[1:])
+        logger.debug("args: {}".format(args))
+        logger.debug("extra_args: {}".format(extra_args))
 
         # Simple help message for the model-specific command
-        
+
         if '--help' in extra_args or '-h' in extra_args:
             info = utils.load_description(args.model)
             utils.print_model_cmd_help(info, args.cmd)
@@ -111,30 +175,67 @@ def main():
         setattr(args, 'param', extra_args)
     else:
 
-        # Basic common commands
-        
-        args = parser.parse_args()
+        logger.info("Parse basic common commands.")
+        args = basic_cmd_parser.parse_args()
+        logger.debug("args: {}".format(args))
 
-
-    if args.debug:
-        constants.debug = True
-        print(DEBUG + str(args))
-
-    if args.version:
-        print('mlhub version', utils.get_version())
-        return 0
-
-    # Ensure we have a trailing slash on the mlhub.
-
-    if args.mlhub is not None: constants.MLHUB = os.path.join(args.mlhub, "")
-
-    if args.cmd is not None: constants.CMD = args.cmd
+    # Print usage for incorrect argument
 
     if "func" not in args:
         utils.print_usage()
         return 0
 
-    args.func(args)
+    # Ensure we have a trailing slash on the mlhub.
+
+    if args.mlhub is not None:
+        constants.MLHUB = os.path.join(args.mlhub, "")
+
+    if args.mlmetavar is not None:
+        constants.CMD = args.mlmetavar
+
+    # --------------------------------------------------
+    # Dispatch commands
+    # --------------------------------------------------
+
+    try:
+
+        args.func(args)
+
+    except utils.MLInitCreateException as e:
+        msg = "The below '{}' init folder cannot be created:\n  {}"
+        utils.print_error_exit(msg, APP, e.args[0])
+
+    except utils.MalformedMLMFileNameException as e:
+        msg = "Malformed {} file:\n  {}"
+        utils.print_error_exit(msg, constants.EXT_MLM, e.args[0])
+
+    except utils.ModelURLAccessException as e:
+        msg = "URL access failed:\n  {}"
+        utils.print_error_exit(msg, e.args[0])
+
+    except utils.RepoAccessException as e:
+        utils.print_error("Cannot access the ML Hub repository:\n  {}", e.args[0])
+        if not args.quiet:
+            msg = utils.get_command_suggestion('installed')
+            utils.print_on_stderr(msg)
+        sys.exit(1)
+
+    except utils.ModelNotFoundOnRepoException as e:
+        msg = "No model named '{}' was found on\n  {}"
+        utils.print_error(msg, e.args[0], e.args[1])
+        if not args.quiet:
+            msg = utils.get_command_suggestion('available')
+            utils.print_on_stderr(msg)
+        sys.exit(1)
+
+    except utils.ModelDownloadHaltException as e:
+        msg = "URL - '{}' failed:\n  {}".format(e.args[0], e.args[1])
+        utils.print_error_exit(msg)
+
+    except utils.DescriptionYAMLNotFoundException as e:
+        msg = "No '{}' found for '{}'."
+        utils.print_error_exit(msg, constants.DESC_YAML, e.args[0])
+
 
 if __name__ == "__main__":
     main()
