@@ -242,13 +242,13 @@ def install_model(args):
         info = utils.load_description(model)
         installed_version = info['meta']['version']
         if StrictVersion(installed_version) > StrictVersion(version):
-            yes = utils.yes_or_no("Downgrade '{}' version '{}' to version '{}'?",
+            yes = utils.yes_or_no("Downgrade '{}' version '{}' to version '{}'",
                                   model, installed_version, version)
         elif StrictVersion(installed_version) == StrictVersion(version):
-            yes = utils.yes_or_no("Replace '{}' version '{}' with version '{}'?",
+            yes = utils.yes_or_no("Replace '{}' version '{}' with version '{}'",
                                   model, installed_version, version)
         else:
-            yes = utils.yes_or_no("Upgrade '{}' version '{}' to version '{}'?",
+            yes = utils.yes_or_no("Upgrade '{}' version '{}' to version '{}'",
                                   model, installed_version, version)
 
         if not yes:
@@ -628,10 +628,7 @@ def remove_mlm(args):
     mlm = glob.glob(os.path.join(MLINIT, "*.mlm"))
     mlm.sort()
     for m in mlm:
-        msg = "Remove model package archive '{}' [Y/n]? ".format(m)
-        sys.stdout.write(msg)
-        choice = input().lower()
-        if choice == 'y' or choice == '':
+        if utils.yes_or_no("Remove model package archive '{}'", m):
             os.remove(m)
 
 # ------------------------------------------------------------------------
