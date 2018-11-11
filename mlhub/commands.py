@@ -168,7 +168,7 @@ def list_installed(args):
             invalid_mcnt,
             's' if invalid_mcnt > 1 else '',
             'are' if invalid_mcnt > 1 else 'is'))
-        print('  ' + ', '.join(invalid_models))
+        print("  ====> \033[31m" + ', '.join(invalid_models) + "\033[0m")
         print(utils.get_command_suggestion('remove'))
 
     # Suggest next step.
