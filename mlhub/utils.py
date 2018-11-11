@@ -289,7 +289,7 @@ def get_command_suggestion(cmd, description=None, model=''):
         # If there is customized suggestion, use it; otherwise
         # generate from description.
 
-        if 'argument' in meta and 'model' in meta['argument'] and model is None:
+        if 'argument' in meta and 'model' in meta['argument'] and model == '':
             model = '<model>'
 
         msg = meta.get('suggestion',
@@ -410,7 +410,7 @@ def is_url(name):
     return re.findall('http[s]?:', name)
 
 
-def get_model_url(model, mlhub):
+def get_model_url_from_repo(model, mlhub):
     """Get model url on mlhub.
 
     Args:

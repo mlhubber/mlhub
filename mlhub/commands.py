@@ -70,7 +70,11 @@ def list_available(args):
 
     # Setup.
 
+    logger = logging.getLogger(__name__)
+    logger.info('List available models.')
+
     mlhub = utils.get_repo(args.mlhub)
+    logger.debug('Get repo meta data from {}'.format(mlhub))
     meta = utils.get_repo_meta_data(mlhub)
 
     # List model name only.
@@ -110,12 +114,18 @@ def list_available(args):
 def list_installed(args):
     """List the installed models."""
 
+    logger = logging.getLogger(__name__)
+    logger.info('List installed models.')
+
     # Find installed models, ignoring special folders like R.
 
     if os.path.exists(MLINIT):
         msg = " in '{}'.".format(MLINIT)
         models = [f for f in os.listdir(MLINIT)
-                  if os.path.isdir(os.path.join(MLINIT, f)) and f != "R" and not f.startswith('.')]
+                  if os.path.isdir(os.path.join(MLINIT, f))
+                  and f != "R"
+                  and not f.startswith('.')
+                  and not f.startswith('_')]
     else:
         msg = ". '{}' does not exist.".format(MLINIT)
         models = []
@@ -131,21 +141,36 @@ def list_installed(args):
     # Report on how many models we found installed.
         
     mcnt = len(models)
-    plural = "s"
-    if mcnt == 1:
-        plural = ""
+    plural = "s" if mcnt != 1 else ""
     print("Found {} model{} installed{}".format(mcnt, plural, msg))
 
     # Report on each of the installed models.
         
     if mcnt > 0:
         print("")
+
+    invalid_models = []
     for p in models:
-        entry = utils.load_description(p)
-        utils.print_meta_line(entry)
+        try:
+            entry = utils.load_description(p)
+            utils.print_meta_line(entry)
+        except utils.DescriptionYAMLNotFoundException:
+            mcnt -= 1
+            invalid_models.append(p)
+            continue
 
         # Update available commands for the model for fast bash tab completion.
         utils.update_completion_list(COMPLETION_COMMANDS, set(entry['commands']))
+
+    #
+    invalid_mcnt = len(invalid_models)
+    if invalid_mcnt > 0:
+        print("\nOf which {} model package{} {} broken:\n".format(
+            invalid_mcnt,
+            's' if invalid_mcnt > 1 else '',
+            'are' if invalid_mcnt > 1 else 'is'))
+        print('  ' + ', '.join(invalid_models))
+        print(utils.get_command_suggestion('remove'))
 
     # Suggest next step.
     
@@ -198,7 +223,7 @@ def install_model(args):
 
             # Or obtain the repository meta data from Packages.yaml.
 
-            url, meta = utils.get_model_url(args.model, args.mlhub)
+            url, meta = utils.get_model_url_from_repo(args.model, args.mlhub)
             logger.debug("URL from repo: {}".format(url))
 
             utils.update_completion_list(  # Update bash completion word list of available models.
