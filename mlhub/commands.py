@@ -284,6 +284,10 @@ def install_model(args):
             raise utils.ModelDownloadHaltException(url, error.reason.lower())
 
     logger.info('Extract mlm file.')
+    if not os.path.exists(local):
+        msg = "File is not found: {}"
+        utils.print_error_exit(msg, local)
+
     zipfile.ZipFile(local).extractall(MLINIT)
 
     # Support either .yml or .yaml "cheaply". Should really try and
