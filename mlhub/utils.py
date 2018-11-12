@@ -56,6 +56,7 @@ from mlhub.constants import (
     COMMANDS,
     COMPLETION_DIR,
     LOG_DIR,
+    CACHE_DIR,
 )
 
 
@@ -64,11 +65,22 @@ def print_usage():
     print(USAGE.format(CMD, MLHUB, MLINIT, VERSION, APP))
 
 
-def _create_dir(path):
-    """Check if the dir exists and if not then create it."""
+def _create_dir(path, error_msg, exception):
+    """Check if the dir exists and if not then create it.
 
-    if not os.path.exists(path):
-        os.makedirs(path)
+    Args:
+        path (str): the dir path.
+        error_msg (str): log error message if mkdir fails.
+        exception (Exception): The exception raised when error.
+    """
+
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+    except OSError:
+        logger = logging.getLogger(__name__)
+        logger.error(error_msg, exc_info=True)
+        raise exception
 
     return path
 
@@ -76,14 +88,11 @@ def _create_dir(path):
 def create_init():
     """Check if the init dir exists and if not then create it."""
 
-    try:
-        path = _create_dir(MLINIT)
-    except OSError:
-        logger = logging.getLogger(__name__)
-        logger.error('MLINIT creation failed: {}'.format(MLINIT), exc_info=True)
-        raise MLInitCreateException(MLINIT)
-
-    return path
+    return _create_dir(
+        MLINIT,
+        'MLINIT creation failed: {}'.format(MLINIT),
+        MLInitCreateException(MLINIT)
+    )
 
 
 def get_repo(repo):
@@ -470,6 +479,46 @@ def yes_or_no(msg, *params, yes=True):
     return answer
 
 # ----------------------------------------------------------------------
+# Model package directories
+# ----------------------------------------------------------------------
+
+
+def get_package_dir(model):
+    """Return the dir where the model package should be installed."""
+
+    return os.path.join(MLINIT, model)
+
+
+def create_package_dir(model):
+    """Check existence of dir where the model package is installed, if not create it and return."""
+
+    path = get_package_dir(model)
+
+    return _create_dir(
+        path,
+        'Model package dir creation failed: {}'.format(path),
+        ModelPkgDirCreateException(path)
+    )
+
+
+def get_package_cache_dir(model):
+    """Return the dir where the model package stores cached files, such as pre-built model, data, image files, etc."""
+
+    return os.path.join(CACHE_DIR, model)
+
+
+def create_package_cache_dir(model):
+    """Check existence of dir where the model package stores cached files, If not create it and return."""
+
+    path = get_package_cache_dir(model)
+
+    return _create_dir(
+        path,
+        'Model package cache dir creation failed: {}'.format(path),
+        ModelPkgCacheDirCreateException(path)
+    )
+
+# ----------------------------------------------------------------------
 # Bash completion helper
 # ----------------------------------------------------------------------
 
@@ -477,12 +526,11 @@ def yes_or_no(msg, *params, yes=True):
 def create_completion_dir():
     """Check if the init dir exists and if not then create it."""
 
-    try:
-        path = _create_dir(COMPLETION_DIR)
-    except OSError:
-        raise CompletionDirCreateException(COMPLETION_DIR)
-
-    return path
+    return _create_dir(
+        COMPLETION_DIR,
+        'Bash completion dir creation failed: {}'.format(COMPLETION_DIR),
+        CompletionDirCreateException(COMPLETION_DIR)
+    )
 
 
 def update_completion_list(completion_file, new_words):
@@ -522,7 +570,6 @@ def get_completion_list(completion_file):
             words = {line.strip() for line in file if line.strip()}
 
     print('\n'.join(words))
-
 
 # -----------------------------------------------------------------------
 # Command line argument parse helper
@@ -593,7 +640,6 @@ class OptionAdder(object):
         for opt in self.options:
             self.add_option(opt)
 
-
 # ----------------------------------------------------------------------
 # Debug Log and Error Printing
 # ----------------------------------------------------------------------
@@ -602,7 +648,11 @@ class OptionAdder(object):
 def create_log_dir():
     """Check if the log dir exists and if not then create it."""
 
-    return _create_dir(LOG_DIR)
+    return _create_dir(
+        LOG_DIR,
+        'Log dir creation failed: {}'.format(LOG_DIR),
+        LogDirCreateException(LOG_DIR)
+    )
 
 
 def add_log_handler(logger, handler, level, fmt):
@@ -689,4 +739,16 @@ class UnsupportedScriptExtensionException(Exception):
 
 
 class CommandNotFoundException(Exception):
+    pass
+
+
+class LogDirCreateException(Exception):
+    pass
+
+
+class ModelPkgDirCreateException(Exception):
+    pass
+
+
+class ModelPkgCacheDirCreateException(Exception):
     pass

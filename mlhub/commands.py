@@ -39,7 +39,6 @@ import subprocess
 import textwrap
 import logging
 
-from tempfile import TemporaryDirectory
 from shutil import move, rmtree
 from distutils.version import StrictVersion
 
@@ -48,7 +47,6 @@ from mlhub.constants import (
     MLINIT,
     DESC_YAML,
     DESC_YML,
-    CMD,
     EXT_MLM,
     README,
     COMPLETION_MODELS,

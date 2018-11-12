@@ -53,6 +53,7 @@ if "MLINIT" in os.environ:
     MLINIT = os.path.join(os.getenv("MLINIT"), "")
 
 # Cache files for bash completion.
+
 COMPLETION_DIR = os.path.join(MLINIT, ".config", "completion")
 COMPLETION_COMMANDS = os.path.join(COMPLETION_DIR, "commands")
 COMPLETION_MODELS = os.path.join(COMPLETION_DIR, "models")
@@ -60,8 +61,13 @@ COMPLETION_MODELS = os.path.join(COMPLETION_DIR, "models")
 COMPLETION_SCRIPT = os.path.join('bash_completion.d', 'ml.bash')
 
 # Log files
+
 LOG_DIR = os.path.join(MLINIT, ".log")
 LOG_FILE = os.path.join(LOG_DIR, 'mlhub.log')
+
+# cache dir
+
+CACHE_DIR = os.path.join(MLINIT, ".cache")
 
 # ------------------------------------------------------------------------
 # Application information.
@@ -74,9 +80,9 @@ CMD = "ml"                 # The command line tool.
 EXT_MLM = ".mlm"    # Archive filename extension
 EXT_AIPK = ".aipk"  # Backward compatibility
 
-VERSION = "1.5.2" # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "1.5.2"  # DO NOT MODIFY. Managed from ../Makefile.
 
-# Options
+# Global command line options
 
 OPTIONS = {
     '--version':
@@ -101,7 +107,7 @@ OPTIONS = {
          'dest': 'mlmetavar'},
 }
 
-# Commands
+# Basic common commands
 
 COMMANDS = {
     # -------------------------------------------------------------------
