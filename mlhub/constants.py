@@ -29,22 +29,23 @@
 # THE SOFTWARE.
 
 import os
+import logging
 
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # The default ML Hub can be overriden by an environment variable or by
 # the command line option --mlhub.
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
-MLHUB  = "https://mlhub.ai/"
+MLHUB = "https://mlhub.ai/"
 if "MLHUB" in os.environ:
     # The following adds a trainling "/" as assumed in the code.
     MLHUB = os.path.join(os.getenv("MLHUB"), "")
 
 HUB_PATH = "pool/main/"
 
-#------------------------------------------------------------------------
-# The MLINIT contains all of the locally installed models.
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# The MLINIT contains all of the locally installed models and configuration files.
+# ------------------------------------------------------------------------
 
 MLINIT = os.path.expanduser("~/.mlhub/")
 if "MLINIT" in os.environ:
@@ -52,30 +53,40 @@ if "MLINIT" in os.environ:
     MLINIT = os.path.join(os.getenv("MLINIT"), "")
 
 # Cache files for bash completion.
+
 COMPLETION_DIR = os.path.join(MLINIT, ".config", "completion")
 COMPLETION_COMMANDS = os.path.join(COMPLETION_DIR, "commands")
 COMPLETION_MODELS = os.path.join(COMPLETION_DIR, "models")
 
 COMPLETION_SCRIPT = os.path.join('bash_completion.d', 'ml.bash')
 
-#------------------------------------------------------------------------
+# Log files
+
+LOG_DIR = os.path.join(MLINIT, ".log")
+LOG_FILE = os.path.join(LOG_DIR, 'mlhub.log')
+
+# cache dir
+
+CACHE_DIR = os.path.join(MLINIT, ".cache")
+
+# ------------------------------------------------------------------------
 # Application information.
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
-APP  = "mlhub"            # The application name.
-APPX = "{}: ".format(APP) # For error messages.
-CMD  = "ml"               # The command line tool.
+APP = "mlhub"              # The application name.
+APPX = "{}: ".format(APP)  # For error messages.
+CMD = "ml"                 # The command line tool.
 
-EXT_MLM  = ".mlm"         # Archive filename extension
-EXT_AIPK = ".aipk"        # Backward compatibility
+EXT_MLM = ".mlm"    # Archive filename extension
+EXT_AIPK = ".aipk"  # Backward compatibility
 
-VERSION = "1.5.2" # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "1.5.2"  # DO NOT MODIFY. Managed from ../Makefile.
 
-# Options
+# Global command line options
 
 OPTIONS = {
     '--version':
-        {'alias': ['-v',],
+        {'alias': ['-v', ],
          'help': "Display version information and exit.",
          'action': 'store_true',
         },
@@ -92,10 +103,11 @@ OPTIONS = {
     '--mlhub':
         {'help': "Use this ML Hub instead of '{}'.".format(MLHUB)},
     '--cmd':
-        {'help': "Command display name instead of '{}'.".format(CMD)},
+        {'help': "Command display name instead of '{}'.".format(CMD),
+         'dest': 'mlmetavar'},
 }
 
-# Commands
+# Basic common commands
 
 COMMANDS = {
     # -------------------------------------------------------------------
@@ -203,7 +215,7 @@ COMMANDS = {
                'usage': "  remove    [<model>]  "
                         "Remove a model or remove all models",
                 'func': "remove_model",
-                'next': ['installed'],
+                'next': ['installed', 'install'],
         },
 
 #     'demo':
@@ -255,9 +267,11 @@ List the available models from the repository with:
   $ ml available
 """.format(commands=COMMANDS)
 
-# Filenames.
+# ------------------------------------------------------------------------
+# Filenames
+# ------------------------------------------------------------------------
 
-README    = "README.txt"
+README = "README.txt"
 
 DESC_YAML = "DESCRIPTION.yaml"
 META_YAML = "Packages.yaml"
@@ -265,8 +279,12 @@ META_YAML = "Packages.yaml"
 DESC_YML = "DESCRIPTION.yml"
 META_YML = "Packages.yml"
 
+# ------------------------------------------------------------------------
 # Debugging
+# ------------------------------------------------------------------------
 
-debug = False
-DEBUG = "--> " + APP + ": debug: "
-
+LOG_FILE_LEVEL = logging.DEBUG
+LOG_FILE_FORMAT = '%(asctime)s - %(name)s - %(levelname)s: %(message)s'
+LOG_CONSOLE_FORMAT = '--> %(name)s - %(levelname)s: %(message)s'
+LOG_NOT_QUIET = {'quiet': False}
+LOG_QUIET = {'quiet': True}

@@ -36,13 +36,9 @@ import urllib.request
 import urllib.error
 import zipfile
 import subprocess
-import yaml
 import textwrap
-import locale
-import importlib.util
-import re
+import logging
 
-from tempfile import TemporaryDirectory
 from shutil import move, rmtree
 from distutils.version import StrictVersion
 
@@ -51,16 +47,8 @@ from mlhub.constants import (
     MLINIT,
     DESC_YAML,
     DESC_YML,
-    APP,
-    APPX,
-    CMD,
-    HUB_PATH,
     EXT_MLM,
-    EXT_AIPK,
-    META_YAML,
     README,
-    META_YML,
-    DEBUG,
     COMPLETION_MODELS,
     COMPLETION_COMMANDS,
     COMPLETION_SCRIPT,
@@ -69,17 +57,22 @@ from mlhub.constants import (
 # The commands are implemented here in a logical order with each
 # command providing a suggesting of the following command.
 
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # AVAILABLE
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def list_available(args):
     """List the name and title of the models in the Hub."""
 
     # Setup.
 
+    logger = logging.getLogger(__name__)
+    logger.info('List available models.')
+
     mlhub = utils.get_repo(args.mlhub)
-    meta  = utils.get_repo_meta_data(mlhub)
+    logger.debug('Get repo meta data from {}'.format(mlhub))
+    meta = utils.get_repo_meta_data(mlhub)
 
     # List model name only.
 
@@ -110,19 +103,26 @@ def list_available(args):
             print("Why not give the 'rain' model a go...\n\n" +
                   "  $ ml install rain\n")
 
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # INSTALLED
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def list_installed(args):
     """List the installed models."""
+
+    logger = logging.getLogger(__name__)
+    logger.info('List installed models.')
 
     # Find installed models, ignoring special folders like R.
 
     if os.path.exists(MLINIT):
         msg = " in '{}'.".format(MLINIT)
         models = [f for f in os.listdir(MLINIT)
-                  if os.path.isdir(os.path.join(MLINIT, f)) and f != "R" and not f.startswith('.')]
+                  if os.path.isdir(os.path.join(MLINIT, f))
+                  and f != "R"
+                  and not f.startswith('.')
+                  and not f.startswith('_')]
     else:
         msg = ". '{}' does not exist.".format(MLINIT)
         models = []
@@ -138,19 +138,36 @@ def list_installed(args):
     # Report on how many models we found installed.
         
     mcnt = len(models)
-    plural = "s"
-    if mcnt == 1: plural = ""
+    plural = "s" if mcnt != 1 else ""
     print("Found {} model{} installed{}".format(mcnt, plural, msg))
 
     # Report on each of the installed models.
         
-    if mcnt > 0: print("")
+    if mcnt > 0:
+        print("")
+
+    invalid_models = []
     for p in models:
-        entry = utils.load_description(p)
-        utils.print_meta_line(entry)
+        try:
+            entry = utils.load_description(p)
+            utils.print_meta_line(entry)
+        except utils.DescriptionYAMLNotFoundException:
+            mcnt -= 1
+            invalid_models.append(p)
+            continue
 
         # Update available commands for the model for fast bash tab completion.
         utils.update_completion_list(COMPLETION_COMMANDS, set(entry['commands']))
+
+    #
+    invalid_mcnt = len(invalid_models)
+    if invalid_mcnt > 0:
+        print("\nOf which {} model package{} {} broken:\n".format(
+            invalid_mcnt,
+            's' if invalid_mcnt > 1 else '',
+            'are' if invalid_mcnt > 1 else 'is'))
+        print("  ====> \033[31m" + ', '.join(invalid_models) + "\033[0m")
+        print(utils.get_command_suggestion('remove'))
 
     # Suggest next step.
     
@@ -160,188 +177,143 @@ def list_installed(args):
         else:
             utils.print_next_step('installed', scenario='none')
 
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 # INSTALL
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def install_model(args):
-    """Install a model."""
+    """Install a model.
 
-    # Setup.
+    Args:
+        args.model (str): mlm file path, or mlm file url, or model name.
+    """
+
+    # Setup.  And ensure the local init dir exists.
+
+    logger = logging.getLogger(__name__)
+    logger.info("Install model")
+    logger.debug("args: {}".format(args))
 
     url = None
+    init = utils.create_init()
 
     # Identify if it is a local file name to install.
     
-    if args.model.endswith(EXT_MLM) and not re.findall('http[s]?:', args.model):
+    if utils.ends_with_mlm(args.model) and not utils.is_url(args.model):
 
         # Identify the local mlm file to install.
 
-        local   = args.model
-        mlmfile = local
-        model   = os.path.basename(local).split("_")[0]
-        version = os.path.basename(local).split("_")[1].replace(EXT_MLM, "")
-
-        # Ensure the local init dir exists.
-        
-        init = utils.create_init()
-        path = os.path.join(init, model)
+        local = args.model  # model package file local path
+        logger.debug("Local mlm file: {}".format(local))
+        mlmfile, model, version = utils.interpret_mlm_name(local)
 
     else:
-
-        if re.findall('http[s]?:', args.model):
+        if utils.is_url(args.model):
 
             # A specific URL was provided.
-            
-            url = args.model
-            model = url.split("/")[-1].split("_")[0]
 
-            # Check that the URL exists.
-            
-            r = requests.head(url)
-            if not r.status_code == requests.codes.ok:
-                msg = "{}the url '{}' was not found."
-                msg = msg.format(APPX, url)
-                print(msg, file=sys.stderr)
-                sys.exit(1)
-            
+            url = args.model
+            logger.debug("Provided URL: {}".format(url))
+
         else:
-            
+
             # Or obtain the repository meta data from Packages.yaml.
 
-            model = args.model
-        
-            mlhub = utils.get_repo(args.mlhub)
-            meta  = utils.get_repo_meta_data(mlhub)
+            url, meta = utils.get_model_url_from_repo(args.model, args.mlhub)
+            logger.debug("URL from repo: {}".format(url))
 
-            # Update available models for fast bash tab completion.
-
-            utils.update_completion_list(COMPLETION_MODELS, {e['meta']['name'] for e in meta})
-
-            # Find the first matching entry in the meta data.
-
-            url = None
-            for entry in meta:
-                if model == entry["meta"]["name"]:
-                    url = mlhub + entry["meta"]["filename"]
-                    break
-
-        # If not found suggest how a model might be installed.
-
-        if url is None:
-            msg = "{}no model named '{}' was found on '{}'."
-            msg = msg.format(APPX, model, mlhub)
-            print(msg, file=sys.stderr)
-            if not args.quiet:
-                msg = "\nYou can list available models with:\n\n  $ {} available\n"
-                msg = msg.format(CMD)
-                print(msg, file=sys.stderr)
-            sys.exit(1)
-            
-        if args.debug: print(DEBUG + "model file url is: " + url)
-
-        # Ensure file to be downloaded has the expected filename extension.
-
-        if not url.endswith(EXT_MLM) and not url.endswith(EXT_AIPK):
-            msg = "{}the below url is not a {} file. Malformed '{}' from the repository?\n  {}"
-            msg = msg.format(APPX, EXT_MLM, META_YAML, url)
-            print(msg, file=sys.stderr)
-            sys.exit(1)
+            utils.update_completion_list(  # Update bash completion word list of available models.
+                COMPLETION_MODELS,
+                {e['meta']['name'] for e in meta})
 
         # Further setup.
 
-        init    = utils.create_init()
-        mlmfile = url.split("/")[-1]
-        version = mlmfile.split("_")[1].replace(EXT_MLM, "").replace(EXT_AIPK, "")
-
-        local   = os.path.join(init, mlmfile)
-        path    = os.path.join(init, model)
-
+        mlmfile, model, version = utils.interpret_mlm_name(url)
+        local = os.path.join(init, mlmfile)  # model package file local path
+            
     # Check if model is already installed.
-        
+
+    logger.debug('mlmfile: {}, model: {}, version: {}'.format(mlmfile, model, version))
+    path = os.path.join(init, model)  # Installation path
     if os.path.exists(path):
         info = utils.load_description(model)
         installed_version = info['meta']['version']
         if StrictVersion(installed_version) > StrictVersion(version):
-            msg = "Downgrade '{}' version '{}' to version '{}' [Y/n]? "
-            msg = msg.format(model, installed_version, version)
-            sys.stdout.write(msg)
-            choice = input().lower()
-            if choice == 'n': sys.exit(1)
+            yes = utils.yes_or_no("Downgrade '{}' version '{}' to version '{}'",
+                                  model, installed_version, version)
         elif StrictVersion(installed_version) == StrictVersion(version):
-            msg = "Replace '{}' version '{}' with version '{}' [Y/n]? "
-            msg = msg.format(model, installed_version, version)
-            sys.stdout.write(msg)
-            choice = input().lower()
-            if choice == 'n': sys.exit(1)
+            yes = utils.yes_or_no("Replace '{}' version '{}' with version '{}'",
+                                  model, installed_version, version)
         else:
-            msg = "Upgrade '{}' version '{}' to version '{}' [Y/n]? "
-            msg = msg.format(model, installed_version, version)
-            sys.stdout.write(msg)
-            choice = input().lower()
-            if choice == 'n': sys.exit(1)
+            yes = utils.yes_or_no("Upgrade '{}' version '{}' to version '{}'",
+                                  model, installed_version, version)
+
+        if not yes:
+            sys.exit(1)
+        else:
+            print()
+
+        logger.info('Remove installed model: {}'.format(model))
         rmtree(path)
-        print()
 
     # Download the model now if not a local file.
         
-    if not url is None:
+    if url is not None:
 
         # Informative message about the model location and size.
 
-        if not args.quiet: print("Package " + url + "\n")
+        logger.info('Download mlm file from {}.'.format(url))
+        if not args.quiet:
+            print("Package " + url + "\n")
         meta = requests.head(url)
+        if meta.status_code != requests.codes.ok:
+            raise utils.ModelURLAccessException(url)
         dsize = "{:,}".format(int(meta.headers.get("content-length")))
-        if not args.quiet: print("Downloading '{}' ({} bytes) ...\n".
-                                 format(mlmfile, dsize))
+        if not args.quiet:
+            print("Downloading '{}' ({} bytes) ...\n".format(mlmfile, dsize))
 
         # Download the archive from the URL.
 
         try:
             urllib.request.urlretrieve(url, local)
         except urllib.error.HTTPError as error:
-            msg = "{}'{}' {}."
-            msg = msg.format(APPX, url, error.reason.lower())
-            print(msg, file=sys.stderr)
-            sys.exit(1)
+            logger.error("Downloading mlm file from URL failed: '{}'".format(url, exc_info=True))
+            raise utils.ModelDownloadHaltException(url, error.reason.lower())
 
-    zip = zipfile.ZipFile(local)
-    zip.extractall(MLINIT)
+    logger.info('Extract mlm file.')
+    if not os.path.exists(local):
+        msg = "File is not found: {}"
+        utils.print_error_exit(msg, local)
+
+    zipfile.ZipFile(local).extractall(MLINIT)
 
     # Support either .yml or .yaml "cheaply". Should really try and
     # except but eventually will remove the yml file. The yaml authors
     # suggest .yaml.
 
-    desc_yml  = os.path.join(path, DESC_YML)
+    desc_yml = os.path.join(path, DESC_YML)
     desc_yaml = os.path.join(path, DESC_YAML)
     if (not os.path.exists(desc_yaml)) and os.path.exists(desc_yml):
         move(desc_yml, desc_yaml)
 
-    # Update available commands for the model for fast bash tab completion.
-
-    info = utils.load_description(model)
-    model_cmds = set(info['commands'])
-    utils.update_completion_list(COMPLETION_COMMANDS, model_cmds)
-
-    # Informative message about the size of the installed model.
+    utils.update_completion_list(  # Update bash completion word list of available commands.
+        COMPLETION_COMMANDS,
+        set(utils.load_description(model)['commands']))
     
     if not args.quiet:
-        dsz = 0
-        for (pth, dir, files) in os.walk(path):
-            for f in files:
-                tfilename = os.path.join(pth, f)
-                dsz += os.path.getsize(tfilename)
-        print("Extracted '{}' into\n'{}' ({:,} bytes).".
-              format(mlmfile, path, dsz))
+        # Informative message about the size of the installed model.
+        
+        print("Extracted '{}' into\n'{}' ({:,} bytes).".format(mlmfile, path, utils.dir_size(path)))
             
-    # Suggest next step. README or DOWNLOAD
-    
-    if not args.quiet:
+        # Suggest next step. README or DOWNLOAD
+
         utils.print_next_step('install', model=model)
-    
-#-----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
 # DOWNLOAD
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def download_model(args):
     """Download the large pre-built model."""
@@ -360,18 +332,21 @@ def download_model(args):
     if not args.quiet:
         utils.print_next_step('download', model=model)
 
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # README
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def readme(args):
     """Display the model's README information."""
 
     # Setup.
-    
-    model  = args.model
-    path   = MLINIT + model
-    readme = os.path.join(path, README)
+    logger = logging.getLogger(__name__)
+
+    model = args.model
+    path = MLINIT + model
+    readme_file = os.path.join(path, README)
+    logger.info("Get README of {}.".format(model))
 
     # Check that the model is installed.
 
@@ -379,39 +354,40 @@ def readme(args):
     
     # Display the README.
 
-    try:
-        with open(readme, 'r') as f:
-            print(utils.drop_newline(f.read()))
-    except FileNotFoundError:
-        msg = "{}The '{}' model does not have a '{}' file.\n  {}\n"
-        msg = msg.format(APPX, model, README, readme)
-        sys.stdout.write(msg)
-        sys.exit(1)
+    if not os.path.exists(readme_file):
+        raise utils.ModelReadmeNotFoundException(model, readme_file)
+
+    with open(readme_file, 'r') as f:
+        print(utils.drop_newline(f.read()))
 
     # Suggest next step.
 
     if not args.quiet:
         utils.print_next_step('readme', model=model)
 
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # LICENSE
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def license(args):
     """Display the mode's LICENSE information."""
 
     print("Please assist by implementing this command.")
     
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 # COMMANDS
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def list_model_commands(args):
     """ List the commands supported by this model."""
 
     # Setup.
-    
+
+    logger = logging.getLogger(__name__)
     model = args.model
+    logger.info("List available commands of '{}'".format(model))
 
     # Check that the model is installed.
 
@@ -446,9 +422,10 @@ def list_model_commands(args):
     if not args.quiet:
         utils.print_next_step('commands', description=info, model=model)
 
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 # CONFIGURE
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def configure_model(args):
     """Ensure the user's environment is configured."""
@@ -510,7 +487,7 @@ def configure_model(args):
     # Setup.
     
     model = args.model
-    path  = MLINIT + model
+    path = MLINIT + model
    
     # Check that the model is installed.
 
@@ -535,7 +512,7 @@ def configure_model(args):
                 print(msg)
 
             print("  ====> \033[31m" + deps + "\033[0m")
-        except:
+        except KeyError:
             print("No configuration provided (maybe none is required).")
             
     # Suggest next step.
@@ -543,16 +520,17 @@ def configure_model(args):
     if not args.quiet:
         utils.print_next_step('configure', model=model)
 
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 # DISPATCH
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def dispatch(args):
     """Dispatch other commands to the appropriate model provided script."""
 
-    cmd   = args.cmd
+    cmd = args.cmd
     model = args.model
-    path  = MLINIT + model
+    path = MLINIT + model
 
     param = " ".join(args.param)
 
@@ -565,11 +543,9 @@ def dispatch(args):
     # Check if cmd needs to use graphic display indicated in DESCRIPTION.yaml.
 
     if 'display' in desc['meta'] and cmd in desc['meta']['display'] and os.environ.get('DISPLAY', '') == '':
-        msg = "Graphic display is required but not available for command '{}'. Continue [y/N]? "
-        msg = msg.format(cmd)
-        sys.stdout.write(msg)
-        choice = input().lower()
-        if choice != 'y':
+        msg = "Graphic display is required but not available for command '{}'. Continue"
+        yes = utils.yes_or_no(msg, cmd, yes=False)
+        if not yes:
             msg = """
 To enable DISPLAY be sure to connect to the server using 'ssh -X'
 or else connect to the server's desktop using a local X server like X2Go.
@@ -592,20 +568,13 @@ or else connect to the server's desktop using a local X server like X2Go.
         
     # Obtain the specified script file.
     
-    script  = cmd + "." + lang
-    
-    if args.debug:
-        print(DEBUG + "execute the script: " + os.path.join(path, script))
+    script = cmd + "." + lang
+
+    logger = logging.getLogger(__name__)
+    logger.debug("Execute the script: " + os.path.join(path, script))
      
     if cmd not in list(desc['commands']) or not os.path.exists(os.path.join(path, script)):
-        msg = """{}The command '{}' was not found for this model.
-
-Try using 'commands' to list all supported commands:
-
-  $ {} commands {}
-""".format(APPX, cmd, CMD, model)
-        print(msg, file=sys.stderr)
-        sys.exit(1)
+        raise utils.CommandNotFoundException(cmd, model)
 
     # Determine the interpreter to use
     #
@@ -613,10 +582,19 @@ Try using 'commands' to list all supported commands:
 
     interpreter = utils.interpreter(script)
 
-    command = "export CMD_CWD='{}'; {} {} {}".format(os.getcwd(), interpreter, script, param)
+    # _MLHUB_CMD_CWD: a environment variable indicates current working
+    #          directory where command `ml xxx` is invoked.
+    # _MLHUB_MODEL_NAME: env variable indicates the name of the model.
+    # 
+    # The above two env vars can be obtained by helper function, such
+    # as utils.get_cmd_cwd().  And model package developer should be
+    # use the helper function instead of the env vars directly.
 
-    if args.debug:
-        print(DEBUG + "(cd " + path + "; " + command + ")")
+    command = "export _MLHUB_CMD_CWD='{}'; export _MLHUB_MODEL_NAME='{}'; {} {} {}".format(
+        os.getcwd(), model, interpreter, script, param)
+
+    logger.debug("(cd " + path + "; " + command + ")")
+
     proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
     if proc.returncode != 0:
@@ -628,18 +606,20 @@ Try using 'commands' to list all supported commands:
         if not args.quiet:
             utils.print_next_step(cmd, description=desc, model=model)
     
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # DONATE
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def donate(args):
     """Consider a donation to the author."""
 
     print("Please assist by implementing this command: support donations to the author.")
     
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # CLEAN
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def remove_mlm(args):
     """Remove downloaded {} files.""".format(EXT_MLM)
@@ -647,41 +627,38 @@ def remove_mlm(args):
     mlm = glob.glob(os.path.join(MLINIT, "*.mlm"))
     mlm.sort()
     for m in mlm:
-        msg = "Remove model package archive '{}' [Y/n]? ".format(m)
-        sys.stdout.write(msg)
-        choice = input().lower()
-        if choice == 'y' or choice == '': os.remove(m)
+        if utils.yes_or_no("Remove model package archive '{}'", m):
+            os.remove(m)
 
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # REMOVE
-#------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+
 
 def remove_model(args):
     """Remove installed model."""
 
     # Setup.
     
-    model  = args.model
+    model = args.model
+    path = MLINIT
     if model is None:
         if os.path.exists(MLINIT):
-            path = MLINIT
-            msg  = "*Completely* remove all installed models in '{}' [y/N]? "
+            msg = "*Completely* remove all installed models in '{}'"
         else:
             msg = "The local model folder '{}' does not exist. Nothing to do."
             msg = msg.format(MLINIT)
             print(msg)
-            sys.exit(1)
+            return
     else:
-        path = MLINIT + model
-        msg = "Remove '{}' [y/N]? "
+        path = os.path.join(path, model)
+        msg = "Remove '{}'"
         
         # Check that the model is installed.
 
         utils.check_model_installed(model)
 
-    sys.stdout.write(msg.format(path))
-    choice = input().lower()
-    if choice == 'y':
+    if utils.yes_or_no(msg, path, yes=False):
         rmtree(path)
     else:
         if model is None and not args.quiet:
