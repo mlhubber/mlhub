@@ -507,16 +507,16 @@ def get_cmd_cwd():
     return os.environ.get('_MLHUB_CMD_CWD', '')
 
 
-def get_package_dir():
+def get_package_dir(model=None):
     """Return the dir where the model package should be installed."""
 
-    return os.path.join(MLINIT, get_package_name())
+    return os.path.join(MLINIT, get_package_name() if model is None else model)
 
 
-def create_package_dir():
+def create_package_dir(model=None):
     """Check existence of dir where the model package is installed, if not create it and return."""
 
-    path = get_package_dir()
+    path = get_package_dir(model)
 
     return _create_dir(
         path,
@@ -525,18 +525,16 @@ def create_package_dir():
     )
 
 
-def get_package_cache_dir():
+def get_package_cache_dir(model=None):
     """Return the dir where the model package stores cached files, such as pre-built model, data, image files, etc."""
 
-    logger = logging.getLogger(__name__)
-    logger.debug('cache_dir={}'.format(os.path.join(CACHE_DIR, get_package_name())))
-    return os.path.join(CACHE_DIR, get_package_name())
+    return os.path.join(CACHE_DIR, get_package_name() if model is None else model)
 
 
-def create_package_cache_dir():
+def create_package_cache_dir(model=None):
     """Check existence of dir where the model package stores cached files, If not create it and return."""
 
-    path = get_package_cache_dir()
+    path = get_package_cache_dir(model)
 
     return _create_dir(
         path,

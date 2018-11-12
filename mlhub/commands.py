@@ -52,6 +52,7 @@ from mlhub.constants import (
     COMPLETION_MODELS,
     COMPLETION_COMMANDS,
     COMPLETION_SCRIPT,
+    CACHE_DIR,
 )
 
 # The commands are implemented here in a logical order with each
@@ -642,6 +643,7 @@ def remove_model(args):
     
     model = args.model
     path = MLINIT
+    cache = None
     if model is None:
         if os.path.exists(MLINIT):
             msg = "*Completely* remove all installed models in '{}'"
@@ -652,6 +654,8 @@ def remove_model(args):
             return
     else:
         path = os.path.join(path, model)
+        if os.path.exists(utils.get_package_cache_dir(model)):
+            cache = utils.get_package_cache_dir(model)
         msg = "Remove '{}'"
         
         # Check that the model is installed.
@@ -660,6 +664,8 @@ def remove_model(args):
 
     if utils.yes_or_no(msg, path, yes=False):
         rmtree(path)
+        if cache is not None and utils.yes_or_no("Remove cache '{}' as well", cache, yes=False):
+            rmtree(cache)
     else:
         if model is None and not args.quiet:
             utils.print_next_step('remove')
