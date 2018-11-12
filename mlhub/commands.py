@@ -582,11 +582,16 @@ or else connect to the server's desktop using a local X server like X2Go.
 
     interpreter = utils.interpreter(script)
 
-    # CMD_CWD: a environment variable indicates current working
-    #          directory where command `ml xxx` is invoked.  By default
+    # _MLHUB_CMD_CWD: a environment variable indicates current working
+    #          directory where command `ml xxx` is invoked.
+    # _MLHUB_MODEL_NAME: env variable indicates the name of the model.
     # 
+    # The above two env vars can be obtained by helper function, such
+    # as utils.get_cmd_cwd().  And model package developer should be
+    # use the helper function instead of the env vars directly.
 
-    command = "export CMD_CWD='{}'; {} {} {}".format(os.getcwd(), interpreter, script, param)
+    command = "export _MLHUB_CMD_CWD='{}'; export _MLHUB_MODEL_NAME='{}'; {} {} {}".format(
+        os.getcwd(), model, interpreter, script, param)
 
     logger.debug("(cd " + path + "; " + command + ")")
 

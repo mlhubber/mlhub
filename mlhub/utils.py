@@ -230,7 +230,10 @@ def configure(path, script, quiet):
             if not quiet:
                 msg = "Configuring using '{}'...\n".format(conf)
                 print(msg)
-            cmd = "{} {}".format(interp, script)
+            cmd = "export _MLHUB_CMD_CWD='{}'; export _MLHUB_MODEL_NAME='{}'; {} {}".format(
+                os.getcwd(), os.path.basename(path), interp, script)
+            logger = logging.getLogger(__name__)
+            logger.debug("(cd " + path + "; " + cmd + ")")
             proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
             output, errors = proc.communicate()
             if proc.returncode != 0:
@@ -479,20 +482,41 @@ def yes_or_no(msg, *params, yes=True):
     return answer
 
 # ----------------------------------------------------------------------
-# Model package directories
+# Model package developer utilities
 # ----------------------------------------------------------------------
 
 
-def get_package_dir(model):
+def get_package_name():
+    """Return the model pkg name.
+
+    It is used by model pkg developer.
+    """
+
+    return os.environ.get('_MLHUB_MODEL_NAME', '')
+
+
+def get_cmd_cwd():
+    """Return the dir where model pkg command is invoked.
+
+    For example, if `cd /temp; ml demo xxx`, then get_cmd_cwd() returns `/temp`.
+    It is used by model pkg developer, and is different from where the model pkg script is located.
+
+    `CMD_CWD` is a environment variable passed by mlhub.utils.dispatch() when invoke model pkg script.
+    """
+
+    return os.environ.get('_MLHUB_CMD_CWD', '')
+
+
+def get_package_dir():
     """Return the dir where the model package should be installed."""
 
-    return os.path.join(MLINIT, model)
+    return os.path.join(MLINIT, get_package_name())
 
 
-def create_package_dir(model):
+def create_package_dir():
     """Check existence of dir where the model package is installed, if not create it and return."""
 
-    path = get_package_dir(model)
+    path = get_package_dir()
 
     return _create_dir(
         path,
@@ -501,16 +525,18 @@ def create_package_dir(model):
     )
 
 
-def get_package_cache_dir(model):
+def get_package_cache_dir():
     """Return the dir where the model package stores cached files, such as pre-built model, data, image files, etc."""
 
-    return os.path.join(CACHE_DIR, model)
+    logger = logging.getLogger(__name__)
+    logger.debug('cache_dir={}'.format(os.path.join(CACHE_DIR, get_package_name())))
+    return os.path.join(CACHE_DIR, get_package_name())
 
 
-def create_package_cache_dir(model):
+def create_package_cache_dir():
     """Check existence of dir where the model package stores cached files, If not create it and return."""
 
-    path = get_package_cache_dir(model)
+    path = get_package_cache_dir()
 
     return _create_dir(
         path,
