@@ -355,7 +355,7 @@ def print_next_step(current, description=None, scenario=None, model=''):
             steps = steps[scenario]
 
         for next_cmd in steps:
-            msg = get_command_suggestion(next_cmd, model)
+            msg = get_command_suggestion(next_cmd, model=model)
             print(msg)
     else:
 
@@ -372,7 +372,7 @@ def print_next_step(current, description=None, scenario=None, model=''):
         if next_index < len(avail_cmds):
             next_cmd = avail_cmds[next_index]
 
-            msg = get_command_suggestion(next_cmd, description, model)
+            msg = get_command_suggestion(next_cmd, description=description, model=model)
         else:
             msg = "\nThank you for exploring the '{}' model.".format(model)
 
