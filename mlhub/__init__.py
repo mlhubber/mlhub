@@ -262,6 +262,13 @@ def main():
             utils.print_commands_suggestions_on_stderr('commands')
         sys.exit(1)
 
+    except utils.LackDependencyException as e:
+        msg = "Required dependencies are not installed for this model: \n  ====> \033[31m{}\033[0m"
+        utils.print_error(msg, e.args[0])
+        if not args.quiet:
+            utils.print_commands_suggestions_on_stderr('configure')
+        sys.exit(1)
+
     except (KeyboardInterrupt, EOFError):  # Catch Ctrl-C and Ctrl-D
         print()
         sys.exit(1)

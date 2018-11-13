@@ -776,3 +776,6 @@ class ModelPkgDirCreateException(Exception):
 
 class ModelPkgCacheDirCreateException(Exception):
     pass
+
+class LackDependencyException(Exception):
+    pass

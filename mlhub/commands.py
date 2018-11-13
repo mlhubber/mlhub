@@ -38,6 +38,7 @@ import zipfile
 import subprocess
 import textwrap
 import logging
+import re
 
 from shutil import move, rmtree
 from distutils.version import StrictVersion
@@ -599,8 +600,25 @@ or else connect to the server's desktop using a local X server like X2Go.
     proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
     if proc.returncode != 0:
-        print("An error was encountered:\n")
-        print(errors.decode("utf-8"))
+        errors = errors.decode("utf-8")
+
+        # Check if it is Python dependency unsatisfied
+
+        dep = re.compile(r"ModuleNotFoundError: No module named '(.*)'").search(errors)
+
+        # Check if R dependency unsatisified
+
+        if dep is None:
+            dep = re.compile(r"there is no package called ‘(.*)’").search(errors)
+
+        if dep is not None:  # Dependency unsatisfied
+            dep = dep.group(1)
+            logger.error("Dependency unsatisfied: {}\n{}".format(dep, errors))
+            raise utils.LackDependencyException(dep, model)
+        else:  # Other unknown errors
+            print("An error was encountered:\n")
+            print(errors)
+
     else:
         # Suggest next step
 
