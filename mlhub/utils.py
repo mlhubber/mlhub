@@ -237,8 +237,11 @@ def configure(path, script, quiet):
             proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
             output, errors = proc.communicate()
             if proc.returncode != 0:
+                errors = errors.decode("utf-8")
+                logger.error("Configure failed: \n{}".format(errors))
                 print("An error was encountered:\n")
-                print(errors.decode("utf-8"))
+                print(errors)
+                raise ConfigureFailedException()
             configured = True
 
     return configured
@@ -777,5 +780,10 @@ class ModelPkgDirCreateException(Exception):
 class ModelPkgCacheDirCreateException(Exception):
     pass
 
+
 class LackDependencyException(Exception):
+    pass
+
+
+class ConfigureFailedException(Exception):
     pass
