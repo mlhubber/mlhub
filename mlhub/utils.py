@@ -334,6 +334,8 @@ def print_commands_suggestions_on_stderr(*commands):
     for cmd in commands:
         print_on_stderr(get_command_suggestion(cmd))
 
+    print_on_stderr('')
+
 
 def print_next_step(current, description=None, scenario=None, model=''):
     """Print next step suggestions for the command.
