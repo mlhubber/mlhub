@@ -215,14 +215,14 @@ def main():
 
     except utils.RepoAccessException as e:
         utils.print_error("Cannot access the ML Hub repository:\n  {}", e.args[0])
-        if not args.quiet:
+        if not args.quiet:  # Suggest check if any models installed, since mlhub repo not accessible
             utils.print_commands_suggestions_on_stderr('installed')
         sys.exit(1)
 
     except utils.ModelNotFoundOnRepoException as e:
         msg = "No model named '{}' was found on\n  {}"
         utils.print_error(msg, e.args[0], e.args[1])
-        if not args.quiet:
+        if not args.quiet:  # Suggest check if any models available, since specified model not found
             utils.print_commands_suggestions_on_stderr('available')
         sys.exit(1)
 
@@ -231,23 +231,23 @@ def main():
         utils.print_error_exit(msg)
 
     except utils.DescriptionYAMLNotFoundException as e:
-        msg = "No '{}' found for '{}'.  The model package may be broken."
+        msg = "No '{}' found for '{}'.  The model package may be broken!"
         utils.print_error(msg, constants.DESC_YAML, e.args[0])
-        if not args.quiet:
+        if not args.quiet:  # Suggest remove broken package or install new model
             utils.print_commands_suggestions_on_stderr('remove', 'install')
         sys.exit(1)
 
     except utils.ModelNotInstalledException as e:
         msg = "model '{}' is not installed ({})."
         utils.print_error(msg, e.args[0], constants.MLINIT)
-        if not args.quiet:
+        if not args.quiet:  # Suggest install model package or check if any available
             utils.print_commands_suggestions_on_stderr('installed', 'available', 'install')
         sys.exit(1)
 
     except utils.ModelReadmeNotFoundException as e:
         msg = "The '{}' model does not have a '{}' file:\n  {}\n"
         utils.print_error(msg, e.args[0], constants.README, e.args[1])
-        if not args.quiet:
+        if not args.quiet:  # Suggest remove broken package or install new model
             utils.print_commands_suggestions_on_stderr('remove', 'install')
         sys.exit(1)
 
@@ -258,18 +258,25 @@ def main():
     except utils.CommandNotFoundException as e:
         msg = "The command '{}' was not found for this model '{}'."
         utils.print_error(msg, e.args[0], e.args[1])
-        if not args.quiet:
+        if not args.quiet:  # Suggest check if any available commands
             utils.print_commands_suggestions_on_stderr('commands')
         sys.exit(1)
 
     except utils.LackDependencyException as e:
         msg = "Required dependencies are not installed for this model: \n  ====> \033[31m{}\033[0m"
         utils.print_error(msg, e.args[0])
-        if not args.quiet:
+        if not args.quiet:  # Suggest install dependencies
             utils.print_commands_suggestions_on_stderr('configure')
         sys.exit(1)
 
-    except utils.ConfigureFailedException:
+    except utils.DataResourceNotFoundException:
+        msg = "Some data or model files required by the model package are missing!"
+        utils.print_error(msg)
+        if not args.quiet:  # Suggest download data
+            utils.print_commands_suggestions_on_stderr('configure')
+        sys.exit(1)
+
+    except utils.ConfigureFailedException:  # configure failed, then just quit
         sys.exit(1)
 
     except (KeyboardInterrupt, EOFError):  # Catch Ctrl-C and Ctrl-D

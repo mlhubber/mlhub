@@ -604,17 +604,23 @@ or else connect to the server's desktop using a local X server like X2Go.
 
         # Check if it is Python dependency unsatisfied
 
-        dep = re.compile(r"ModuleNotFoundError: No module named '(.*)'").search(errors)
+        dep_required = re.compile(r"ModuleNotFoundError: No module named '(.*)'").search(errors)
 
         # Check if R dependency unsatisified
 
-        if dep is None:
-            dep = re.compile(r"there is no package called ‘(.*)’").search(errors)
+        if dep_required is None:
+            dep_required = re.compile(r"there is no package called ‘(.*)’").search(errors)
 
-        if dep is not None:  # Dependency unsatisfied
-            dep = dep.group(1)
-            logger.error("Dependency unsatisfied: {}\n{}".format(dep, errors))
-            raise utils.LackDependencyException(dep, model)
+        # Check if required data resource not found
+
+        data_required = re.compile(r"mlhub.utils.DataResourceNotFoundException").search(errors)
+
+        if dep_required is not None:  # Dependency unsatisfied
+            dep_required = dep_required.group(1)
+            logger.error("Dependency unsatisfied: {}\n{}".format(dep_required, errors))
+            raise utils.LackDependencyException(dep_required, model)
+        elif data_required is not None:  # Data not found
+            raise utils.DataResourceNotFoundException()
         else:  # Other unknown errors
             print("An error was encountered:\n")
             print(errors)

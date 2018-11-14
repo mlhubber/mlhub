@@ -787,3 +787,7 @@ class LackDependencyException(Exception):
 
 class ConfigureFailedException(Exception):
     pass
+
+
+class DataResourceNotFoundException(Exception):
+    pass

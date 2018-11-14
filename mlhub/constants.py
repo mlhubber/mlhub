@@ -201,7 +201,7 @@ COMMANDS = {
         },
 
     'configure':
-        {'description': "Configure the dependencies required for the model.",
+        {'description': "Configure the dependencies or download the data required for the model.",
             'argument': {'model': {'nargs': "?"}},
                'usage': "  configure  <model>   "
                         "Configure ml or the model's dependencies",
