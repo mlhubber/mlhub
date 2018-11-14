@@ -183,7 +183,6 @@ def list_installed(args):
 # INSTALL
 # ------------------------------------------------------------------------
 
-
 def install_model(args):
     """Install a model.
 
@@ -242,13 +241,13 @@ def install_model(args):
         info = utils.load_description(model)
         installed_version = info['meta']['version']
         if StrictVersion(installed_version) > StrictVersion(version):
-            yes = utils.yes_or_no("Downgrade '{}' version '{}' to version '{}'",
+            yes = utils.yes_or_no("Downgrade '{}' from version '{}' to version '{}'",
                                   model, installed_version, version)
         elif StrictVersion(installed_version) == StrictVersion(version):
             yes = utils.yes_or_no("Replace '{}' version '{}' with version '{}'",
                                   model, installed_version, version)
         else:
-            yes = utils.yes_or_no("Upgrade '{}' version '{}' to version '{}'",
+            yes = utils.yes_or_no("Upgrade '{}' from version '{}' to version '{}'",
                                   model, installed_version, version)
 
         if not yes:
