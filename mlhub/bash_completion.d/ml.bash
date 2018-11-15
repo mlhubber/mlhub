@@ -182,6 +182,10 @@ _mlhub() {
 	    ;;
 	install)
 	    complete_options="${install_options}"
+
+	    # Because `install` is a substring of `installed`, `installed`
+	    # needs to be added as a possible candidate for completing `install`
+
 	    complete_words=("$(_mlhub_cached_completion_words models) installed")
 	    ;;
 	readme)
