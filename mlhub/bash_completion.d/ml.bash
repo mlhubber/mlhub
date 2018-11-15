@@ -1,10 +1,15 @@
+#!/usr/bin/env bash
 # References
 # ----------
 # [1] https://github.com/syncany/syncany/blob/master/gradle/bash/syncany.bash-completion
 
-# Gets the first non-option word of the command line, except the program name.
-# If none, the index would be the last word, and the first word would be empty.
+MLINIT="${HOME}/.mlhub"
+COMPLETION_DIR="${MLINIT}/.config/completion"
+
 _mlhub_get_firstword() {
+    # Gets the first non-option word of the command line, except the program name.
+    # If none, the index would be the last word, and the first word would be empty.
+
     local firstword i
 
     for ((i = 1; i < ${#COMP_WORDS[@]}; ++i)); do
@@ -18,10 +23,11 @@ _mlhub_get_firstword() {
     echo $i $firstword
 }
 
-# Gets the last non-option word of the command line,
-# except the program name and current word.
-# If none, the index would be zero, and the last word would be empty.
 _mlhub_get_lastword() {
+    # Gets the last non-option word of the command line,
+    # except the program name and current word.
+    # If none, the index would be zero, and the last word would be empty.
+
     local lastword i
 
     for ((i = ${#COMP_WORDS[@]}; i > 0; i=i-1)); do
@@ -36,27 +42,25 @@ _mlhub_get_lastword() {
     echo $i $lastword
 }
 
-# Searches for available commands for all installed models.
-_mlhub_model_commands() {
-    local model_commands
-    local installed_models=$(ml installed --name-only)
-    for model in ${installed_models}; do
-	for cmd in $(ml commands --name-only ${model}); do
-	    model_commands+="${cmd} "
-	done
-    done
+_mlhub_get_model_list() {
+    # Search for installed models.
+    # The accurate way to do is invoke `ml installed --name-only`, but it is slow.
 
-    echo $model_commands
+    if [[ -d "${MLINIT}" ]]; then
+        for f in $(ls "${MLINIT}"); do
+            if [[ -d ${MLINIT}/${f} && ${f:0:1} != '_' ]]; then
+                echo "${f}"
+            fi
+        done
+    fi
 }
 
-# Return the completion words cached in $1
 _mlhub_cached_completion_words() {
-    local words=$(python -c "\
-import mlhub;\
-mlhub.utils.get_completion_list(mlhub.constants.$1)\
-    ")
+    # Return the completion words cached in $1
 
-    echo ${words}
+    for w in $(cat "${COMPLETION_DIR}/${1}"); do
+        echo "${w}"
+    done
 }
 
 _mlhub() {
@@ -157,8 +161,7 @@ _mlhub() {
 	# Commands requires a model name
 	commands)
 	    complete_options="${commands_options}"
-
-	    local installed_models=$(ml installed --name-only)
+	    local installed_models="$(_mlhub_get_model_list)"
 
 	    # Only one model name is allowed
 	    local typed=0
@@ -174,21 +177,21 @@ _mlhub() {
 	    ;;
 	configure)
 	    complete_options="${configure_options}"
-	    local installed_models=$(ml installed --name-only)
+	    local installed_models="$(_mlhub_get_model_list)"
 	    complete_words=("${installed_models}")
 	    ;;
 	install)
 	    complete_options="${install_options}"
-	    complete_words=("$(_mlhub_cached_completion_words COMPLETION_MODELS)")
+	    complete_words=("$(_mlhub_cached_completion_words models) installed")
 	    ;;
 	readme)
 	    complete_options="${readme_options}"
-	    local installed_models=$(ml installed --name-only)
+	    local installed_models="$(_mlhub_get_model_list)"
 	    complete_words=("${installed_models}")
 	    ;;
 	remove)
 	    complete_options="${remove_options}"
-	    local installed_models=$(ml installed --name-only)
+	    local installed_models="$(_mlhub_get_model_list)"
 	    complete_words=("${installed_models}")
 	    ;;
 	*)
@@ -201,8 +204,8 @@ _mlhub() {
 		#   ml [TAB]
 
 		complete_words="${global_commands}"
-		complete_words+=" $(_mlhub_cached_completion_words COMPLETION_COMMANDS)"
-		complete_words+=" $(_mlhub_cached_completion_words COMPLETION_MODELS)"
+		complete_words+=" $(_mlhub_cached_completion_words commands)"
+		complete_words+=" $(_mlhub_cached_completion_words models)"
 		complete_options="${global_options}"
 	    elif [[ ${i_lastword} -ge ${COMP_CWORD} ]] ||
 		     [[ ${i_firstword} -eq ${i_lastword} ]]; then
@@ -212,7 +215,7 @@ _mlhub() {
 		#   ml firstword [TAB]
 		#   ml first[TAB]word
 
-		local installed_models=$(ml installed --name-only)
+		local installed_models="$(_mlhub_get_model_list)"
 		complete_words=("${installed_models}")
 	    fi
             ;;
@@ -230,4 +233,5 @@ _mlhub() {
 # 
 # -o bashdefault -o default is used for `ml score dogs-cats [TAB]` to
 # complete directory names or file names.
+
 complete -F _mlhub -o bashdefault -o default ml
