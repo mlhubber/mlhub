@@ -57,8 +57,7 @@ _mlhub_get_model_list() {
 
 _mlhub_cached_completion_words() {
     # Return the completion words cached in $1
-
-    if [[ -d "${COMPLETION_DIR}/${1}" ]]; then
+    if [[ -f "${COMPLETION_DIR}/${1}" ]]; then
         for w in $(cat "${COMPLETION_DIR}/${1}"); do
             echo "${w}"
         done
@@ -188,7 +187,10 @@ _mlhub() {
 	    # Because `install` is a substring of `installed`, `installed`
 	    # needs to be added as a possible candidate for completing `install`
 
-	    complete_words=("$(_mlhub_cached_completion_words models) installed")
+	    complete_words=("$(_mlhub_cached_completion_words models)")
+	    if [[ $cur == 'install' ]]; then
+	        complete_words+=" installed"
+	    fi
 	    ;;
 	readme)
 	    complete_options="${readme_options}"
@@ -229,9 +231,9 @@ _mlhub() {
 
     # Either display words or options, depending on the user input
     if [[ $cur == -* ]]; then
-	COMPREPLY=($(compgen -W "$complete_options" -- $cur))
+	    COMPREPLY=($(compgen -W "$complete_options" -- $cur))
     else
-	COMPREPLY=($(compgen -W "$complete_words" -- $cur))
+	    COMPREPLY=($(compgen -W "$complete_words" -- $cur))
     fi
 }
 
