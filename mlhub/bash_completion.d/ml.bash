@@ -58,9 +58,11 @@ _mlhub_get_model_list() {
 _mlhub_cached_completion_words() {
     # Return the completion words cached in $1
 
-    for w in $(cat "${COMPLETION_DIR}/${1}"); do
-        echo "${w}"
-    done
+    if [[ -d "${COMPLETION_DIR}/${1}" ]]; then
+        for w in $(cat "${COMPLETION_DIR}/${1}"); do
+            echo "${w}"
+        done
+    fi
 }
 
 _mlhub() {
