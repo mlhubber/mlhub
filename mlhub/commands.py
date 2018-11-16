@@ -251,7 +251,7 @@ def install_model(args):
                                   model, installed_version, version)
 
         if not yes:
-            sys.exit(1)
+            sys.exit(0)
         else:
             print()
 
