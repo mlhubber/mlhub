@@ -32,6 +32,7 @@ INC_BASE    = .
 INC_PANDOC  = $(INC_BASE)/pandoc.mk
 INC_GIT     = $(INC_BASE)/git.mk
 INC_AZURE   = $(INC_BASE)/azure.mk
+INC_DOCKER  = $(INC_BASE)/docker.mk
 INC_CLEAN   = $(INC_BASE)/clean.mk
 
 define HELP
@@ -58,6 +59,9 @@ ifneq ("$(wildcard $(INC_GIT))","")
 endif
 ifneq ("$(wildcard $(INC_AZURE))","")
   include $(INC_AZURE)
+endif
+ifneq ("$(wildcard $(INC_DOCKER))","")
+  include $(INC_DOCKER)
 endif
 ifneq ("$(wildcard $(INC_CLEAN))","")
   include $(INC_CLEAN)
