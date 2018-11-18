@@ -11,7 +11,7 @@ APP=mlhub
 #   Minor update
 #   Bug fix
 
-VER=1.6.6# 20181116 prepare for release of 2.0.0
+VER=1.6.7# 20181116 prepare for release of 2.0.0
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
