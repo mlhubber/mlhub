@@ -78,6 +78,12 @@ version:
 	perl -pi -e 's|^VERSION = ".*"|VERSION = "$(VER)"|' mlhub/constants.py
 	perl -pi -e 's|$(APP)_\d+.\d+.\d+|$(APP)_$(VER)|g' README.rst
 
+.PHONY: worthy
+worthy:
+	@echo "-------------------------------------------------------"
+	git checkout worthy
+	@echo "-------------------------------------------------------"
+
 $(TAR_GZ): $(SOURCE)
 	python setup.py sdist
 
