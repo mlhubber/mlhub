@@ -49,7 +49,7 @@ _mlhub_get_model_list() {
     if [[ -d "${MLINIT}" ]]; then
         for f in $(ls "${MLINIT}"); do
             if [[ -d ${MLINIT}/${f} && ${f:0:1} != '_' ]]; then
-                echo "${f}"
+                echo "$(basename ${f})"
             fi
         done
     fi
