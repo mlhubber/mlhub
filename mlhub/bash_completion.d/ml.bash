@@ -47,9 +47,9 @@ _mlhub_get_model_list() {
     # The accurate way to do is invoke `ml installed --name-only`, but it is slow.
 
     if [[ -d "${MLINIT}" ]]; then
-        for f in $(ls "${MLINIT}"); do
+        for f in $(/bin/ls "${MLINIT}"); do
             if [[ -d ${MLINIT}/${f} && ${f:0:1} != '_' ]]; then
-                echo "$(basename ${f})"
+                echo "$(/usr/bin/basename ${f})"
             fi
         done
     fi
@@ -58,7 +58,7 @@ _mlhub_get_model_list() {
 _mlhub_cached_completion_words() {
     # Return the completion words cached in $1
     if [[ -f "${COMPLETION_DIR}/${1}" ]]; then
-        for w in $(cat "${COMPLETION_DIR}/${1}"); do
+        for w in $(/bin/cat "${COMPLETION_DIR}/${1}"); do
             echo "${w}"
         done
     fi
