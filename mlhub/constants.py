@@ -278,6 +278,9 @@ This is version {{}} of {{}}.
 Ensure pre-requisites installed and a better experience with tab completion:
 
   $ ml configure
+
+User can then run:
+
   $ source /etc/bash_completion.d/ml.bash
 
 List the available models from the repository with:
