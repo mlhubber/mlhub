@@ -53,7 +53,6 @@ from mlhub.constants import (
     COMPLETION_MODELS,
     COMPLETION_COMMANDS,
     COMPLETION_SCRIPT,
-    CACHE_DIR,
 )
 
 # The commands are implemented here in a logical order with each
@@ -182,6 +181,7 @@ def list_installed(args):
 # -----------------------------------------------------------------------
 # INSTALL
 # ------------------------------------------------------------------------
+
 
 def install_model(args):
     """Install a model.

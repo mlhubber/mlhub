@@ -20,7 +20,7 @@ _mlhub_get_firstword() {
 	fi
     done
 
-    echo $i $firstword
+    echo ${i} ${firstword}
 }
 
 _mlhub_get_lastword() {
@@ -29,6 +29,7 @@ _mlhub_get_lastword() {
     # If none, the index would be zero, and the last word would be empty.
 
     local lastword i
+    local cur=${1}
 
     for ((i = ${#COMP_WORDS[@]}; i > 0; i=i-1)); do
 	if [[ ${COMP_WORDS[i]} != -* ]] &&
@@ -39,7 +40,7 @@ _mlhub_get_lastword() {
 	fi
     done
 
-    echo $i $lastword
+    echo ${i} ${lastword}
 }
 
 _mlhub_get_model_list() {
@@ -84,8 +85,8 @@ _mlhub() {
     cur=${COMP_WORDS[COMP_CWORD]}      # current parameter
     prev=${COMP_WORDS[COMP_CWORD-1]}   # previous parameter
 
-    read i_firstword firstword < <(_mlhub_get_firstword) # first non-option parameter
-    read i_lastword lastword < <(_mlhub_get_lastword)    # last non-option parameter
+    read i_firstword firstword < <(_mlhub_get_firstword)        # first non-option parameter
+    read i_lastword lastword < <(_mlhub_get_lastword "${cur}")  # last non-option parameter
 
     # available global commands
     global_commands="\
@@ -172,7 +173,7 @@ _mlhub() {
 		fi
 	    done
 
-	    if [[ $typed == 0 ]]; then
+	    if [[ ${typed} == 0 ]]; then
 		complete_words=("${installed_models}")
 	    fi
 	    ;;
@@ -188,7 +189,7 @@ _mlhub() {
 	    # needs to be added as a possible candidate for completing `install`
 
 	    complete_words=("$(_mlhub_cached_completion_words models)")
-	    if [[ $cur == 'install' ]]; then
+	    if [[ ${cur} == 'install' ]]; then
 	        complete_words+=" installed"
 	    fi
 	    ;;
@@ -230,10 +231,10 @@ _mlhub() {
     esac
 
     # Either display words or options, depending on the user input
-    if [[ $cur == -* ]]; then
-	    COMPREPLY=($(compgen -W "$complete_options" -- $cur))
+    if [[ ${cur} == -* ]]; then
+	    COMPREPLY=($(compgen -W "$complete_options" -- ${cur}))
     else
-	    COMPREPLY=($(compgen -W "$complete_words" -- $cur))
+	    COMPREPLY=($(compgen -W "$complete_words" -- ${cur}))
     fi
 }
 
