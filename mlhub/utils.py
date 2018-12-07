@@ -499,15 +499,18 @@ def get_available_pkgyaml(url):
     Possible options are MLHUB.yaml and DESCRIPTION.yaml.  If both exist, MLHUB.yaml takes precedence.
     Path can be a path to the package directory or a URL to the top level of the pacakge repo
     """
-
+    logger = logging.getLogger(__name__)
     yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
 
     if is_url(url):
         yaml_list = ['/'.join([url, x]) for x in yaml_list]
 
         for x in yaml_list:
-            if urllib.request.urlopen(x).status == 200:
-                return x
+            try:
+                if urllib.request.urlopen(x).status == 200:
+                    return x
+            except urllib.error.HTTPError:
+                continue
 
     else:
         yaml_list = [os.path.join(url, x) for x in yaml_list]
