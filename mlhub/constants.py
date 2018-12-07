@@ -69,6 +69,10 @@ LOG_FILE = os.path.join(LOG_DIR, 'mlhub.log')
 
 CACHE_DIR = os.path.join(MLINIT, ".cache")
 
+# tmp dir
+
+TMP_DIR = os.path.join(MLINIT, ".tmp")
+
 # ------------------------------------------------------------------------
 # Application information.
 # ------------------------------------------------------------------------
@@ -272,6 +276,8 @@ List the available models from the repository with:
 # ------------------------------------------------------------------------
 
 README = "README.txt"
+
+MLHUB_YAML = "MLHUB.yaml"
 
 DESC_YAML = "DESCRIPTION.yaml"
 META_YAML = "Packages.yaml"

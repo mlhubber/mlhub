@@ -38,6 +38,9 @@ import platform
 import subprocess
 import re
 import logging
+import zipfile
+import shutil
+import tempfile
 
 from mlhub.constants import (
     APPX,
@@ -46,6 +49,7 @@ from mlhub.constants import (
     MLHUB,
     META_YAML,
     META_YML,
+    MLHUB_YAML,
     DESC_YAML,
     DESC_YML,
     USAGE,
@@ -57,6 +61,7 @@ from mlhub.constants import (
     COMPLETION_DIR,
     LOG_DIR,
     CACHE_DIR,
+    TMP_DIR,
 )
 
 
@@ -92,6 +97,16 @@ def create_init():
         MLINIT,
         'MLINIT creation failed: {}'.format(MLINIT),
         MLInitCreateException(MLINIT)
+    )
+
+
+def create_mlhubtmpdir():
+    """Check if the tmp dir exists and if not then create it."""
+
+    return _create_dir(
+        TMP_DIR,
+        'TMP_DIR creation failed: {}'.format(TMP_DIR),
+        MLTmpDirCreateException(TMP_DIR)
     )
 
 
@@ -199,19 +214,29 @@ def check_model_installed(model):
 
 
 def load_description(model):
+    """Load description of the <model>."""
 
-    logger = logging.getLogger(__name__)
-    logger.info("Load description of {}".format(model))
+    try:
+        desc = get_available_pkgyaml(os.path.join(MLINIT, model))
+        entry = read_mlhubyaml(desc)
+    except DescriptionYAMLNotFoundException:
+        raise DescriptionYAMLNotFoundException(model)
 
-    desc = os.path.join(MLINIT, model, DESC_YAML)
-    if os.path.exists(desc):
-        entry = yaml.load(open(desc), Loader=yamlordereddictloader.Loader)
-    else:
-        desc = os.path.join(MLINIT, model, DESC_YML)
-        if os.path.exists(desc):
-            entry = yaml.load(open(desc), Loader=yamlordereddictloader.Loader)
+    return entry
+
+
+def read_mlhubyaml(name):
+    """Read description from a specified local yaml file or the url of a yaml file."""
+
+    try:
+        if is_url(name):
+            entry = yaml.load(urllib.request.urlopen(name).read(), Loader=yamlordereddictloader.Loader)
         else:
-            raise DescriptionYAMLNotFoundException(model)
+            entry = yaml.load(open(name), Loader=yamlordereddictloader.Loader)
+    except (yaml.composer.ComposerError, yaml.scanner.ScannerError):
+        raise MalformedYAMLException(name)
+    except urllib.error.URLError:
+        raise YAMLFileAccessException(name)
 
     return entry
 
@@ -407,7 +432,154 @@ def interpret_mlm_name(mlm):
 
     version = '.'.join(version.split('.')[: -1])
 
-    return mlmfile, model, version
+    return model, version
+
+
+def interpret_github_url(url):
+    """Interpret GitHub URL into user name, repo name, branch/blob name.
+
+    The URL may be:
+        mlhubber/mlhub
+        mlhubber/mlhub@dev
+        mlhubber/mlhub@7fad23bdfdfjk
+        https://github.com/mlhubber/mlhub
+        https://github.com/mlhubber/mlhub.git
+        https://github.com/mlhubber/mlhub/tree/dev
+        https://github.com/mlhubber/mlhub/archive/v2.0.0.zip
+        https://github.com/mlhubber/mlhub/archive/dev.zip
+        https://github.com/mlhubber/mlhub/blob/dev/DESCRIPTION.yaml
+    """
+    seg = url.split('/')
+    branch = "master"
+
+    if not is_url(url):
+
+        user = seg[0]
+        if '@' in seg[1]:
+            tmp = seg[1].split('@')
+            repo = tmp[0]
+            branch = tmp[1]
+        else:
+            repo = seg[1]
+
+    else:
+
+        user = seg[3]
+        repo = seg[4]
+        if repo.endswith(".git"):
+            repo = repo[:-4]
+
+        if len(seg) >= 7:
+            if len(seg) == 7 and seg[5] == "archive" and seg[6].endswith(".zip"):
+                branch = seg[6][:-4]
+            else:
+                branch = seg[6]
+
+    return user, repo, branch
+
+
+def get_pkgzip_github_url(url):
+    """Get the GitHub zip file url of model package."""
+
+    user, repo, branch = interpret_github_url(url)
+    return "https://github.com/{}/{}/archive/{}.zip".format(user, repo, branch)
+
+
+def get_pkgyaml_github_url(url):
+    """Get the GitHub url of DESCRIPTION.yaml file of model package."""
+
+    user, repo, branch = interpret_github_url(url)
+    url = "https://github.com/{}/{}/raw/{}".format(user, repo, branch)
+    return get_available_pkgyaml(url)
+
+
+def get_available_pkgyaml(url):
+    """Return the available package yaml file path.
+
+    Possible options are MLHUB.yaml and DESCRIPTION.yaml.  If both exist, MLHUB.yaml takes precedence.
+    Path can be a path to the package directory or a URL to the top level of the pacakge repo
+    """
+
+    yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
+
+    if is_url(url):
+        yaml_list = ['/'.join([url, x]) for x in yaml_list]
+
+        for x in yaml_list:
+            if urllib.request.urlopen(x).status == 200:
+                return x
+
+    else:
+        yaml_list = [os.path.join(url, x) for x in yaml_list]
+
+        for x in yaml_list:
+            if os.path.exists(x):
+                return x
+
+    raise DescriptionYAMLNotFoundException(url)
+
+
+def download_model_pkg(url, local, quiet):
+    """Download the model package mlm or zip file from <url> to <local>."""
+
+    pkgfile = os.path.basename(url)
+    if not quiet:
+        print("Package " + url + "\n")
+
+    meta = urllib.request.urlopen(url)
+    if meta.status != 200:
+        raise ModelURLAccessException(url)
+
+    # In case of http 302 redirection
+    # However, because of redirection, Content-Length is not necessarily available
+    if meta.getheader("Content-Length") is None:
+        meta = urllib.request.urlopen(meta.geturl())
+
+    dsize = meta.getheader("Content-Length")
+    if dsize is not None:
+        dsize = "{:,}".format(int(dsize))
+        if not quiet:
+            print("Downloading '{}' ({} bytes) ...\n".format(pkgfile, dsize))
+
+    # Download the archive from the URL.
+
+    try:
+        urllib.request.urlretrieve(url, local)
+    except urllib.error.HTTPError as error:
+        raise ModelDownloadHaltException(url, error.reason.lower())
+
+
+def unzip_modelpkg(file, dest):
+    """Unzip <file> to the directory <dest>, overwriting <dest> if exists.
+
+    If all files are under a top level directory, remove the top level dir.
+    """
+
+    remove_file_or_dir(dest)
+
+    pkg_zipfile = zipfile.ZipFile(file)
+    file_list = pkg_zipfile.namelist()
+    if any([os.path.sep not in x for x in file_list]):  # All files are at the top level.
+
+        pkg_zipfile.extractall(dest)
+
+    else:  # All files are under a top dir.
+
+        top_dir = file_list[0].split(os.path.sep)[0]
+        remove_file_or_dir(os.path.join(dest, top_dir))
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pkg_zipfile.extractall(tmpdir)
+            shutil.move(os.path.join(tmpdir, top_dir), dest)
+
+
+def remove_file_or_dir(path):
+    """Remove an existing file or directory."""
+
+    if os.path.exists(path):
+        if os.path.isfile(path):
+            os.remove(path)
+        else:
+            shutil.rmtree(path)
 
 
 def ends_with_mlm(name):
@@ -422,7 +594,26 @@ def is_url(name):
     return re.findall('http[s]?:', name)
 
 
-def get_model_url_from_repo(model, mlhub):
+def is_github_url(name):
+    """Check if name starts with http://github.com or https://github.com"""
+
+    name = name.lower()
+    return name.startswith("http://github.com") or name.startswith("https://github.com")
+
+
+def is_mlm_zip(name):
+    """Check if name is a MLM or Zip file."""
+
+    return ends_with_mlm(name) or name.endswith(".zip")
+
+
+def is_description_file(name):
+    """Check if name ends with DESCRIPTION.yaml or DESCRIPTION.yml"""
+
+    return name.endswith(DESC_YAML) or name.endswith(DESC_YML) or name.endswith(MLHUB_YAML)
+
+
+def get_model_info_from_repo(model, mlhub):
     """Get model url on mlhub.
 
     Args:
@@ -446,6 +637,7 @@ def get_model_url_from_repo(model, mlhub):
     for entry in meta:
         if model == entry["meta"]["name"]:
             url = mlhub + entry["meta"]["filename"]
+            version = entry["meta"]["version"]
             break
     
     # If not found suggest how a model might be installed.
@@ -455,7 +647,7 @@ def get_model_url_from_repo(model, mlhub):
         logger.error("Model '{}' not found on Repo '{}'.".format(model, mlhub))
         raise ModelNotFoundOnRepoException(model, mlhub)
 
-    return url, meta
+    return url, version, meta
 
 
 def dir_size(dirpath):
@@ -792,4 +984,16 @@ class ConfigureFailedException(Exception):
 
 
 class DataResourceNotFoundException(Exception):
+    pass
+
+
+class MLTmpDirCreateException(Exception):
+    pass
+
+
+class MalformedYAMLException(Exception):
+    pass
+
+
+class YAMLFileAccessException(Exception):
     pass

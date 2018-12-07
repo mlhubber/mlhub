@@ -205,12 +205,24 @@ def main():
         msg = "The below '{}' init folder cannot be created:\n  {}"
         utils.print_error_exit(msg, APP, e.args[0])
 
+    except utils.MLTmpDirCreateException as e:
+        msg = "The below '{}' tmp folder cannot be created:\n  {}"
+        utils.print_error_exit(msg, APP, e.args[0])
+
     except utils.MalformedMLMFileNameException as e:
         msg = "Malformed {} file:\n  {}"
         utils.print_error_exit(msg, constants.EXT_MLM, e.args[0])
 
+    except utils.MalformedYAMLException as e:
+        msg = "Malformed YAML file:\n  {}"
+        utils.print_error_exit(msg, e.args[0])
+
     except utils.ModelURLAccessException as e:
         msg = "URL access failed:\n  {}"
+        utils.print_error_exit(msg, e.args[0])
+
+    except utils.YAMLFileAccessException as e:
+        msg = "YAML file access failed:\n  {}"
         utils.print_error_exit(msg, e.args[0])
 
     except utils.RepoAccessException as e:
@@ -231,8 +243,8 @@ def main():
         utils.print_error_exit(msg)
 
     except utils.DescriptionYAMLNotFoundException as e:
-        msg = "No '{}' found for '{}'.  The model package may be broken!"
-        utils.print_error(msg, constants.DESC_YAML, e.args[0])
+        msg = "No '.YAML' file found for '{}'.  The model package may be broken!"
+        utils.print_error(msg, e.args[0])
         if not args.quiet:  # Suggest remove broken package or install new model
             utils.print_commands_suggestions_on_stderr('remove', 'install')
         sys.exit(1)

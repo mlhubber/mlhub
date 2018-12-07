@@ -31,23 +31,17 @@
 import os
 import sys
 import glob
-import requests
-import urllib.request
-import urllib.error
-import zipfile
 import subprocess
 import textwrap
 import logging
 import re
 
-from shutil import move, rmtree
+import shutil
 from distutils.version import StrictVersion
 
 import mlhub.utils as utils
 from mlhub.constants import (
     MLINIT,
-    DESC_YAML,
-    DESC_YML,
     EXT_MLM,
     README,
     COMPLETION_MODELS,
@@ -187,57 +181,82 @@ def install_model(args):
     """Install a model.
 
     Args:
-        args.model (str): mlm file path, or mlm file url, or model name.
+        args.model (str): mlm file path, or mlm file url, model name,
+                          or github repo, like mlhubber/mlhub,
+                          https://github.com/mlhubber/mlhub,
+                          https://github.com/mlhubber/mlhub.git
     """
 
     # Setup.  And ensure the local init dir exists.
 
-    logger = logging.getLogger(__name__)
-    logger.info("Install model")
-    logger.debug("args: {}".format(args))
+    model = args.model   # model pkg name
+    url = args.model     # pkg file path or URL
+    version = None       # model pkg version
+    unzipdir = None      # Dir Where pkg file is extracted
 
-    url = None
     init = utils.create_init()
+    mlhubtmpdir = utils.create_mlhubtmpdir()
 
-    # Identify if it is a local file name to install.
-    
-    if utils.ends_with_mlm(args.model) and not utils.is_url(args.model):
+    # Obtain the model URL if not a local file.
 
-        # Identify the local mlm file to install.
+    if not utils.is_mlm_zip(model) and not utils.is_url(model) and '/' not in model:
 
-        local = args.model  # model package file local path
-        logger.debug("Local mlm file: {}".format(local))
-        mlmfile, model, version = utils.interpret_mlm_name(local)
+        # Model from mlhub repo. Like:
+        #     $ ml install audit
+        # We assume the URL got from mlhub repo is a link to a MLM or Zip file.
 
+        url, version, meta_list = utils.get_model_info_from_repo(model, args.mlhub)
+
+        utils.update_completion_list(  # Update bash completion word list of available models.
+            COMPLETION_MODELS,
+            {e['meta']['name'] for e in meta_list})
+
+    elif (not utils.is_mlm_zip(model) and not utils.is_url(model)) or utils.is_github_url(model):
+
+        # Model from GitHub.  Like:
+        #     $ ml install mlhubber/audit
+        #     $ ml install https://github.com/mlhubber/audit/...
+        # Then get the url of archived Zip file, such as
+        #     https://github.com/mlhubber/audit/archive/master.zip
+        # We assume DESCRIPTION.yaml is located at the root of the model package github repo.
+
+        url = utils.get_pkgzip_github_url(model)
+
+    # Determine the path of downloaded/existing model package file
+
+    pkgfile = os.path.basename(url)  # pkg file name
+    if utils.is_url(url):
+        local = os.path.join(mlhubtmpdir, pkgfile)
     else:
-        if utils.is_url(args.model):
+        local = url
 
-            # A specific URL was provided.
+    # Obtain model version.
 
-            url = args.model
-            logger.debug("Provided URL: {}".format(url))
+    mlhubyaml = None
+    if version is None:
+        if utils.ends_with_mlm(url):  # Get version directly from MLM file name.
+            model, version = utils.interpret_mlm_name(url)
 
-        else:
+        elif utils.is_github_url(url):  # Get version remotely from yaml on GitHub.
+            mlhubyaml = utils.get_pkgyaml_github_url(url)
 
-            # Or obtain the repository meta data from Packages.yaml.
+        else:  # Get version from yaml inside the Zip file.
+            if utils.is_url(url):  # Download the file if needed
+                utils.download_model_pkg(url, local, args.quiet)
 
-            url, meta = utils.get_model_url_from_repo(args.model, args.mlhub)
-            logger.debug("URL from repo: {}".format(url))
+            unzipdir = os.path.join(mlhubtmpdir, pkgfile[:-4])
+            utils.unzip_modelpkg(local, unzipdir)
+            mlhubyaml = utils.get_available_pkgyaml(unzipdir)
 
-            utils.update_completion_list(  # Update bash completion word list of available models.
-                COMPLETION_MODELS,
-                {e['meta']['name'] for e in meta})
+        if mlhubyaml is not None:
+            entry = utils.read_mlhubyaml(mlhubyaml)
+            model = entry["meta"]["name"]
+            version = entry["meta"]["version"]
 
-        # Further setup.
-
-        mlmfile, model, version = utils.interpret_mlm_name(url)
-        local = os.path.join(init, mlmfile)  # model package file local path
-            
     # Check if model is already installed.
 
-    logger.debug('mlmfile: {}, model: {}, version: {}'.format(mlmfile, model, version))
-    path = os.path.join(init, model)  # Installation path
-    if os.path.exists(path):
+    install_path = os.path.join(init, model)  # Installation path
+    if os.path.exists(install_path):
         info = utils.load_description(model)
         installed_version = info['meta']['version']
         if StrictVersion(installed_version) > StrictVersion(version):
@@ -255,48 +274,18 @@ def install_model(args):
         else:
             print()
 
-        logger.info('Remove installed model: {}'.format(model))
-        rmtree(path)
+        shutil.rmtree(install_path)
 
-    # Download the model now if not a local file.
-        
-    if url is not None:
+    # Install model pkg.
 
-        # Informative message about the model location and size.
+    if unzipdir is None:
+        unzipdir = os.path.join(mlhubtmpdir, pkgfile[:-4])
+        if utils.is_url(url):  # Download the file if needed
+            utils.download_model_pkg(url, local, args.quiet)
 
-        logger.info('Download mlm file from {}.'.format(url))
-        if not args.quiet:
-            print("Package " + url + "\n")
-        meta = requests.head(url)
-        if meta.status_code != requests.codes.ok:
-            raise utils.ModelURLAccessException(url)
-        dsize = "{:,}".format(int(meta.headers.get("content-length")))
-        if not args.quiet:
-            print("Downloading '{}' ({} bytes) ...\n".format(mlmfile, dsize))
+        utils.unzip_modelpkg(local, unzipdir)
 
-        # Download the archive from the URL.
-
-        try:
-            urllib.request.urlretrieve(url, local)
-        except urllib.error.HTTPError as error:
-            logger.error("Downloading mlm file from URL failed: '{}'".format(url, exc_info=True))
-            raise utils.ModelDownloadHaltException(url, error.reason.lower())
-
-    logger.info('Extract mlm file.')
-    if not os.path.exists(local):
-        msg = "File is not found: {}"
-        utils.print_error_exit(msg, local)
-
-    zipfile.ZipFile(local).extractall(MLINIT)
-
-    # Support either .yml or .yaml "cheaply". Should really try and
-    # except but eventually will remove the yml file. The yaml authors
-    # suggest .yaml.
-
-    desc_yml = os.path.join(path, DESC_YML)
-    desc_yaml = os.path.join(path, DESC_YAML)
-    if (not os.path.exists(desc_yaml)) and os.path.exists(desc_yml):
-        move(desc_yml, desc_yaml)
+    shutil.move(unzipdir, install_path)
 
     utils.update_completion_list(  # Update bash completion word list of available commands.
         COMPLETION_COMMANDS,
@@ -305,7 +294,8 @@ def install_model(args):
     if not args.quiet:
         # Informative message about the size of the installed model.
         
-        print("Extracted '{}' into\n'{}' ({:,} bytes).".format(mlmfile, path, utils.dir_size(path)))
+        print("Extracted '{}' into\n'{}' ({:,} bytes).".format(
+            pkgfile, install_path, utils.dir_size(install_path)))
             
         # Suggest next step. README or DOWNLOAD
 
@@ -686,9 +676,9 @@ def remove_model(args):
         utils.check_model_installed(model)
 
     if utils.yes_or_no(msg, path, yes=False):
-        rmtree(path)
+        shutil.rmtree(path)
         if cache is not None and utils.yes_or_no("Remove cache '{}' as well", cache, yes=False):
-            rmtree(cache)
+            shutil.rmtree(cache)
     else:
         if model is None and not args.quiet:
             utils.print_next_step('remove')
