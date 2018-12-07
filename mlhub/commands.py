@@ -345,8 +345,17 @@ def readme(args):
     
     # Display the README.
 
-    if not os.path.exists(readme_file):
-        raise utils.ModelReadmeNotFoundException(model, readme_file)
+    if not os.path.exists(readme_file):  # Try to generate README from README.md
+        readme = readme_file[:readme_file.rfind('.')] + '.md'
+        if not os.path.exists(readme):
+            readme = readme[:readme.rfind('.')] + '.rst'
+            if not os.path.exists(readme):
+                raise utils.ModelReadmeNotFoundException(model, readme_file)
+        cmd = "pandoc -t plain {} | awk '/^Usage$$/{{exit}}{{print}}' | perl -00pe0 > {}".format(readme, README)
+        proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
+        proc.communicate()
+        if proc.returncode != 0:
+            raise utils.ModelReadmeNotFoundException(model, readme_file)
 
     with open(readme_file, 'r') as f:
         print(utils.drop_newline(f.read()))
