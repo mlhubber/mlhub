@@ -193,6 +193,7 @@ def install_model(args):
     url = args.model     # pkg file path or URL
     version = None       # model pkg version
     unzipdir = None      # Dir Where pkg file is extracted
+    mlhubyaml = None     # MLHUB.yaml path or URL
 
     init = utils.create_init()
     mlhubtmpdir = utils.create_mlhubtmpdir()
@@ -221,10 +222,15 @@ def install_model(args):
         # We assume DESCRIPTION.yaml is located at the root of the model package github repo.
 
         url = utils.get_pkgzip_github_url(model)
+        mlhubyaml = utils.get_pkgyaml_github_url(model)
 
     # Determine the path of downloaded/existing model package file
 
-    pkgfile = os.path.basename(url)  # pkg file name
+    if utils.is_mlm_zip(url):
+        pkgfile = os.path.basename(url)  # pkg file name
+    else:
+        pkgfile = "mlhubmodelpkg.mlm"
+
     if utils.is_url(url):
         local = os.path.join(mlhubtmpdir, pkgfile)
     else:
@@ -232,15 +238,11 @@ def install_model(args):
 
     # Obtain model version.
 
-    mlhubyaml = None
     if version is None:
         if utils.ends_with_mlm(url):  # Get version directly from MLM file name.
             model, version = utils.interpret_mlm_name(url)
 
-        elif utils.is_github_url(url):  # Get version remotely from yaml on GitHub.
-            mlhubyaml = utils.get_pkgyaml_github_url(url)
-
-        else:  # Get version from yaml inside the Zip file.
+        elif not utils.is_github_url(url):  # Get version from yaml inside the Zip file.
             if utils.is_url(url):  # Download the file if needed
                 utils.download_model_pkg(url, local, args.quiet)
 
@@ -278,7 +280,7 @@ def install_model(args):
 
     # Install model pkg.
 
-    if unzipdir is None:
+    if unzipdir is None:  # Pkg has not unzipped yet.
         unzipdir = os.path.join(mlhubtmpdir, pkgfile[:-4])
         if utils.is_url(url):  # Download the file if needed
             utils.download_model_pkg(url, local, args.quiet)
