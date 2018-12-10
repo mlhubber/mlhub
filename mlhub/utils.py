@@ -206,10 +206,9 @@ def check_model_installed(model):
     path = MLINIT + model
 
     logger = logging.getLogger(__name__)
-    logger.debug("check if model is installed: " + model)
+    logger.debug("Check if package {} is installed at: {}".format(model, path))
 
     if not os.path.exists(path):
-        model = os.path.basename(path)
         raise ModelNotInstalledException(model)
 
     return True
