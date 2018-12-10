@@ -28,11 +28,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
 
+import distro
 import glob
 import logging
 import mlhub.utils as utils
 import os
-import platform
 import re
 import shutil
 import subprocess
@@ -469,8 +469,7 @@ def configure_model(args):
 
         # Configure ml.  Currently only bash completion.
 
-        sys_version = platform.uname().version.lower()
-        if 'debian' in sys_version or 'ubuntu' in sys_version:
+        if distro.id() in ['debian', 'ubuntu']:
             path = os.path.dirname(__file__)
             commands = [
                 'sudo install -m 0644 {} /etc/bash_completion.d'.format(COMPLETION_SCRIPT),

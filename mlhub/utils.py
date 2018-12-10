@@ -29,10 +29,10 @@
 # THE SOFTWARE.
 
 import base64
+import distro
 import json
 import logging
 import os
-import platform
 import re
 import shutil
 import subprocess
@@ -255,7 +255,7 @@ def configure(path, script, quiet):
     
     # For now only tested/working with Ubuntu
     
-    if platform.dist()[0] in set(['debian', 'Ubuntu']):
+    if distro.id() in ['debian', 'ubuntu']:
         conf = os.path.join(path, script)
         if os.path.exists(conf):
             interp = interpreter(script)
@@ -298,7 +298,7 @@ def interpreter(script):
 
 def dropdot(sentence):
     """Drop the period after a sentence."""
-    return re.sub("\.$", "", sentence)
+    return re.sub(".$", "", sentence)
 
 
 def drop_newline(paragraph):
@@ -664,6 +664,7 @@ def get_model_info_from_repo(model, mlhub):
     """
 
     url = None
+    version = None
     mlhub = get_repo(mlhub)
     meta = get_repo_meta_data(mlhub)
     

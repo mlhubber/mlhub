@@ -45,8 +45,9 @@ setup(
     },
     entry_points={'console_scripts': ['ml=mlhub:main']},
     install_requires=[
-        'requests',
+        'distro',
         'pyyaml',
+        'requests',
         'yamlordereddictloader',
     ],
     include_package_data=True,
