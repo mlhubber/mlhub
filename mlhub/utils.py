@@ -469,15 +469,14 @@ def interpret_github_url(url):
     if not is_url(url):  #
 
         owner = seg[0]
-        symbol = None
+        repo = seg[1]
         if '@' in seg[1]:
 
             # For branch or commit such as:
             #     mlhubber/mlhub@dev
             #     mlhubber/mlhub@7fad23bdfdfjk
 
-            symbol = '@'
-            tmp = seg[1].split(symbol)
+            tmp = seg[1].split('@')
             repo = tmp[0]
             ref = tmp[1]
 
@@ -486,13 +485,9 @@ def interpret_github_url(url):
             # For pull request such as:
             #     mlhubber/mlhub#15
 
-            symbol = '#'
-            tmp = seg[1].split(symbol)
+            tmp = seg[1].split('#')
             repo = tmp[0]
             ref = "pull/" + tmp[1] + "/head"
-
-        else:
-            repo = seg[1]
 
     else:
 
@@ -541,7 +536,6 @@ def get_available_pkgyaml(url):
     Possible options are MLHUB.yaml and DESCRIPTION.yaml.  If both exist, MLHUB.yaml takes precedence.
     Path can be a path to the package directory or a URL to the top level of the pacakge repo
     """
-    logger = logging.getLogger(__name__)
     yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
 
     if is_github_url(url):
