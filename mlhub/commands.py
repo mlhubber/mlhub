@@ -28,25 +28,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
 
-import os
-import sys
 import glob
-import subprocess
-import textwrap
 import logging
-import re
-
-import shutil
-from distutils.version import StrictVersion
-
 import mlhub.utils as utils
+import os
+import platform
+import re
+import shutil
+import subprocess
+import sys
+import textwrap
+
+from distutils.version import StrictVersion
 from mlhub.constants import (
-    MLINIT,
-    EXT_MLM,
-    README,
-    COMPLETION_MODELS,
     COMPLETION_COMMANDS,
+    COMPLETION_MODELS,
     COMPLETION_SCRIPT,
+    EXT_MLM,
+    MLINIT,
+    README,
 )
 
 # The commands are implemented here in a logical order with each
@@ -469,7 +469,6 @@ def configure_model(args):
 
         # Configure ml.  Currently only bash completion.
 
-        import platform
         sys_version = platform.uname().version.lower()
         if 'debian' in sys_version or 'ubuntu' in sys_version:
             path = os.path.dirname(__file__)

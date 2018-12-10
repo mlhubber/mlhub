@@ -28,8 +28,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
 
-import os
 import logging
+import os
 
 # ------------------------------------------------------------------------
 # The default ML Hub can be overriden by an environment variable or by

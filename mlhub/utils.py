@@ -28,42 +28,42 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
 
+import base64
+import json
+import logging
 import os
+import platform
+import re
+import shutil
+import subprocess
 import sys
+import tempfile
+import urllib.error
+import urllib.request
 import yaml
 import yamlordereddictloader
-import urllib.request
-import urllib.error
-import platform
-import subprocess
-import re
-import logging
 import zipfile
-import shutil
-import tempfile
-import json
-import base64
 
 from mlhub.constants import (
-    APPX,
-    MLINIT,
-    CMD,
-    MLHUB,
-    META_YAML,
-    META_YML,
-    MLHUB_YAML,
-    DESC_YAML,
-    DESC_YML,
-    USAGE,
-    EXT_MLM,
-    EXT_AIPK,
-    VERSION,
     APP,
+    APPX,
+    CACHE_DIR,
+    CMD,
     COMMANDS,
     COMPLETION_DIR,
+    DESC_YAML,
+    DESC_YML,
+    EXT_AIPK,
+    EXT_MLM,
     LOG_DIR,
-    CACHE_DIR,
+    META_YAML,
+    META_YML,
+    MLHUB,
+    MLHUB_YAML,
+    MLINIT,
     TMP_DIR,
+    USAGE,
+    VERSION,
 )
 
 

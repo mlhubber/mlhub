@@ -28,20 +28,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
 
-import os
-import sys
-import logging
 import argparse
+import logging
 import mlhub.commands as commands
 import mlhub.constants as constants
 import mlhub.utils as utils
+import os
+import sys
 
 from mlhub.constants import (
-    CMD,
     APP,
-    VERSION,
+    CMD,
     COMMANDS,
     OPTIONS,
+    VERSION,
 )
 
 # ----------------------------------------------------------------------
