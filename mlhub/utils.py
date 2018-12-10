@@ -298,14 +298,12 @@ def interpreter(script):
 
 def dropdot(sentence):
     """Drop the period after a sentence."""
-    import re
     return re.sub("\.$", "", sentence)
 
 
 def drop_newline(paragraph):
     """Drop trailing newlines."""
 
-    import re
     return re.sub("\n$", "", paragraph)
 
 
