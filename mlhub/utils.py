@@ -29,6 +29,7 @@
 # THE SOFTWARE.
 
 import base64
+import cgi
 import distro
 import json
 import logging
@@ -43,6 +44,7 @@ import urllib.request
 import yaml
 import yamlordereddictloader
 import zipfile
+import tarfile
 
 from mlhub.constants import (
     APP,
@@ -276,6 +278,268 @@ def configure(path, script, quiet):
             configured = True
 
     return configured
+
+
+def flatten_mlhubyaml_deps(deps, cats=None, res=[]):
+    """Flatten the hierarchical structure of dependencies in MLHUB.yaml.
+
+    For dependency specification like:
+
+      dependencies:
+        system: atril
+        R:
+          cran: magrittr, dplyr=1.2.3, caret>4.5.6, e1017, httr  # All dependencies in one line
+          github:  # One dependency per line
+            - rstudio/tfruns
+            - rstudio/reticulate
+            - rstudio/keras
+        python:
+          conda: environment.yaml  # Use conda to interpret dependencies
+          pip:
+            - pillow
+            - tools=1.1
+        files:
+          - https://github.com/mlhubber/colorize/raw/master/configure.sh
+          - https://github.com/mlhubber/colorize/raw/master/configure.sh: data/
+          - https://github.com/mlhubber/colorize/raw/master/configure.sh: images/cat.png
+          - https://github.com/mlhubber/colorize/archive/master.zip: res/
+          - https://github.com/mlhubber/colorize/archive/master.zip: res/xyz.zip
+
+    Return something like:
+
+      [[['system'], ['atril']],
+       [['r', 'cran'], ['magrittr', 'dplyr=1.2.3', 'caret>4.5.6', 'e1017', 'httr']],
+       [['r', 'github'], ['rstudio/tfruns', 'rstudio/reticulate', 'rstudio/keras']],
+       [['python', 'conda'], ['environment.yaml']],
+       [['python', 'pip'], ['pillow', 'tools=1.1']],
+       [['files'], {'https://github.com/mlhubber/colorize/raw/master/configure.sh': None,
+                    'https://github.com/mlhubber/colorize/raw/master/configure.sh': 'data/',
+                    'https://github.com/mlhubber/colorize/raw/master/configure.sh': 'images/cat.png',
+                    'https://github.com/mlhubber/colorize/archive/master.zip': 'res/',
+                    'https://github.com/mlhubber/colorize/archive/master.zip': 'res/xyz.zip'}]
+      ]
+    """
+
+    def _dep_split(deps_spec):
+        return [x.strip() for x in deps_spec.split(',')]
+
+    def _get_file_target_dict(dep_list):
+        res = {}
+        for dep in dep_list:
+            if isinstance(dep, str):
+                res[dep] = None
+            else:
+                res.update(dep)
+        return res
+
+    if not isinstance(deps, dict):
+
+        if isinstance(deps, str):
+            deps = _dep_split(deps)
+
+        res.append([[cats] if cats is None else cats, deps])
+
+    else:
+
+        for category in deps:
+            if 'files'.startswith(category):
+                if isinstance(deps[category], str):
+                    dep_dict = _get_file_target_dict(_dep_split(deps[category]))
+                else:
+                    dep_dict = _get_file_target_dict(deps[category])
+                res.append([['files'], dep_dict])
+            else:
+                cat_list = [category.lower()] if cats is None else cats + [category.lower()]
+                flatten_mlhubyaml_deps(deps[category], cat_list, res)
+
+    return res
+
+
+def install_r_deps(deps, model, source='cran'):
+    script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'r.R')
+    command = 'Rscript {} "{}" "{}"'.format(script, source, '" "'.join(deps))
+
+    proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
+    output, errors = proc.communicate()
+    if proc.returncode != 0:
+        errors = errors.decode("utf-8")
+        print("An error was encountered:\n")
+        print(errors)
+        raise ConfigureFailedException()
+
+
+def install_python_deps(deps, source='pip'):
+    script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
+    command = 'bash {} "{}" "{}"'.format(script, source, '" "'.join(deps))
+
+    proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
+    output, errors = proc.communicate()
+    if proc.returncode != 0:
+        errors = errors.decode("utf-8")
+        print("An error was encountered:\n")
+        print(errors)
+        raise ConfigureFailedException()
+
+
+def install_system_deps(deps):
+    script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'system.sh')
+    command = 'bash {} "{}"'.format(script, '" "'.join(deps))
+
+    proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
+    output, errors = proc.communicate()
+    if proc.returncode != 0:
+        errors = errors.decode("utf-8")
+        print("An error was encountered:\n")
+        print(errors)
+        raise ConfigureFailedException()
+
+
+def get_url_filename(url):
+    """Obtain the file name from URL."""
+
+    info = urllib.request.urlopen(url).getheader('Content-Disposition')
+    if info is None:  # File name can be obtained from URL per se.
+        filename = os.path.basename(url)
+    else:  # File name may be obtained from 'Content-Dispositon'.
+        _, params = cgi.parse_header(info)
+        filename = params['filename']
+
+    return filename
+
+
+def install_file_deps(deps, model):
+
+    # TODO: Add download progress indicator, or use wget --quiet --show-progress <url> 2>&1
+
+    # Download file into Cache dir, then symbolically link it into Package dir.
+    # Thus we can reuse the downloaded files after model package upgrade.
+    # If a lot of files are downloaeded into the same dir,
+    # then only the link of their top parent dir is enough.
+
+    # For example, if MLHUB.yaml is
+    #   files:
+    #     - https://zzz.org/label
+    #     - https://zzz.org/cat.RData: data/
+    #     - https://zzz.org/def.RData: data/dog.RData
+    #     - https://zzz.org/xyz.zip:   res/
+    #     - https://zzz.org/z.zip:   ./
+    #
+    # Then the directory structure will be:
+    #   In cache dir:
+    #     ~/.mlhub/.cache/<pkg>/label
+    #     ~/.mlhub/.cache/<pkg>/data/cat.RData
+    #     ~/.mlhub/.cache/<pkg>/data/dog.RData
+    #     ~/.mlhub/.cache/<pkg>/res/<files-inside-xyz.zip>
+    #     ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
+    #
+    #   In Package dir:
+    #     ~/.mlhub/<pkg>/label                  ---link-to-->   ~/.mlhub/.cache/<pkg>/label
+    #     ~/.mlhub/<pkg>/data                   ---link-to-->   ~/.mlhub/.cache/<pkg>/data
+    #     ~/.mlhub/<pkg>/res                    ---link-to-->   ~/.mlhub/.cache/<pkg>/res
+    #     ~/.mlhub/<pkg>/<files-inside-z.zip>   ---link-to-->   ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
+
+    print("\nDownloading required files ...")
+
+    cache_dir = create_package_cache_dir(model)
+    pkg_dir = get_package_dir(model)
+    mlhubtmp_dir = create_mlhubtmpdir()
+
+    logger = logging.getLogger(__name__)
+    logger.debug("deps: {}".format(deps))
+
+    def link_cache_to_pkg(cache, target):
+        """Link cache to a relative target under package directory.
+
+        Args:
+            cache (str): The absolute path of cached file.
+            target (str): The relative path to the package dir.
+        """
+
+        segs = target.split(os.path.sep)
+        if len(segs) > 1:
+            top_dir = segs[0]
+        else:
+            top_dir = ''
+        top_dir_src = os.path.join(cache_dir, top_dir)
+        top_dir_dst = os.path.join(pkg_dir, top_dir)
+
+        logger.debug("top_dir: {}".format(top_dir))
+        logger.debug("top_dir_src: {}".format(top_dir_src))
+        logger.debug("top_dir_dst: {}".format(top_dir_dst))
+
+        if top_dir != '':  # File under a sub dir.  Make a link to its top dir if not exists.
+
+            src = top_dir_src
+            dst = top_dir_dst
+
+            logger.debug("Link dir.")
+            logger.debug("src: {}".format(src))
+            logger.debug("dst: {}".format(dst))
+
+            if os.path.exists(dst) and not os.path.islink(dst):
+                remove_file_or_dir(dst)
+
+            if not os.path.exists(dst):
+                os.symlink(src, dst)
+
+        else:  # File at the top level.  Make a link directly.
+
+            src = cache
+            dst = os.path.join(pkg_dir, target)
+
+            logger.debug("Link file.")
+            logger.debug("src: {}".format(src))
+            logger.debug("dst: {}".format(dst))
+
+            remove_file_or_dir(dst)
+            os.symlink(src, dst)
+
+    for url, target in deps.items():
+
+        # Obtain file name from URL.
+
+        filename = get_url_filename(url)
+
+        # Download and install file.
+
+        if target is None:  # Download to the top level dir without changing its name.
+            target = filename
+
+        if target.endswith(os.path.sep):
+            target = os.path.relpath(target) + os.path.sep
+        else:
+            target = os.path.relpath(target)
+
+        target_name = os.path.basename(target)
+        cache = os.path.join(cache_dir, target)
+
+        logger.debug("url: {}".format(url))
+        logger.debug("target: {}".format(target))
+        logger.debug("target_name: {}".format(target_name))
+
+        msg = '\n  from {}\n  into {} ...'
+        if target_name == '' and (is_mlm_zip(filename) or is_tar(filename)):  # Uncompress zip file
+
+            print(msg.format(url, target))
+            temp_file = os.path.join(mlhubtmp_dir, filename)
+            urllib.request.urlretrieve(url, temp_file)
+            _, _, file_list = unpack_with_promote(temp_file, cache, remove_dst=False)
+
+            for file in file_list:
+                link_cache_to_pkg(os.path.join(cache, file), os.path.join(target, file))
+
+        else:
+
+            if target_name == '':  # Download to a directory without changing name
+                cache = os.path.join(cache, filename)
+                target = os.path.join(target, filename)
+
+            print(msg.format(url, target))
+            logger.debug("cache: {}".format(cache))
+
+            os.makedirs(os.path.dirname(cache), exist_ok=True)
+            urllib.request.urlretrieve(url, cache)
+            link_cache_to_pkg(cache, target)
 
 
 def interpreter(script):
@@ -584,27 +848,83 @@ def download_model_pkg(url, local, quiet):
         raise ModelDownloadHaltException(url, error.reason.lower())
 
 
-def unzip_modelpkg(file, dest):
-    """Unzip <file> to the directory <dest>, overwriting <dest> if exists.
+def unpack_with_promote(file, dest, remove_dst=True):
+    """Unzip <file> into the directory <dest>.
 
-    If all files are under a top level directory, remove the top level dir.
+    If all files in the zip file are under a top level directory,
+    remove the top level dir and promote the dir level of those files.
+
+    If <remove_dst> is True, then the directory <dest> will be remove first,
+    otherwise, unextracted files will co-exist with those already in <dest>.
+
+    Return whether promotion happend and the top level dir if did.
     """
 
-    remove_file_or_dir(dest)
+    logger = logging.getLogger(__name__)
 
-    pkg_zipfile = zipfile.ZipFile(file)
-    file_list = pkg_zipfile.namelist()
-    if any([os.path.sep not in x for x in file_list]):  # All files are at the top level.
+    # Check if need to remove <dest>.
 
-        pkg_zipfile.extractall(dest)
+    if remove_dst:
+        remove_file_or_dir(dest)
 
-    else:  # All files are under a top dir.
+    # Figure out if <file> is a Zipball or Tarball.
 
-        top_dir = file_list[0].split(os.path.sep)[0]
-        remove_file_or_dir(os.path.join(dest, top_dir))
-        with tempfile.TemporaryDirectory() as tmpdir:
-            pkg_zipfile.extractall(tmpdir)
-            shutil.move(os.path.join(tmpdir, top_dir), dest)
+    if is_mlm_zip(file):
+        opener, lister_name, appender_name = zipfile.ZipFile, 'namelist', 'write'
+    else:
+        opener, lister_name, appender_name = tarfile.open, 'getnames', 'add'
+
+    # Unpack <file>.
+
+    with opener(file) as pkg_file:
+
+        # Check if all files are under a top dir.
+
+        file_list = getattr(pkg_file, lister_name)()
+        first_segs = [x.split(os.path.sep)[0] for x in file_list]
+        if (len(file_list) == 1 and os.path.sep in file_list[0]) or \
+                (len(file_list) != 1 and all([x == first_segs[0] for x in first_segs])):
+            promote, top_dir = True, file_list[0].split(os.path.sep)[0]
+        else:
+            promote, top_dir = False, None
+
+        if not promote:  # All files are at the top level.
+
+            logger.debug("Extract {} directly into {}".format(file, dest))
+            pkg_file.extractall(dest)
+            return False, top_dir, file_list
+
+        else:  # All files are under a top dir.
+            logger.debug("Extract {} without top dir into {}".format(file, dest))
+            file_list = []
+            with tempfile.TemporaryDirectory() as tmpdir:
+
+                # Extract file.
+
+                pkg_file.extractall(tmpdir)
+
+                with tempfile.TemporaryDirectory() as tmpdir2:
+
+                    # Repack files without top dir and then extract again into <dest>.
+                    #
+                    # Extraction can be done on a existing dir, without removing the dir first,
+                    # and the extracted files can co-exist with the files already inside the dir,
+                    # without affecting the existing files except they have the same name.
+
+                    with opener(os.path.join(tmpdir2, 'tmpball'), 'w') as new_pkg_file:
+                        appender = getattr(new_pkg_file, appender_name)
+                        dir_path = os.path.join(tmpdir, top_dir)
+                        for path, dirs, files in os.walk(dir_path):
+                            for file in files:
+                                file_path = os.path.join(path, file)
+                                arc_path = os.path.relpath(file_path, dir_path)
+                                file_list.append(arc_path)
+                                appender(file_path, arc_path)
+
+                    with opener(os.path.join(tmpdir2, 'tmpball')) as new_pkg_file:
+                        new_pkg_file.extractall(dest)
+
+            return True, top_dir, file_list
 
 
 def remove_file_or_dir(path):
@@ -639,6 +959,12 @@ def is_mlm_zip(name):
     """Check if name is a MLM or Zip file."""
 
     return ends_with_mlm(name) or name.endswith(".zip")
+
+
+def is_tar(name):
+    """Check if name is a Tarball."""
+
+    return name.endswith(".tar") or name.endswith(".gz") or name.endswith(".bz2")
 
 
 def is_description_file(name):

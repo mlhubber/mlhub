@@ -38,6 +38,7 @@ import shutil
 import subprocess
 import sys
 import textwrap
+import yaml
 
 from distutils.version import StrictVersion
 from mlhub.constants import (
@@ -187,6 +188,7 @@ def install_model(args):
                           https://github.com/mlhubber/mlhub.git
     """
 
+    # TODO: Now it only support Zipball, need to support Tarball.
     # Setup.  And ensure the local init dir exists.
 
     model = args.model   # model pkg name
@@ -250,7 +252,7 @@ def install_model(args):
                 utils.download_model_pkg(url, local, args.quiet)
 
             unzipdir = os.path.join(mlhubtmpdir, pkgfile[:-4])
-            utils.unzip_modelpkg(local, unzipdir)
+            utils.unpack_with_promote(local, unzipdir)
             mlhubyaml = utils.get_available_pkgyaml(unzipdir)
 
         if mlhubyaml is not None:
@@ -288,7 +290,7 @@ def install_model(args):
         if utils.is_url(url):  # Download the file if needed
             utils.download_model_pkg(url, local, args.quiet)
 
-        utils.unzip_modelpkg(local, unzipdir)
+        utils.unpack_with_promote(local, unzipdir)
 
     shutil.move(unzipdir, install_path)
 
@@ -356,7 +358,9 @@ def readme(args):
             readme_raw = readme_raw[:readme_raw.rfind('.')] + '.rst'
             if not os.path.exists(readme_raw):
                 raise utils.ModelReadmeNotFoundException(model, readme_file)
-        cmd = "pandoc -t plain {} | awk '/^Usage$$/{{exit}}{{print}}' | perl -00pe0 > {}".format(readme_raw, README)
+        cmd = ("pandoc -t plain {} "
+               "| awk '/^Usage$$/{{exit}}{{print}}' "
+               "| perl -00pe0 > {}".format(readme_raw, README))
         proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
         proc.communicate()
         if proc.returncode != 0:
@@ -435,11 +439,15 @@ def list_model_commands(args):
 def configure_model(args):
     """Ensure the user's environment is configured."""
 
-    # TODO: Install packages natively for those listed in
-    # dependencies. Then if there is also a configure.sh, then run
-    # that for additoinal setup.
+    # TODO: Add support for additional configuration if any except those
+    #       specified in MLHUB.yaml.
+    # TODO: When fail, print out the failed dep, as well as installed
+    #       deps and non-installed deps.
+    # TODO: Add support for specifying packages version.
+    # TODO: Add more informative messages for different kinds of
+    #       dependencies.
 
-    # Other ideas re cofiguration
+    # Other ideas for configuration
     #
     # 1 Construct mlhub container (from Ubuntu) with known starting point
     #
@@ -470,7 +478,8 @@ def configure_model(args):
 
     if not args.model:
 
-        # Configure ml.  Currently only bash completion.
+        # Configure MLHUB per se.
+        # Currently only bash completion.
 
         if distro.id() in ['debian', 'ubuntu']:
             path = os.path.dirname(__file__)
@@ -483,39 +492,105 @@ def configure_model(args):
                 print('Executing: ', cmd)
                 subprocess.run(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
                 
-            print("\nFor tab completion to take immediate effect: \n\n  $ source /etc/bash_completion.d/ml.bash\n")
+            print("\nFor tab completion to take immediate effect:\n"
+                  "\n  $ source /etc/bash_completion.d/ml.bash\n")
 
         return
     
     # Setup.
     
     model = args.model
-    path = MLINIT + model
+    pkg_dir = utils.get_package_dir(model)
    
-    # Check that the model is installed.
+    # Check if the model package is installed.
 
     utils.check_model_installed(model)
 
-    # If there are any configure scripts then run them, else print the
-    # list of supplied dependencies if any. Note that Python's 'or' is
-    # lazy evaluation.
+    # Install dependencies specified in MLHUB.yaml
 
-    conf = utils.configure(path, "configure.sh", args.quiet)
-    conf = utils.configure(path, "configure.R", args.quiet) or conf
-    conf = utils.configure(path, "configure.py", args.quiet) or conf
+    entry = utils.load_description(model)
+    depspec = None
+    if 'dependencies' in entry:
+        depspec = entry['dependencies']
+    elif 'dependencies' in entry['meta']:
+        depspec = entry['meta']['dependencies']
+
+    if depspec is not None:
+        for spec in utils.flatten_mlhubyaml_deps(depspec):
+            category = spec[0][-1]
+            deplist = spec[1]
+
+            # Category include:
+            #   ------------------------------------------------------------------------------
+            #           category | action
+            #   -----------------|------------------------------------------------------------
+            #              None  |  install package according to entry['meta']['languages']
+            #                    |  if R,      install.packages(xxx) from cran;
+            #                    |  if Python, pip install xxx
+            #   -----------------|------------------------------------------------------------
+            #            system  |  apt-get install
+            #                sh  |  apt-get install
+            #   -----------------|------------------------------------------------------------
+            #                 r  |  install.packages(xxx) from cran, version can be specified
+            #              cran  |  install.packages(xxx) from cran, version can be specified
+            #   cran-2018-12-01  |  install cran snapshot on 2018-12-01
+            #            github  |  devtools::install_github from github
+            #   -----------------|------------------------------------------------------------
+            #            python  |  apt-get install python-xxx
+            #           python3  |  apt-get install python3-xxx
+            #               pip  |  pip install
+            #              pip3  |  pip3 install
+            #             conda  |  conda install
+            #   -----------------|------------------------------------------------------------
+            #             files  |  download files
+            #   -----------------|------------------------------------------------------------
+
+            # ----- Determine deps by language -----
+
+            if category is None:
+
+                lang = entry['meta']['languages'].lower()
+                if lang == 'r':
+                    utils.install_r_deps(deplist, model, source='cran')
+                elif 'python'.startswith(lang):
+                    utils.install_python_deps(deplist, source='pip')
+
+            # ----- System deps -----
+
+            elif category == 'system' or 'shell'.startswith(category):
+                utils.install_system_deps(deplist)
+
+            # ----- R deps -----
+
+            elif category == 'r':
+                utils.install_r_deps(deplist, model, source='cran')
+
+            elif category == 'cran' or category == 'github' or category.startswith('cran-'):
+                utils.install_r_deps(deplist, model, source=category)
+
+            # ----- Python deps -----
+
+            elif category.startswith('python') or category.startswith('pip') or category == 'conda':
+                utils.install_python_deps(deplist, source=category)
+
+            # ----- Files -----
+
+            elif 'files'.startswith(category):
+                utils.install_file_deps(deplist, model)
+
+    # Run additional configure script if any.
+
+    conf = utils.configure(pkg_dir, "configure.sh", args.quiet) or True
+    conf = utils.configure(pkg_dir, "configure.R", args.quiet) or conf
+    conf = utils.configure(pkg_dir, "configure.py", args.quiet) or conf
 
     if not conf:
-        try:
-            info = utils.load_description(model)
-            deps = info["meta"]["dependencies"]
-
-            if not args.quiet:
-                msg = "No configuration script provided for this model. "
-                msg = msg + "The following dependencies are required:\n"
-                print(msg)
-
-            print("  ====> \033[31m" + deps + "\033[0m")
-        except KeyError:
+        if depspec is not None:
+            msg = ("No configuration script provided for this model. "
+                   "The following dependencies are required:\n")
+            print(msg)
+            print(yaml.dump(depspec))
+        else:
             print("No configuration provided (maybe none is required).")
             
     # Suggest next step.

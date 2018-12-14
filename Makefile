@@ -24,7 +24,10 @@ SOURCE = setup.py			\
 	 mlhub/commands.py		\
 	 mlhub/utils.py			\
 	 mlhub/__init__.py		\
-	 mlhub/bash_completion.d/ml.bash
+	 mlhub/bash_completion.d/ml.bash \
+	 mlhub/scripts/dep/python.sh \
+	 mlhub/scripts/dep/r.R \
+	 mlhub/scripts/dep/system.sh
 
 BASH_COMPLETION = mlhub/bash_completion.d/ml.bash
 
