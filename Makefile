@@ -4,14 +4,14 @@
 #
 ########################################################################
 
-APP=mlhub
+APP=mlhubv3
 
 # Version numbers
 #   Major release
 #   Minor update
 #   Bug fix
 
-VER=1.6.7# 20181116 prepare for release of 2.0.0
+VER=2.9.2# 20181116 prepare for release of 2.0.0
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
@@ -28,7 +28,7 @@ SOURCE = setup.py			\
 
 BASH_COMPLETION = mlhub/bash_completion.d/ml.bash
 
-INC_BASE    = .
+INC_BASE    = $(HOME)/.local/share/make
 INC_PANDOC  = $(INC_BASE)/pandoc.mk
 INC_GIT     = $(INC_BASE)/git.mk
 INC_AZURE   = $(INC_BASE)/azure.mk
