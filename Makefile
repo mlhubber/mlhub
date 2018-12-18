@@ -11,12 +11,12 @@ APP=mlhubv3
 #   Minor update
 #   Bug fix
 
-VER=2.9.2# 20181116 prepare for release of 2.0.0
+VER=2.9.3# 20181218 prepare for release of 3.0.0
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
 SOURCE = setup.py			\
-	 README.rst			\
+	 README.md			\
 	 setup.cfg			\
 	 MANIFEST.in			\
 	 LICENSE			\
@@ -76,7 +76,7 @@ mlhub: version $(TAR_GZ) $(BASH_COMPLETION)
 version:
 	perl -pi -e "s|^    version='.*'|    version='$(VER)'|" setup.py 
 	perl -pi -e 's|^VERSION = ".*"|VERSION = "$(VER)"|' mlhub/constants.py
-	perl -pi -e 's|$(APP)_\d+.\d+.\d+|$(APP)_$(VER)|g' README.rst
+	perl -pi -e 's|$(APP)_\d+.\d+.\d+|$(APP)_$(VER)|g' README.md
 
 .PHONY: worthy
 worthy:
