@@ -283,7 +283,7 @@ User can then run:
 
   $ source /etc/bash_completion.d/ml.bash
 
-List the available models from the repository with:
+List the commands available for mlhub with:
 
   $ ml available
 """.format('\n'.join(list(COMMANDS_USAGE.values())[:3]),
