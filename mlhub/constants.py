@@ -275,7 +275,8 @@ Models are installed into '{{}}'.
 
 This is version {{}} of {{}}.
 
-For a better experience with bash tab completion:
+For a better experience with bash tab completion 
+the sys admin can run:
 
   $ ml configure
 
