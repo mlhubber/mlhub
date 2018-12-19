@@ -204,9 +204,12 @@ def install_model(args):
 
         # Model from mlhub repo. Like:
         #     $ ml install audit
-        # We assume the URL got from mlhub repo is a link to a MLM or Zip file.
+        # We assume the URL got from mlhub repo is a link to a MLM/Zip file or a GitHub repo URL.
 
         url, version, meta_list = utils.get_model_info_from_repo(model, args.mlhub)
+        if not utils.is_mlm_zip(url) and utils.is_github_url(url):
+            mlhubyaml = utils.get_pkgyaml_github_url(url)
+            url = utils.get_pkgzip_github_url(url)
 
         utils.update_completion_list(  # Update bash completion word list of available models.
             COMPLETION_MODELS,

@@ -672,8 +672,9 @@ def get_model_info_from_repo(model, mlhub):
     
     for entry in meta:
         if model == entry["meta"]["name"]:
-            url = mlhub + entry["meta"]["filename"]
-            version = entry["meta"]["version"]
+            url = entry["meta"]["url"]
+            if is_mlm_zip(url):
+                version = entry["meta"]["version"]
             break
     
     # If not found suggest how a model might be installed.
