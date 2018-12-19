@@ -59,16 +59,18 @@ if (!snapshot)
   already_ver <- installed.packages()[,"Version"]
   for (pkg in name_pkgs)
   {
-    latest_ver <- old.packages(instPkgs=installed.packages()[pkg, , drop=FALSE])[, 'ReposVer']
-    if (pkg %in% already && packageVersion(pkg) >= latest_ver)
+    if (pkg %in% already)
     {
-      cat(sprintf("\n*** The R package '%s' is already installed.\n", pkg))
+      latest_ver <- old.packages(instPkgs=installed.packages()[pkg, , drop=FALSE])[, 'ReposVer']
+      if (!is.null(latest_ver) && packageVersion(pkg) >= latest_ver)
+      {
+        cat(sprintf("\n*** The R package '%s' is already installed.\n", pkg))
+        next
+      }
     }
-    else
-    {
-      cat(sprintf("\n*** Installing latest version R package '%s' from CRAN into '%s' ...\n", pkg, .libPaths()[1]))
-      install.packages(pkg, lib=lib)
-    }
+
+    cat(sprintf("\n*** Installing latest version R package '%s' from CRAN into '%s' ...\n", pkg, .libPaths()[1]))
+    install.packages(pkg, lib=lib)
   }
 }
 
