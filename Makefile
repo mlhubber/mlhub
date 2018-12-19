@@ -11,7 +11,7 @@ APP=mlhubv3
 #   Minor update
 #   Bug fix
 
-VER=2.9.4# 20181219 ml install audit now uses url
+VER=2.9.5# 20181219 dependencies from MLHUB
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
