@@ -69,7 +69,7 @@ if (!snapshot)
       }
     }
 
-    cat(sprintf("\n*** Installing latest version R package '%s' from CRAN into '%s' ...\n", pkg, .libPaths()[1]))
+    cat(sprintf("\n*** Installing latest version R package '%s' from CRAN into\n'%s' ...\n", pkg, .libPaths()[1]))
     install.packages(pkg, lib=lib)
   }
 }
