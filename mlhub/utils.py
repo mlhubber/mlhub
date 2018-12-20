@@ -994,13 +994,16 @@ def get_model_info_from_repo(model, mlhub):
     meta = get_repo_meta_data(mlhub)
     
     # Find the first matching entry in the meta data.
-    
-    for entry in meta:
-        if model == entry["meta"]["name"]:
-            url = entry["meta"]["url"]
-            if is_mlm_zip(url):
-                version = entry["meta"]["version"]
-            break
+
+    try:
+        for entry in meta:
+            if model == entry["meta"]["name"]:
+                url = entry["meta"]["url"]
+                if is_mlm_zip(url):
+                    version = entry["meta"]["version"]
+                break
+    except KeyError as e:
+        raise MalformedPackagesDotYAMLException(e.args[0], model)
     
     # If not found suggest how a model might be installed.
     
@@ -1358,4 +1361,8 @@ class MalformedYAMLException(Exception):
 
 
 class YAMLFileAccessException(Exception):
+    pass
+
+
+class MalformedPackagesDotYAMLException(Exception):
     pass
