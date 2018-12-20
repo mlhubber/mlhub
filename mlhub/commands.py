@@ -233,6 +233,10 @@ def install_model(args):
 
     if utils.is_mlm_zip(url):
         pkgfile = os.path.basename(url)  # pkg file name
+    elif utils.is_url(url):
+        pkgfile = utils.get_url_filename(url)
+        if pkgfile is None:
+            pkgfile = "mlhubmodelpkg.mlm"
     else:
         pkgfile = "mlhubmodelpkg.mlm"
 

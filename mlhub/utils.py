@@ -38,13 +38,14 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import urllib.error
 import urllib.request
+import uuid
 import yaml
 import yamlordereddictloader
 import zipfile
-import tarfile
 
 from mlhub.constants import (
     APP,
@@ -395,14 +396,19 @@ def install_system_deps(deps):
 
 
 def get_url_filename(url):
-    """Obtain the file name from URL."""
+    """Obtain the file name from URL or None if not available."""
 
     info = urllib.request.urlopen(url).getheader('Content-Disposition')
     if info is None:  # File name can be obtained from URL per se.
         filename = os.path.basename(url)
-    else:  # File name may be obtained from 'Content-Dispositon'.
+        if filename == '':
+            filename = None
+    else:  # File name may be obtained from 'Content-Disposition'.
         _, params = cgi.parse_header(info)
-        filename = params['filename']
+        if 'filename' in params:
+            filename = params['filename']
+        else:
+            filename = None
 
     return filename
 
@@ -499,6 +505,8 @@ def install_file_deps(deps, model):
         # Obtain file name from URL.
 
         filename = get_url_filename(url)
+        if filename is None:
+            filename = 'mlhubtmp-' + str(uuid.uuid4().hex)
 
         # Download and install file.
 
