@@ -50,6 +50,8 @@ link_pkgs <- packages[isurl]                  # packages specified by URLs
 ball_pkgs <- packages[isball & ! isurl]       # packages specified by path
 extra_pkgs <- c(link_pkgs, ball_pkgs)
 
+cat(sprintf("\n*** R packages will be installed into '%s'\n", .libPaths()[1]))
+
 ########################################################################
 # Install packages with latest version into the local R library.
 
@@ -69,7 +71,7 @@ if (!snapshot)
       }
     }
 
-    cat(sprintf("\n*** Installing latest version R package '%s' from CRAN into\n'%s' ...\n", pkg, .libPaths()[1]))
+    cat(sprintf("\n*** Installing latest version R package '%s' from CRAN ...\n", pkg))
     install.packages(pkg, lib=lib)
   }
 }
@@ -91,7 +93,7 @@ if (!snapshot)
     }
     else
     {
-      cat(sprintf("\n*** Installing %s's R package '%s' from GitHub into '%s' ...\n", owner, repo, .libPaths()[1]))
+      cat(sprintf("\n*** Installing %s's R package '%s' from GitHub ...\n", owner, repo))
       devtools::install_github(pkg, lib=lib)
     }
   }
@@ -116,7 +118,7 @@ if (!snapshot)
     }
     else
     {
-      cat(sprintf("\n*** Installing R package '%s' version '%s' into '%s' ...\n", name, ver, .libPaths()[1]))
+      cat(sprintf("\n*** Installing R package '%s' version '%s' ...\n", name, ver))
       devtools::install_version(name, version=ver, repos="https://cloud.r-project.org", lib=lib)
     }
   }
@@ -137,7 +139,7 @@ if (!snapshot)
 
   for (pkg in extra_pkgs)
   {
-    cat(sprintf("\n*** Installing specific R package '%s' into '%s' ...\n", pkg, .libPaths()[1]))
+    cat(sprintf("\n*** Installing specific R package '%s' ...\n", pkg))
     install.packages(pkg, repos=NULL, lib=lib)
   }
 }
@@ -151,7 +153,7 @@ if (snapshot)
   stamp <- substr(src, 6, 15)
   for (pkg in name_pkgs)
   {
-    cat(sprintf("\n*** Installing R packages '%s' from snapshot '%s' into '%s' ...\n", pkg, stamp, .libPaths()[1]))
+    cat(sprintf("\n*** Installing R packages '%s' from snapshot '%s' ...\n", pkg, stamp))
     install.packages(packages, repos=paste('https://cran.microsoft.com/snapshot/', stamp, sep=''), lib=lib, dep=TRUE)
   }
 }
