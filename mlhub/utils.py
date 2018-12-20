@@ -438,7 +438,7 @@ def install_file_deps(deps, model):
     #     ~/.mlhub/<pkg>/res                    ---link-to-->   ~/.mlhub/.cache/<pkg>/res
     #     ~/.mlhub/<pkg>/<files-inside-z.zip>   ---link-to-->   ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
 
-    print("\nDownloading required files ...")
+    print("\n*** Downloading required files ...")
 
     cache_dir = create_package_cache_dir(model)
     pkg_dir = get_package_dir(model)
@@ -517,7 +517,7 @@ def install_file_deps(deps, model):
         logger.debug("target: {}".format(target))
         logger.debug("target_name: {}".format(target_name))
 
-        msg = '\n  from {}\n  into {} ...'
+        msg = '\n    * from {}\n        into {} ...'
         if target_name == '' and (is_mlm_zip(filename) or is_tar(filename)):  # Uncompress zip file
 
             print(msg.format(url, target))

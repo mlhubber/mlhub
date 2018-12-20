@@ -62,9 +62,9 @@ if (!snapshot)
     if (pkg %in% already)
     {
       latest_ver <- old.packages(instPkgs=installed.packages()[pkg, , drop=FALSE])[, 'ReposVer']
-      if (!is.null(latest_ver) && packageVersion(pkg) >= latest_ver)
+      if (is.null(latest_ver))
       {
-        cat(sprintf("\n*** The R package '%s' is already installed.\n", pkg))
+        cat(sprintf("\n*** The R package '%s' is already the latest version.\n", pkg))
         next
       }
     }
