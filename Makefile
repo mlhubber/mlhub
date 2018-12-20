@@ -11,7 +11,7 @@ APP=mlhubv3
 #   Minor update
 #   Bug fix
 
-VER=2.9.7# 20181219 dependencies from MLHUB
+VER=2.9.8# 20181219 dependencies from MLHUB
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
