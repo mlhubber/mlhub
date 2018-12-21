@@ -37,7 +37,9 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import textwrap
+import uuid
 import yaml
 
 from distutils.version import StrictVersion
@@ -188,7 +190,9 @@ def install_model(args):
                           https://github.com/mlhubber/mlhub.git
     """
 
-    # TODO: Now it only support Zipball, need to support Tarball.
+    # TODO: Add support for Tarball besides Zipball.  For example,
+    #         $ ml install audit_2.1.tar.gz
+
     # Setup.  And ensure the local init dir exists.
 
     model = args.model   # model pkg name
@@ -196,9 +200,9 @@ def install_model(args):
     version = None       # model pkg version
     unzipdir = None      # Dir Where pkg file is extracted
     mlhubyaml = None     # MLHUB.yaml path or URL
+    entry = None         # Meta info read from MLHUB.yaml
 
     init = utils.create_init()
-    mlhubtmpdir = utils.create_mlhubtmpdir()
 
     # Obtain the model URL if not a local file.
 
@@ -236,81 +240,124 @@ def install_model(args):
     elif utils.is_url(url):
         pkgfile = utils.get_url_filename(url)
         if pkgfile is None:
-            pkgfile = "mlhubmodelpkg.mlm"
+            pkgfile = "mlhubmodelpkg-" + str(uuid.uuid4().hex) + ".mlm"
     else:
-        pkgfile = "mlhubmodelpkg.mlm"
+        pkgfile = "mlhubmodelpkg-" + str(uuid.uuid4().hex) + ".mlm"
 
-    if utils.is_url(url):
-        local = os.path.join(mlhubtmpdir, pkgfile)
-    else:
-        local = url
+    with tempfile.TemporaryDirectory() as mlhubtmpdir:
+        if utils.is_url(url):
+            local = os.path.join(mlhubtmpdir, pkgfile)
+        else:
+            local = url
 
-    # Obtain model version.
+        # Obtain model version.
 
-    if version is None:
-        if utils.ends_with_mlm(url):  # Get version directly from MLM file name.
-            model, version = utils.interpret_mlm_name(url)
+        if version is None:
+            if utils.ends_with_mlm(url):  # Get version directly from MLM file name.
+                model, version = utils.interpret_mlm_name(url)
 
-        elif not utils.is_github_url(url):  # Get version from yaml inside the Zip file.
+            elif not utils.is_github_url(url):  # Get version from yaml inside the Zip file.
+                if utils.is_url(url):  # Download the file if needed
+                    utils.download_model_pkg(url, local, args.quiet)
+
+                unzipdir = os.path.join(mlhubtmpdir, pkgfile[:-4])
+                utils.unpack_with_promote(local, unzipdir)
+                mlhubyaml = utils.get_available_pkgyaml(unzipdir)
+
+            if mlhubyaml is not None:
+                entry = utils.read_mlhubyaml(mlhubyaml)
+                model = entry["meta"]["name"]
+                version = entry["meta"]["version"]
+
+        # Check if model is already installed.
+
+        install_path = os.path.join(init, model)  # Installation path
+        if os.path.exists(install_path):
+            info = utils.load_description(model)
+            installed_version = info['meta']['version']
+            if StrictVersion(installed_version) > StrictVersion(version):
+                yes = utils.yes_or_no("Downgrade '{}' from version '{}' to version '{}'",
+                                      model, installed_version, version)
+            elif StrictVersion(installed_version) == StrictVersion(version):
+                yes = utils.yes_or_no("Replace '{}' version '{}' with version '{}'",
+                                      model, installed_version, version)
+            else:
+                yes = utils.yes_or_no("Upgrade '{}' from version '{}' to version '{}'",
+                                      model, installed_version, version)
+
+            if not yes:
+                sys.exit(0)
+            else:
+                print()
+
+            shutil.rmtree(install_path)
+
+        # Install model pkg.
+
+        if unzipdir is None:  # Pkg has not unzipped yet.
+            unzipdir = os.path.join(mlhubtmpdir, pkgfile[:-4])
             if utils.is_url(url):  # Download the file if needed
                 utils.download_model_pkg(url, local, args.quiet)
 
-            unzipdir = os.path.join(mlhubtmpdir, pkgfile[:-4])
             utils.unpack_with_promote(local, unzipdir)
+
+        # Install package files.
+        #
+        # Because it is time-consuming to download all package files one-by-one , we
+        # download the whole zipball from the repo first, then re-arrange the files
+        # according to `dependencies` -> `files` in MLHUB.yaml if any.
+
+        # Find if any files specified in MLHUB.yaml
+
+        if entry is None:
             mlhubyaml = utils.get_available_pkgyaml(unzipdir)
-
-        if mlhubyaml is not None:
             entry = utils.read_mlhubyaml(mlhubyaml)
-            model = entry["meta"]["name"]
-            version = entry["meta"]["version"]
 
-    # Check if model is already installed.
+        depspec = None
+        if 'dependencies' in entry:
+            depspec = entry['dependencies']
+        elif 'dependencies' in entry['meta']:
+            depspec = entry['meta']['dependencies']
 
-    install_path = os.path.join(init, model)  # Installation path
-    if os.path.exists(install_path):
-        info = utils.load_description(model)
-        installed_version = info['meta']['version']
-        if StrictVersion(installed_version) > StrictVersion(version):
-            yes = utils.yes_or_no("Downgrade '{}' from version '{}' to version '{}'",
-                                  model, installed_version, version)
-        elif StrictVersion(installed_version) == StrictVersion(version):
-            yes = utils.yes_or_no("Replace '{}' version '{}' with version '{}'",
-                                  model, installed_version, version)
-        else:
-            yes = utils.yes_or_no("Upgrade '{}' from version '{}' to version '{}'",
-                                  model, installed_version, version)
+        file_spec = None
+        if depspec is not None and 'files' in depspec:
+            file_spec = {'files': depspec['files']}
+        elif 'files' in entry:
+            file_spec = {'files': entry['files']}
 
-        if not yes:
-            sys.exit(0)
-        else:
-            print()
+        if file_spec is not None:  # install package files if they are specified in MLHUB.yaml
 
-        shutil.rmtree(install_path)
+            # MLHUB.yaml should always be at the root.
 
-    # Install model pkg.
+            mlhubyaml = utils.get_available_pkgyaml(unzipdir)
+            os.mkdir(install_path)
+            shutil.move(mlhubyaml, install_path)
 
-    if unzipdir is None:  # Pkg has not unzipped yet.
-        unzipdir = os.path.join(mlhubtmpdir, pkgfile[:-4])
-        if utils.is_url(url):  # Download the file if needed
-            utils.download_model_pkg(url, local, args.quiet)
+            # All package files except MLHUB.yaml should be specified in `files` of MLHUB.yaml
 
-        utils.unpack_with_promote(local, unzipdir)
+            utils.install_file_deps(utils.flatten_mlhubyaml_deps(file_spec)[0][1],
+                                    model,
+                                    downloadir=unzipdir)
 
-    shutil.move(unzipdir, install_path)
+        else:  # Otherwise, put all files under package dir.
+            shutil.move(unzipdir, install_path)
 
-    utils.update_completion_list(  # Update bash completion word list of available commands.
-        COMPLETION_COMMANDS,
-        set(utils.load_description(model)['commands']))
-    
-    if not args.quiet:
-        # Informative message about the size of the installed model.
-        
-        print("Extracted '{}' into\n'{}' ({:,} bytes).".format(
-            pkgfile, install_path, utils.dir_size(install_path)))
-            
-        # Suggest next step. README or DOWNLOAD
+        # Update bash completion word list of available commands.
 
-        utils.print_next_step('install', model=model)
+        utils.update_completion_list(
+            COMPLETION_COMMANDS,
+            set(utils.load_description(model)['commands']))
+
+        if not args.quiet:
+
+            # Informative message about the size of the installed model.
+
+            print("Extracted '{}' into\n'{}' ({:,} bytes).".format(
+                pkgfile, install_path, utils.dir_size(install_path)))
+
+            # Suggest next step. README or DOWNLOAD
+
+            utils.print_next_step('install', model=model)
 
 # -----------------------------------------------------------------------
 # DOWNLOAD

@@ -69,10 +69,6 @@ LOG_FILE = os.path.join(LOG_DIR, 'mlhub.log')
 
 CACHE_DIR = os.path.join(MLINIT, ".cache")
 
-# tmp dir
-
-TMP_DIR = os.path.join(MLINIT, ".tmp")
-
 # ------------------------------------------------------------------------
 # Application information.
 # ------------------------------------------------------------------------
