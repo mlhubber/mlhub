@@ -251,7 +251,7 @@ def configure(path, script, quiet):
         if os.path.exists(conf):
             interp = interpreter(script)
             if not quiet:
-                msg = "Configuring using '{}'...\n".format(conf)
+                msg = "\nConfiguring using '{}'...\n".format(conf)
                 print(msg)
             cmd = "export _MLHUB_CMD_CWD='{}'; export _MLHUB_MODEL_NAME='{}'; {} {}".format(
                 os.getcwd(), os.path.basename(path), interp, script)
