@@ -11,7 +11,7 @@ APP=mlhubv3
 #   Minor update
 #   Bug fix
 
-VER=2.9.10# 20181220 tidy up messaging
+VER=2.9.11# 20181220 tidy up messaging
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
