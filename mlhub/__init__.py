@@ -289,7 +289,8 @@ def main():
         sys.exit(1)
 
     except utils.MalformedPackagesDotYAMLException as e:
-        msg = "There is no '{}' available for the model package '{}' which may be under maintenance now.\nPlease try again later."
+        msg = ("There is no '{}' available for the model package '{}' which may be under maintenance now.\n"
+               "Please try again later.")
         utils.print_error(msg, e.args[0], e.args[1])
         if not args.quiet:  # Suggest check if any models available, since specified model not available
             utils.print_commands_suggestions_on_stderr('available')

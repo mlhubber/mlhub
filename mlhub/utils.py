@@ -314,13 +314,13 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=[]):
         return [x.strip() for x in deps_spec.split(',')]
 
     def _get_file_target_dict(dep_list):
-        res = {}
+        results = {}
         for dep in dep_list:
             if isinstance(dep, str):
-                res[dep] = None
+                results[dep] = None
             else:
-                res.update(dep)
-        return res
+                results.update(dep)
+        return results
 
     if not isinstance(deps, dict):
 
@@ -425,7 +425,8 @@ def install_file_deps(deps, model, downloadir=None):
     #     - https://zzz.org/label                        # To package root dir
     #     - https://zzz.org/cat.RData: data/             # To data/
     #     - https://zzz.org/def.RData: data/dog.RData    # To data/dog.RData
-    #     - https://zzz.org/xyz.zip:   res/              # Uncompress into res/ and if all files are under a single top dir, remove the dir
+    #     - https://zzz.org/xyz.zip:   res/              # Uncompress into res/ and if all files are
+    #                                                    #     under a single top dir, remove the dir
     #     - https://zzz.org/z.zip:     ./                # The same as above
     #     - https://zzz.org/uvw.zip:   res/rst.zip       # To res/rst.zip
     #     - description/README.md                        # To package root dir
@@ -485,7 +486,6 @@ def install_file_deps(deps, model, downloadir=None):
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.move(src, dst)
 
-
     for url, target in deps.items():
 
         # Deal with URL and path differently.
@@ -531,11 +531,18 @@ def install_file_deps(deps, model, downloadir=None):
                 if os.path.exists(cache):
                     needownload = yes_or_no(confirm_msg, yes=False)
 
+                file_list = []
                 if needownload:
                     with tempfile.TemporaryDirectory() as mlhubtmpdir:
                         temp_file = os.path.join(mlhubtmpdir, filename)
                         urllib.request.urlretrieve(url, temp_file)
                         _, _, file_list = unpack_with_promote(temp_file, cache, remove_dst=False)
+                else:
+                    for path, dirs, files in os.walk(cache):
+                        for file in files:
+                            file_path = os.path.join(path, file)
+                            arc_path = os.path.relpath(file_path, cache)
+                            file_list.append(arc_path)
 
                 for file in file_list:
                     link_cache_to_pkg(os.path.join(cache, file), os.path.join(target, file))
