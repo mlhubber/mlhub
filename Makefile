@@ -11,7 +11,7 @@ APP=mlhubv3
 #   Minor update
 #   Bug fix
 
-VER=2.9.12# 20181224 Update caching
+VER=2.9.13# 20181224 Update caching. More github patterns.
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
