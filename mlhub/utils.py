@@ -758,31 +758,43 @@ def interpret_github_url(url):
     """
     seg = url.split('/')
     ref = 'master'  # Use master by default.
+    yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
+    mlhubyaml = None
 
-    if not is_url(url):  #
+    if not is_url(url):  # Repo reference like mlhubber/mlhub
+
+        # TODO: Add regexp to validate the url.
 
         owner = seg[0]
         repo = seg[1]
-        if '@' in seg[1]:
+        if '@' in repo:
 
             # For branch or commit such as:
             #     mlhubber/mlhub@dev
             #     mlhubber/mlhub@7fad23bdfdfjk
+            #     mlhubber/mlhub@dev:desp/MLHUB.yaml
 
-            tmp = seg[1].split('@')
+            tmp = repo.split('@')
             repo = tmp[0]
-            ref = tmp[1]
+            ref = tmp[1].split(':')[0]
 
-        elif '#' in seg[1]:
+        elif '#' in repo:
 
             # For pull request such as:
             #     mlhubber/mlhub#15
+            #     mlhubber/mlhub#15:desp/MLHUB.yaml
 
-            tmp = seg[1].split('#')
+            tmp = repo.split('#')
             repo = tmp[0]
-            ref = "pull/" + tmp[1] + "/head"
+            ref = "pull/" + tmp[1].split(':')[0] + "/head"
+        elif ':' in repo:
+            repo = repo.split(':')[0]
 
-    else:
+        res = [x for x in yaml_list if url.endswith(x)]
+        if res != []:
+            mlhubyaml = url.split(':')[-1]
+
+    else:  # Repo URL like https://github.com/mlhubber/mlhub
 
         owner = seg[3]
         repo = seg[4]
@@ -798,8 +810,9 @@ def interpret_github_url(url):
 
             else:  # Branch, commit, or specific file
                 ref = seg[6]
+                mlhubyaml = '/'.join(seg[7:])
 
-    return owner, repo, ref
+    return owner, repo, ref, mlhubyaml
 
 
 def get_pkgzip_github_url(url):
@@ -808,7 +821,7 @@ def get_pkgzip_github_url(url):
     See https://developer.github.com/v3/repos/contents/#get-archive-link
     """
 
-    owner, repo, ref = interpret_github_url(url)
+    owner, repo, ref, _ = interpret_github_url(url)
     return "https://api.github.com/repos/{}/{}/zipball/{}".format(owner, repo, ref)
 
 
@@ -818,9 +831,12 @@ def get_pkgyaml_github_url(url):
     See https://developer.github.com/v3/repos/contents/#get-contents
     """
 
-    owner, repo, ref = interpret_github_url(url)
+    owner, repo, ref, mlhubyaml = interpret_github_url(url)
     url = "https://api.github.com/repos/{}/{}/contents/{{}}?ref={}".format(owner, repo, ref)
-    return get_available_pkgyaml(url)
+    if mlhubyaml is None:
+        return get_available_pkgyaml(url)
+    else:
+        return url.format(mlhubyaml)
 
 
 def get_available_pkgyaml(url):

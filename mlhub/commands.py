@@ -30,6 +30,7 @@
 
 import distro
 import glob
+import json
 import logging
 import mlhub.utils as utils
 import os
@@ -39,6 +40,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import urllib.request
 import uuid
 import yaml
 
@@ -48,6 +50,7 @@ from mlhub.constants import (
     COMPLETION_MODELS,
     COMPLETION_SCRIPT,
     EXT_MLM,
+    MLHUB_YAML,
     MLINIT,
     README,
 )
@@ -228,7 +231,6 @@ def install_model(args):
         #     $ ml install https://github.com/mlhubber/audit/...
         # Then get the url of archived Zip file, such as
         #     https://github.com/mlhubber/audit/archive/master.zip
-        # We assume DESCRIPTION.yaml is located at the root of the model package github repo.
 
         url = utils.get_pkgzip_github_url(model)
         mlhubyaml = utils.get_pkgyaml_github_url(model)
@@ -327,11 +329,18 @@ def install_model(args):
 
         if file_spec is not None:  # install package files if they are specified in MLHUB.yaml
 
-            # MLHUB.yaml should always be at the root.
+            # MLHUB.yaml should always be at the package root.
 
-            mlhubyaml = utils.get_available_pkgyaml(unzipdir)
+            if mlhubyaml is None:
+                mlhubyaml = utils.get_available_pkgyaml(unzipdir)
+
             os.mkdir(install_path)
-            shutil.move(mlhubyaml, install_path)
+            if utils.is_url(mlhubyaml):
+                urllib.request.urlretrieve(
+                    json.loads(urllib.request.urlopen(mlhubyaml).read())['download_url'],
+                    os.path.join(install_path, MLHUB_YAML))
+            else:
+                shutil.move(mlhubyaml, install_path)
 
             # All package files except MLHUB.yaml should be specified in `files` of MLHUB.yaml
 
