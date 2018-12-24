@@ -277,13 +277,13 @@ def install_model(args):
             installed_version = info['meta']['version']
             if StrictVersion(installed_version) > StrictVersion(version):
                 yes = utils.yes_or_no("Downgrade '{}' from version '{}' to version '{}'",
-                                      model, installed_version, version)
+                                      model, installed_version, version, yes=True)
             elif StrictVersion(installed_version) == StrictVersion(version):
                 yes = utils.yes_or_no("Replace '{}' version '{}' with version '{}'",
-                                      model, installed_version, version)
+                                      model, installed_version, version, yes=True)
             else:
                 yes = utils.yes_or_no("Upgrade '{}' from version '{}' to version '{}'",
-                                      model, installed_version, version)
+                                      model, installed_version, version, yes=True)
 
             if not yes:
                 sys.exit(0)
@@ -779,7 +779,7 @@ def remove_mlm(args):
     mlm = glob.glob(os.path.join(MLINIT, "*.mlm"))
     mlm.sort()
     for m in mlm:
-        if utils.yes_or_no("Remove model package archive '{}'", m):
+        if utils.yes_or_no("Remove model package archive '{}'", m, yes=True):
             os.remove(m)
 
 # ------------------------------------------------------------------------
@@ -813,7 +813,7 @@ def remove_model(args):
 
         utils.check_model_installed(model)
 
-    if utils.yes_or_no(msg, path, yes=False):
+    if utils.yes_or_no(msg, path, yes=True):
         shutil.rmtree(path)
         if cache is not None and utils.yes_or_no("Remove cache '{}' as well", cache, yes=False):
             shutil.rmtree(cache)

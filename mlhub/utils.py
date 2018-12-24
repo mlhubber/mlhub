@@ -493,7 +493,7 @@ def install_file_deps(deps, model, downloadir=None):
         # If <url> is a path, it is a package file should be installed during `ml install`,
         # elif <url> is a URL, it is a file downloaded during `ml configure`.
 
-        if downloadir is None and is_url(url):
+        if downloadir is None and is_url(url):  # URL for non-package files
 
             # Download file into Cache dir, then symbolically link it into Package dir.
             # Thus we can reuse the downloaded files after model package upgrade.
@@ -521,15 +521,21 @@ def install_file_deps(deps, model, downloadir=None):
             logger.debug("target: {}".format(target))
             logger.debug("target_name: {}".format(target_name))
 
-            msg = '\n    * from {}\n        into {} ...'
+            download_msg = '\n    * from {}\n        into {} ...'
+            confirm_msg = "      The file is cached.  Would you like to download it again"
+            needownload = True
             if target_name == '' and (is_mlm_zip(filename) or is_tar(filename)):  # Uncompress zip file
 
-                print(msg.format(url, target))
+                print(download_msg.format(url, target))
 
-                with tempfile.TemporaryDirectory() as mlhubtmpdir:
-                    temp_file = os.path.join(mlhubtmpdir, filename)
-                    urllib.request.urlretrieve(url, temp_file)
-                    _, _, file_list = unpack_with_promote(temp_file, cache, remove_dst=False)
+                if os.path.exists(cache):
+                    needownload = yes_or_no(confirm_msg, yes=False)
+
+                if needownload:
+                    with tempfile.TemporaryDirectory() as mlhubtmpdir:
+                        temp_file = os.path.join(mlhubtmpdir, filename)
+                        urllib.request.urlretrieve(url, temp_file)
+                        _, _, file_list = unpack_with_promote(temp_file, cache, remove_dst=False)
 
                 for file in file_list:
                     link_cache_to_pkg(os.path.join(cache, file), os.path.join(target, file))
@@ -540,14 +546,18 @@ def install_file_deps(deps, model, downloadir=None):
                     cache = os.path.join(cache, filename)
                     target = os.path.join(target, filename)
 
-                print(msg.format(url, target))
-                logger.debug("cache: {}".format(cache))
+                print(download_msg.format(url, target))
 
-                os.makedirs(os.path.dirname(cache), exist_ok=True)
-                urllib.request.urlretrieve(url, cache)
+                if os.path.exists(cache):
+                    needownload = yes_or_no(confirm_msg, yes=False)
+
+                if needownload:
+                    os.makedirs(os.path.dirname(cache), exist_ok=True)
+                    urllib.request.urlretrieve(url, cache)
+
                 link_cache_to_pkg(cache, target)
 
-        elif downloadir is not None and not is_url(url):
+        elif downloadir is not None and not is_url(url):  # Path for package files
 
             # Move the files from download dir to package dir.
 
