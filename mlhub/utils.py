@@ -75,7 +75,7 @@ def print_usage():
 
 
 def _create_dir(path, error_msg, exception):
-    """Check if the dir exists and if not then create it.
+    """Create dir <path> if not exists.
 
     Args:
         path (str): the dir path.
@@ -84,8 +84,7 @@ def _create_dir(path, error_msg, exception):
     """
 
     try:
-        if not os.path.exists(path):
-            os.makedirs(path)
+        os.makedirs(path, exist_ok=True)
     except OSError:
         logger = logging.getLogger(__name__)
         logger.error(error_msg, exc_info=True)
