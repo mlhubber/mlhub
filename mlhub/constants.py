@@ -82,9 +82,13 @@ EXT_AIPK = ".aipk"  # Backward compatibility
 
 VERSION = "2.9.13"  # DO NOT MODIFY. Managed from ../Makefile.
 
-# Global command line options
-
 OPTIONS = {
+
+    # Global command line options
+    #
+    # All the keys in dict correspond to the keyword arguments of
+    # 'argparse.ArgumentParser.add_argument()'.
+
     '--version':
         {'alias': ['-v', ],
          'help': "Display version information and exit.",
