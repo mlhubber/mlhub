@@ -36,14 +36,6 @@ import mlhub.utils as utils
 import os
 import sys
 
-from mlhub.constants import (
-    APP,
-    CMD,
-    COMMANDS,
-    OPTIONS,
-    VERSION,
-)
-
 # ----------------------------------------------------------------------
 # Set up log.
 # ----------------------------------------------------------------------
@@ -64,6 +56,7 @@ utils.add_log_handler(
     constants.LOG_FILE_FORMAT)
 
 logger.info('---------- Start logging ----------')
+
 # ----------------------------------------------------------------------
 # Set up command line parser and dispatch commands.
 # ----------------------------------------------------------------------
@@ -71,8 +64,6 @@ logger.info('---------- Start logging ----------')
 
 def main():
     """Main program for the command line script."""
-
-    logger = logging.getLogger(__name__)
 
     # --------------------------------------------------
     # COMMAND LINE PARSER
@@ -82,7 +73,7 @@ def main():
 
     logger.info("Create global option parser.")
     global_option_parser = argparse.ArgumentParser(add_help=False)  # Use custom help message
-    utils.OptionAdder(global_option_parser, OPTIONS).add_alloptions()
+    utils.OptionAdder(global_option_parser, constants.OPTIONS).add_alloptions()
 
     # --------------------------------------------------
     # We support a basic set of commands and then any model specific
@@ -91,13 +82,13 @@ def main():
 
     logger.info("Create basic commands parser.")
     basic_cmd_parser = argparse.ArgumentParser(
-        prog=CMD,
+        prog=constants.CMD,
         description="Access models from the ML Hub.",
         parents=[global_option_parser])
     subparsers = basic_cmd_parser.add_subparsers(
         title='subcommands',
         dest="cmd")
-    utils.SubCmdAdder(subparsers, commands, COMMANDS).add_allsubcmds()
+    utils.SubCmdAdder(subparsers, commands, constants.COMMANDS).add_allsubcmds()
 
     # --------------------------------------------------
     # Parse version
@@ -143,7 +134,7 @@ def main():
             model = first_pos_arg
             print(model, "version", utils.get_version(model))
         else:  # mlhub version
-            print(APP, "version", utils.get_version())
+            print(constants.APP, "version", utils.get_version())
 
         return 0
 
@@ -151,11 +142,11 @@ def main():
     # Parse command line args for basic commands or model specific commands
     # --------------------------------------------------
 
-    if first_pos_arg is not None and first_pos_arg not in COMMANDS:
+    if first_pos_arg is not None and first_pos_arg not in constants.COMMANDS:
 
         logger.info("Parse model specific dommands.")
         model_cmd_parser = argparse.ArgumentParser(
-            prog=CMD,
+            prog=constants.CMD,
             parents=[global_option_parser],
             add_help=False)  # Use custom help message
         model_cmd_parser.add_argument('cmd', metavar='command')
@@ -203,11 +194,11 @@ def main():
 
     except utils.MLInitCreateException as e:
         msg = "The below '{}' init folder cannot be created:\n  {}"
-        utils.print_error_exit(msg, APP, e.args[0])
+        utils.print_error_exit(msg, constants.APP, e.args[0])
 
     except utils.MLTmpDirCreateException as e:
         msg = "The below '{}' tmp folder cannot be created:\n  {}"
-        utils.print_error_exit(msg, APP, e.args[0])
+        utils.print_error_exit(msg, constants.APP, e.args[0])
 
     except utils.MalformedMLMFileNameException as e:
         msg = "Malformed {} file:\n  {}"
