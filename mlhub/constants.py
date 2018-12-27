@@ -28,6 +28,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
 
+import collections
 import logging
 import os
 
@@ -91,23 +92,23 @@ OPTIONS = {
 
     '--version':
         {'alias': ['-v', ],
-         'help': "Display version information and exit.",
+         'help': "display version information of ml or a package and exit.",
          'action': 'store_true',
         },
     '--debug':
-        {'help': "Display debug information.",
+        {'help': "display debug information.",
          'action': 'store_true',
         },
     '--quiet':
-        {'help': "Reduce noise.",
+        {'help': "reduce noise.",
          'action': 'store_true',
         },
     '--init-dir':
-        {'help': "Use this as the init dir instead of '{}'.".format(MLINIT)},
+        {'help': "use this as the init dir instead of '{}'.".format(MLINIT)},
     '--mlhub':
-        {'help': "Use this ML Hub instead of '{}'.".format(MLHUB)},
+        {'help': "use this ML Hub instead of '{}'.".format(MLHUB)},
     '--cmd':
-        {'help': "Command display name instead of '{}'.".format(CMD),
+        {'help': "command display name instead of '{}'.".format(CMD),
          'dest': 'mlmetavar'},
 }
 
@@ -131,7 +132,7 @@ COMMANDS = {
     # 'argument': possible argument for the command used by argparse.
 
     'available':
-        {'description': "List the models available from the ML Hub repository.",
+        {'description': "list the models available from the ML Hub repository",
             'argument': {'--name-only': {'help': "list only the names",
                                          'action': "store_true"},
                         },
@@ -143,101 +144,118 @@ COMMANDS = {
         },
 
     'installed':
-        {'description': "List the locally installed models.",
+        {'description': "list the locally installed models",
             'argument': {'--name-only': {'help': "list only the names",
                                          'action': "store_true"},
                         },
                'usage': "  installed            "
-                        "List the models installed locally",
+                        "list the locally installed models",
                 'func': "list_installed",
                 'next': {'exist': ['configure', 'readme', 'commands'],
                           'none': ['available', 'install']},
         },
 
     'clean':
-        {'description': "Remove downloaded .mlm archive files.",
+        {'description': "remove downloaded model package files",
                'usage': "  clean                "
-                        "Remove downloaded model package files",
-             'confirm': "Remove model package archive '{}' [Y/n]? ",
+                        "remove downloaded model package files",
+             'confirm': "remove model package archive '{}' [Y/n]? ",
                 'func': "remove_mlm",
         },
 
     'install':
-        {'description': "Locally install a model downloaded from an ML Hub repository.",
+        {'description': "install a named model, local model file or URL",
             'argument': {'model': {}},
                'usage': "  install    <model>   "
-                        "Install a named model, local model file or URL",
+                        "install a named model, local model file or URL",
                 'func': "install_model",
                 'next': ['readme'],
         },
 
-    'download':
-        {'description': "Download the actual (often large) pre-built model.",
-            'argument': {'model': {}},
-                'func': "download_model",
-                'next': ['readme'],
-        },
+    # 'download':
+    #     {'description': "download the actual (often large) pre-built model",
+    #         'argument': {'model': {}},
+    #             'func': "download_model",
+    #             'next': ['readme'],
+    #     },
 
     'readme':
-        {'description': "Display the model's README information.",
+        {'description': "view the model's README",
             'argument': {'model': {}},
                'usage': "  readme     <model>   "
-                        "View the model's README",
+                        "view the model's README",
                 'func': "readme",
                 'next': ['configure'],
         },
 
-    'license':
-        {'description': "Display the model's LICENSE information.",
-            'argument': {'model': {}},
-                'func': "license",
-        },
+    # 'license':
+    #     {'description': "display the model's LICENSE information",
+    #         'argument': {'model': {}},
+    #             'func': "license",
+    #     },
 
     'commands':
-        {'description': "List all of the commands supported by the model.",
+        {'description': "list the commands supported by the model package",
             'argument': {'model': {},
                          '--name-only': {'help': "list names only",
                                          'action': "store_true"},
                         },
                'usage': "  commands   <model>   "
-                        "List the commands supported by the model",
+                        "list the commands supported by the model package",
                 'func': "list_model_commands",
         },
 
     'configure':
-        {'description': "Configure the dependencies or download the data required for the model.",
+        {'description': "configure ml or the model's dependencies",
             'argument': {'model': {'nargs': "?"}},
-               'usage': "  configure  <model>   "
-                        "Configure ml or the model's dependencies",
+               'usage': "  configure [<model>]  "
+                        "configure ml or the model's dependencies",
                 'func': "configure_model",
                 'next': ['commands'],
         },
 
     'remove':
-        {'description': "Remove installed model(s).",
+        {'description': "remove a model or remove all models",
             'argument': {'model': {'nargs': "?"}},
                'usage': "  remove    [<model>]  "
-                        "Remove a model or remove all models",
+                        "remove a model or remove all models",
                 'func': "remove_model",
                 'next': ['installed', 'install'],
         },
 
-#     'demo':
-#         {'description': "Run the model's demonstration",
-#                'alias': ['print', 'display', 'score', 'rebuild'],
-#             'argument': {'model': {},
-#                          'param': {'nargs': "*"}},
-#                'usage': "  demo       <model>   "
-#                         "Demostrate the model in action",
-#                 'func': "dispatch",
-#         },
+    # 'demo':
+    #     {'description': "run the model's demonstration",
+    #            'alias': ['print', 'display', 'score', 'rebuild'],
+    #         'argument': {'model': {},
+    #                      'param': {'nargs': "*"}},
+    #            'usage': "  demo       <model>   "
+    #                     "demostrate the model in action",
+    #             'func': "dispatch",
+    #     },
 
-    'donate':
-        {'description': "Consider a donation to the author.",
-            'argument': {'model': {}},
-                'func': "donate",
-        },
+    # 'donate':
+    #     {'description': "consider a donation to the author.",
+    #         'argument': {'model': {}},
+    #             'func': "donate",
+    #     },
 }
+
+COMMANDS_USAGE = collections.OrderedDict()
+for cmd in collections.OrderedDict(COMMANDS):
+    argname = ''
+    if 'argument' in COMMANDS[cmd]:
+        for k, v in COMMANDS[cmd]['argument'].items():
+            if not k.startswith('-'):
+                argname = '<' + k + '>'
+                if 'nargs' in v and v['nargs'] == '?':
+                    argname = '[' + argname + ']'
+                break
+    usage = '  {:10s}{:^9s}  {}'.format(
+        cmd,
+        argname,
+        COMMANDS[cmd]['description']
+    )
+    COMMANDS_USAGE[cmd] = usage
 
 USAGE = """Usage: {{}} [<options>] <command> [<command options>] [<model>]
 
@@ -245,15 +263,9 @@ Access machine learning models from the ML Hub.
 
 Global commands:
 
-{commands[available][usage]}
-{commands[installed][usage]}
-{commands[clean][usage]}
+{}
 
-{commands[install][usage]}
-{commands[readme][usage]}
-{commands[commands][usage]}
-{commands[configure][usage]}
-{commands[remove][usage]}
+{}
 
 The ML Hub repository is '{{}}'.
 
@@ -269,7 +281,8 @@ For a better experience with bash tab completion:
 List the available models from the repository with:
 
   $ ml available
-""".format(commands=COMMANDS)
+""".format('\n'.join(list(COMMANDS_USAGE.values())[:3]),
+           '\n'.join(list(COMMANDS_USAGE.values())[3:]))
 
 # ------------------------------------------------------------------------
 # Filenames

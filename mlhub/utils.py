@@ -1223,7 +1223,7 @@ corresponding functions defined in <module>."""
     def __init__(self, subparsers, module, commands):
         """
         Args:
-            subparsers (argparse.ArgumentParser): to which the subcommand is added.
+            subparsers (argparse._SubParsersAction): to which the subcommand is added.
             module: the module which defines the actual function for the subcommand.
             commands (dict): meta info for the subcommand.
         """

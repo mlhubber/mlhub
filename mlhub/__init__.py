@@ -66,36 +66,21 @@ def main():
     """Main program for the command line script."""
 
     # --------------------------------------------------
-    # COMMAND LINE PARSER
-    # --------------------------------------------------
-
     # Global option parser.  See mlhub.constants.OPTIONS
+    # --------------------------------------------------
 
     logger.info("Create global option parser.")
-    global_option_parser = argparse.ArgumentParser(add_help=False)  # Use custom help message
+    global_option_parser = argparse.ArgumentParser(
+        add_help=False  # Disable -h or --help.  Use custom help msg instead.
+    )
     utils.OptionAdder(global_option_parser, constants.OPTIONS).add_alloptions()
-
-    # --------------------------------------------------
-    # We support a basic set of commands and then any model specific
-    # commands provided in the archive.  See mlhub.constants.COMMANDS
-    # --------------------------------------------------
-
-    logger.info("Create basic commands parser.")
-    basic_cmd_parser = argparse.ArgumentParser(
-        prog=constants.CMD,
-        description="Access models from the ML Hub.",
-        parents=[global_option_parser])
-    subparsers = basic_cmd_parser.add_subparsers(
-        title='subcommands',
-        dest="cmd")
-    utils.SubCmdAdder(subparsers, commands, constants.COMMANDS).add_allsubcmds()
 
     # --------------------------------------------------
     # Parse version
     # --------------------------------------------------
 
     logger.info("Parse global options.")
-    args, extra_args = global_option_parser.parse_known_args(sys.argv[1:])
+    args, extras = global_option_parser.parse_known_args(sys.argv[1:])
 
     if args.debug:  # Add console log handler to log debug message to console
         logger.info('Enable printing out debug log on console.')
@@ -105,11 +90,11 @@ def main():
             logging.DEBUG,
             constants.LOG_CONSOLE_FORMAT)
 
-    logger.debug('args: {}, extra_args: {}'.format(args, extra_args))
+    logger.debug('args: {}, extra_args: {}'.format(args, extras))
 
     # Get the first positional argument.
 
-    pos_args = [arg for i, arg in enumerate(extra_args) if not arg.startswith('-')]
+    pos_args = [arg for i, arg in enumerate(extras) if not arg.startswith('-')]
     first_pos_arg = pos_args[0] if len(pos_args) != 0 else None
     logger.debug('First positional argument: {}'.format(first_pos_arg))
 
@@ -119,21 +104,14 @@ def main():
         # --------------------------------------------------
         # Query the version of the model, for example
         #   $ ml rain -v
-        # Otherwise, output the version of ml
         #   $ ml -v rain
+        # Otherwise, output the version of ml
+        #   $ ml -v
         # --------------------------------------------------
 
-        first_pos_arg_index = [i for i, x in enumerate(sys.argv[1:]) if x == first_pos_arg]
-
-        # Optional version args
-
-        ver_args = [(i, arg) for i, arg in enumerate(sys.argv[1:])
-                    if arg == '-v' or arg == '--version']
-
-        if first_pos_arg is not None and first_pos_arg_index[0] < ver_args[0][0]:  # model version
-            model = first_pos_arg
-            print(model, "version", utils.get_version(model))
-        else:  # mlhub version
+        if first_pos_arg is not None:  # Print model version
+            print(first_pos_arg, "version", utils.get_version(first_pos_arg))
+        else:  # Print mlhub version
             print(constants.APP, "version", utils.get_version())
 
         return 0
@@ -144,29 +122,42 @@ def main():
 
     if first_pos_arg is not None and first_pos_arg not in constants.COMMANDS:
 
+        # Model specific commands, such as demo, display.
+
         logger.info("Parse model specific dommands.")
         model_cmd_parser = argparse.ArgumentParser(
             prog=constants.CMD,
             parents=[global_option_parser],
-            add_help=False)  # Use custom help message
+            add_help=False  # Use custom help message
+        )
         model_cmd_parser.add_argument('cmd', metavar='command')
         model_cmd_parser.add_argument('model')
-        args, extra_args = model_cmd_parser.parse_known_args(sys.argv[1:])
+        args, extras = model_cmd_parser.parse_known_args()
         logger.debug("args: {}".format(args))
-        logger.debug("extra_args: {}".format(extra_args))
+        logger.debug("extra_args: {}".format(extras))
 
         # Simple help message for the model-specific command
 
-        if '--help' in extra_args or '-h' in extra_args:
+        if '--help' in extras or '-h' in extras:
+            logger.debug("Help for command '{}' of '{}'".format(args.cmd, args.model))
             info = utils.load_description(args.model)
             utils.print_model_cmd_help(info, args.cmd)
             return 0
 
         setattr(args, 'func', commands.dispatch)
-        setattr(args, 'param', extra_args)
+        setattr(args, 'param', extras)
+
     else:
 
+        # Basic commands, such as install, readme.  See mlhub.constants.COMMANDS
+
         logger.info("Parse basic common commands.")
+        basic_cmd_parser = argparse.ArgumentParser(
+            prog=constants.CMD,
+            description="Access models from the ML Hub.",
+            parents=[global_option_parser])
+        subparsers = basic_cmd_parser.add_subparsers(title='subcommands', dest="cmd")
+        utils.SubCmdAdder(subparsers, commands, constants.COMMANDS).add_allsubcmds()
         args = basic_cmd_parser.parse_args()
         logger.debug("args: {}".format(args))
 
