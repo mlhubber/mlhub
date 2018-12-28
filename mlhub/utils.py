@@ -808,8 +808,7 @@ def interpret_github_url(url):
         elif ':' in repo:
             repo = repo.split(':')[0]
 
-        res = [x for x in yaml_list if url.endswith(x)]
-        if res != []:
+        if [x for x in yaml_list if url.endswith(x)]:
             mlhubyaml = url.split(':')[-1]
 
     else:  # Repo URL like https://github.com/mlhubber/mlhub
@@ -871,7 +870,7 @@ def get_available_pkgyaml(url):
     elif is_url(url):
         yaml_list = ['/'.join([url, x]) for x in yaml_list]
     else:
-        if not os.path.sep in url:  # url is a model name
+        if os.path.sep not in url:  # url is a model name
             url = os.path.join(MLINIT, url)
         yaml_list = [os.path.join(url, x) for x in yaml_list]
 
