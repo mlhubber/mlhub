@@ -53,7 +53,9 @@ from mlhub.constants import (
     CACHE_DIR,
     CMD,
     COMMANDS,
+    COMPLETION_COMMANDS,
     COMPLETION_DIR,
+    COMPLETION_MODELS,
     DESC_YAML,
     DESC_YML,
     EXT_AIPK,
@@ -106,9 +108,8 @@ def create_init():
 def get_repo(repo):
     """Determine the repository to use: command line, environment, default."""
 
-    if repo is None:
-        repo = MLHUB
-    else:
+    repo = MLHUB
+    if repo is not None:
         repo = os.path.join(repo, "")  # Ensure trailing slash.
 
     return repo
@@ -133,22 +134,24 @@ def get_repo_meta_data(repo):
 
 
 def print_meta_line(entry):
-    name = entry["meta"]["name"]
-    version = entry["meta"]["version"]
+    """Print one line summary of a model."""
+
+    meta = entry["meta"]
+    name = meta["name"]
+    version = meta["version"]
     try:
-        title = entry["meta"]["title"]
+        title = meta["title"]
     except KeyError:
-        title = entry["meta"]["description"]
+        title = meta["description"]
 
     # One line message.
 
     max_title = 24
     max_descr = 44
-    
+
+    long = ""
     if len(title) > max_descr:
         long = "..."
-    else:
-        long = ""
 
     formatter = "{0:<TITLE.TITLE} {1:^6} {2:<DESCR.DESCR}{3}".\
         replace("TITLE", str(max_title)).replace("DESCR", str(max_descr))
@@ -1199,6 +1202,18 @@ def update_completion_list(completion_file, new_words):
     logger.debug('All completion words: {}'.format(words))
     with open(completion_file, 'w') as file:
         file.write('\n'.join(words))
+
+
+def update_model_completion(new_words):
+    """Update bash completion cache list for models."""
+
+    update_completion_list(COMPLETION_MODELS, new_words)
+
+
+def update_command_completion(new_words):
+    """Update bash completion cache list for commands."""
+
+    update_completion_list(COMPLETION_COMMANDS, new_words)
 
 
 def get_completion_list(completion_file):

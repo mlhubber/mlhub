@@ -46,8 +46,6 @@ import yaml
 
 from distutils.version import StrictVersion
 from mlhub.constants import (
-    COMPLETION_COMMANDS,
-    COMPLETION_MODELS,
     COMPLETION_SCRIPT,
     EXT_MLM,
     MLHUB_YAML,
@@ -70,38 +68,41 @@ def list_available(args):
 
     logger = logging.getLogger(__name__)
     logger.info('List available models.')
+    logger.debug('args: {}'.format(args))
 
     mlhub = utils.get_repo(args.mlhub)
     logger.debug('Get repo meta data from {}'.format(mlhub))
+
     meta = utils.get_repo_meta_data(mlhub)
+    model_names = [entry["meta"]["name"] for entry in meta]
+
+    # Update bash completion list.
+
+    utils.update_model_completion(set(model_names))
 
     # List model name only.
 
     if args.name_only:
-        models = [info["meta"]["name"] for info in meta]
-        print('\n'.join(models))
+        print('\n'.join(model_names))
         return
 
     # Provide some context.
 
     if not args.quiet:
-        print("The repository '{}' provides the following models:\n".format(mlhub))
+        msg = "The repository '{}' provides the following models:\n"
+        print(msg.format(mlhub))
 
     # List the meta data.
 
-    for info in meta:
-        utils.print_meta_line(info)
-
-    # Update bash tab completion
-
-    utils.update_completion_list(COMPLETION_MODELS, {e['meta']['name'] for e in meta})
+    for entry in meta:
+        utils.print_meta_line(entry)
 
     # Suggest next step.
     
     if not args.quiet:
         utils.print_next_step('available')
         if not os.path.exists(MLINIT):
-            print("Why not give the 'rain' model a go...\n\n" +
+            print("Why not give the 'rain' model a go...\n\n"
                   "  $ ml install rain\n")
 
 # ------------------------------------------------------------------------
@@ -157,10 +158,10 @@ def list_installed(args):
             invalid_models.append(p)
             continue
 
-        # Update available commands for the model for fast bash tab completion.
-        utils.update_completion_list(COMPLETION_COMMANDS, set(entry['commands']))
+        # Update bash completion list.
 
-    #
+        utils.update_command_completion(set(entry['commands']))
+
     invalid_mcnt = len(invalid_models)
     if invalid_mcnt > 0:
         print("\nOf which {} model package{} {} broken:\n".format(
@@ -187,6 +188,7 @@ def install_model(args):
     """Install a model.
 
     Args:
+        args: Command line args parsed by argparse.
         args.model (str): mlm file path, or mlm file url, model name,
                           or github repo, like mlhubber/mlhub,
                           https://github.com/mlhubber/mlhub,
@@ -220,9 +222,9 @@ def install_model(args):
             mlhubyaml = utils.get_pkgyaml_github_url(url)
             url = utils.get_pkgzip_github_url(url)
 
-        utils.update_completion_list(  # Update bash completion word list of available models.
-            COMPLETION_MODELS,
-            {e['meta']['name'] for e in meta_list})
+        # Update bash completion list.
+
+        utils.update_model_completion({e['meta']['name'] for e in meta_list})
 
     elif (not utils.is_mlm_zip(model) and not utils.is_url(model)) or utils.is_github_url(model):
 
@@ -351,11 +353,9 @@ def install_model(args):
         else:  # Otherwise, put all files under package dir.
             shutil.move(unzipdir, install_path)
 
-        # Update bash completion word list of available commands.
+        # Update bash completion list.
 
-        utils.update_completion_list(
-            COMPLETION_COMMANDS,
-            set(utils.load_description(model)['commands']))
+        utils.update_command_completion(set(utils.load_description(model)['commands']))
 
         if not args.quiet:
 
@@ -483,8 +483,9 @@ def list_model_commands(args):
     for cmd in info['commands']:
         utils.print_model_cmd_help(info, cmd)
 
-    # Update available commands for the model for fast bash tab completion.
-    utils.update_completion_list(COMPLETION_COMMANDS, set(info['commands']))
+    # Update bash completion list.
+
+    utils.update_command_completion(set(info['commands']))
 
     # Suggest next step.
     
