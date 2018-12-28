@@ -101,8 +101,7 @@ def create_init():
     return _create_dir(
         MLINIT,
         'MLINIT creation failed: {}'.format(MLINIT),
-        MLInitCreateException(MLINIT)
-    )
+        MLInitCreateException(MLINIT))
 
 
 def get_repo(repo):
@@ -112,25 +111,30 @@ def get_repo(repo):
     if repo is not None:
         repo = os.path.join(repo, "")  # Ensure trailing slash.
 
+    logger = logging.getLogger(__name__)
+    logger.debug("repo: {}".format(repo))
+
     return repo
 
 
 def get_repo_meta_data(repo):
     """Read the repositories meta data file and return as a list."""
 
+    repo = get_repo(repo)
+
     try:
         url = repo + META_YAML
-        meta = list(yaml.load_all(urllib.request.urlopen(url).read()))
+        meta_list = list(yaml.load_all(urllib.request.urlopen(url).read()))
     except urllib.error.URLError:
         try: 
             url = repo + META_YML
-            meta = list(yaml.load_all(urllib.request.urlopen(url).read()))
+            meta_list = list(yaml.load_all(urllib.request.urlopen(url).read()))
         except urllib.error.URLError:
             logger = logging.getLogger(__name__)
             logger.error('Repo connection problem.', exc_info=True)
             raise RepoAccessException(repo)
 
-    return meta
+    return meta_list, repo
 
 
 def print_meta_line(entry):
@@ -754,10 +758,10 @@ def interpret_github_url(url):
 
     The URL may be:
 
-              For master:  mlhubber/mlhub
-              For branch:  mlhubber/mlhub@dev
-              For commit:  mlhubber/mlhub@7fad23bdfdfjk
-        For pull request:  mlhubber/mlhub#15
+              For master:  mlhubber/mlhub                or  mlhubber/mlhub:doc/MLHUB.yaml
+              For branch:  mlhubber/mlhub@dev            or  mlhubber/mlhub@dev:doc/MLHUB.yaml
+              For commit:  mlhubber/mlhub@7fad23bdfdfjk  or  mlhubber/mlhub@7fad23bdfdfjk:doc/MLHUB.yaml
+        For pull request:  mlhubber/mlhub#15             or  mlhubber/mlhub#15:doc/MLHUB.yaml
 
     Support for URL like https://github.com/... would not be portable.
     We just leave it in case someone doesn't know how to use Git refs.
@@ -786,7 +790,7 @@ def interpret_github_url(url):
             # For branch or commit such as:
             #     mlhubber/mlhub@dev
             #     mlhubber/mlhub@7fad23bdfdfjk
-            #     mlhubber/mlhub@dev:desp/MLHUB.yaml
+            #     mlhubber/mlhub@dev:doc/MLHUB.yaml
 
             tmp = repo.split('@')
             repo = tmp[0]
@@ -796,7 +800,7 @@ def interpret_github_url(url):
 
             # For pull request such as:
             #     mlhubber/mlhub#15
-            #     mlhubber/mlhub#15:desp/MLHUB.yaml
+            #     mlhubber/mlhub#15:doc/MLHUB.yaml
 
             tmp = repo.split('#')
             repo = tmp[0]
@@ -856,7 +860,8 @@ def get_pkgyaml_github_url(url):
 def get_available_pkgyaml(url):
     """Return the available package yaml file path.
 
-    Possible options are MLHUB.yaml and DESCRIPTION.yaml.  If both exist, MLHUB.yaml takes precedence.
+    Possible options are MLHUB.yaml, DESCRIPTION.yaml or DESCRIPTION.yml.
+    If both exist, MLHUB.yaml takes precedence.
     Path can be a path to the package directory or a URL to the top level of the pacakge repo
     """
     yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
@@ -1031,18 +1036,24 @@ def is_tar(name):
     return name.endswith(".tar") or name.endswith(".gz") or name.endswith(".bz2")
 
 
+def is_archive(name):
+    """Check if name is a archive file."""
+
+    return is_mlm_zip(name) or is_tar(name)
+
+
 def is_description_file(name):
     """Check if name ends with DESCRIPTION.yaml or DESCRIPTION.yml"""
 
     return name.endswith(DESC_YAML) or name.endswith(DESC_YML) or name.endswith(MLHUB_YAML)
 
 
-def get_model_info_from_repo(model, mlhub):
+def get_model_info_from_repo(model, repo):
     """Get model url on mlhub.
 
     Args:
         model (str): model name.
-        mlhub (str): packages list url.
+        repo (str): packages list url.
 
     Returns:
         url: model url for download.
@@ -1054,17 +1065,21 @@ def get_model_info_from_repo(model, mlhub):
 
     url = None
     version = None
-    mlhub = get_repo(mlhub)
-    meta = get_repo_meta_data(mlhub)
+    meta_list, repo = get_repo_meta_data(repo)
     
     # Find the first matching entry in the meta data.
 
     try:
-        for entry in meta:
-            if model == entry["meta"]["name"]:
-                url = entry["meta"]["url"]
-                if is_mlm_zip(url):
-                    version = entry["meta"]["version"]
+        for entry in meta_list:
+            meta = entry["meta"]
+            if model == meta["name"]:
+                url = meta["url"]
+
+                # If url refers to an archive, its version must be known.
+
+                if is_archive(url):
+                    version = meta["version"]
+
                 break
     except KeyError as e:
         raise MalformedPackagesDotYAMLException(e.args[0], model)
@@ -1073,10 +1088,10 @@ def get_model_info_from_repo(model, mlhub):
     
     if url is None:
         logger = logging.getLogger(__name__)
-        logger.error("Model '{}' not found on Repo '{}'.".format(model, mlhub))
-        raise ModelNotFoundOnRepoException(model, mlhub)
+        logger.error("Model '{}' not found on Repo '{}'.".format(model, repo))
+        raise ModelNotFoundOnRepoException(model, repo)
 
-    return url, version, meta
+    return url, version, meta_list
 
 
 def dir_size(dirpath):
@@ -1147,8 +1162,7 @@ def create_package_dir(model=None):
     return _create_dir(
         path,
         'Model package dir creation failed: {}'.format(path),
-        ModelPkgDirCreateException(path)
-    )
+        ModelPkgDirCreateException(path))
 
 
 def get_package_cache_dir(model=None):
@@ -1165,8 +1179,7 @@ def create_package_cache_dir(model=None):
     return _create_dir(
         path,
         'Model package cache dir creation failed: {}'.format(path),
-        ModelPkgCacheDirCreateException(path)
-    )
+        ModelPkgCacheDirCreateException(path))
 
 # ----------------------------------------------------------------------
 # Bash completion helper
@@ -1179,8 +1192,7 @@ def create_completion_dir():
     return _create_dir(
         COMPLETION_DIR,
         'Bash completion dir creation failed: {}'.format(COMPLETION_DIR),
-        CompletionDirCreateException(COMPLETION_DIR)
-    )
+        CompletionDirCreateException(COMPLETION_DIR))
 
 
 def update_completion_list(completion_file, new_words):
@@ -1313,8 +1325,7 @@ def create_log_dir():
     return _create_dir(
         LOG_DIR,
         'Log dir creation failed: {}'.format(LOG_DIR),
-        LogDirCreateException(LOG_DIR)
-    )
+        LogDirCreateException(LOG_DIR))
 
 
 def add_log_handler(logger, handler, level, fmt):

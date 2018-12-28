@@ -70,10 +70,7 @@ def list_available(args):
     logger.info('List available models.')
     logger.debug('args: {}'.format(args))
 
-    mlhub = utils.get_repo(args.mlhub)
-    logger.debug('Get repo meta data from {}'.format(mlhub))
-
-    meta = utils.get_repo_meta_data(mlhub)
+    meta, repo = utils.get_repo_meta_data(args.mlhub)
     model_names = [entry["meta"]["name"] for entry in meta]
 
     # Update bash completion list.
@@ -90,7 +87,7 @@ def list_available(args):
 
     if not args.quiet:
         msg = "The repository '{}' provides the following models:\n"
-        print(msg.format(mlhub))
+        print(msg.format(repo))
 
     # List the meta data.
 
@@ -192,105 +189,112 @@ def install_model(args):
 
     Args:
         args: Command line args parsed by argparse.
-        args.model (str): mlm file path, or mlm file url, model name,
-                          or github repo, like mlhubber/mlhub,
-                          https://github.com/mlhubber/mlhub,
-                          https://github.com/mlhubber/mlhub.git
+        args.model (str): mlm/zip path, mlm/zip url, model name, GitHub repo,
+                          like mlhubber/mlhub, or MLHUB.yaml on github repo,
+                          like mlhubber/audit:doc/MLHUB.yaml.
     """
 
-    # TODO: Add support for Tarball besides Zipball.  For example,
-    #         $ ml install audit_2.1.tar.gz
-
-    # Setup.  And ensure the local init dir exists.
+    logger = logging.getLogger(__name__)
+    logger.info('Install a model.')
+    logger.debug('args: {}'.format(args))
 
     model = args.model   # model pkg name
     url = args.model     # pkg file path or URL
     version = None       # model pkg version
-    unzipdir = None      # Dir Where pkg file is extracted
     mlhubyaml = None     # MLHUB.yaml path or URL
-    entry = None         # Meta info read from MLHUB.yaml
-
-    init = utils.create_init()
 
     # Obtain the model URL if not a local file.
 
-    if not utils.is_mlm_zip(model) and not utils.is_url(model) and '/' not in model:
+    if not utils.is_archive(model) and not utils.is_url(model) and '/' not in model:
 
-        # Model from mlhub repo. Like:
+        # Model package name, which can be found in mlhub repo.
+        # Like:
         #     $ ml install audit
-        # We assume the URL got from mlhub repo is a link to a MLM/Zip file or a GitHub repo URL.
+        #
+        # We assume the URL got from mlhub repo is a link to a mlm/zip/tar file
+        # or a GitHub repo URL.
 
         url, version, meta_list = utils.get_model_info_from_repo(model, args.mlhub)
-        if not utils.is_mlm_zip(url) and utils.is_github_url(url):
-            mlhubyaml = utils.get_pkgyaml_github_url(url)
-            url = utils.get_pkgzip_github_url(url)
 
         # Update bash completion list.
 
         utils.update_model_completion({e['meta']['name'] for e in meta_list})
 
-    elif (not utils.is_mlm_zip(model) and not utils.is_url(model)) or utils.is_github_url(model):
+    if not utils.is_archive(url):
 
-        # Model from GitHub.  Like:
+        # Model from GitHub.
+        # Like:
         #     $ ml install mlhubber/audit
+        #     $ ml install mlhubber/audit:doc/MLHUB.yaml
         #     $ ml install https://github.com/mlhubber/audit/...
-        # Then get the url of archived Zip file, such as
-        #     https://github.com/mlhubber/audit/archive/master.zip
 
-        url = utils.get_pkgzip_github_url(model)
-        mlhubyaml = utils.get_pkgyaml_github_url(model)
+        mlhubyaml = utils.get_pkgyaml_github_url(url)  # URL to MLHUB.yaml
+        url = utils.get_pkgzip_github_url(url)
 
     # Determine the path of downloaded/existing model package file
 
-    if utils.is_mlm_zip(url):
+    pkgfile = "mlhubmodelpkg-" + str(uuid.uuid4().hex) + ".mlm"
+    uncompressdir = pkgfile[:-4]  # Dir Where pkg file is extracted
+
+    if utils.is_archive(url):
         pkgfile = os.path.basename(url)  # pkg file name
     elif utils.is_url(url):
         pkgfile = utils.get_url_filename(url)
-        if pkgfile is None:
-            pkgfile = "mlhubmodelpkg-" + str(uuid.uuid4().hex) + ".mlm"
-    else:
-        pkgfile = "mlhubmodelpkg-" + str(uuid.uuid4().hex) + ".mlm"
 
+    # Installation.
+
+    entry = None     # Meta info read from MLHUB.yaml
     with tempfile.TemporaryDirectory() as mlhubtmpdir:
+
+        # Determine the local path of the model package
+
         if utils.is_url(url):
-            local = os.path.join(mlhubtmpdir, pkgfile)
+            local = os.path.join(mlhubtmpdir, pkgfile)  # downloaded
         else:
-            local = url
+            local = url  # local file path
+
+        uncompressdir = os.path.join(mlhubtmpdir, uncompressdir)
 
         # Obtain model version.
 
         if version is None:
-            if utils.ends_with_mlm(url):  # Get version directly from MLM file name.
+            if utils.ends_with_mlm(url):  # Get version number from MLM file name.
+
                 model, version = utils.interpret_mlm_name(url)
 
-            elif not utils.is_github_url(url):  # Get version from yaml inside the Zip file.
+            elif not utils.is_github_url(url):  # Get MLHUB.yaml inside the archive file.
+
                 if utils.is_url(url):  # Download the file if needed
                     utils.download_model_pkg(url, local, args.quiet)
 
-                unzipdir = os.path.join(mlhubtmpdir, pkgfile[:-4])
-                utils.unpack_with_promote(local, unzipdir)
-                mlhubyaml = utils.get_available_pkgyaml(unzipdir)
+                utils.unpack_with_promote(local, uncompressdir)
+                mlhubyaml = utils.get_available_pkgyaml(uncompressdir)  # Path to MLHUB.yaml
 
-            if mlhubyaml is not None:
+            if mlhubyaml is not None:  # Get version number from MLHUB.yaml
                 entry = utils.read_mlhubyaml(mlhubyaml)
-                model = entry["meta"]["name"]
-                version = entry["meta"]["version"]
+                meta = entry["meta"]
+                model = meta["name"]
+                version = meta["version"]
+
+            utils.update_model_completion({model})  # Update bash completion list.
 
         # Check if model is already installed.
 
-        install_path = os.path.join(init, model)  # Installation path
+        install_path = os.path.join(utils.create_init(), model)  # Installation path
         if os.path.exists(install_path):
-            info = utils.load_description(model)
-            installed_version = info['meta']['version']
+            installed_version = utils.load_description(model)['meta']['version']
             if StrictVersion(installed_version) > StrictVersion(version):
-                yes = utils.yes_or_no("Downgrade '{}' from version '{}' to version '{}'",
-                                      model, installed_version, version, yes=True)
+                yes = utils.yes_or_no(
+                    "Downgrade '{}' from version '{}' to version '{}'",
+                    model, installed_version, version, yes=True)
             elif StrictVersion(installed_version) == StrictVersion(version):
-                yes = utils.yes_or_no("Replace '{}' version '{}' with version '{}'",
-                                      model, installed_version, version, yes=True)
+                yes = utils.yes_or_no(
+                    "Replace '{}' version '{}' with version '{}'",
+                    model, installed_version, version, yes=True)
             else:
-                yes = utils.yes_or_no("Upgrade '{}' from version '{}' to version '{}'",
-                                      model, installed_version, version, yes=True)
+                yes = utils.yes_or_no(
+                    "Upgrade '{}' from version '{}' to version '{}'",
+                    model, installed_version, version, yes=True)
 
             if not yes:
                 sys.exit(0)
@@ -299,14 +303,13 @@ def install_model(args):
 
             shutil.rmtree(install_path)
 
-        # Install model pkg.
+        # Uncompress package file.
 
-        if unzipdir is None:  # Pkg has not unzipped yet.
-            unzipdir = os.path.join(mlhubtmpdir, pkgfile[:-4])
-            if utils.is_url(url):  # Download the file if needed
+        if not os.path.exists(uncompressdir):  # Model pkg mlm file has not unzipped yet.
+            if utils.is_url(url):  # Download the mlm file if needed.
                 utils.download_model_pkg(url, local, args.quiet)
 
-            utils.unpack_with_promote(local, unzipdir)
+            utils.unpack_with_promote(local, uncompressdir)
 
         # Install package files.
         #
@@ -316,8 +319,8 @@ def install_model(args):
 
         # Find if any files specified in MLHUB.yaml
 
-        if entry is None:
-            mlhubyaml = utils.get_available_pkgyaml(unzipdir)
+        if mlhubyaml is None:  # mlm file
+            mlhubyaml = utils.get_available_pkgyaml(uncompressdir)
             entry = utils.read_mlhubyaml(mlhubyaml)
 
         depspec = None
@@ -336,25 +339,25 @@ def install_model(args):
 
             # MLHUB.yaml should always be at the package root.
 
-            if mlhubyaml is None:
-                mlhubyaml = utils.get_available_pkgyaml(unzipdir)
-
             os.mkdir(install_path)
-            if utils.is_url(mlhubyaml):
+            if utils.is_url(mlhubyaml):  # We currently only support MLHUB.yaml specified on GitHub.
                 urllib.request.urlretrieve(
                     json.loads(urllib.request.urlopen(mlhubyaml).read())['download_url'],
                     os.path.join(install_path, MLHUB_YAML))
             else:
                 shutil.move(mlhubyaml, install_path)
 
-            # All package files except MLHUB.yaml should be specified in `files` of MLHUB.yaml
+            # All package files except MLHUB.yaml should be specified in 'files' of MLHUB.yaml
 
             utils.install_file_deps(utils.flatten_mlhubyaml_deps(file_spec)[0][1],
                                     model,
-                                    downloadir=unzipdir)
+                                    downloadir=uncompressdir)
 
-        else:  # Otherwise, put all files under package dir.
-            shutil.move(unzipdir, install_path)
+        else:
+            # Otherwise, put all files under package dir.
+            # **Note** Here we must make sure <instal_path> does not exist.
+            # Otherwise, <unzipdir> will be inside <install_path>
+            shutil.move(uncompressdir, install_path)
 
         # Update bash completion list.
 
