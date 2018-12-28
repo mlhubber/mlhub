@@ -104,11 +104,11 @@ def create_init():
         MLInitCreateException(MLINIT))
 
 
-def get_repo(repo):
+def get_repo(mlhub):
     """Determine the repository to use: command line, environment, default."""
 
     repo = MLHUB
-    if repo is not None:
+    if mlhub is not None:
         repo = os.path.join(repo, "")  # Ensure trailing slash.
 
     logger = logging.getLogger(__name__)
