@@ -211,11 +211,8 @@ def check_model_installed(model):
 def load_description(model):
     """Load description of the <model>."""
 
-    try:
-        desc = get_available_pkgyaml(os.path.join(MLINIT, model))
-        entry = read_mlhubyaml(desc)
-    except DescriptionYAMLNotFoundException:
-        raise DescriptionYAMLNotFoundException(model)
+    desc = get_available_pkgyaml(model)
+    entry = read_mlhubyaml(desc)
 
     return entry
 
@@ -224,6 +221,7 @@ def read_mlhubyaml(name):
     """Read description from a specified local yaml file or the url of a yaml file."""
 
     try:
+
         if is_github_url(name):
             res = json.loads(urllib.request.urlopen(name).read())
             content = base64.b64decode(res["content"])
@@ -232,10 +230,17 @@ def read_mlhubyaml(name):
         else:
             content = open(name)
 
+        # Use yamlordereddictloader to keep the order of entries specified inside YAML file.
+        # Because the order of commands matters.
+
         entry = yaml.load(content, Loader=yamlordereddictloader.Loader)
+
     except (yaml.composer.ComposerError, yaml.scanner.ScannerError):
+
         raise MalformedYAMLException(name)
+
     except urllib.error.URLError:
+
         raise YAMLFileAccessException(name)
 
     return entry
@@ -861,6 +866,8 @@ def get_available_pkgyaml(url):
     elif is_url(url):
         yaml_list = ['/'.join([url, x]) for x in yaml_list]
     else:
+        if not os.path.sep in url:  # url is a model name
+            url = os.path.join(MLINIT, url)
         yaml_list = [os.path.join(url, x) for x in yaml_list]
 
     if is_url(url):

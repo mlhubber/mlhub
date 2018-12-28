@@ -153,14 +153,17 @@ def list_installed(args):
         try:
             entry = utils.load_description(p)
             utils.print_meta_line(entry)
-        except utils.DescriptionYAMLNotFoundException:
+        except (utils.DescriptionYAMLNotFoundException,
+                utils.MalformedYAMLException,
+                KeyError):
             mcnt -= 1
             invalid_models.append(p)
             continue
 
         # Update bash completion list.
 
-        utils.update_command_completion(set(entry['commands']))
+        if 'commands' in entry:
+            utils.update_command_completion(set(entry['commands']))
 
     invalid_mcnt = len(invalid_models)
     if invalid_mcnt > 0:
