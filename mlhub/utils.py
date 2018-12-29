@@ -679,7 +679,7 @@ def print_next_step(current, description=None, scenario=None, model=''):
 # ----------------------------------------------------------------------
 
 
-def flatten_mlhubyaml_deps(deps, cats=None, res=[]):
+def flatten_mlhubyaml_deps(deps, cats=None, res=None):
     """Flatten the hierarchical structure of dependencies in MLHUB.yaml.
 
     For dependency specification like:
@@ -736,13 +736,16 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=[]):
         return [x.strip() for x in deps_spec.split(',')]
 
     def _get_file_target_dict(dep_list):
-        results = {}
+        results = {}  # TODO: Change to [] instead of {}, in case that the same file needs to be used twice.
         for dep in dep_list:
             if isinstance(dep, str):
                 results[dep] = None
             else:
                 results.update(dep)
         return results
+
+    if res is None:
+        res = []
 
     if not isinstance(deps, dict):
 
