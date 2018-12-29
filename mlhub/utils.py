@@ -70,38 +70,9 @@ from mlhub.constants import (
     VERSION,
 )
 
-
-def print_usage():
-    print(CMD)
-    print(USAGE.format(CMD, MLHUB, MLINIT, VERSION, APP))
-
-
-def _create_dir(path, error_msg, exception):
-    """Create dir <path> if not exists.
-
-    Args:
-        path (str): the dir path.
-        error_msg (str): log error message if mkdir fails.
-        exception (Exception): The exception raised when error.
-    """
-
-    try:
-        os.makedirs(path, exist_ok=True)
-    except OSError:
-        logger = logging.getLogger(__name__)
-        logger.error(error_msg, exc_info=True)
-        raise exception
-
-    return path
-
-
-def create_init():
-    """Check if the init dir exists and if not then create it."""
-
-    return _create_dir(
-        MLINIT,
-        'MLINIT creation failed: {}'.format(MLINIT),
-        MLInitCreateException(MLINIT))
+# ----------------------------------------------------------------------
+# MLHUB repo and model package
+# ----------------------------------------------------------------------
 
 
 def get_repo(mlhub):
@@ -126,7 +97,7 @@ def get_repo_meta_data(repo):
         url = repo + META_YAML
         meta_list = list(yaml.load_all(urllib.request.urlopen(url).read()))
     except urllib.error.URLError:
-        try: 
+        try:
             url = repo + META_YML
             meta_list = list(yaml.load_all(urllib.request.urlopen(url).read()))
         except urllib.error.URLError:
@@ -168,34 +139,6 @@ def get_version(model=None):
     else:
         entry = load_description(model)
         return entry["meta"]["version"]
-
-
-def print_model_cmd_help(info, cmd):
-    print("\n  $ {} {} {}".format(CMD, cmd, info["meta"]["name"]))
-
-    c_meta = info['commands'][cmd]
-    if type(c_meta) is str:
-        print("    " + c_meta)
-    else:
-        # Handle malformed DESCRIPTION.yaml like
-        # --
-        # commands:
-        #   print:
-        #     description: print a textual summary of the model
-        #   score:
-        #     equired: the name of a CSV file containing a header and 6 columns
-        #     description: apply the model to a supplied dataset
-
-        desc = c_meta.get('description', None)
-        if desc is not None:
-            print("    " + desc)
-
-        c_meta = {k: c_meta[k] for k in c_meta if k != 'description'}
-        if len(c_meta) > 0:
-            msg = yaml.dump(c_meta, default_flow_style=False)
-            msg = msg.split('\n')
-            msg = ["    " + ele for ele in msg]
-            print('\n'.join(msg), end='')
 
 
 def check_model_installed(model):
@@ -250,35 +193,490 @@ def read_mlhubyaml(name):
     return entry
 
 
-def configure(path, script, quiet):
-    """Run the provided configure scripts and handle errors and output."""
+def get_model_info_from_repo(model, repo):
+    """Get model url on mlhub.
 
-    configured = False
-    
-    # For now only tested/working with Ubuntu
-    
-    if distro.id() in ['debian', 'ubuntu']:
-        conf = os.path.join(path, script)
-        if os.path.exists(conf):
-            interp = interpreter(script)
-            if not quiet:
-                msg = "\nConfiguring using '{}'...\n".format(conf)
-                print(msg)
-            cmd = "export _MLHUB_CMD_CWD='{}'; export _MLHUB_MODEL_NAME='{}'; {} {}".format(
-                os.getcwd(), os.path.basename(path), interp, script)
-            logger = logging.getLogger(__name__)
-            logger.debug("(cd " + path + "; " + cmd + ")")
-            proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
-            output, errors = proc.communicate()
-            if proc.returncode != 0:
-                errors = errors.decode("utf-8")
-                logger.error("Configure failed: \n{}".format(errors))
-                print("An error was encountered:\n")
-                print(errors)
-                raise ConfigureFailedException()
-            configured = True
+    Args:
+        model (str): model name.
+        repo (str): packages list url.
 
-    return configured
+    Returns:
+        url: model url for download.
+        meta: list of all model meta data.
+
+    Raises:
+        ModelNotFoundOnRepoException
+    """
+
+    url = None
+    version = None
+    meta_list, repo = get_repo_meta_data(repo)
+
+    # Find the first matching entry in the meta data.
+
+    try:
+        for entry in meta_list:
+            meta = entry["meta"]
+            if model == meta["name"]:
+                url = meta["url"]
+
+                # If url refers to an archive, its version must be known.
+
+                if is_archive(url):
+                    version = meta["version"]
+
+                break
+    except KeyError as e:
+        raise MalformedPackagesDotYAMLException(e.args[0], model)
+
+    # If not found suggest how a model might be installed.
+
+    if url is None:
+        logger = logging.getLogger(__name__)
+        logger.error("Model '{}' not found on Repo '{}'.".format(model, repo))
+        raise ModelNotFoundOnRepoException(model, repo)
+
+    return url, version, meta_list
+
+
+def interpret_mlm_name(mlm):
+    """Interpret model package file name into model name and version number.
+
+    Args:
+        mlm (str): mlm file path or url.
+
+    Returns:
+        file name, model name, version number.
+    """
+
+    if not ends_with_mlm(mlm):
+        raise MalformedMLMFileNameException(mlm)
+
+    mlmfile = os.path.basename(mlm)
+    try:
+        model, version = mlmfile.split('_')
+    except ValueError:
+        raise MalformedMLMFileNameException(mlm)
+
+    version = '.'.join(version.split('.')[: -1])
+
+    return model, version
+
+
+def get_available_pkgyaml(url):
+    """Return the available package yaml file path.
+
+    Possible options are MLHUB.yaml, DESCRIPTION.yaml or DESCRIPTION.yml.
+    If both exist, MLHUB.yaml takes precedence.
+    Path can be a path to the package directory or a URL to the top level of the pacakge repo
+    """
+    yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
+
+    if is_github_url(url):
+        yaml_list = [url.format(x) for x in yaml_list]
+    elif is_url(url):
+        yaml_list = ['/'.join([url, x]) for x in yaml_list]
+    else:
+        if os.path.sep not in url:  # url is a model name
+            url = os.path.join(MLINIT, url)
+        yaml_list = [os.path.join(url, x) for x in yaml_list]
+
+    if is_url(url):
+        for x in yaml_list:
+            try:
+                if urllib.request.urlopen(x).status == 200:
+                    return x
+            except urllib.error.URLError:
+                continue
+    else:
+        for x in yaml_list:
+            if os.path.exists(x):
+                return x
+
+    raise DescriptionYAMLNotFoundException(url)
+
+# ----------------------------------------------------------------------
+# String manipulation
+# ----------------------------------------------------------------------
+
+
+def dropdot(sentence):
+    """Drop the period after a sentence."""
+    return re.sub(".$", "", sentence)
+
+
+def drop_newline(paragraph):
+    """Drop trailing newlines."""
+
+    return re.sub("\n$", "", paragraph)
+
+
+def lower_first_letter(sentence):
+    """Lowercase the first letter of a sentence."""
+
+    return sentence[:1].lower() + sentence[1:] if sentence else ''
+
+
+# ----------------------------------------------------------------------
+# URL and download
+# ----------------------------------------------------------------------
+
+
+def is_url(name):
+    """Check if name is a url."""
+
+    return re.findall('http[s]?:', name)
+
+
+def get_url_filename(url):
+    """Obtain the file name from URL or None if not available."""
+
+    info = urllib.request.urlopen(url).getheader('Content-Disposition')
+    if info is None:  # File name can be obtained from URL per se.
+        filename = os.path.basename(url)
+        if filename == '':
+            filename = None
+    else:  # File name may be obtained from 'Content-Disposition'.
+        _, params = cgi.parse_header(info)
+        if 'filename' in params:
+            filename = params['filename']
+        else:
+            filename = None
+
+    return filename
+
+
+def download_model_pkg(url, local, quiet):
+    """Download the model package mlm or zip file from <url> to <local>."""
+
+    pkgfile = os.path.basename(url)
+    if not quiet:
+        print("Package " + url + "\n")
+
+    meta = urllib.request.urlopen(url)
+    if meta.status != 200:
+        raise ModelURLAccessException(url)
+
+    # Content-Length is not always necessarily available.
+
+    dsize = meta.getheader("Content-Length")
+    if dsize is not None:
+        dsize = "{:,}".format(int(dsize))
+        if not quiet:
+            print("Downloading '{}' ({} bytes) ...\n".format(pkgfile, dsize))
+
+    # Download the archive from the URL.
+
+    try:
+        urllib.request.urlretrieve(url, local)
+    except urllib.error.URLError as error:
+        raise ModelDownloadHaltException(url, error.reason.lower())
+
+# ----------------------------------------------------------------------
+# Folder and file manipulation
+# ----------------------------------------------------------------------
+
+
+def _create_dir(path, error_msg, exception):
+    """Create dir <path> if not exists.
+
+    Args:
+        path (str): the dir path.
+        error_msg (str): log error message if mkdir fails.
+        exception (Exception): The exception raised when error.
+    """
+
+    try:
+        os.makedirs(path, exist_ok=True)
+    except OSError:
+        logger = logging.getLogger(__name__)
+        logger.error(error_msg, exc_info=True)
+        raise exception
+
+    return path
+
+
+def create_init():
+    """Check if the init dir exists and if not then create it."""
+
+    return _create_dir(
+        MLINIT,
+        'MLINIT creation failed: {}'.format(MLINIT),
+        MLInitCreateException(MLINIT))
+
+
+def unpack_with_promote(file, dest, remove_dst=True):
+    """Unzip <file> into the directory <dest>.
+
+    If all files in the zip file are under a top level directory,
+    remove the top level dir and promote the dir level of those files.
+
+    If <remove_dst> is True, then the directory <dest> will be remove first,
+    otherwise, unextracted files will co-exist with those already in <dest>.
+
+    Return whether promotion happend and the top level dir if did.
+    """
+
+    logger = logging.getLogger(__name__)
+
+    # Check if need to remove <dest>.
+
+    if remove_dst:
+        remove_file_or_dir(dest)
+
+    # Figure out if <file> is a Zipball or Tarball.
+
+    if is_mlm_zip(file):
+        opener, lister_name, appender_name = zipfile.ZipFile, 'namelist', 'write'
+    else:
+        opener, lister_name, appender_name = tarfile.open, 'getnames', 'add'
+
+    # Unpack <file>.
+
+    with opener(file) as pkg_file:
+
+        # Check if all files are under a top dir.
+
+        file_list = getattr(pkg_file, lister_name)()
+        first_segs = [x.split(os.path.sep)[0] for x in file_list]
+        if (len(file_list) == 1 and os.path.sep in file_list[0]) or \
+                (len(file_list) != 1 and all([x == first_segs[0] for x in first_segs])):
+            promote, top_dir = True, file_list[0].split(os.path.sep)[0]
+        else:
+            promote, top_dir = False, None
+
+        if not promote:  # All files are at the top level.
+
+            logger.debug("Extract {} directly into {}".format(file, dest))
+            pkg_file.extractall(dest)
+            return False, top_dir, file_list
+
+        else:  # All files are under a top dir.
+            logger.debug("Extract {} without top dir into {}".format(file, dest))
+            file_list = []
+            with tempfile.TemporaryDirectory() as tmpdir:
+
+                # Extract file.
+
+                pkg_file.extractall(tmpdir)
+
+                with tempfile.TemporaryDirectory() as tmpdir2:
+
+                    # Repack files without top dir and then extract again into <dest>.
+                    #
+                    # Extraction can be done on a existing dir, without removing the dir first,
+                    # and the extracted files can co-exist with the files already inside the dir,
+                    # without affecting the existing files except they have the same name.
+
+                    with opener(os.path.join(tmpdir2, 'tmpball'), 'w') as new_pkg_file:
+                        appender = getattr(new_pkg_file, appender_name)
+                        dir_path = os.path.join(tmpdir, top_dir)
+                        for path, dirs, files in os.walk(dir_path):
+                            for file in files:
+                                file_path = os.path.join(path, file)
+                                arc_path = os.path.relpath(file_path, dir_path)
+                                file_list.append(arc_path)
+                                appender(file_path, arc_path)
+
+                    with opener(os.path.join(tmpdir2, 'tmpball')) as new_pkg_file:
+                        new_pkg_file.extractall(dest)
+
+            return True, top_dir, file_list
+
+
+def remove_file_or_dir(path):
+    """Remove an existing file or directory."""
+
+    if os.path.exists(path):
+        if os.path.isfile(path):
+            os.remove(path)
+        else:
+            shutil.rmtree(path)
+
+
+def dir_size(dirpath):
+    """Get total size of dirpath."""
+
+    return sum([sum(map(lambda f: os.path.getsize(os.path.join(pth, f)), files))
+                for pth, dirs, files in os.walk(dirpath)])
+
+
+def ends_with_mlm(name):
+    """Check if name ends with .mlm or .aipk"""
+
+    return name.endswith(EXT_MLM) or name.endswith(EXT_AIPK)
+
+
+def is_mlm_zip(name):
+    """Check if name is a MLM or Zip file."""
+
+    return ends_with_mlm(name) or name.endswith(".zip")
+
+
+def is_tar(name):
+    """Check if name is a Tarball."""
+
+    return name.endswith(".tar") or name.endswith(".gz") or name.endswith(".bz2")
+
+
+def is_archive(name):
+    """Check if name is a archive file."""
+
+    return is_mlm_zip(name) or is_tar(name)
+
+
+def is_description_file(name):
+    """Check if name ends with DESCRIPTION.yaml or DESCRIPTION.yml"""
+
+    return name.endswith(DESC_YAML) or name.endswith(DESC_YML) or name.endswith(MLHUB_YAML)
+
+# ----------------------------------------------------------------------
+# Help message
+# ----------------------------------------------------------------------
+
+
+def print_usage():
+    print(CMD)
+    print(USAGE.format(CMD, MLHUB, MLINIT, VERSION, APP))
+
+
+def print_model_cmd_help(info, cmd):
+    print("\n  $ {} {} {}".format(CMD, cmd, info["meta"]["name"]))
+
+    c_meta = info['commands'][cmd]
+    if type(c_meta) is str:
+        print("    " + c_meta)
+    else:
+        # Handle malformed DESCRIPTION.yaml like
+        # --
+        # commands:
+        #   print:
+        #     description: print a textual summary of the model
+        #   score:
+        #     equired: the name of a CSV file containing a header and 6 columns
+        #     description: apply the model to a supplied dataset
+
+        desc = c_meta.get('description', None)
+        if desc is not None:
+            print("    " + desc)
+
+        c_meta = {k: c_meta[k] for k in c_meta if k != 'description'}
+        if len(c_meta) > 0:
+            msg = yaml.dump(c_meta, default_flow_style=False)
+            msg = msg.split('\n')
+            msg = ["    " + ele for ele in msg]
+            print('\n'.join(msg), end='')
+
+# ----------------------------------------------------------------------
+# Next step suggestion
+# ----------------------------------------------------------------------
+
+
+def get_command_suggestion(cmd, description=None, model=''):
+    """Return suggestion about how to use the cmd."""
+
+    if cmd in COMMANDS:
+        meta = COMMANDS[cmd]
+
+        # If there is customized suggestion, use it; otherwise
+        # generate from description.
+
+        if 'argument' in meta and 'model' in meta['argument'] and model == '':
+            model = '<model>'
+
+        msg = meta.get('suggestion',
+                       "\nTo " + dropdot(lower_first_letter(meta['description'])) + ":"
+                        "\n\n  $ {} {} {}")
+        msg = msg.format(CMD, cmd, model)
+        return msg
+
+    elif description is not None:
+        meta = description['commands'][cmd]
+
+        if type(meta) is str:
+            msg = dropdot(lower_first_letter(meta))
+        else:
+            # Handle malformed DESCRIPTION.yaml like
+            # --
+            # commands:
+            #   print:
+            #     description: print a textual summary of the model
+            #   score:
+            #     required: the name of a CSV file containing a header and 6 columns
+            #     description: apply the model to a supplied dataset
+
+            msg = meta.pop('description', None)
+
+        if msg is not None:
+            msg = "\nTo " + msg
+        else:
+            msg = "\nYou may try"
+        msg += ":\n\n  $ {} {} {}"
+        msg = msg.format(CMD, cmd, model)
+
+        return msg
+
+
+def print_commands_suggestions_on_stderr(*commands):
+    """Print list of suggestions on how to use the command in commands."""
+
+    for cmd in commands:
+        print_on_stderr(get_command_suggestion(cmd))
+
+    print_on_stderr('')
+
+
+def print_next_step(current, description=None, scenario=None, model=''):
+    """Print next step suggestions for the command.
+
+    Args:
+        current (str): the command needs to be given next step suggestion.
+        description(dict): yaml object from DESCRIPTION.yaml
+        scenario (str): certain scenario for the next step.
+        model (str): the model name if needed.
+    """
+
+    if description is None:
+
+        # Use the order for basic commands
+
+        if 'next' not in COMMANDS[current]:
+            return
+
+        steps = COMMANDS[current]['next']
+
+        if scenario is not None:
+            steps = steps[scenario]
+
+        for next_cmd in steps:
+            msg = get_command_suggestion(next_cmd, model=model)
+            print(msg)
+    else:
+
+        # Use the order in DESCRIPTION.yaml
+
+        avail_cmds = list(description['commands'])
+
+        try:
+            next_index = avail_cmds.index(current) + 1 if current != 'commands' else 0
+        except ValueError:
+            # The command is not described in DESCRIPTION.yaml, ignore it.
+            next_index = len(avail_cmds)
+
+        if next_index < len(avail_cmds):
+            next_cmd = avail_cmds[next_index]
+
+            msg = get_command_suggestion(next_cmd, description=description, model=model)
+        else:
+            msg = "\nThank you for exploring the '{}' model.".format(model)
+
+        print(msg)
+
+    print()
+
+# ----------------------------------------------------------------------
+# Dependency
+# ----------------------------------------------------------------------
 
 
 def flatten_mlhubyaml_deps(deps, cats=None, res=[]):
@@ -406,24 +804,6 @@ def install_system_deps(deps):
         print("An error was encountered:\n")
         print(errors)
         raise ConfigureFailedException()
-
-
-def get_url_filename(url):
-    """Obtain the file name from URL or None if not available."""
-
-    info = urllib.request.urlopen(url).getheader('Content-Disposition')
-    if info is None:  # File name can be obtained from URL per se.
-        filename = os.path.basename(url)
-        if filename == '':
-            filename = None
-    else:  # File name may be obtained from 'Content-Disposition'.
-        _, params = cgi.parse_header(info)
-        if 'filename' in params:
-            filename = params['filename']
-        else:
-            filename = None
-
-    return filename
 
 
 def install_file_deps(deps, model, downloadir=None):
@@ -604,166 +984,15 @@ def install_file_deps(deps, model, downloadir=None):
                     os.makedirs(os.path.dirname(goal), exist_ok=True)
                     shutil.move(origin, goal)
 
-
-def interpreter(script):
-    """Determine the correct interpreter for the given script name."""
-    
-    (root, ext) = os.path.splitext(script)
-    ext = ext.strip()
-    if ext == ".sh":
-        intrprt = "bash"
-    elif ext == ".R":
-        intrprt = "R_LIBS=./R Rscript"
-    elif ext == ".py":
-        intrprt = "python3"
-    else:
-        raise UnsupportedScriptExtensionException(ext)
-
-    return intrprt
+# ----------------------------------------------------------------------
+# GitHub
+# ----------------------------------------------------------------------
 
 
-def dropdot(sentence):
-    """Drop the period after a sentence."""
-    return re.sub(".$", "", sentence)
+def is_github_url(name):
+    """Check if name starts with http://github.com or https://github.com"""
 
-
-def drop_newline(paragraph):
-    """Drop trailing newlines."""
-
-    return re.sub("\n$", "", paragraph)
-
-
-def lower_first_letter(sentence):
-    """Lowercase the first letter of a sentence."""
-
-    return sentence[:1].lower() + sentence[1:] if sentence else ''
-
-
-def get_command_suggestion(cmd, description=None, model=''):
-    """Return suggestion about how to use the cmd."""
-
-    if cmd in COMMANDS:
-        meta = COMMANDS[cmd]
-
-        # If there is customized suggestion, use it; otherwise
-        # generate from description.
-
-        if 'argument' in meta and 'model' in meta['argument'] and model == '':
-            model = '<model>'
-
-        msg = meta.get('suggestion',
-                       "\nTo " + dropdot(lower_first_letter(meta['description'])) + ":"
-                        "\n\n  $ {} {} {}")
-        msg = msg.format(CMD, cmd, model)
-        return msg
-
-    elif description is not None:
-        meta = description['commands'][cmd]
-
-        if type(meta) is str:
-            msg = dropdot(lower_first_letter(meta))
-        else:
-            # Handle malformed DESCRIPTION.yaml like
-            # --
-            # commands:
-            #   print:
-            #     description: print a textual summary of the model
-            #   score:
-            #     required: the name of a CSV file containing a header and 6 columns
-            #     description: apply the model to a supplied dataset
-
-            msg = meta.pop('description', None)
-
-        if msg is not None:
-            msg = "\nTo " + msg
-        else:
-            msg = "\nYou may try"
-        msg += ":\n\n  $ {} {} {}"
-        msg = msg.format(CMD, cmd, model)
-
-        return msg
-
-
-def print_commands_suggestions_on_stderr(*commands):
-    """Print list of suggestions on how to use the command in commands."""
-
-    for cmd in commands:
-        print_on_stderr(get_command_suggestion(cmd))
-
-    print_on_stderr('')
-
-
-def print_next_step(current, description=None, scenario=None, model=''):
-    """Print next step suggestions for the command.
-
-    Args:
-        current (str): the command needs to be given next step suggestion.
-        description(dict): yaml object from DESCRIPTION.yaml
-        scenario (str): certain scenario for the next step.
-        model (str): the model name if needed.
-    """
-
-    if description is None:
-
-        # Use the order for basic commands
-
-        if 'next' not in COMMANDS[current]:
-            return
-
-        steps = COMMANDS[current]['next']
-
-        if scenario is not None:
-            steps = steps[scenario]
-
-        for next_cmd in steps:
-            msg = get_command_suggestion(next_cmd, model=model)
-            print(msg)
-    else:
-
-        # Use the order in DESCRIPTION.yaml
-
-        avail_cmds = list(description['commands'])
-
-        try:
-            next_index = avail_cmds.index(current) + 1 if current != 'commands' else 0
-        except ValueError:
-            # The command is not described in DESCRIPTION.yaml, ignore it.
-            next_index = len(avail_cmds)
-
-        if next_index < len(avail_cmds):
-            next_cmd = avail_cmds[next_index]
-
-            msg = get_command_suggestion(next_cmd, description=description, model=model)
-        else:
-            msg = "\nThank you for exploring the '{}' model.".format(model)
-
-        print(msg)
-
-    print()
-
-
-def interpret_mlm_name(mlm):
-    """Interpret model package file name into model name and version number.
-
-    Args:
-        mlm (str): mlm file path or url.
-
-    Returns:
-        file name, model name, version number.
-    """
-
-    if not ends_with_mlm(mlm):
-        raise MalformedMLMFileNameException(mlm)
-
-    mlmfile = os.path.basename(mlm)
-    try:
-        model, version = mlmfile.split('_')
-    except ValueError:
-        raise MalformedMLMFileNameException(mlm)
-
-    version = '.'.join(version.split('.')[: -1])
-
-    return model, version
+    return is_url(name) and name.lower().split('/')[2].endswith("github.com")
 
 
 def interpret_github_url(url):
@@ -867,272 +1096,6 @@ def get_pkgyaml_github_url(url):
         return get_available_pkgyaml(url)
     else:
         return url.format(mlhubyaml)
-
-
-def get_available_pkgyaml(url):
-    """Return the available package yaml file path.
-
-    Possible options are MLHUB.yaml, DESCRIPTION.yaml or DESCRIPTION.yml.
-    If both exist, MLHUB.yaml takes precedence.
-    Path can be a path to the package directory or a URL to the top level of the pacakge repo
-    """
-    yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
-
-    if is_github_url(url):
-        yaml_list = [url.format(x) for x in yaml_list]
-    elif is_url(url):
-        yaml_list = ['/'.join([url, x]) for x in yaml_list]
-    else:
-        if os.path.sep not in url:  # url is a model name
-            url = os.path.join(MLINIT, url)
-        yaml_list = [os.path.join(url, x) for x in yaml_list]
-
-    if is_url(url):
-        for x in yaml_list:
-            try:
-                if urllib.request.urlopen(x).status == 200:
-                    return x
-            except urllib.error.URLError:
-                continue
-    else:
-        for x in yaml_list:
-            if os.path.exists(x):
-                return x
-
-    raise DescriptionYAMLNotFoundException(url)
-
-
-def download_model_pkg(url, local, quiet):
-    """Download the model package mlm or zip file from <url> to <local>."""
-
-    pkgfile = os.path.basename(url)
-    if not quiet:
-        print("Package " + url + "\n")
-
-    meta = urllib.request.urlopen(url)
-    if meta.status != 200:
-        raise ModelURLAccessException(url)
-
-    # Content-Length is not always necessarily available.
-
-    dsize = meta.getheader("Content-Length")
-    if dsize is not None:
-        dsize = "{:,}".format(int(dsize))
-        if not quiet:
-            print("Downloading '{}' ({} bytes) ...\n".format(pkgfile, dsize))
-
-    # Download the archive from the URL.
-
-    try:
-        urllib.request.urlretrieve(url, local)
-    except urllib.error.URLError as error:
-        raise ModelDownloadHaltException(url, error.reason.lower())
-
-
-def unpack_with_promote(file, dest, remove_dst=True):
-    """Unzip <file> into the directory <dest>.
-
-    If all files in the zip file are under a top level directory,
-    remove the top level dir and promote the dir level of those files.
-
-    If <remove_dst> is True, then the directory <dest> will be remove first,
-    otherwise, unextracted files will co-exist with those already in <dest>.
-
-    Return whether promotion happend and the top level dir if did.
-    """
-
-    logger = logging.getLogger(__name__)
-
-    # Check if need to remove <dest>.
-
-    if remove_dst:
-        remove_file_or_dir(dest)
-
-    # Figure out if <file> is a Zipball or Tarball.
-
-    if is_mlm_zip(file):
-        opener, lister_name, appender_name = zipfile.ZipFile, 'namelist', 'write'
-    else:
-        opener, lister_name, appender_name = tarfile.open, 'getnames', 'add'
-
-    # Unpack <file>.
-
-    with opener(file) as pkg_file:
-
-        # Check if all files are under a top dir.
-
-        file_list = getattr(pkg_file, lister_name)()
-        first_segs = [x.split(os.path.sep)[0] for x in file_list]
-        if (len(file_list) == 1 and os.path.sep in file_list[0]) or \
-                (len(file_list) != 1 and all([x == first_segs[0] for x in first_segs])):
-            promote, top_dir = True, file_list[0].split(os.path.sep)[0]
-        else:
-            promote, top_dir = False, None
-
-        if not promote:  # All files are at the top level.
-
-            logger.debug("Extract {} directly into {}".format(file, dest))
-            pkg_file.extractall(dest)
-            return False, top_dir, file_list
-
-        else:  # All files are under a top dir.
-            logger.debug("Extract {} without top dir into {}".format(file, dest))
-            file_list = []
-            with tempfile.TemporaryDirectory() as tmpdir:
-
-                # Extract file.
-
-                pkg_file.extractall(tmpdir)
-
-                with tempfile.TemporaryDirectory() as tmpdir2:
-
-                    # Repack files without top dir and then extract again into <dest>.
-                    #
-                    # Extraction can be done on a existing dir, without removing the dir first,
-                    # and the extracted files can co-exist with the files already inside the dir,
-                    # without affecting the existing files except they have the same name.
-
-                    with opener(os.path.join(tmpdir2, 'tmpball'), 'w') as new_pkg_file:
-                        appender = getattr(new_pkg_file, appender_name)
-                        dir_path = os.path.join(tmpdir, top_dir)
-                        for path, dirs, files in os.walk(dir_path):
-                            for file in files:
-                                file_path = os.path.join(path, file)
-                                arc_path = os.path.relpath(file_path, dir_path)
-                                file_list.append(arc_path)
-                                appender(file_path, arc_path)
-
-                    with opener(os.path.join(tmpdir2, 'tmpball')) as new_pkg_file:
-                        new_pkg_file.extractall(dest)
-
-            return True, top_dir, file_list
-
-
-def remove_file_or_dir(path):
-    """Remove an existing file or directory."""
-
-    if os.path.exists(path):
-        if os.path.isfile(path):
-            os.remove(path)
-        else:
-            shutil.rmtree(path)
-
-
-def ends_with_mlm(name):
-    """Check if name ends with .mlm or .aipk"""
-
-    return name.endswith(EXT_MLM) or name.endswith(EXT_AIPK)
-
-
-def is_url(name):
-    """Check if name is a url."""
-
-    return re.findall('http[s]?:', name)
-
-
-def is_github_url(name):
-    """Check if name starts with http://github.com or https://github.com"""
-
-    return is_url(name) and name.lower().split('/')[2].endswith("github.com")
-
-
-def is_mlm_zip(name):
-    """Check if name is a MLM or Zip file."""
-
-    return ends_with_mlm(name) or name.endswith(".zip")
-
-
-def is_tar(name):
-    """Check if name is a Tarball."""
-
-    return name.endswith(".tar") or name.endswith(".gz") or name.endswith(".bz2")
-
-
-def is_archive(name):
-    """Check if name is a archive file."""
-
-    return is_mlm_zip(name) or is_tar(name)
-
-
-def is_description_file(name):
-    """Check if name ends with DESCRIPTION.yaml or DESCRIPTION.yml"""
-
-    return name.endswith(DESC_YAML) or name.endswith(DESC_YML) or name.endswith(MLHUB_YAML)
-
-
-def get_model_info_from_repo(model, repo):
-    """Get model url on mlhub.
-
-    Args:
-        model (str): model name.
-        repo (str): packages list url.
-
-    Returns:
-        url: model url for download.
-        meta: list of all model meta data.
-
-    Raises:
-        ModelNotFoundOnRepoException
-    """
-
-    url = None
-    version = None
-    meta_list, repo = get_repo_meta_data(repo)
-    
-    # Find the first matching entry in the meta data.
-
-    try:
-        for entry in meta_list:
-            meta = entry["meta"]
-            if model == meta["name"]:
-                url = meta["url"]
-
-                # If url refers to an archive, its version must be known.
-
-                if is_archive(url):
-                    version = meta["version"]
-
-                break
-    except KeyError as e:
-        raise MalformedPackagesDotYAMLException(e.args[0], model)
-    
-    # If not found suggest how a model might be installed.
-    
-    if url is None:
-        logger = logging.getLogger(__name__)
-        logger.error("Model '{}' not found on Repo '{}'.".format(model, repo))
-        raise ModelNotFoundOnRepoException(model, repo)
-
-    return url, version, meta_list
-
-
-def dir_size(dirpath):
-    """Get total size of dirpath."""
-
-    return sum([sum(map(lambda f: os.path.getsize(os.path.join(pth, f)), files))
-                for pth, dirs, files in os.walk(dirpath)])
-
-
-def yes_or_no(msg, *params, yes=True):
-    """Query yes or no with message.
-
-    Args:
-        msg (str): Message to be printed out.
-        yes (bool): Indicates whether the default answer is yes or no.
-    """
-
-    print(msg.format(*params) + (' [Y/n]?' if yes else ' [y/N]?'), end=' ')
-    choice = input().lower()
-
-    answer = True if yes else False
-
-    if yes and choice == 'n':
-        answer = False
-
-    if not yes and choice == 'y':
-        answer = True
-
-    return answer
 
 # ----------------------------------------------------------------------
 # Model package developer utilities
@@ -1373,6 +1336,80 @@ def print_error_exit(msg, *param, exitcode=1):
 
     print_error(msg, *param)
     sys.exit(exitcode)
+
+# ----------------------------------------------------------------------
+# Misc
+# ----------------------------------------------------------------------
+
+
+def configure(path, script, quiet):
+    """Run the provided configure scripts and handle errors and output."""
+
+    configured = False
+
+    # For now only tested/working with Ubuntu
+
+    if distro.id() in ['debian', 'ubuntu']:
+        conf = os.path.join(path, script)
+        if os.path.exists(conf):
+            interp = interpreter(script)
+            if not quiet:
+                msg = "\nConfiguring using '{}'...\n".format(conf)
+                print(msg)
+            cmd = "export _MLHUB_CMD_CWD='{}'; export _MLHUB_MODEL_NAME='{}'; {} {}".format(
+                os.getcwd(), os.path.basename(path), interp, script)
+            logger = logging.getLogger(__name__)
+            logger.debug("(cd " + path + "; " + cmd + ")")
+            proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
+            output, errors = proc.communicate()
+            if proc.returncode != 0:
+                errors = errors.decode("utf-8")
+                logger.error("Configure failed: \n{}".format(errors))
+                print("An error was encountered:\n")
+                print(errors)
+                raise ConfigureFailedException()
+            configured = True
+
+    return configured
+
+
+def interpreter(script):
+    """Determine the correct interpreter for the given script name."""
+
+    (root, ext) = os.path.splitext(script)
+    ext = ext.strip()
+    if ext == ".sh":
+        intrprt = "bash"
+    elif ext == ".R":
+        intrprt = "R_LIBS=./R Rscript"
+    elif ext == ".py":
+        intrprt = "python3"
+    else:
+        raise UnsupportedScriptExtensionException(ext)
+
+    return intrprt
+
+
+def yes_or_no(msg, *params, yes=True):
+    """Query yes or no with message.
+
+    Args:
+        msg (str): Message to be printed out.
+        yes (bool): Indicates whether the default answer is yes or no.
+    """
+
+    print(msg.format(*params) + (' [Y/n]?' if yes else ' [y/N]?'), end=' ')
+    choice = input().lower()
+
+    answer = True if yes else False
+
+    if yes and choice == 'n':
+        answer = False
+
+    if not yes and choice == 'y':
+        answer = True
+
+    return answer
 
 # ----------------------------------------------------------------------
 # Custom Exceptions
