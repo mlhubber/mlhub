@@ -301,12 +301,25 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=[]):
             - tools=1.1
         files:
           - https://github.com/mlhubber/colorize/raw/master/configure.sh
-          - https://github.com/mlhubber/colorize/raw/master/configure.sh: data/
-          - https://github.com/mlhubber/colorize/raw/master/configure.sh: images/cat.png
+          - https://github.com/mlhubber/colorize/raw/master/train.data: data/
+          - https://github.com/mlhubber/colorize/raw/master/jsgifd_2018.png: images/cat.png
           - https://github.com/mlhubber/colorize/archive/master.zip: res/
-          - https://github.com/mlhubber/colorize/archive/master.zip: res/xyz.zip
+          - https://github.com/mlhubber/colorize/archive/arcdfikdf_12.zip: res/xyz.zip
 
-    Return something like:
+    Then the input argument <deps> is a dict loaded by yaml from the dependency specification above:
+
+      {'system': 'atril',
+       'R': {'cran': 'magrittr, dplyr=1.2.3, caret>4.5.6, e1017, httr',
+             'github': ['rstudio/tfruns', 'rstudio/reticulate', 'rstudio/keras']},
+       'python': {'conda': 'environment.yaml', 'pip': ['pillow', 'tools=1.1']},
+       'files': ['https://github.com/mlhubber/colorize/raw/master/configure.sh',
+                 {'https://github.com/mlhubber/colorize/raw/master/train.data': 'data/'},
+                 {'https://github.com/mlhubber/colorize/raw/master/jsgifd_2018.png': 'images/cat.png'},
+                 {'https://github.com/mlhubber/colorize/archive/master.zip': 'res/'},
+                 {'https://github.com/mlhubber/colorize/archive/arcdfikdf_12.zip': 'res/xyz.zip'}]
+      }
+
+    And the result returned is something like:
 
       [[['system'], ['atril']],
        [['r', 'cran'], ['magrittr', 'dplyr=1.2.3', 'caret>4.5.6', 'e1017', 'httr']],
@@ -314,10 +327,10 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=[]):
        [['python', 'conda'], ['environment.yaml']],
        [['python', 'pip'], ['pillow', 'tools=1.1']],
        [['files'], {'https://github.com/mlhubber/colorize/raw/master/configure.sh': None,
-                    'https://github.com/mlhubber/colorize/raw/master/configure.sh': 'data/',
-                    'https://github.com/mlhubber/colorize/raw/master/configure.sh': 'images/cat.png',
+                    'https://github.com/mlhubber/colorize/raw/master/train.data': 'data/',
+                    'https://github.com/mlhubber/colorize/raw/master/jsgifd_2018.png': 'images/cat.png',
                     'https://github.com/mlhubber/colorize/archive/master.zip': 'res/',
-                    'https://github.com/mlhubber/colorize/archive/master.zip': 'res/xyz.zip'}]
+                    'https://github.com/mlhubber/colorize/archive/arcdfikdf_12.zip': 'res/xyz.zip'}]
       ]
     """
 
@@ -535,7 +548,7 @@ def install_file_deps(deps, model, downloadir=None):
             download_msg = '\n    * from {}\n        into {} ...'
             confirm_msg = "      The file is cached.  Would you like to download it again"
             needownload = True
-            if target_name == '' and (is_mlm_zip(filename) or is_tar(filename)):  # Uncompress zip file
+            if target_name == '' and is_archive(filename):  # Uncompress zip file
 
                 print(download_msg.format(url, target))
 
