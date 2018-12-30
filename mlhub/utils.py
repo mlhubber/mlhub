@@ -810,52 +810,59 @@ def install_system_deps(deps):
 
 
 def install_file_deps(deps, model, downloadir=None):
+    """Install file dependencies.
+
+    For example, if MLHUB.yaml is
+    
+      files:
+        - https://zzz.org/label                        # To package root dir
+        - https://zzz.org/cat.RData: data/             # To data/
+        - https://zzz.org/def.RData: data/dog.RData    # To data/dog.RData
+        - https://zzz.org/xyz.zip:   res/              # Uncompress into res/ and if all files are
+                                                       #     under a single top dir, remove the dir
+        - https://zzz.org/z.zip:     ./                # The same as above
+        - https://zzz.org/uvw.zip:   res/rst.zip       # To res/rst.zip
+        - description/README.md                        # To package root dir
+        - res/tree.RData:            resource/         # To resource/
+        - res/forest.RData:          resource/f.RData  # Change to resource/f.RData
+        - images/:                   img/              # Change to img/
+        - scripts/*                                    # All files under scripts/ to package's root dir
+        -
+    
+    Then the directory structure will be:
+    
+      In cache dir:
+        ~/.mlhub/.cache/<pkg>/label
+        ~/.mlhub/.cache/<pkg>/data/cat.RData
+        ~/.mlhub/.cache/<pkg>/data/dog.RData
+        ~/.mlhub/.cache/<pkg>/res/<files-inside-xyz.zip>
+        ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
+    
+      In Package dir:
+        ~/.mlhub/<pkg>/label                  --- link-to -->   ~/.mlhub/.cache/<pkg>/label
+        ~/.mlhub/<pkg>/data                   --- link-to -->   ~/.mlhub/.cache/<pkg>/data
+        ~/.mlhub/<pkg>/res                    --- link-to -->   ~/.mlhub/.cache/<pkg>/res
+        ~/.mlhub/<pkg>/<files-inside-z.zip>   --- link-to -->   ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
+    """
 
     # TODO: Add download progress indicator, or use wget --quiet --show-progress <url> 2>&1
     #
     # TODO: Add support for file type specification, because the file type may not be determined by URL:
-    #   dependencies:
-    #     files:
-    #       - https://api.github.com/repos/mlhubber/audit/zipball/master
-    #         zip: data/
+    #
+    #         dependencies:
+    #           files:
+    #             - https://api.github.com/repos/mlhubber/audit/zipball/master
+    #               zip: data/
     #
     # TODO: How to deal with different files? Should we download all of them at `ml install`
     #       or separately at `ml install` for Path, and `ml configure` for URL
     #       (which is by default now)? :
-    #   dependencies:
-    #     files:
-    #       - https://zzz.org/cat.RData: data/  # URL
-    #       - cat.jpg: images/                  # Path
-
-    # For example, if MLHUB.yaml is
-    #   files:
-    #     - https://zzz.org/label                        # To package root dir
-    #     - https://zzz.org/cat.RData: data/             # To data/
-    #     - https://zzz.org/def.RData: data/dog.RData    # To data/dog.RData
-    #     - https://zzz.org/xyz.zip:   res/              # Uncompress into res/ and if all files are
-    #                                                    #     under a single top dir, remove the dir
-    #     - https://zzz.org/z.zip:     ./                # The same as above
-    #     - https://zzz.org/uvw.zip:   res/rst.zip       # To res/rst.zip
-    #     - description/README.md                        # To package root dir
-    #     - res/tree.RData:            resource/         # To resource/
-    #     - res/forest.RData:          resource/f.RData  # Change to resource/f.RData
-    #     - images/:                   img/              # Change to img/
-    #     - scripts/*                                    # All files under scripts/ to package's root dir
-    #     -
     #
-    # Then the directory structure will be:
-    #   In cache dir:
-    #     ~/.mlhub/.cache/<pkg>/label
-    #     ~/.mlhub/.cache/<pkg>/data/cat.RData
-    #     ~/.mlhub/.cache/<pkg>/data/dog.RData
-    #     ~/.mlhub/.cache/<pkg>/res/<files-inside-xyz.zip>
-    #     ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
+    #         dependencies:
+    #           files:
+    #             - https://zzz.org/cat.RData: data/  # URL
+    #             - cat.jpg: images/                  # Path
     #
-    #   In Package dir:
-    #     ~/.mlhub/<pkg>/label                  ---link-to-->   ~/.mlhub/.cache/<pkg>/label
-    #     ~/.mlhub/<pkg>/data                   ---link-to-->   ~/.mlhub/.cache/<pkg>/data
-    #     ~/.mlhub/<pkg>/res                    ---link-to-->   ~/.mlhub/.cache/<pkg>/res
-    #     ~/.mlhub/<pkg>/<files-inside-z.zip>   ---link-to-->   ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
 
     if downloadir is None:
         print("\n*** Downloading required files ...")
