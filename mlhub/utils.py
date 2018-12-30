@@ -144,7 +144,7 @@ def get_version(model=None):
 def check_model_installed(model):
     """Check if model installed."""
 
-    path = MLINIT + model
+    path = get_package_dir(model)
 
     logger = logging.getLogger(__name__)
     logger.debug("Check if package {} is installed at: {}".format(model, path))
@@ -278,7 +278,7 @@ def get_available_pkgyaml(url):
         yaml_list = ['/'.join([url, x]) for x in yaml_list]
     else:
         if os.path.sep not in url:  # url is a model name
-            url = os.path.join(MLINIT, url)
+            url = os.path.join(get_init_dir(), url)
         yaml_list = [os.path.join(url, x) for x in yaml_list]
 
     if is_url(url):
@@ -394,15 +394,6 @@ def _create_dir(path, error_msg, exception):
         raise exception
 
     return path
-
-
-def create_init():
-    """Check if the init dir exists and if not then create it."""
-
-    return _create_dir(
-        MLINIT,
-        'MLINIT creation failed: {}'.format(MLINIT),
-        MLInitCreateException(MLINIT))
 
 
 def unpack_with_promote(file, dest, remove_dst=True):
@@ -537,7 +528,7 @@ def is_description_file(name):
 
 def print_usage():
     print(CMD)
-    print(USAGE.format(CMD, MLHUB, MLINIT, VERSION, APP))
+    print(USAGE.format(CMD, MLHUB, get_init_dir(), VERSION, APP))
 
 
 def print_model_cmd_help(info, cmd):
@@ -1112,6 +1103,22 @@ def get_pkgyaml_github_url(url):
 # ----------------------------------------------------------------------
 
 
+def get_init_dir():
+    """Return the path of MLHUB system folder."""
+
+    return MLINIT
+
+
+def create_init():
+    """Check if the init dir exists and if not then create it."""
+
+    init = get_init_dir()
+    return _create_dir(
+        init,
+        'MLINIT creation failed: {}'.format(init),
+        MLInitCreateException(init))
+
+
 def get_package_name():
     """Return the model pkg name.
 
@@ -1136,7 +1143,7 @@ def get_cmd_cwd():
 def get_package_dir(model=None):
     """Return the dir where the model package should be installed."""
 
-    return os.path.join(MLINIT, get_package_name() if model is None else model)
+    return os.path.join(get_init_dir(), get_package_name() if model is None else model)
 
 
 def create_package_dir(model=None):

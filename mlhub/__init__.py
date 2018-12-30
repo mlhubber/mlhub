@@ -233,7 +233,7 @@ def main():
 
     except utils.ModelNotInstalledException as e:
         msg = "model '{}' is not installed ({})."
-        utils.print_error(msg, e.args[0], constants.MLINIT)
+        utils.print_error(msg, e.args[0], utils.get_init_dir())
         if not args.quiet:  # Suggest install model package or check if any available
             utils.print_commands_suggestions_on_stderr('installed', 'available', 'install')
         sys.exit(1)

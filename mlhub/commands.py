@@ -49,7 +49,6 @@ from mlhub.constants import (
     COMPLETION_SCRIPT,
     EXT_MLM,
     MLHUB_YAML,
-    MLINIT,
     README,
 )
 
@@ -98,7 +97,7 @@ def list_available(args):
     
     if not args.quiet:
         utils.print_next_step('available')
-        if not os.path.exists(MLINIT):
+        if not os.path.exists(utils.get_init_dir()):
             print("Why not give the 'rain' model a go...\n\n"
                   "  $ ml install rain\n")
 
@@ -115,15 +114,16 @@ def list_installed(args):
 
     # Find installed models, ignoring special folders like R.
 
-    if os.path.exists(MLINIT):
-        msg = " in '{}'.".format(MLINIT)
-        models = [f for f in os.listdir(MLINIT)
-                  if os.path.isdir(os.path.join(MLINIT, f))
+    init = utils.get_init_dir()
+    if os.path.exists(init):
+        msg = " in '{}'.".format(init)
+        models = [f for f in os.listdir(init)
+                  if os.path.isdir(os.path.join(init, f))
                   and f != "R"
                   and not f.startswith('.')
                   and not f.startswith('_')]
     else:
-        msg = ". '{}' does not exist.".format(MLINIT)
+        msg = ". '{}' does not exist.".format(init)
         models = []
 
     models.sort()
@@ -280,7 +280,7 @@ def install_model(args):
 
         # Check if model is already installed.
 
-        install_path = os.path.join(utils.create_init(), model)  # Installation path
+        install_path = utils.get_package_dir(model)  # Installation path
         if os.path.exists(install_path):
             installed_version = utils.load_description(model)['meta']['version']
             if StrictVersion(installed_version) > StrictVersion(version):
@@ -408,7 +408,7 @@ def readme(args):
     logger = logging.getLogger(__name__)
 
     model = args.model
-    path = MLINIT + model
+    path = utils.get_package_dir(model)
     readme_file = os.path.join(path, README)
     logger.info("Get README of {}.".format(model))
 
@@ -675,7 +675,7 @@ def dispatch(args):
 
     cmd = args.cmd
     model = args.model
-    path = MLINIT + model
+    path = utils.get_package_dir(model)
 
     param = " ".join(args.param)
 
@@ -792,7 +792,7 @@ def donate(args):
 def remove_mlm(args):
     """Remove downloaded {} files.""".format(EXT_MLM)
 
-    mlm = glob.glob(os.path.join(MLINIT, "*.mlm"))
+    mlm = glob.glob(os.path.join(utils.get_init_dir(), "*.mlm"))
     mlm.sort()
     for m in mlm:
         if utils.yes_or_no("Remove model package archive '{}'", m, yes=True):
@@ -809,18 +809,18 @@ def remove_model(args):
     # Setup.
     
     model = args.model
-    path = MLINIT
     cache = None
     if model is None:
-        if os.path.exists(MLINIT):
+        path = utils.get_init_dir()
+        if os.path.exists(path):
             msg = "*Completely* remove all installed models in '{}'"
         else:
             msg = "The local model folder '{}' does not exist. Nothing to do."
-            msg = msg.format(MLINIT)
+            msg = msg.format(path)
             print(msg)
             return
     else:
-        path = os.path.join(path, model)
+        path = utils.get_package_dir(model)
         if os.path.exists(utils.get_package_cache_dir(model)):
             cache = utils.get_package_cache_dir(model)
         msg = "Remove '{}'"
