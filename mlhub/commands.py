@@ -233,6 +233,10 @@ def install_model(args):
 
     # Determine the path of downloaded/existing model package file
 
+    # TODO: The file name cannot be determined from URL.  How to deal with this scenario?
+    #       Currently solution: If model package file name cannot be determined from URL,
+    #       then we assume it is a MLM file, which means it is Zipball.
+
     pkgfile = "mlhubmodelpkg-" + str(uuid.uuid4().hex) + ".mlm"
     uncompressdir = pkgfile[:-4]  # Dir Where pkg file is extracted
 
@@ -836,6 +840,9 @@ def remove_model(args):
         shutil.rmtree(path)
         if cache is not None and utils.yes_or_no("Remove cache '{}' as well", cache, yes=False):
             shutil.rmtree(cache)
+            archive = utils.get_package_archive_dir(model)
+            if os.path.exists(archive):
+                shutil.rmtree(archive)
     else:
         if model is None and not args.quiet:
             utils.print_next_step('remove')

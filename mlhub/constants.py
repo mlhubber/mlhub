@@ -66,9 +66,11 @@ COMPLETION_SCRIPT = os.path.join('bash_completion.d', 'ml.bash')
 LOG_DIR = os.path.join(MLINIT, ".log")
 LOG_FILE = os.path.join(LOG_DIR, 'mlhub.log')
 
-# cache dir
+# model package cache and archive dir
 
 CACHE_DIR = os.path.join(MLINIT, ".cache")
+ARCHIVE_DIR = os.path.join(MLINIT, ".archive")
+
 
 # ------------------------------------------------------------------------
 # Application information.

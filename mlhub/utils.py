@@ -50,6 +50,7 @@ import zipfile
 from mlhub.constants import (
     APP,
     APPX,
+    ARCHIVE_DIR,
     CACHE_DIR,
     CMD,
     COMMANDS,
@@ -302,7 +303,7 @@ def get_available_pkgyaml(url):
 
 def dropdot(sentence):
     """Drop the period after a sentence."""
-    return re.sub("\.$", "", sentence)
+    return re.sub("[.]$", "", sentence)
 
 
 def drop_newline(paragraph):
@@ -483,6 +484,25 @@ def remove_file_or_dir(path):
             os.remove(path)
         else:
             shutil.rmtree(path)
+
+
+def make_symlink(src, dst):
+    """Make a symbolic link from src to dst."""
+
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    remove_file_or_dir(dst)
+    os.symlink(src, dst)
+
+
+def merge_folder(src_dir, dst_dir):
+    """Move files from src_dir into dst_dir without removing existing files under dst_dir."""
+
+    for path, dirs, files in os.walk(src_dir):
+        for file in files:
+            src = os.path.join(path, file)
+            dst = os.path.join(dst_dir, os.path.relpath(src, src_dir))
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.move(src, dst)
 
 
 def dir_size(dirpath):
@@ -813,14 +833,36 @@ def install_file_deps(deps, model, downloadir=None):
                                                        #     under a single top dir, remove the dir
         - https://zzz.org/z.zip:     ./                # The same as above
         - https://zzz.org/uvw.zip:   res/rst.zip       # To res/rst.zip
+
         - description/README.md                        # To package root dir
         - res/tree.RData:            resource/         # To resource/
         - res/forest.RData:          resource/f.RData  # Change to resource/f.RData
-        - images/:                   img/              # Change to img/
+        - images/:                   img               # Change to img
+        - audio/:                    resource/         # To resource/audio
         - scripts/*                                    # All files under scripts/ to package's root dir
-        -
+
+    <deps> will be:
+      {
+        'https://zzz.org/label':     None,
+        'https://zzz.org/cat.RData': 'data/',
+        'https://zzz.org/def.RData': 'data/dog.RData',
+        'https://zzz.org/xyz.zip':   'res/',
+        'https://zzz.org/z.zip':     './',
+        'https://zzz.org/uvw.zip':   'res/rst.zip',
+
+        'description/README.md':     None,
+        'res/tree.RData':            'resource/',
+        'res/forest.RData':          'resource/f.RData',
+        'images/':                   'img',
+        'audio/':                    'resource/',
+        'scripts/*':                 None,
+      }
     
     Then the directory structure will be:
+
+      In archive dir:
+        ~/.mlhub/.cache/<pkg>/res/xyz.zip
+        ~/.mlhub/.cache/<pkg>/z.zip
     
       In cache dir:
         ~/.mlhub/.cache/<pkg>/label
@@ -828,12 +870,22 @@ def install_file_deps(deps, model, downloadir=None):
         ~/.mlhub/.cache/<pkg>/data/dog.RData
         ~/.mlhub/.cache/<pkg>/res/<files-inside-xyz.zip>
         ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
+        ~/.mlhub/.cache/<pkg>/res/rst.zip
     
       In Package dir:
         ~/.mlhub/<pkg>/label                  --- link-to -->   ~/.mlhub/.cache/<pkg>/label
-        ~/.mlhub/<pkg>/data                   --- link-to -->   ~/.mlhub/.cache/<pkg>/data
-        ~/.mlhub/<pkg>/res                    --- link-to -->   ~/.mlhub/.cache/<pkg>/res
+        ~/.mlhub/<pkg>/data/cat.RData         --- link-to -->   ~/.mlhub/.cache/<pkg>/data/cat.RData
+        ~/.mlhub/<pkg>/data/dog.RData         --- link-to -->   ~/.mlhub/.cache/<pkg>/data/dog.RData
+        ~/.mlhub/<pkg>/res/<files>            --- link-to -->   ~/.mlhub/.cache/<pkg>/res/<files>
         ~/.mlhub/<pkg>/<files-inside-z.zip>   --- link-to -->   ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
+        ~/.mlhub/<pkg>/res/rst.zip            --- link-to -->   ~/.mlhub/.cache/<pkg>/res/rst.zip
+
+        ~/.mlhub/<pkg>/README.md
+        ~/.mlhub/<pkg>/resource/tree.RData
+        ~/.mlhub/<pkg>/resource/f.RData
+        ~/.mlhub/<pkg>/img
+        ~/.mlhub/<pkg>/resource/audio
+        ~/.mlhub/<pkg>/<files-inside-scripts>
     """
 
     # TODO: Add download progress indicator, or use
@@ -847,8 +899,8 @@ def install_file_deps(deps, model, downloadir=None):
     #             - https://api.github.com/repos/mlhubber/audit/zipball/master
     #               zip: data/
     #
-    # TODO: How to deal with different files? Should we download all of them at
-    #       'ml install' or separately at 'ml install' for Path, and `ml
+    # TODO: How to deal with different files? Should we download all of them when
+    #       'ml install' or separately when 'ml install' for Path, and `ml
     #       configure` for URL (which is by default now)? :
     #
     #         dependencies:
@@ -857,132 +909,97 @@ def install_file_deps(deps, model, downloadir=None):
     #             - cat.jpg: images/                  # Path
     #
 
-    if downloadir is None:
-        print("\n*** Downloading required files ...")
+    # Setup
 
     cache_dir = create_package_cache_dir(model)
+    archive_dir = create_package_archive_dir(model)
     pkg_dir = get_package_dir(model)
 
     logger = logging.getLogger(__name__)
     logger.info("Install file dependencies.")
     logger.debug("deps: {}".format(deps))
 
-    def link_cache_to_pkg(cache, target):
-        """Link cache to a relative target under package directory.
+    if downloadir is None:
+        print("\n*** Downloading required files ...")
 
-        Args:
-            cache (str): The absolute path of cached file.
-            target (str): The relative path to the package dir where the cached file will be put.
-        """
-
-        dst = os.path.join(pkg_dir, target)
-
-        segs = target.split(os.path.sep)
-        if len(segs) > 1:
-            os.makedirs(os.path.dirname(dst), exist_ok=True)
-
-        remove_file_or_dir(dst)
-        os.symlink(cache, dst)
-
-    def merge_folder(origin, goal):
-        """Move files under origin into goal without removing existing files inside target."""
-
-        for path, dirs, files in os.walk(origin):
-            for file in files:
-                src = os.path.join(path, file)
-                dst = os.path.join(goal, os.path.relpath(src, origin))
-                os.makedirs(os.path.dirname(dst), exist_ok=True)
-                shutil.move(src, dst)
-
-    for url, target in deps.items():
+    for location, target in deps.items():
 
         # Deal with URL and path differently.
         #
-        # If <url> is a path, it is a package file should be installed during `ml install`,
-        # elif <url> is a URL, it is a file downloaded during `ml configure`.
+        # If <location> is a path, it is a package file should be installed during `ml install`,
+        # elif <location> is a URL, it is a file downloaded during `ml configure`.
 
-        if downloadir is None and is_url(url):  # URL for non-package files
+        if downloadir is None and is_url(location):  # URL for non-package files
 
             # Download file into Cache dir, then symbolically link it into Package dir.
             # Thus we can reuse the downloaded files after model package upgrade.
 
-            # Obtain file name from URL.
+            # Determine file name.
 
-            logger.debug("Download file from url: {}".format(url))
-            filename = get_url_filename(url)
+            logger.debug("Download file from URL: {}".format(location))
+            filename = get_url_filename(location)
             if filename is None:
+
+                # TODO: The file name cannot be determined from URL.  How to deal with this scenario?
+                #       Currently solution: We give it a random name.  This should not occur.
+
                 filename = 'mlhubtmp-' + str(uuid.uuid4().hex)
 
-            # Download and install file.
+            # Determine installation path.
 
             if target is None:  # Download to the top level dir without changing its name.
                 target = filename
 
             if target.endswith(os.path.sep):
-                target = os.path.relpath(target) + os.path.sep
+                target = os.path.relpath(target) + os.path.sep  # Ensure folder end with '/'
             else:
                 target = os.path.relpath(target)
 
-            target_name = os.path.basename(target)
-            cache = os.path.join(cache_dir, target)
+            cache = os.path.join(cache_dir, target)  # Where the file is cached
+            if target.endswith(os.path.sep) and not is_archive(filename):  # Download to a dir without changing name
+                cache = os.path.join(cache, filename)
+                target = os.path.join(target, filename)
 
-            logger.debug("url: {}".format(url))
-            logger.debug("target: {}".format(target))
-            logger.debug("target_name: {}".format(target_name))
+            archive = cache  # Where the file is archived, the same as cache if not an archive file
+            if target.endswith(os.path.sep) and is_archive(filename):  # Archive needs uncompressed if target is a dir
+                archive = os.path.join(archive_dir, target, filename)
 
-            download_msg = '\n    * from {}\n        into {} ...'
+            # Download
+
+            download_msg = "\n    * from {}\n        into {} ..."
             confirm_msg = "      The file is cached.  Would you like to download it again"
+            print(download_msg.format(location, target))
+
             needownload = True
-            if target_name == '' and is_archive(filename):  # Uncompress zip file
+            if os.path.exists(archive):
+                needownload = yes_or_no(confirm_msg, yes=False)
 
-                print(download_msg.format(url, target))
+            if needownload:
+                os.makedirs(os.path.dirname(archive), exist_ok=True)
+                urllib.request.urlretrieve(location, archive)
 
-                if os.path.exists(cache):
-                    needownload = yes_or_no(confirm_msg, yes=False)
+            # Install
 
-                file_list = []
-                if needownload:
-                    with tempfile.TemporaryDirectory() as mlhubtmpdir:
-                        temp_file = os.path.join(mlhubtmpdir, filename)
-                        urllib.request.urlretrieve(url, temp_file)
-                        _, _, file_list = unpack_with_promote(temp_file, cache, remove_dst=False)
-                else:
-                    for path, dirs, files in os.walk(cache):
-                        for file in files:
-                            file_path = os.path.join(path, file)
-                            arc_path = os.path.relpath(file_path, cache)
-                            file_list.append(arc_path)
+            src = cache
+            dst = os.path.join(pkg_dir, target)
+            symlinks = [(src, dst)]
+            if target.endswith(os.path.sep) and is_archive(filename):  # Uncompress archive file
+                _, _, file_list = unpack_with_promote(archive, cache, remove_dst=False)
+                symlinks = [(os.path.join(src, file), os.path.join(dst, file)) for file in file_list]
 
-                for file in file_list:
-                    link_cache_to_pkg(os.path.join(cache, file), os.path.join(target, file))
+            for origin, goal in symlinks:
+                make_symlink(origin, goal)
 
-            else:
-
-                if target_name == '':  # Download to a directory without changing name
-                    cache = os.path.join(cache, filename)
-                    target = os.path.join(target, filename)
-
-                print(download_msg.format(url, target))
-
-                if os.path.exists(cache):
-                    needownload = yes_or_no(confirm_msg, yes=False)
-
-                if needownload:
-                    os.makedirs(os.path.dirname(cache), exist_ok=True)
-                    urllib.request.urlretrieve(url, cache)
-
-                link_cache_to_pkg(cache, target)
-
-        elif downloadir is not None and not is_url(url):  # Path for package files
+        elif downloadir is not None and not is_url(location):  # Path for package files
 
             # Move the files from download dir to package dir.
 
             goal = os.path.join(pkg_dir, '' if target is None else target)
-            if url.endswith('*'):  # Move all files under <url> to package's root dir
-                origin = os.path.join(downloadir, url[:-2])
+            if location.endswith('*'):  # Move all files under <location> to package's root dir
+                origin = os.path.join(downloadir, location[:-2])
                 merge_folder(origin, goal)
             else:
-                origin = os.path.join(downloadir, url)
+                origin = os.path.join(downloadir, location)
                 if os.path.isdir(origin) and not goal.endswith(os.path.sep):
                     merge_folder(origin, goal)
                 else:
@@ -1176,6 +1193,23 @@ def create_package_cache_dir(model=None):
         path,
         'Model package cache dir creation failed: {}'.format(path),
         ModelPkgCacheDirCreateException(path))
+
+
+def get_package_archive_dir(model=None):
+    """Return the dir where the model package stores cached archived files."""
+
+    return os.path.join(ARCHIVE_DIR, get_package_name() if model is None else model)
+
+
+def create_package_archive_dir(model=None):
+    """Check existence of dir where the model package stores cached archived files, If not create it and return."""
+
+    path = get_package_archive_dir(model)
+
+    return _create_dir(
+        path,
+        'Model package archive dir creation failed: {}'.format(path),
+        ModelPkgArchiveDirCreateException(path))
 
 # ----------------------------------------------------------------------
 # Bash completion helper
@@ -1522,4 +1556,8 @@ class YAMLFileAccessException(Exception):
 
 
 class MalformedPackagesDotYAMLException(Exception):
+    pass
+
+
+class ModelPkgArchiveDirCreateException(Exception):
     pass
