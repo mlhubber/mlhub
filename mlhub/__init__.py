@@ -257,8 +257,8 @@ def main():
         sys.exit(1)
 
     except utils.LackDependencyException as e:
-        msg = "Required dependencies are not installed for this model: \n  ====> \033[31m{}\033[0m"
-        utils.print_error(msg, e.args[0])
+        msg = "Required {} dependencies are not installed for this model: \n  ====> \033[31m{}\033[0m"
+        utils.print_error(msg, 'R' if e.args[1] else 'Python',  e.args[0])
         if not args.quiet:  # Suggest install dependencies
             utils.print_commands_suggestions_on_stderr('configure')
         sys.exit(1)

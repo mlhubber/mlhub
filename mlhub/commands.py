@@ -742,6 +742,7 @@ or else connect to the server's desktop using a local X server like X2Go.
 
     proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
+    missing_r_dep = False
     if proc.returncode != 0:
         errors = errors.decode("utf-8")
 
@@ -753,6 +754,8 @@ or else connect to the server's desktop using a local X server like X2Go.
 
         if dep_required is None:
             dep_required = re.compile(r"there is no package called ‘(.*)’").search(errors)
+            if dep_required is not None:
+                missing_r_dep = True
 
         # Check if required data resource not found
 
@@ -761,7 +764,7 @@ or else connect to the server's desktop using a local X server like X2Go.
         if dep_required is not None:  # Dependency unsatisfied
             dep_required = dep_required.group(1)
             logger.error("Dependency unsatisfied: {}\n{}".format(dep_required, errors))
-            raise utils.LackDependencyException(dep_required, model)
+            raise utils.LackDependencyException(dep_required, missing_r_dep, model)
         elif data_required is not None:  # Data not found
             raise utils.DataResourceNotFoundException()
         else:  # Other unknown errors
