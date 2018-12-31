@@ -690,11 +690,12 @@ def dispatch(args):
 
     utils.check_model_installed(model)
     
-    desc = utils.load_description(model)
+    entry = utils.load_description(model)
 
     # Check if cmd needs to use graphic display indicated in DESCRIPTION.yaml.
 
-    if 'display' in desc['meta'] and cmd in desc['meta']['display'] and os.environ.get('DISPLAY', '') == '':
+    meta = entry['meta']
+    if 'display' in meta and cmd in meta['display'] and os.environ.get('DISPLAY', '') == '':
         msg = "Graphic display is required but not available for command '{}'. Continue"
         yes = utils.yes_or_no(msg, cmd, yes=False)
         if not yes:
@@ -708,7 +709,7 @@ or else connect to the server's desktop using a local X server like X2Go.
 
     # Obtain the default/chosen language for the package.
 
-    lang = desc["meta"]["languages"]
+    lang = meta["languages"]
 
     # Deal with malformed 'languages' field
     
@@ -725,7 +726,7 @@ or else connect to the server's desktop using a local X server like X2Go.
     logger = logging.getLogger(__name__)
     logger.debug("Execute the script: " + os.path.join(path, script))
      
-    if cmd not in list(desc['commands']) or not os.path.exists(os.path.join(path, script)):
+    if cmd not in list(entry['commands']) or not os.path.exists(os.path.join(path, script)):
         raise utils.CommandNotFoundException(cmd, model)
 
     # Determine the interpreter to use
@@ -735,7 +736,7 @@ or else connect to the server's desktop using a local X server like X2Go.
     interpreter = utils.interpreter(script)
 
     # _MLHUB_CMD_CWD: a environment variable indicates current working
-    #          directory where command `ml xxx` is invoked.
+    #                 directory where command `ml xxx` is invoked.
     # _MLHUB_MODEL_NAME: env variable indicates the name of the model.
     # 
     # The above two env vars can be obtained by helper function, such
@@ -782,7 +783,7 @@ or else connect to the server's desktop using a local X server like X2Go.
         # Suggest next step
 
         if not args.quiet:
-            utils.print_next_step(cmd, description=desc, model=model)
+            utils.print_next_step(cmd, description=entry, model=model)
     
 # ------------------------------------------------------------------------
 # DONATE
