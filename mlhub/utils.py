@@ -836,18 +836,20 @@ def install_file_deps(deps, model, downloadir=None):
         ~/.mlhub/<pkg>/<files-inside-z.zip>   --- link-to -->   ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
     """
 
-    # TODO: Add download progress indicator, or use wget --quiet --show-progress <url> 2>&1
+    # TODO: Add download progress indicator, or use
+    #       wget --quiet --show-progress <url> 2>&1
     #
-    # TODO: Add support for file type specification, because the file type may not be determined by URL:
+    # TODO: Add support for file type specification, because the file type may
+    #       not be determined by URL:
     #
     #         dependencies:
     #           files:
     #             - https://api.github.com/repos/mlhubber/audit/zipball/master
     #               zip: data/
     #
-    # TODO: How to deal with different files? Should we download all of them at `ml install`
-    #       or separately at `ml install` for Path, and `ml configure` for URL
-    #       (which is by default now)? :
+    # TODO: How to deal with different files? Should we download all of them at
+    #       'ml install' or separately at 'ml install' for Path, and `ml
+    #       configure` for URL (which is by default now)? :
     #
     #         dependencies:
     #           files:
@@ -862,6 +864,7 @@ def install_file_deps(deps, model, downloadir=None):
     pkg_dir = get_package_dir(model)
 
     logger = logging.getLogger(__name__)
+    logger.info("Install file dependencies.")
     logger.debug("deps: {}".format(deps))
 
     def link_cache_to_pkg(cache, target):
@@ -905,6 +908,7 @@ def install_file_deps(deps, model, downloadir=None):
 
             # Obtain file name from URL.
 
+            logger.debug("Download file from url: {}".format(url))
             filename = get_url_filename(url)
             if filename is None:
                 filename = 'mlhubtmp-' + str(uuid.uuid4().hex)
