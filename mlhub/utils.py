@@ -302,7 +302,7 @@ def get_available_pkgyaml(url):
 
 def dropdot(sentence):
     """Drop the period after a sentence."""
-    return re.sub(".$", "", sentence)
+    return re.sub("\.$", "", sentence)
 
 
 def drop_newline(paragraph):
