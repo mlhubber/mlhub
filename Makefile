@@ -11,7 +11,7 @@ APP=mlhubv3
 #   Minor update
 #   Bug fix
 
-VER=2.9.13# 20181224 Update caching. More github patterns.
+VER=2.9.14# Also add a git tag 20181231 Simon's Christmas Updates.
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
@@ -88,7 +88,7 @@ worthy:
 	@echo "-------------------------------------------------------"
 
 $(TAR_GZ): $(SOURCE)
-	python setup.py sdist
+	python3 setup.py sdist
 
 .PHONY: pypi
 pypi: README.md version $(TAR_GZ)
