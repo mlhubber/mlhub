@@ -55,7 +55,7 @@ utils.add_log_handler(
     constants.LOG_FILE_LEVEL,
     constants.LOG_FILE_FORMAT)
 
-logger.info('---------- Start logging ----------')
+logger.info('---------- {} {} ----------'.format(os.path.basename(sys.argv[0]), ' '.join(sys.argv[1:])))
 
 # ----------------------------------------------------------------------
 # Set up command line parser and dispatch commands.
