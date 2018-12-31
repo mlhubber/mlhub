@@ -428,6 +428,7 @@ def readme(args):
             readme_raw = readme_raw[:readme_raw.rfind('.')] + '.rst'
             if not os.path.exists(readme_raw):
                 raise utils.ModelReadmeNotFoundException(model, readme_file)
+
         cmd = ("pandoc -t plain {} "
                "| awk '/^Usage$$/{{exit}}{{print}}' "
                "| perl -00pe0 > {}".format(readme_raw, README))
@@ -472,17 +473,19 @@ def list_model_commands(args):
 
     utils.check_model_installed(model)
     
-    info = utils.load_description(model)
+    entry = utils.load_description(model)
+    commands = entry['commands']
 
     if args.name_only:
-        print('\n'.join(list(info['commands'])))
+        print('\n'.join(list(commands)))
         return
     
     msg = "The '{}' model "
-    if 'title' not in info['meta']:
+    meta = entry['meta']
+    if 'title' not in meta:
         title = None
     else:
-        title = utils.lower_first_letter(utils.dropdot(info['meta']['title']))
+        title = utils.lower_first_letter(utils.dropdot(meta['title']))
         msg += "({}) "
 
     msg += "supports the following commands:"
@@ -490,17 +493,17 @@ def list_model_commands(args):
     msg = textwrap.fill(msg, width=75)
     print(msg)
 
-    for cmd in info['commands']:
-        utils.print_model_cmd_help(info, cmd)
+    for cmd in commands:
+        utils.print_model_cmd_help(entry, cmd)
 
     # Update bash completion list.
 
-    utils.update_command_completion(set(info['commands']))
+    utils.update_command_completion(set(commands))
 
     # Suggest next step.
     
     if not args.quiet:
-        utils.print_next_step('commands', description=info, model=model)
+        utils.print_next_step('commands', description=entry, model=model)
 
 # -----------------------------------------------------------------------
 # CONFIGURE
