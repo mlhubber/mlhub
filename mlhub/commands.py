@@ -272,7 +272,10 @@ def install_model(args):
             elif not utils.is_github_url(location):  # Get MLHUB.yaml inside the archive file.
 
                 if utils.is_url(location):  # Download the file if needed
-                    utils.download_model_pkg(location, local, args.quiet)
+                    utils.download_model_pkg(location, local, pkgfile, args.quiet)
+
+                if not args.quiet:
+                    print("Extracting '{}' ...\n".format(pkgfile))
 
                 utils.unpack_with_promote(local, uncompressdir, valid_name=pkgfile)
                 mlhubyaml = utils.get_available_pkgyaml(uncompressdir)  # Path to MLHUB.yaml
@@ -312,9 +315,12 @@ def install_model(args):
 
         # Uncompress package file.
 
-        if not os.path.exists(uncompressdir):  # Model pkg mlm file has not unzipped yet.
+        if not os.path.exists(uncompressdir):  # Model pkg mlm or GitHub pkg has not unzipped yet.
             if utils.is_url(location):  # Download the mlm file if needed.
-                utils.download_model_pkg(location, local, args.quiet)
+                utils.download_model_pkg(location, local, pkgfile, args.quiet)
+
+            if not args.quiet:
+                print("Extracting '{}' ...\n".format(pkgfile))
 
             utils.unpack_with_promote(local, uncompressdir, valid_name=pkgfile)
 
@@ -374,8 +380,8 @@ def install_model(args):
 
             # Informative message about the size of the installed model.
 
-            print("Extracted '{}' into\n'{}' ({:,} bytes).".format(
-                pkgfile, install_path, utils.dir_size(install_path)))
+            print("Installed '{}' into '{}' ({:,} bytes).".format(
+                model, install_path, utils.dir_size(install_path)))
 
             # Suggest next step. README or DOWNLOAD
 

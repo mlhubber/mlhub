@@ -347,10 +347,9 @@ def get_url_filename(url):
     return filename
 
 
-def download_model_pkg(url, local, quiet):
+def download_model_pkg(url, local, pkgfile, quiet):
     """Download the model package mlm or zip file from <url> to <local>."""
 
-    pkgfile = os.path.basename(url)
     if not quiet:
         print("Package " + url + "\n")
 
@@ -363,8 +362,13 @@ def download_model_pkg(url, local, quiet):
     dsize = meta.getheader("Content-Length")
     if dsize is not None:
         dsize = "{:,}".format(int(dsize))
-        if not quiet:
-            print("Downloading '{}' ({} bytes) ...\n".format(pkgfile, dsize))
+
+    if not quiet:
+        msg = "Downloading '{}'".format(pkgfile)
+        if dsize is not None:
+            msg += " ({} bytes)".format(dsize)
+        msg += " ...\n"
+        print(msg)
 
     # Download the archive from the URL.
 
