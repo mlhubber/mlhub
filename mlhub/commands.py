@@ -199,7 +199,7 @@ def install_model(args):
     logger.debug('args: {}'.format(args))
 
     model = args.model   # model pkg name
-    url = args.model     # pkg file path or URL
+    location = args.model     # pkg file path or URL
     version = None       # model pkg version
     mlhubyaml = None     # MLHUB.yaml path or URL
 
@@ -214,13 +214,13 @@ def install_model(args):
         # We assume the URL got from mlhub repo is a link to a mlm/zip/tar file
         # or a GitHub repo URL.
 
-        url, version, meta_list = utils.get_model_info_from_repo(model, args.mlhub)
+        location, version, meta_list = utils.get_model_info_from_repo(model, args.mlhub)
 
         # Update bash completion list.
 
         utils.update_model_completion({e['meta']['name'] for e in meta_list})
 
-    if not utils.is_archive(url):
+    if not utils.is_archive(location):
 
         # Model from GitHub.
         # Like:
@@ -228,22 +228,25 @@ def install_model(args):
         #     $ ml install mlhubber/audit:doc/MLHUB.yaml
         #     $ ml install https://github.com/mlhubber/audit/...
 
-        mlhubyaml = utils.get_pkgyaml_github_url(url)  # URL to MLHUB.yaml
-        url = utils.get_pkgzip_github_url(url)
+        mlhubyaml = utils.get_pkgyaml_github_url(location)  # URL to MLHUB.yaml
+        location = utils.get_pkgzip_github_url(location)
 
     # Determine the path of downloaded/existing model package file
 
-    # TODO: The file name cannot be determined from URL.  How to deal with this scenario?
-    #       Currently solution: If model package file name cannot be determined from URL,
-    #       then we assume it is a MLM file, which means it is Zipball.
+    pkgfile = None
+    if utils.is_archive(location):
+        pkgfile = os.path.basename(location)  # pkg file name
+    elif utils.is_url(location):
+        pkgfile = utils.get_url_filename(location)
 
-    pkgfile = "mlhubmodelpkg-" + str(uuid.uuid4().hex) + ".mlm"
-    uncompressdir = pkgfile[:-4]  # Dir Where pkg file is extracted
+    # Query archive type if not available from file name per se.
 
-    if utils.is_archive(url):
-        pkgfile = os.path.basename(url)  # pkg file name
-    elif utils.is_url(url):
-        pkgfile = utils.get_url_filename(url)
+    while pkgfile is None or not utils.is_archive(pkgfile):
+        print("The file type cannot be determined.\n"
+              "Please give it a file name with explicit valid archive extension: ", end='')
+        pkgfile = input()
+
+    uncompressdir = pkgfile[:pkgfile.rfind('.')]  # Dir Where pkg file is extracted
 
     # Installation.
 
@@ -252,26 +255,26 @@ def install_model(args):
 
         # Determine the local path of the model package
 
-        if utils.is_url(url):
+        if utils.is_url(location):
             local = os.path.join(mlhubtmpdir, pkgfile)  # downloaded
         else:
-            local = url  # local file path
+            local = location  # local file path
 
         uncompressdir = os.path.join(mlhubtmpdir, uncompressdir)
 
         # Obtain model version.
 
         if version is None:
-            if utils.ends_with_mlm(url):  # Get version number from MLM file name.
+            if utils.ends_with_mlm(pkgfile):  # Get version number from MLM file name.
 
-                model, version = utils.interpret_mlm_name(url)
+                model, version = utils.interpret_mlm_name(pkgfile)
 
-            elif not utils.is_github_url(url):  # Get MLHUB.yaml inside the archive file.
+            elif not utils.is_github_url(location):  # Get MLHUB.yaml inside the archive file.
 
-                if utils.is_url(url):  # Download the file if needed
-                    utils.download_model_pkg(url, local, args.quiet)
+                if utils.is_url(location):  # Download the file if needed
+                    utils.download_model_pkg(location, local, args.quiet)
 
-                utils.unpack_with_promote(local, uncompressdir)
+                utils.unpack_with_promote(local, uncompressdir, valid_name=pkgfile)
                 mlhubyaml = utils.get_available_pkgyaml(uncompressdir)  # Path to MLHUB.yaml
 
             if mlhubyaml is not None:  # Get version number from MLHUB.yaml
@@ -310,10 +313,10 @@ def install_model(args):
         # Uncompress package file.
 
         if not os.path.exists(uncompressdir):  # Model pkg mlm file has not unzipped yet.
-            if utils.is_url(url):  # Download the mlm file if needed.
-                utils.download_model_pkg(url, local, args.quiet)
+            if utils.is_url(location):  # Download the mlm file if needed.
+                utils.download_model_pkg(location, local, args.quiet)
 
-            utils.unpack_with_promote(local, uncompressdir)
+            utils.unpack_with_promote(local, uncompressdir, valid_name=pkgfile)
 
         # Install package files.
         #

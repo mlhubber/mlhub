@@ -397,7 +397,7 @@ def _create_dir(path, error_msg, exception):
     return path
 
 
-def unpack_with_promote(file, dest, remove_dst=True):
+def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
     """Unzip <file> into the directory <dest>.
 
     If all files in the zip file are under a top level directory,
@@ -418,7 +418,10 @@ def unpack_with_promote(file, dest, remove_dst=True):
 
     # Figure out if <file> is a Zipball or Tarball.
 
-    if is_mlm_zip(file):
+    if valid_name is None:
+        valid_name = file
+
+    if is_mlm_zip(valid_name):
         opener, lister_name, appender_name = zipfile.ZipFile, 'namelist', 'write'
     else:
         opener, lister_name, appender_name = tarfile.open, 'getnames', 'add'
