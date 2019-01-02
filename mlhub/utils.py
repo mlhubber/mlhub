@@ -1218,6 +1218,103 @@ def create_package_archive_dir(model=None):
         'Model package archive dir creation failed: {}'.format(path),
         ModelPkgArchiveDirCreateException(path))
 
+
+def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'):
+    """Generate Packages.yaml, the curated list of model packages, by just concatenate all MLHUB.yaml.
+    By default, it will generate Packages.yaml in current working dir.
+
+    Args:
+        mlmodelsyaml (str): YAML file which list all available models and their location.
+        packagesyaml (str): YAML file which will hold meta data in all MLHUB.yaml.
+    """
+
+    entry = yaml.load(open(mlmodelsyaml))
+    model_list = list(entry.keys())
+    model_list.sort()
+    failed_models = []
+
+    with open(packagesyaml, 'w') as file:
+        for model in model_list:
+
+            # Write yaml entry separator
+
+            file.write("--- # {}\n".format(model))
+
+            # Read model's MLHUB.yaml file
+
+            location = entry[model]
+            mlhubyaml = get_pkgyaml_github_url(location)
+
+            print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
+
+            try:
+                res = json.loads(urllib.request.urlopen(mlhubyaml).read())
+            except urllib.error.HTTPError:
+                failed_models.append(model)
+                continue
+
+            content = base64.b64decode(res["content"]).decode()
+
+            for line in content.splitlines():
+
+                # Remove yaml entry separator in model's MLHUB.yaml to avoid duplication
+
+                if line.startswith('---') or line.startswith('...'):
+                    continue
+
+                file.write(line)
+                file.write('\n')
+
+    if len(failed_models) != 0:
+        print("Failed to curate list for models:\n    {}".format(', '.join(failed_models)))
+
+
+def gen_packages_yaml2(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'):
+    """Generate Packages.yaml, the curated list of model packages, using yaml to ensure correct format.
+    By default, it will generate Packages.yaml in current working dir.
+
+    Args:
+        mlmodelsyaml (str): YAML file which list all available models and their location.
+        packagesyaml (str): YAML file which will hold meta data in all MLHUB.yaml.
+    """
+
+    meta = yaml.load(open(mlmodelsyaml))
+    model_list = list(meta.keys())
+    model_list.sort()
+    failed_models = []
+
+    with open(packagesyaml, "w") as file:
+        entry_list = []
+        for model in model_list:
+
+            # Read model's MLHUB.yaml file
+
+            location = meta[model]
+            mlhubyaml = get_pkgyaml_github_url(location)
+
+            print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
+
+            try:
+                res = json.loads(urllib.request.urlopen(mlhubyaml).read())
+            except urllib.error.HTTPError:
+                failed_models.append(model)
+                continue
+
+            content = base64.b64decode(res["content"]).decode()
+
+            try:
+                entry = yaml.load(content, Loader=yamlordereddictloader.Loader)
+            except (yaml.composer.ComposerError, yaml.scanner.ScannerError):
+                failed_models.append(model)
+                continue
+
+            entry_list.append(entry)
+
+        yaml.dump_all(entry_list, file)
+
+    if len(failed_models) != 0:
+        print("Failed to curate list for models:\n    {}".format(', '.join(failed_models)))
+
 # ----------------------------------------------------------------------
 # Bash completion helper
 # ----------------------------------------------------------------------
