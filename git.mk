@@ -15,7 +15,8 @@ GIT Version Control:
   status  Status listing untracked files;
   qstatus A quieter status ignoring untracked files;
   push
-  pull
+  fetch   Update local repo from remote;
+  rebase  Rebase local repo up to fetched remote;
   master  Checkout the master branch;
   dev     Checkout the dev branch;
   log
