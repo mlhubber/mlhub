@@ -77,7 +77,7 @@ if (!snapshot)
 
     if (! pkg %in% avail_cran_pkgs)
     {
-      stop(sprintf("The R pacakge '%s' is not available from CRAN.", pkg))
+      stop(sprintf("The R package '%s' is not available from CRAN.", pkg))
     }
 
     if (is.null(repos))  # In case there is no default repos defined.
