@@ -11,7 +11,7 @@ APP=mlhubv3
 #   Minor update
 #   Bug fix
 
-VER=2.9.14# Also add a git tag 20181231 Simon's Christmas Updates.
+VER=2.9.15# 20190102.
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
