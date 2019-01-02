@@ -59,6 +59,7 @@ if (!snapshot)
 {
   already <- installed.packages()[,"Package"]
   already_ver <- installed.packages()[,"Version"]
+  repos <- getOption("repos")
   for (pkg in name_pkgs)
   {
     if (pkg %in% already)
@@ -72,7 +73,10 @@ if (!snapshot)
     }
 
     cat(sprintf("\n*** Installing latest version R package '%s' from CRAN ...\n", pkg))
-    install.packages(pkg, lib=lib)
+    if (is.null(repos))  # In case there is no default repos defined.
+      install.packages(pkg, repos="https://cloud.r-project.org", lib=lib)
+    else
+      install.packages(pkg, lib=lib)
   }
 }
 
