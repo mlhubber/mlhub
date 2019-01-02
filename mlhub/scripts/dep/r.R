@@ -60,6 +60,7 @@ if (!snapshot)
   already <- installed.packages()[,"Package"]
   already_ver <- installed.packages()[,"Version"]
   repos <- getOption("repos")
+  avail_cran_pkgs <- available.packages()[, 'Package']
   for (pkg in name_pkgs)
   {
     if (pkg %in% already)
@@ -73,6 +74,12 @@ if (!snapshot)
     }
 
     cat(sprintf("\n*** Installing latest version R package '%s' from CRAN ...\n", pkg))
+
+    if (! pkg %in% avail_cran_pkgs)
+    {
+      stop(sprintf("The R pacakge '%s' is not available from CRAN.", pkg))
+    }
+
     if (is.null(repos))  # In case there is no default repos defined.
       install.packages(pkg, repos="https://cloud.r-project.org", lib=lib)
     else
