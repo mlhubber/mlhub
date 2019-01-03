@@ -340,7 +340,7 @@ def install_model(args):
 
         # Find if any files specified in MLHUB.yaml
 
-        if mlhubyaml is None:  # mlm file
+        if mlhubyaml is None:  # MLM file which can obtain version number from it name.
             mlhubyaml = utils.get_available_pkgyaml(uncompressdir)
             entry = utils.read_mlhubyaml(mlhubyaml)
 

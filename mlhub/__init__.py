@@ -225,10 +225,18 @@ def main():
         utils.print_error_exit(msg)
 
     except utils.DescriptionYAMLNotFoundException as e:
-        msg = "No MLHUB description file found: {}\n  The model package may be broken!"
-        utils.print_error(msg, e.args[0])
-        if not args.quiet:  # Suggest remove broken package or install new model
-            utils.print_commands_suggestions_on_stderr('remove', 'install')
+        msg = "No MLHUB description file found: {}"
+
+        location = e.args[0]
+        if not utils.is_url(location):
+            msg += "\n  The model package may be broken!"
+            utils.print_error(msg, location)
+            if not args.quiet:  # Suggest remove broken package or install new model
+                utils.print_commands_suggestions_on_stderr('remove', 'install')
+        else:
+            msg += "\n  The given location may be wrong!"
+            utils.print_error(msg, location)
+
         sys.exit(1)
 
     except utils.ModelNotInstalledException as e:

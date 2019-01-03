@@ -1273,14 +1273,12 @@ def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'
 
             # Read model's MLHUB.yaml file
 
-            location = entry[model]
-            mlhubyaml = get_pkgyaml_github_url(location)
-
-            print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
-
             try:
+                location = entry[model]
+                mlhubyaml = get_pkgyaml_github_url(location)
+                print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
                 res = json.loads(urllib.request.urlopen(mlhubyaml).read())
-            except urllib.error.HTTPError:
+            except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
                 failed_models.append(model)
                 continue
 
@@ -1320,14 +1318,12 @@ def gen_packages_yaml2(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml
 
             # Read model's MLHUB.yaml file
 
-            location = meta[model]
-            mlhubyaml = get_pkgyaml_github_url(location)
-
-            print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
-
             try:
+                location = meta[model]
+                mlhubyaml = get_pkgyaml_github_url(location)
+                print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
                 res = json.loads(urllib.request.urlopen(mlhubyaml).read())
-            except urllib.error.HTTPError:
+            except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
                 failed_models.append(model)
                 continue
 
