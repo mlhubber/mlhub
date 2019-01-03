@@ -230,6 +230,7 @@ def install_model(args):
 
         mlhubyaml = utils.get_pkgyaml_github_url(location)  # URL to MLHUB.yaml
         location = utils.get_pkgzip_github_url(location)
+        logger.debug("location: {}".format(location))
 
     # Determine the path of downloaded/existing model package file
 
@@ -293,8 +294,12 @@ def install_model(args):
         install_path = utils.get_package_dir(model)  # Installation path
         if os.path.exists(install_path):
             installed_version = utils.load_description(model)['meta']['version']
+
+            # Ensure version number is string.
+
             installed_version = str(installed_version)
             version = str(version)
+
             if StrictVersion(installed_version) > StrictVersion(version):
                 yes = utils.yes_or_no(
                     "Downgrade '{}' from version '{}' to version '{}'",

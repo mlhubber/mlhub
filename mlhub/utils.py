@@ -219,7 +219,10 @@ def get_model_info_from_repo(model, repo):
         for entry in meta_list:
             meta = entry["meta"]
             if model == meta["name"]:
-                url = meta["url"]
+                if "yaml" in meta:
+                    url = meta["yaml"]
+                else:
+                    url = meta["url"]
 
                 # If url refers to an archive, its version must be known.
 
@@ -1056,6 +1059,11 @@ def interpret_github_url(url):
               For a file:  https://github.com/mlhubber/mlhub/blob/dev/DESCRIPTION.yaml
         For pull request:  https://github.com/mlhubber/mlhub/pull/15
     """
+
+    logger = logging.getLogger(__name__)
+    logger.info("Interpret GitHub location.")
+    logger.debug("url: {}".format(url))
+
     seg = url.split('/')
     ref = 'master'  # Use master by default.
     yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
@@ -1109,6 +1117,8 @@ def interpret_github_url(url):
                 ref = seg[6]
                 mlhubyaml = '/'.join(seg[7:])
 
+
+    logger.debug("owner: {}, repo: {}, ref: {}, mlhubyaml: {}".format(owner, repo, ref, mlhubyaml))
     return owner, repo, ref, mlhubyaml
 
 
