@@ -225,7 +225,7 @@ def main():
         utils.print_error_exit(msg)
 
     except utils.DescriptionYAMLNotFoundException as e:
-        msg = "No '.YAML' file found for '{}'.  The model package may be broken!"
+        msg = "No MLHUB description file found: {}\n  The model package may be broken!"
         utils.print_error(msg, e.args[0])
         if not args.quiet:  # Suggest remove broken package or install new model
             utils.print_commands_suggestions_on_stderr('remove', 'install')
@@ -277,6 +277,14 @@ def main():
         if not args.quiet:  # Suggest check if any models available, since specified model not available
             utils.print_commands_suggestions_on_stderr('available')
         sys.exit(1)
+
+    except utils.ModePkgInstallationFileNotFoundException as e:
+        msg = "No such package file: {}\n  The model package may be broken!"
+        utils.print_error_exit(msg, e.args[0])
+
+    except utils.ModePkgDependencyFileNotFoundException as e:
+        msg = "Failed to get File dependency: {}\n"
+        utils.print_error_exit(msg, e.args[0])
 
     except utils.ConfigureFailedException:  # configure failed, then just quit
         sys.exit(1)

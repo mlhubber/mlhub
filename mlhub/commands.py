@@ -362,9 +362,15 @@ def install_model(args):
 
             # All package files except MLHUB.yaml should be specified in 'files' of MLHUB.yaml
 
-            utils.install_file_deps(utils.flatten_mlhubyaml_deps(file_spec)[0][1],
-                                    model,
-                                    downloadir=uncompressdir)
+            try:
+                utils.install_file_deps(utils.flatten_mlhubyaml_deps(file_spec)[0][1],
+                                        model,
+                                        downloadir=uncompressdir)
+            except utils.ModePkgInstallationFileNotFoundException as e:
+                if os.path.exists(install_path):
+                    shutil.rmtree(install_path)
+
+                raise
 
         else:
             # Otherwise, put all files under package dir.

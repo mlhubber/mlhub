@@ -283,6 +283,7 @@ def get_available_pkgyaml(url):
         yaml_list = [os.path.join(url, x) for x in yaml_list]
 
     if is_url(url):
+        param = url.format(MLHUB_YAML)
         for x in yaml_list:
             try:
                 if urllib.request.urlopen(x).status == 200:
@@ -290,11 +291,14 @@ def get_available_pkgyaml(url):
             except urllib.error.URLError:
                 continue
     else:
+        param = url
         for x in yaml_list:
             if os.path.exists(x):
                 return x
 
-    raise DescriptionYAMLNotFoundException(url)
+
+
+    raise DescriptionYAMLNotFoundException(param)
 
 # ----------------------------------------------------------------------
 # String manipulation
@@ -983,7 +987,11 @@ def install_file_deps(deps, model, downloadir=None):
 
             if needownload:
                 os.makedirs(os.path.dirname(archive), exist_ok=True)
-                urllib.request.urlretrieve(location, archive)
+
+                try:
+                    urllib.request.urlretrieve(location, archive)
+                except urllib.error.HTTPError:
+                    raise ModePkgDependencyFileNotFoundException(location)
 
             # Install
 
@@ -1001,17 +1009,20 @@ def install_file_deps(deps, model, downloadir=None):
 
             # Move the files from download dir to package dir.
 
-            goal = os.path.join(pkg_dir, '' if target is None else target)
-            if location.endswith('*'):  # Move all files under <location> to package's root dir
-                origin = os.path.join(downloadir, location[:-2])
-                merge_folder(origin, goal)
-            else:
-                origin = os.path.join(downloadir, location)
-                if os.path.isdir(origin) and not goal.endswith(os.path.sep):
+            try:
+                goal = os.path.join(pkg_dir, '' if target is None else target)
+                if location.endswith('*'):  # Move all files under <location> to package's root dir
+                    origin = os.path.join(downloadir, location[:-2])
                     merge_folder(origin, goal)
                 else:
-                    os.makedirs(os.path.dirname(goal), exist_ok=True)
-                    shutil.move(origin, goal)
+                    origin = os.path.join(downloadir, location)
+                    if os.path.isdir(origin) and not goal.endswith(os.path.sep):
+                        merge_folder(origin, goal)
+                    else:
+                        os.makedirs(os.path.dirname(goal), exist_ok=True)
+                        shutil.move(origin, goal)
+            except FileNotFoundError:
+                raise ModePkgInstallationFileNotFoundException(location)
 
 # ----------------------------------------------------------------------
 # GitHub
@@ -1078,8 +1089,6 @@ def interpret_github_url(url):
             ref = "pull/" + tmp[1].split(':')[0] + "/head"
         elif ':' in repo:
             repo = repo.split(':')[0]
-
-        if [x for x in yaml_list if url.endswith(x)]:
             mlhubyaml = url.split(':')[-1]
 
     else:  # Repo URL like https://github.com/mlhubber/mlhub
@@ -1664,4 +1673,12 @@ class MalformedPackagesDotYAMLException(Exception):
 
 
 class ModelPkgArchiveDirCreateException(Exception):
+    pass
+
+
+class ModePkgInstallationFileNotFoundException(Exception):
+    pass
+
+
+class ModePkgDependencyFileNotFoundException(Exception):
     pass
