@@ -293,6 +293,8 @@ def install_model(args):
         install_path = utils.get_package_dir(model)  # Installation path
         if os.path.exists(install_path):
             installed_version = utils.load_description(model)['meta']['version']
+            installed_version = str(installed_version)
+            version = str(version)
             if StrictVersion(installed_version) > StrictVersion(version):
                 yes = utils.yes_or_no(
                     "Downgrade '{}' from version '{}' to version '{}'",
