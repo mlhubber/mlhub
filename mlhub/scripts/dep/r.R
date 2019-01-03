@@ -68,12 +68,12 @@ if (!snapshot)
       latest_ver <- old.packages(instPkgs=installed.packages()[pkg, , drop=FALSE])[, 'ReposVer']
       if (is.null(latest_ver))
       {
-        cat(sprintf("\n*** The R package '%s' is already the latest version.\n", pkg))
+        cat(sprintf("\n*** The installed R package '%s' is already the latest version.\n", pkg))
         next
       }
     }
 
-    cat(sprintf("\n*** Installing latest version R package '%s' from CRAN ...\n", pkg))
+    cat(sprintf("\n*** Installing the latest version of the R package '%s' from CRAN ...\n", pkg))
 
     if (! pkg %in% avail_cran_pkgs)
     {
@@ -129,7 +129,7 @@ if (!snapshot)
     }
     else
     {
-      cat(sprintf("\n*** Installing R package '%s' version '%s' ...\n", name, ver))
+      cat(sprintf("\n*** Installing the R package '%s' version '%s' ...\n", name, ver))
       devtools::install_version(name, version=ver, repos="https://cloud.r-project.org", lib=lib)
     }
   }
@@ -150,7 +150,7 @@ if (!snapshot)
 
   for (pkg in extra_pkgs)
   {
-    cat(sprintf("\n*** Installing specific R package '%s' ...\n", pkg))
+    cat(sprintf("\n*** Installing the R package from '%s' ...\n", pkg))
     install.packages(pkg, repos=NULL, lib=lib)
   }
 }
@@ -164,7 +164,7 @@ if (snapshot)
   stamp <- substr(src, 6, 15)
   for (pkg in name_pkgs)
   {
-    cat(sprintf("\n*** Installing R packages '%s' from snapshot '%s' ...\n", pkg, stamp))
+    cat(sprintf("\n*** Installing the R package '%s' from snapshot '%s' ...\n", pkg, stamp))
     install.packages(packages, repos=paste('https://cran.microsoft.com/snapshot/', stamp, sep=''), lib=lib, dep=TRUE)
   }
 }
