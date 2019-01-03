@@ -231,6 +231,7 @@ def install_model(args):
         mlhubyaml = utils.get_pkgyaml_github_url(location)  # URL to MLHUB.yaml
         location = utils.get_pkgzip_github_url(location)
         logger.debug("location: {}".format(location))
+        logger.debug("mlhubyaml: {}".format(mlhubyaml))
 
     # Determine the path of downloaded/existing model package file
 
@@ -272,7 +273,7 @@ def install_model(args):
 
             elif not utils.is_github_url(location):  # Get MLHUB.yaml inside the archive file.
 
-                if utils.is_url(location):  # Download the file if needed
+                if utils.is_url(location):  # Download the package file because it is not from GitHub.
                     utils.download_model_pkg(location, local, pkgfile, args.quiet)
 
                 if not args.quiet:
@@ -323,7 +324,7 @@ def install_model(args):
         # Uncompress package file.
 
         if not os.path.exists(uncompressdir):  # Model pkg mlm or GitHub pkg has not unzipped yet.
-            if utils.is_url(location):  # Download the mlm file if needed.
+            if utils.is_url(location):  # Download the package file if needed.
                 utils.download_model_pkg(location, local, pkgfile, args.quiet)
 
             if not args.quiet:
@@ -361,9 +362,14 @@ def install_model(args):
 
             os.mkdir(install_path)
             if utils.is_url(mlhubyaml):  # We currently only support MLHUB.yaml specified on GitHub.
-                urllib.request.urlretrieve(
-                    json.loads(urllib.request.urlopen(mlhubyaml).read())['download_url'],
-                    os.path.join(install_path, MLHUB_YAML))
+                if mlhubyaml.startswith("https://api"):
+                    urllib.request.urlretrieve(
+                        json.loads(urllib.request.urlopen(mlhubyaml).read())['download_url'],
+                        os.path.join(install_path, MLHUB_YAML))
+                else:
+                    urllib.request.urlretrieve(
+                        mlhubyaml,
+                        os.path.join(install_path, MLHUB_YAML))
             else:
                 shutil.move(mlhubyaml, install_path)
 

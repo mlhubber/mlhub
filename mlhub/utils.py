@@ -170,7 +170,7 @@ def read_mlhubyaml(name):
 
     try:
 
-        if is_github_url(name):
+        if is_github_url(name) and name.startswith("https://api"):
             res = json.loads(urllib.request.urlopen(name).read())
             content = base64.b64decode(res["content"])
         elif is_url(name):
@@ -274,6 +274,7 @@ def get_available_pkgyaml(url):
     If both exist, MLHUB.yaml takes precedence.
     Path can be a path to the package directory or a URL to the top level of the pacakge repo
     """
+
     yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
 
     if is_github_url(url):
@@ -285,11 +286,16 @@ def get_available_pkgyaml(url):
             url = os.path.join(get_init_dir(), url)
         yaml_list = [os.path.join(url, x) for x in yaml_list]
 
+    logger = logging.getLogger(__name__)
+    logger.info("Finding MLHUB.yaml ...")
+    logger.debug("Possible locations: {}".format(yaml_list))
+
     if is_url(url):
-        param = url.format(MLHUB_YAML)
+        param = yaml_list[0]
         for x in yaml_list:
             try:
                 if urllib.request.urlopen(x).status == 200:
+                    logger.debug("YAML: {}".format(x))
                     return x
             except urllib.error.URLError:
                 continue
@@ -297,9 +303,8 @@ def get_available_pkgyaml(url):
         param = url
         for x in yaml_list:
             if os.path.exists(x):
+                logger.debug("YAML: {}".format(x))
                 return x
-
-
 
     raise DescriptionYAMLNotFoundException(param)
 
@@ -1035,7 +1040,11 @@ def install_file_deps(deps, model, downloadir=None):
 def is_github_url(name):
     """Check if name starts with http://github.com or https://github.com"""
 
-    return is_url(name) and name.lower().split('/')[2].endswith("github.com")
+    if is_url(name):
+        domain = name.lower().split('/')[2]
+        return domain.endswith("github.com") or domain.endswith("githubusercontent.com")
+    else:
+        return False
 
 
 def interpret_github_url(url):
@@ -1117,7 +1126,6 @@ def interpret_github_url(url):
                 ref = seg[6]
                 mlhubyaml = '/'.join(seg[7:])
 
-
     logger.debug("owner: {}, repo: {}, ref: {}, mlhubyaml: {}".format(owner, repo, ref, mlhubyaml))
     return owner, repo, ref, mlhubyaml
 
@@ -1129,7 +1137,8 @@ def get_pkgzip_github_url(url):
     """
 
     owner, repo, ref, _ = interpret_github_url(url)
-    return "https://api.github.com/repos/{}/{}/zipball/{}".format(owner, repo, ref)
+    # return "https://api.github.com/repos/{}/{}/zipball/{}".format(owner, repo, ref)
+    return "https://codeload.github.com/{}/{}/zip/{}".format(owner, repo, ref)
 
 
 def get_pkgyaml_github_url(url):
@@ -1139,7 +1148,10 @@ def get_pkgyaml_github_url(url):
     """
 
     owner, repo, ref, mlhubyaml = interpret_github_url(url)
-    url = "https://api.github.com/repos/{}/{}/contents/{{}}?ref={}".format(owner, repo, ref)
+    if ref.startswith("pull/"):
+        url = "https://api.github.com/repos/{}/{}/contents/{{}}?ref={}".format(owner, repo, ref)
+    else:
+        url = "https://raw.githubusercontent.com/{}/{}/{}/{{}}".format(owner, repo, ref)
     if mlhubyaml is None:
         return get_available_pkgyaml(url)
     else:
