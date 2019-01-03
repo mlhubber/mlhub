@@ -11,7 +11,7 @@ APP=mlhubv3
 #   Minor update
 #   Bug fix
 
-VER=2.9.15# 20190102.
+VER=2.9.16# 20190103 Support arbitrary names MLHUB.yaml files.
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
