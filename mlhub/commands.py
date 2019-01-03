@@ -212,7 +212,15 @@ def install_model(args):
         #     $ ml install audit
         #
         # We assume the URL got from mlhub repo is a link to a mlm/zip/tar file
-        # or a GitHub repo URL.
+        # or a GitHub repo reference or MLHUB.yaml.
+
+        # Correct model name if possible.
+
+        matched_model = utils.get_misspelled_pkg(model, utils.get_model_completion_list())
+        if matched_model is not None:
+            model = matched_model
+
+        # Get model pkg meta data from mlhub repo.
 
         location, version, meta_list = utils.get_model_info_from_repo(model, args.mlhub)
 
@@ -436,18 +444,26 @@ def download_model(args):
 def readme(args):
     """Display the model's README information."""
 
-    # Setup.
-    logger = logging.getLogger(__name__)
-
     model = args.model
+
+    # Correct model name if possible.
+
+    matched_model = utils.get_misspelled_pkg(model, utils.get_model_completion_list())
+    if matched_model is not None:
+        model = matched_model
+
+    # Setup.
+
+    logger = logging.getLogger(__name__)
+    logger.info("Get README of {}.".format(model))
+
     path = utils.get_package_dir(model)
     readme_file = os.path.join(path, README)
-    logger.info("Get README of {}.".format(model))
 
     # Check that the model is installed.
 
     utils.check_model_installed(model)
-    
+
     # Display the README.
 
     if not os.path.exists(readme_file):  # Try to generate README from README.md
@@ -491,10 +507,15 @@ def license(args):
 def list_model_commands(args):
     """ List the commands supported by this model."""
 
-    # Setup.
+    model = args.model
+
+    # Correct model name if possible.
+
+    matched_model = utils.get_misspelled_pkg(model, utils.get_model_completion_list())
+    if matched_model is not None:
+        model = matched_model
 
     logger = logging.getLogger(__name__)
-    model = args.model
     logger.info("List available commands of '{}'".format(model))
 
     # Check that the model is installed.
@@ -598,10 +619,19 @@ def configure_model(args):
                   "\n  $ source /etc/bash_completion.d/ml.bash\n")
 
         return
-    
-    # Setup.
-    
+
+    # Model package configuration.
+
     model = args.model
+
+    # Correct model name if possible.
+
+    matched_model = utils.get_misspelled_pkg(model, utils.get_model_completion_list())
+    if matched_model is not None:
+        model = matched_model
+
+    # Setup.
+
     pkg_dir = utils.get_package_dir(model)
    
     # Check if the model package is installed.
@@ -719,6 +749,12 @@ def dispatch(args):
     utils.check_model_installed(model)
     
     entry = utils.load_description(model)
+
+    # Correct misspelled command if possible.
+
+    matched_cmd = utils.get_misspelled_command(cmd, list(entry['commands']))
+    if matched_cmd is not None:
+        cmd = matched_cmd
 
     # Check if cmd needs to use graphic display indicated in DESCRIPTION.yaml.
 
@@ -844,10 +880,17 @@ def remove_mlm(args):
 
 def remove_model(args):
     """Remove installed model."""
-
-    # Setup.
     
     model = args.model
+
+    # Correct model name if possible.
+
+    matched_model = utils.get_misspelled_pkg(model, utils.get_model_completion_list())
+    if matched_model is not None:
+        model = matched_model
+
+    # Determine if remove all model pkgs or a certain model pkg.
+
     cache = None
     if model is None:
         path = utils.get_init_dir()

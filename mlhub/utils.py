@@ -47,6 +47,8 @@ import yaml
 import yamlordereddictloader
 import zipfile
 
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process as fuzzprocess
 from mlhub.constants import (
     APP,
     APPX,
@@ -1404,7 +1406,65 @@ def get_completion_list(completion_file):
         with open(completion_file) as file:
             words = {line.strip() for line in file if line.strip()}
 
-    print('\n'.join(words))
+    # print('\n'.join(words))
+
+    return list(words)
+
+
+def get_command_completion_list():
+    """Get cached available commands."""
+
+    return get_completion_list(COMPLETION_COMMANDS)
+
+
+def get_model_completion_list():
+    """Get cached available model pkg names."""
+
+    return get_completion_list(COMPLETION_MODELS)
+
+# -----------------------------------------------------------------------
+# Fuzzy match helper
+# -----------------------------------------------------------------------
+
+
+def find_best_match(misspelled, candidates):
+    """Find the best matched word with <misspelled> in <candidates>."""
+
+    best_match = fuzzprocess.extract(misspelled, candidates, scorer=fuzz.ratio)[0]
+    matched = best_match[0]
+    score = best_match[1]
+
+    return matched, score
+
+
+def is_misspelled(score):
+    """Check misspelled in terms of score."""
+
+    return score >= 80 and score != 100  # 80 is an empirical value.
+
+
+def get_misspelled_command(command, available_commands):
+
+    matched, score = find_best_match(command, available_commands)
+    if is_misspelled(score):
+        yes = yes_or_no("The command '{}' is not supported.  Did you mean '{}'", command, matched, yes=True)
+        if yes:
+            print()
+            return matched
+
+    return None
+
+
+def get_misspelled_pkg(model, available_models):
+    matched, score = find_best_match(model, available_models)
+    if is_misspelled(score):
+        yes = yes_or_no("The model '{}' was not found.  Did you mean '{}'", model, matched, yes=True)
+        if yes:
+            print()
+            return matched
+
+    return None
+
 
 # -----------------------------------------------------------------------
 # Command line argument parse helper
