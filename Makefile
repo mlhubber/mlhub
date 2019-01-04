@@ -11,7 +11,7 @@ APP=mlhubv3
 #   Minor update
 #   Bug fix
 
-VER=2.9.17# 20190103 Create v3 Packages.yaml
+VER=2.9.18# 20190104 Fuzzy commands
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
