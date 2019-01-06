@@ -41,7 +41,11 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     package_data={
         '.': ['LICENSE'],
-        'mlhub': ['bash_completion.d/ml.bash', 'scripts/dep/*.sh', 'scripts/dep/*.R'],
+        'mlhub': [
+            'bash_completion.d/ml.bash',
+            'scripts/*.sh',
+            'scripts/dep/*.sh',
+            'scripts/dep/*.R'],
     },
     entry_points={'console_scripts': ['ml=mlhub:main']},
     install_requires=[

@@ -4,3 +4,5 @@ include LICENSE
 include mlhub/scripts/dep/python.sh
 include mlhub/scripts/dep/r.R
 include mlhub/scripts/dep/system.sh
+include mlhub/scripts/dep/mlhub.sh
+include mlhub/scripts/convert_readme.sh
