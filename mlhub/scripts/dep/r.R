@@ -8,8 +8,6 @@
 # By default, the current working directory (CWD) is where the model
 # package is installed.
 
-# TODO: Need to make sure 'devtools' is installed.
-
 ########################################################################
 # Identify where they will be installed - the user's local R library.
 
@@ -27,6 +25,7 @@ dir.create(lib, showWarnings=FALSE, recursive=TRUE)
 # Identify the required packages and how to install them.
 
 allargs <- commandArgs(trailingOnly=TRUE)
+no_devtools <- length(installed.packages('devtools')) == 0
 
 src <- allargs[1]  # Dependency type: cran, github, or cran-2018-12-01 for a CRAN snapshot
 snapshot <- FALSE

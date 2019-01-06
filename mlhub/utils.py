@@ -810,6 +810,14 @@ def install_r_deps(deps, model, source='cran'):
     output, errors = proc.communicate()
     if proc.returncode != 0:
         errors = errors.decode("utf-8")
+        command_not_found = re.compile(r"\d: (.*):.*not found").search(errors)
+        pkg_not_found = re.compile(r"there is no package called ‘(.*)’").search(errors)
+        if command_not_found is not None:
+            raise LackPrerequisiteException(command_not_found.group(1))
+
+        if pkg_not_found is not None:
+            raise LackPrerequisiteException(pkg_not_found.group(1))
+
         print("An error was encountered:\n")
         print(errors)
         raise ConfigureFailedException()
@@ -823,6 +831,10 @@ def install_python_deps(deps, source='pip'):
     output, errors = proc.communicate()
     if proc.returncode != 0:
         errors = errors.decode("utf-8")
+        command_not_found = re.compile(r"\d: (.*):.*not found").search(errors)
+        if command_not_found is not None:
+            raise LackPrerequisiteException(command_not_found.group(1))
+
         print("An error was encountered:\n")
         print(errors)
         raise ConfigureFailedException()
@@ -1455,13 +1467,16 @@ def get_misspelled_command(command, available_commands):
     return None
 
 
-def get_misspelled_pkg(model, available_models):
-    matched, score = find_best_match(model, available_models)
-    if is_misspelled(score):
-        yes = yes_or_no("The model '{}' was not found.  Did you mean '{}'", model, matched, yes=True)
-        if yes:
-            print()
-            return matched
+def get_misspelled_pkg(model):
+
+    model_completion_list = get_model_completion_list()
+    if len(model_completion_list) != 0:
+        matched, score = find_best_match(model, model_completion_list)
+        if is_misspelled(score):
+            yes = yes_or_no("The model '{}' was not found.  Did you mean '{}'", model, matched, yes=True)
+            if yes:
+                print()
+                return matched
 
     return None
 
@@ -1574,7 +1589,7 @@ def print_on_stderr_exit(msg, *param, exitcode=1):
 def print_error(msg, *param):
     """Print error msg with APPX prefix on stderr."""
 
-    print_on_stderr(APPX + msg.format(*param))
+    print_on_stderr("\n" + APPX + msg.format(*param))
 
 
 def print_error_exit(msg, *param, exitcode=1):
@@ -1723,6 +1738,10 @@ class ModelPkgCacheDirCreateException(Exception):
 
 
 class LackDependencyException(Exception):
+    pass
+
+
+class LackPrerequisiteException(Exception):
     pass
 
 

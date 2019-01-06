@@ -1,5 +1,5 @@
 #! /bin/bash -
-# Install system required packages.
+# Install system packages required by model package.
 
 installedpkgs=
 pkgstoinstall=

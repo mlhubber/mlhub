@@ -27,7 +27,7 @@ elif [[ ${abbr} == 'pip' ]]; then
 elif [[ ${abbr} == 'con' ]]; then
 
   # Install Python packages by conda
-  # TODO: Add support for environment.yaml
+  # TODO: Add support for environment.yaml and specified channel
 
   for pkg in "$@"; do
     echo

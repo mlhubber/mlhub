@@ -275,7 +275,7 @@ Models are installed into '{{}}'.
 
 This is version {{}} of {{}}.
 
-For a better experience with bash tab completion:
+Ensure pre-requisites installed and a better experience with tab completion:
 
   $ ml configure
   $ source /etc/bash_completion.d/ml.bash

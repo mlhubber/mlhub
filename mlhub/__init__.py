@@ -285,6 +285,14 @@ def main():
             utils.print_commands_suggestions_on_stderr('configure')
         sys.exit(1)
 
+    except utils.LackPrerequisiteException as e:
+        msg = "Required pre-requisite not found: \n  ====> \033[31m{}\033[0m"
+        utils.print_error(msg, e.args[0])
+        if not args.quiet:  # Suggest install dependencies
+            msg = "\nTo install required pre-requisites:\n\n  $ ml configure\n"
+            utils.print_on_stderr(msg)
+        sys.exit(1)
+
     except utils.DataResourceNotFoundException:
         msg = "Some data or model files required by the model package are missing!"
         utils.print_error(msg)

@@ -41,12 +41,10 @@ import sys
 import tempfile
 import textwrap
 import urllib.request
-import uuid
 import yaml
 
 from distutils.version import StrictVersion
 from mlhub.constants import (
-    COMPLETION_SCRIPT,
     EXT_MLM,
     MLHUB_YAML,
     README,
@@ -216,7 +214,7 @@ def install_model(args):
 
         # Correct model name if possible.
 
-        matched_model = utils.get_misspelled_pkg(model, utils.get_model_completion_list())
+        matched_model = utils.get_misspelled_pkg(model)
         if matched_model is not None:
             model = matched_model
 
@@ -448,7 +446,7 @@ def readme(args):
 
     # Correct model name if possible.
 
-    matched_model = utils.get_misspelled_pkg(model, utils.get_model_completion_list())
+    matched_model = utils.get_misspelled_pkg(model)
     if matched_model is not None:
         model = matched_model
 
@@ -473,12 +471,18 @@ def readme(args):
             if not os.path.exists(readme_raw):
                 raise utils.ModelReadmeNotFoundException(model, readme_file)
 
-        cmd = ("pandoc -t plain {} "
-               "| awk '/^Usage$$/{{exit}}{{print}}' "
-               "| perl -00pe0 > {}".format(readme_raw, README))
-        proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
-        proc.communicate()
+        script = os.path.join(os.path.dirname(__file__), 'scripts', 'convert_readme.sh')
+        command = "bash {} {} {}".format(script, readme_raw, README)
+        proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
+        output, errors = proc.communicate()
         if proc.returncode != 0:
+            errors = errors.decode("utf-8")
+            command_not_found = re.compile(r"\d: (.*):.*not found").search(errors)
+            if command_not_found is not None:
+                raise utils.LackPrerequisiteException(command_not_found.group(1))
+
+            print("An error was encountered:\n")
+            print(errors)
             raise utils.ModelReadmeNotFoundException(model, readme_file)
 
     with open(readme_file, 'r') as f:
@@ -511,7 +515,7 @@ def list_model_commands(args):
 
     # Correct model name if possible.
 
-    matched_model = utils.get_misspelled_pkg(model, utils.get_model_completion_list())
+    matched_model = utils.get_misspelled_pkg(model)
     if matched_model is not None:
         model = matched_model
 
@@ -602,21 +606,12 @@ def configure_model(args):
     if not args.model:
 
         # Configure MLHUB per se.
-        # Currently only bash completion.
+        # Includes bash completion and system pre-requisites
 
         if distro.id() in ['debian', 'ubuntu']:
             path = os.path.dirname(__file__)
-            commands = [
-                'sudo install -m 0644 {} /etc/bash_completion.d'.format(COMPLETION_SCRIPT),
-                'ml available > /dev/null',
-                'ml installed > /dev/null', ]
-
-            for cmd in commands:
-                print('Executing: ', cmd)
-                subprocess.run(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
-                
-            print("\nFor tab completion to take immediate effect:\n"
-                  "\n  $ source /etc/bash_completion.d/ml.bash\n")
+            command = 'bash {}'.format(os.path.join('scripts', 'dep', 'mlhub.sh'))
+            subprocess.run(command, shell=True, cwd=path, stderr=subprocess.PIPE)
 
         return
 
@@ -626,7 +621,7 @@ def configure_model(args):
 
     # Correct model name if possible.
 
-    matched_model = utils.get_misspelled_pkg(model, utils.get_model_completion_list())
+    matched_model = utils.get_misspelled_pkg(model)
     if matched_model is not None:
         model = matched_model
 
@@ -744,11 +739,14 @@ def dispatch(args):
 
     param = " ".join(args.param)
 
-    # Check that the model is installed.
+    # Check that the model is installed and has commands.
 
     utils.check_model_installed(model)
     
     entry = utils.load_description(model)
+
+    if 'commands' not in entry or len(entry['commands']) == 0:
+        raise utils.CommandNotFoundException(cmd, model)
 
     # Correct misspelled command if possible.
 
@@ -885,7 +883,7 @@ def remove_model(args):
 
     # Correct model name if possible.
 
-    matched_model = utils.get_misspelled_pkg(model, utils.get_model_completion_list())
+    matched_model = utils.get_misspelled_pkg(model)
     if matched_model is not None:
         model = matched_model
 
