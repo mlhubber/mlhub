@@ -11,7 +11,7 @@ APP=mlhubv3
 #   Minor update
 #   Bug fix
 
-VER=2.9.18# 20190104 Fuzzy commands
+VER=2.9.19# 20190107 focus on ml configure
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
