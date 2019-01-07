@@ -11,7 +11,7 @@ APP=mlhub
 #   Minor update
 #   Bug fix
 
-VER=2.9.19# 20190107 focus on ml configure
+VER=3.0.0
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
