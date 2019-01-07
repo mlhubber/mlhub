@@ -4,7 +4,7 @@
 #
 ########################################################################
 
-APP=mlhubv3
+APP=mlhub
 
 # Version numbers
 #   Major release
