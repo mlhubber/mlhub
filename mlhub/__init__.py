@@ -154,8 +154,7 @@ def main():
 
         if '--help' in extras or '-h' in extras:
             logger.debug("Help for command '{}' of '{}'".format(args.cmd, args.model))
-            info = utils.load_description(args.model)
-            utils.print_model_cmd_help(info, args.cmd)
+            utils.print_model_cmd_help(utils.load_description(args.model), args.cmd)
             return 0
 
         setattr(args, 'func', commands.dispatch)
@@ -210,7 +209,11 @@ def main():
         utils.print_error_exit(msg, constants.EXT_MLM, e.args[0])
 
     except utils.MalformedYAMLException as e:
-        msg = "Malformed YAML file:\n  {}"
+        name = e.args[0]
+        if os.path.sep in name or '/' in name:
+            msg = "Malformed YAML file:\n  {}"
+        else:
+            msg = "Malformed description for model package '{}'!"
         utils.print_error_exit(msg, e.args[0])
 
     except utils.ModelURLAccessException as e:
