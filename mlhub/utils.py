@@ -837,7 +837,7 @@ def install_r_deps(deps, model, source='cran'):
 
 def install_python_deps(deps, source='pip'):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
-    command = 'bash {} "{}" "{}"'.format(script, source, '" "'.join(deps))
+    command = '/bin/bash {} "{}" "{}"'.format(script, source, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -854,7 +854,7 @@ def install_python_deps(deps, source='pip'):
 
 def install_system_deps(deps):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'system.sh')
-    command = 'bash {} "{}"'.format(script, '" "'.join(deps))
+    command = '/bin/bash {} "{}"'.format(script, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
