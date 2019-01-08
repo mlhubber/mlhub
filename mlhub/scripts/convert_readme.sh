@@ -13,7 +13,7 @@ set -o pipefail
 pandoc -t plain ${1} | awk '/^Usage$$/{exit}{print}' | perl -00pe0 > ${2}
 
 returncode=$?
-if [[ ! -z ${returncode} ]]; then
+if [[ ${returncode} -ne 0 ]]; then
   rm ${2}
   exit ${returncode}
 fi

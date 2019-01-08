@@ -472,7 +472,7 @@ def readme(args):
                 raise utils.ModelReadmeNotFoundException(model, readme_file)
 
         script = os.path.join(os.path.dirname(__file__), 'scripts', 'convert_readme.sh')
-        command = "bash {} {} {}".format(script, readme_raw, README)
+        command = "/bin/bash {} {} {}".format(script, readme_raw, README)
         proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
         output, errors = proc.communicate()
         if proc.returncode != 0:
@@ -610,7 +610,7 @@ def configure_model(args):
 
         if distro.id() in ['debian', 'ubuntu']:
             path = os.path.dirname(__file__)
-            command = 'bash {}'.format(os.path.join('scripts', 'dep', 'mlhub.sh'))
+            command = '/bin/bash {}'.format(os.path.join('scripts', 'dep', 'mlhub.sh'))
             subprocess.run(command, shell=True, cwd=path, stderr=subprocess.PIPE)
 
         return

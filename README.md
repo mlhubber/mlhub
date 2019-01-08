@@ -139,7 +139,7 @@ Alternative Install
 
 A tar.gz containing the mlhub package and the command line interface is
 available as
-[mlhub\_1.6.7.tar.gz](https://mlhub.ai/dist/mlhub_3.0.0.tar.gz) within
+[mlhub_3.0.0.tar.gz](https://mlhub.ai/dist/mlhub_3.0.0.tar.gz) within
 the [distribution folder](https://mlhub.ai/dist/) of the MLHub.
 
 To install from the tar.gz file:

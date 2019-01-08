@@ -275,7 +275,7 @@ Models are installed into '{{}}'.
 
 This is version {{}} of {{}}.
 
-For a better experience with bash tab completion 
+Ensure pre-requisites installed and a better experience with tab completion
 the sys admin can run:
 
   $ ml configure
@@ -284,7 +284,7 @@ User can then run:
 
   $ source /etc/bash_completion.d/ml.bash
 
-List the commands available for mlhub with:
+List the available models from the repository with:
 
   $ ml available
 """.format('\n'.join(list(COMMANDS_USAGE.values())[:3]),

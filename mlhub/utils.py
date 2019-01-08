@@ -30,6 +30,7 @@
 
 import base64
 import cgi
+import collections
 import distro
 import json
 import logging
@@ -572,32 +573,43 @@ def print_usage():
     print(USAGE.format(CMD, MLHUB, get_init_dir(), VERSION, APP))
 
 
-def print_model_cmd_help(info, cmd):
-    print("\n  $ {} {} {}".format(CMD, cmd, info["meta"]["name"]))
+def print_model_cmd_help(entry, cmd):
+    model = entry["meta"]["name"]
+    print("\n  $ {} {} {}".format(CMD, cmd, model), end='')
 
-    c_meta = info['commands'][cmd]
-    if type(c_meta) is str:
-        print("    " + c_meta)
-    else:
-        # Handle malformed DESCRIPTION.yaml like
+    cmd_entry = entry['commands'][cmd]
+    if type(cmd_entry) is str:
+        print("\n    " + cmd_entry)
+    elif type(cmd_entry) is collections.OrderedDict:
+        # Handle commands with parameters like
         # --
         # commands:
-        #   print:
-        #     description: print a textual summary of the model
-        #   score:
-        #     equired: the name of a CSV file containing a header and 6 columns
-        #     description: apply the model to a supplied dataset
+        #   demo    : Apply the model to a supplied dataset ...
+        #   print   : Print a textual summary of the model.
+        #   display : Display a graphical representation ...
+        #   score   :
+        #     description: Apply the model to a supplied ...
+        #     required:
+        #       path : Path to a folder of images.
+        #     optional:
+        #       csv file  : Filename of CSV file
+        #       threshold : Decision threshold
+        #   train   : Build a new model on your own image ...
 
-        desc = c_meta.get('description', None)
+        for key in cmd_entry:
+            if key == 'required':
+                for param in cmd_entry['required']:
+                    print(" <{}>".format(param), end='')
+            elif key == 'optional':
+                for param in cmd_entry['optional']:
+                    print(" [<{}>]".format(param), end='')
+
+        desc = cmd_entry.get('description', None)
         if desc is not None:
-            print("    " + desc)
+            print("\n    " + desc)
 
-        c_meta = {k: c_meta[k] for k in c_meta if k != 'description'}
-        if len(c_meta) > 0:
-            msg = yaml.dump(c_meta, default_flow_style=False)
-            msg = msg.split('\n')
-            msg = ["    " + ele for ele in msg]
-            print('\n'.join(msg), end='')
+    else:
+        raise MalformedYAMLException(model)
 
 # ----------------------------------------------------------------------
 # Next step suggestion
@@ -825,7 +837,7 @@ def install_r_deps(deps, model, source='cran'):
 
 def install_python_deps(deps, source='pip'):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
-    command = 'bash {} "{}" "{}"'.format(script, source, '" "'.join(deps))
+    command = '/bin/bash {} "{}" "{}"'.format(script, source, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -842,7 +854,7 @@ def install_python_deps(deps, source='pip'):
 
 def install_system_deps(deps):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'system.sh')
-    command = 'bash {} "{}"'.format(script, '" "'.join(deps))
+    command = '/bin/bash {} "{}"'.format(script, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
