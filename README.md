@@ -137,9 +137,9 @@ on your path. Edit your shell startup which is either `.profile` or
 Alternative Install
 -------------------
 
-A tar.gz containing the mlhub package and the command line interface is
-available as
-[mlhub\_1.6.7.tar.gz](https://mlhub.ai/dist/mlhub_1.6.7.tar.gz) within
+A tar.gz containing the mlhub package and the command line interface
+is available as
+[mlhub_1.6.7.tar.gz](https://mlhub.ai/dist/mlhub_1.6.7.tar.gz) within
 the [distribution folder](https://mlhub.ai/dist/) of the MLHub.
 
 To install from the tar.gz file:
