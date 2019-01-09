@@ -125,8 +125,8 @@ def print_meta_line(entry):
 
     # One line message.
 
-    max_title = 24
-    max_descr = 44
+    max_title = 12
+    max_descr = 56
 
     long = ""
     if len(title) > max_descr:
