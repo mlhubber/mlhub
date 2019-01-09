@@ -881,12 +881,6 @@ def remove_model(args):
     
     model = args.model
 
-    # Correct model name if possible.
-
-    matched_model = utils.get_misspelled_pkg(model)
-    if matched_model is not None:
-        model = matched_model
-
     # Determine if remove all model pkgs or a certain model pkg.
 
     cache = None
@@ -900,6 +894,13 @@ def remove_model(args):
             print(msg)
             return
     else:
+
+        # Correct model name if possible.
+
+        matched_model = utils.get_misspelled_pkg(model)
+        if matched_model is not None:
+            model = matched_model
+
         path = utils.get_package_dir(model)
         if os.path.exists(utils.get_package_cache_dir(model)):
             cache = utils.get_package_cache_dir(model)
