@@ -611,7 +611,13 @@ def configure_model(args):
         if distro.id() in ['debian', 'ubuntu']:
             path = os.path.dirname(__file__)
             command = '/bin/bash {}'.format(os.path.join('scripts', 'dep', 'mlhub.sh'))
-            subprocess.run(command, shell=True, cwd=path, stderr=subprocess.PIPE)
+            proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
+            output, errors = proc.communicate()
+            if proc.returncode != 0:
+                errors = errors.decode("utf-8")
+                print("\nAn error was encountered:\n")
+                print(errors)
+                raise utils.ConfigureFailedException()
 
         return
 

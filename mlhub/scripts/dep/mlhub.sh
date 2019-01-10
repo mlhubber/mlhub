@@ -17,6 +17,9 @@ for pkg in ${PREREQUISITES}; do
   if ! dpkg-query -s ${pkg} 2>/dev/null | grep 'installed' > /dev/null; then
     echo -e "\n*** Installing the system package '${pkg}' ..."
     sudo apt-get install -y ${pkg}
+    if [[ $? -ne 0 ]]; then
+      exit 1
+    fi
   fi
 done
 
