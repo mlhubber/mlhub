@@ -19,7 +19,7 @@ dir.create(lib, showWarnings=FALSE, recursive=TRUE)
 
 # Add the user's local R library to reuse the installed packages.
 
-.libPaths(lib)
+.libPaths(c(lib, .libPaths()))
 
 ########################################################################
 # Identify the required packages and how to install them.
