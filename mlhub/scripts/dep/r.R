@@ -20,6 +20,22 @@ dir.create(lib, showWarnings=FALSE, recursive=TRUE)
 # Add the user's local R library to reuse the installed packages.
 
 .libPaths(c(lib, .libPaths()))
+lib <- .libPaths()[1]
+
+# Helper for catching installation problem.
+
+try_install <- function(expr)
+{
+
+  tryCatch(
+    expr,
+    error=function(e) {
+      stop(e)
+    },
+    warning=function(w){
+      stop(w)
+    })
+}
 
 ########################################################################
 # Identify the required packages and how to install them.
@@ -49,8 +65,6 @@ link_pkgs <- packages[isurl]                  # packages specified by URLs
 ball_pkgs <- packages[isball & ! isurl]       # packages specified by path
 extra_pkgs <- c(link_pkgs, ball_pkgs)
 
-cat(sprintf("\n*** R packages will be installed into '%s'\n", .libPaths()[1]))
-
 ########################################################################
 # Install packages with latest version into the local R library.
 
@@ -72,7 +86,7 @@ if (!snapshot)
       }
     }
 
-    cat(sprintf("\n*** Installing the latest version of the R package '%s' from CRAN ...\n", pkg))
+    cat(sprintf("\n*** Installing the latest version of the R package '%s' from CRAN into '%s' ...\n", pkg, lib))
 
     if (! pkg %in% avail_cran_pkgs)
     {
@@ -80,9 +94,9 @@ if (!snapshot)
     }
 
     if (is.null(repos))  # In case there is no default repos defined.
-      install.packages(pkg, repos="https://cloud.r-project.org", lib=lib)
+      try_install(install.packages(pkg, repos="https://cloud.r-project.org", lib=lib))
     else
-      install.packages(pkg, lib=lib)
+      try_install(install.packages(pkg, lib=lib))
   }
 }
 
@@ -103,8 +117,8 @@ if (!snapshot)
     }
     else
     {
-      cat(sprintf("\n*** Installing %s's R package '%s' from GitHub ...\n", owner, repo))
-      devtools::install_github(pkg, lib=lib)
+      cat(sprintf("\n*** Installing %s's R package '%s' from GitHub into '%s' ...\n", owner, repo, lib))
+      try_install(devtools::install_github(pkg, lib=lib))
     }
   }
 }
@@ -128,8 +142,8 @@ if (!snapshot)
     }
     else
     {
-      cat(sprintf("\n*** Installing the R package '%s' version '%s' ...\n", name, ver))
-      devtools::install_version(name, version=ver, repos="https://cloud.r-project.org", lib=lib)
+      cat(sprintf("\n*** Installing the R package '%s' version '%s' into '%s' ...\n", name, ver, lib))
+      try_install(devtools::install_version(name, version=ver, repos="https://cloud.r-project.org", lib=lib))
     }
   }
 }
@@ -149,8 +163,8 @@ if (!snapshot)
 
   for (pkg in extra_pkgs)
   {
-    cat(sprintf("\n*** Installing the R package from '%s' ...\n", pkg))
-    install.packages(pkg, repos=NULL, lib=lib)
+    cat(sprintf("\n*** Installing the R package from '%s' into '%s' ...\n", pkg, lib))
+    try_install(install.packages(pkg, repos=NULL, lib=lib))
   }
 }
 
@@ -163,7 +177,7 @@ if (snapshot)
   stamp <- substr(src, 6, 15)
   for (pkg in name_pkgs)
   {
-    cat(sprintf("\n*** Installing the R package '%s' from snapshot '%s' ...\n", pkg, stamp))
-    install.packages(packages, repos=paste('https://cran.microsoft.com/snapshot/', stamp, sep=''), lib=lib, dep=TRUE)
+    cat(sprintf("\n*** Installing the R package '%s' from snapshot '%s' into '%s' ...\n", pkg, stamp, lib))
+    try_install(install.packages(packages, repos=paste('https://cran.microsoft.com/snapshot/', stamp, sep=''), lib=lib, dep=TRUE))
   }
 }

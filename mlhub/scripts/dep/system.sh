@@ -38,6 +38,10 @@ if [[ ! -z ${pkgstoinstall} ]]; then
   for pkg in ${pkgstoinstall}; do
     sudo apt-get install -y ${pkg}
 
+    if [[ $? -ne 0 ]]; then
+      exit 1
+    fi
+
     # Or:
     # wajig install -y ${pkg}
   done

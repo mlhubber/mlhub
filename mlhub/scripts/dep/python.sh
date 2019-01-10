@@ -6,10 +6,13 @@ shift
 
 if [[ ${abbr} == 'pyt' ]]; then
 
-  for pkg in "$@"; do
-    dep=${src}-${pkg}
-    bash $(dirname $0)/system.sh ${dep}
-  done
+  if [[ -n "$@" ]]; then
+    pkgs=$(echo "$@" | sed 's/[^ ]* */'"${src}"'-&/g')
+    bash $(dirname $0)/system.sh ${pkgs}
+    if [[ $? -ne 0 ]]; then
+      exit 1
+    fi
+  fi
 
 elif [[ ${abbr} == 'pip' ]]; then
 
@@ -28,6 +31,9 @@ elif [[ ${abbr} == 'pip' ]]; then
     echo
     echo "*** Installing Python package ${pkg} by ${src}${post} ..."
     ${src} install ${pkg}
+    if [[ $? -ne 0 ]]; then
+      exit 1
+    fi
   done
 
 elif [[ ${abbr} == 'con' ]]; then
@@ -39,6 +45,9 @@ elif [[ ${abbr} == 'con' ]]; then
     echo
     echo "*** Installing Python package ${pkg} by ${src} ..."
     ${src} install -y ${pkg}
+    if [[ $? -ne 0 ]]; then
+      exit 1
+    fi
   done
 
 else
