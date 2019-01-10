@@ -8,9 +8,7 @@ if [[ ${abbr} == 'pyt' ]]; then
 
   for pkg in "$@"; do
     dep=${src}-${pkg}
-    echo
-    echo "*** Installing system Python package ${dep} ..."
-    sudo apt-get install -y ${dep}
+    bash $(dirname $0)/system.sh ${dep}
   done
 
 elif [[ ${abbr} == 'pip' ]]; then
