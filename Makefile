@@ -4,14 +4,14 @@
 #
 ########################################################################
 
-APP=mlhubv3
+APP=mlhubdev
 
 # Version numbers
 #   Major release
 #   Minor update
 #   Bug fix
 
-VER=2.9.19# 20190107 focus on ml configure
+VER=3.1.0
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 

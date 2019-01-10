@@ -23,8 +23,8 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='mlhubv3',
-    version='2.9.19',  # DO NOT MODIFY. Managed from Makefile.
+    name='mlhubdev',
+    version='3.1.0',  # DO NOT MODIFY. Managed from Makefile.
     description='Machine learning model repository manager',
     long_description=long_description,
     author='Graham Williams',
