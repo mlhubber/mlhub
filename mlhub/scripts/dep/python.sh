@@ -6,10 +6,10 @@ shift
 
 if [[ ${abbr} == 'pyt' ]]; then
 
-  for pkg in "$@"; do
-    dep=${src}-${pkg}
-    bash $(dirname $0)/system.sh ${dep}
-  done
+  if [[ -n "$@" ]]; then
+    pkgs=$(echo "$@" | sed 's/[^ ]* */'"${src}"'-&/g')
+    bash $(dirname $0)/system.sh ${pkgs}
+  fi
 
 elif [[ ${abbr} == 'pip' ]]; then
 
