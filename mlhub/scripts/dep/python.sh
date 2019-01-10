@@ -8,19 +8,25 @@ if [[ ${abbr} == 'pyt' ]]; then
 
   for pkg in "$@"; do
     dep=${src}-${pkg}
-    echo
-    echo "*** Installing system Python package ${dep} ..."
-    sudo apt-get install -y ${dep}
+    bash $(dirname $0)/system.sh ${dep}
   done
 
 elif [[ ${abbr} == 'pip' ]]; then
 
   # TODO: Add support for version specification
 
+  # For conda3, pip is pip3, and pip3 may not exist.
+  post=${src#pip}
+  if [[ ! -z ${post} ]]; then
+    if pip --version | grep -i "python ${post}" > /dev/null; then
+      src=pip
+    fi
+  fi
+
   sudo ${src} install --upgrade ${src}
   for pkg in "$@"; do
     echo
-    echo "*** Installing Python package ${pkg} by ${src} ..."
+    echo "*** Installing Python package ${pkg} by ${src}${post} ..."
     ${src} install ${pkg}
   done
 
