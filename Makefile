@@ -4,14 +4,14 @@
 #
 ########################################################################
 
-APP=mlhubdev
+APP=mlhub
 
 # Version numbers
 #   Major release
 #   Minor update
 #   Bug fix
 
-VER=3.1.2
+VER=3.0.5
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
