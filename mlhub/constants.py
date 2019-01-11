@@ -55,7 +55,7 @@ if "MLINIT" in os.environ:
 
 # Cache files for bash completion.
 
-COMPLETION_DIR = os.path.join(MLINIT, ".config", "completion")
+COMPLETION_DIR = os.path.join(MLINIT, ".completion")
 COMPLETION_COMMANDS = os.path.join(COMPLETION_DIR, "commands")
 COMPLETION_MODELS = os.path.join(COMPLETION_DIR, "models")
 
