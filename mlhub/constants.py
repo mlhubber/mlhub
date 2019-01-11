@@ -66,11 +66,12 @@ COMPLETION_SCRIPT = os.path.join('bash_completion.d', 'ml.bash')
 LOG_DIR = os.path.join(MLINIT, ".log")
 LOG_FILE = os.path.join(LOG_DIR, 'mlhub.log')
 
-# model package cache and archive dir
+# model package cache, archive and config dir
 
 CACHE_DIR = os.path.join(MLINIT, ".cache")
 ARCHIVE_DIR = os.path.join(MLINIT, ".archive")
-
+CONFIG_DIR = os.path.join(MLINIT, ".config")
+CONFIG_FILE = "config.yaml"
 
 # ------------------------------------------------------------------------
 # Application information.
@@ -111,7 +112,12 @@ OPTIONS = {
         {'help': "use this ML Hub instead of '{}'.".format(MLHUB)},
     '--cmd':
         {'help': "command display name instead of '{}'.".format(CMD),
-         'dest': 'mlmetavar'},
+         'dest': 'mlmetavar',
+        },
+    '--workding-dir':
+        {'alias': ['--wd', ],
+         'help': "use this as the working dir instead of '{}'/<model>.".format(MLINIT),
+        },
 }
 
 # Basic common commands
@@ -313,3 +319,11 @@ LOG_FILE_FORMAT = '%(asctime)s - %(name)s - %(levelname)s: %(message)s'
 LOG_CONSOLE_FORMAT = '--> %(name)s - %(levelname)s: %(message)s'
 LOG_NOT_QUIET = {'quiet': False}
 LOG_QUIET = {'quiet': True}
+
+# ------------------------------------------------------------------------
+# Model package config entry keys
+# ------------------------------------------------------------------------
+
+CONDA_ENV_NAME = "conda_env_name"  # Conda environment name
+WORKING_DIR = "working_dir"        # Model's working dir
+

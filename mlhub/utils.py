@@ -60,6 +60,9 @@ from mlhub.constants import (
     COMPLETION_COMMANDS,
     COMPLETION_DIR,
     COMPLETION_MODELS,
+    CONDA_ENV_NAME,
+    CONFIG_DIR,
+    CONFIG_FILE,
     DESC_YAML,
     DESC_YML,
     EXT_AIPK,
@@ -72,6 +75,7 @@ from mlhub.constants import (
     MLINIT,
     USAGE,
     VERSION,
+    WORKING_DIR,
 )
 
 # ----------------------------------------------------------------------
@@ -737,7 +741,8 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
             - rstudio/reticulate
             - rstudio/keras
         python:
-          conda: environment.yaml  # Use conda to interpret dependencies
+          conda:
+            file: environment.yaml  # dependencies specified as conda environment
           pip:
             - pillow
             - tools=1.1
@@ -766,7 +771,7 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
       [[['system'], ['atril']],
        [['r', 'cran'], ['magrittr', 'dplyr=1.2.3', 'caret>4.5.6', 'e1017', 'httr']],
        [['r', 'github'], ['rstudio/tfruns', 'rstudio/reticulate', 'rstudio/keras']],
-       [['python', 'conda'], ['environment.yaml']],
+       [['python', 'conda'], {'file': 'environment.yaml'}],
        [['python', 'pip'], ['pillow', 'tools=1.1']],
        [['files'], {'https://github.com/mlhubber/colorize/raw/master/configure.sh': None,
                     'https://github.com/mlhubber/colorize/raw/master/train.data': 'data/',
@@ -835,11 +840,30 @@ def install_r_deps(deps, model, source='cran'):
         raise ConfigureFailedException()
 
 
-def install_python_deps(deps, source='pip'):
+def install_python_deps(deps, model, source='pip'):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
-    command = '/bin/bash {} "{}" "{}"'.format(script, source, '" "'.join(deps))
 
-    proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
+    if source.startswith("con"):
+
+        # conda needs to deal with package list, environment name, and environment specification yaml file.
+
+        if isinstance(deps, list):
+            category = "list"
+        elif list(deps)[0] == "file":  # For environment specification file, read and store environment name
+            category = "file"
+            deps = deps[list(deps)[0]]
+            with open(deps, 'r') as file:
+                name = yaml.load(file)['name']
+            update_conda_env_name(model, name)
+        elif list(deps)[0] == "name":  # For environment name, store for later use
+            update_conda_env_name(model, deps[list(deps)[0]])
+            return
+
+        command = '/bin/bash {} {} {} "{}"'.format(script, source, category, '" "'.join(deps))
+    else:
+        command = '/bin/bash {} {} "{}"'.format(script, source, '" "'.join(deps))
+
+    proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
     output, errors = proc.communicate()
     if proc.returncode != 0:
         errors = errors.decode("utf-8")
@@ -1276,6 +1300,29 @@ def create_package_archive_dir(model=None):
         ModelPkgArchiveDirCreateException(path))
 
 
+def get_package_config_dir(model=None):
+    """Return the dir where config files for the model pkg are stored."""
+
+    return os.path.join(CONFIG_DIR, get_package_name() if model is None else model)
+
+
+def create_package_config_dir(model=None):
+    """Check existence of dir where config files for the model pkg are stored, If not create it and return."""
+
+    path = get_package_config_dir(model)
+
+    return _create_dir(
+        path,
+        'Model package config dir creation failed: {}'.format(path),
+        ModelPkgConfigDirCreateException(path))
+
+
+def get_package_config_file(model=None):
+    """Check existence of model pkg config dir, create it and return config file path."""
+
+    return os.path.join(create_package_config_dir(model), CONFIG_FILE)
+
+
 def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'):
     """Generate Packages.yaml, the curated list of model packages, by just concatenate all MLHUB.yaml.
     By default, it will generate Packages.yaml in current working dir.
@@ -1367,6 +1414,58 @@ def gen_packages_yaml2(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml
 
     if len(failed_models) != 0:
         print("Failed to curate list for models:\n    {}".format(', '.join(failed_models)))
+
+
+def update_config(model, entry):
+    """Update model package config file with entry."""
+
+    config_file = get_package_config_file(model)
+
+    if os.path.exists(config_file):
+        with open(config_file, 'r') as file:
+            old_entry = yaml.load(file)
+            old_entry.update(entry)
+            entry = old_entry
+
+    with open(config_file, 'w') as file:
+        yaml.dump(entry, file, default_flow_style=False)
+
+
+def update_conda_env_name(model, name):
+    """Update model package's conda environment name in config file."""
+
+    update_config(model, {CONDA_ENV_NAME: name})
+
+
+def update_working_dir(model, dir):
+    """Update model package's conda environment name in config file."""
+
+    update_config(model, {WORKING_DIR: dir})
+
+
+def get_config(model, name):
+    """Return config value."""
+
+    config_file = get_package_config_file(model)
+    if os.path.exists(config_file):
+        with open(config_file, 'r') as file:
+            entry = yaml.load(file)
+        if name in entry:
+            return entry[name]
+
+    return None
+
+
+def get_working_dir(model):
+    working_dir = get_config(model, WORKING_DIR)
+    if working_dir == '':
+        working_dir = None
+
+    return working_dir
+
+
+def get_conda_env_name(model):
+    return get_config(model, CONDA_ENV_NAME)
 
 # ----------------------------------------------------------------------
 # Bash completion helper
@@ -1790,4 +1889,8 @@ class ModePkgInstallationFileNotFoundException(Exception):
 
 
 class ModePkgDependencyFileNotFoundException(Exception):
+    pass
+
+
+class ModelPkgConfigDirCreateException(Exception):
     pass

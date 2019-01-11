@@ -401,6 +401,11 @@ def install_model(args):
 
         utils.update_command_completion(set(utils.load_description(model)['commands']))
 
+        # Update working dir if any.
+
+        if args.workding_dir is not None:
+            utils.update_working_dir(model, args.workding_dir)
+
         if not args.quiet:
 
             # Informative message about the size of the installed model.
@@ -686,7 +691,7 @@ def configure_model(args):
                 if lang == 'r':
                     utils.install_r_deps(deplist, model, source='cran')
                 elif 'python'.startswith(lang):
-                    utils.install_python_deps(deplist, source='pip')
+                    utils.install_python_deps(deplist, model, source='pip')
 
             # ----- System deps -----
 
@@ -704,7 +709,7 @@ def configure_model(args):
             # ----- Python deps -----
 
             elif category.startswith('python') or category.startswith('pip') or category == 'conda':
-                utils.install_python_deps(deplist, source=category)
+                utils.install_python_deps(deplist, model, source=category)
 
             # ----- Files -----
 
@@ -725,6 +730,11 @@ def configure_model(args):
             print(yaml.dump(depspec))
         else:
             print("No configuration provided (maybe none is required).")
+
+    # Update working dir if any.
+
+    if args.workding_dir is not None:
+        utils.update_working_dir(model, args.workding_dir)
             
     # Suggest next step.
     
@@ -744,6 +754,19 @@ def dispatch(args):
     path = utils.get_package_dir(model)
 
     param = " ".join(args.param)
+
+    # Get working dir if any.
+
+    if args.workding_dir is not None:
+        utils.update_working_dir(model, args.workding_dir)
+        if args.workding_dir == '':
+            args.workding_dir = None
+    else:
+        args.working_dir = utils.get_working_dir(model)
+
+    # Get conda environment name if any.
+
+    conda_env_name = utils.get_conda_env_name(model)
 
     # Check that the model is installed and has commands.
 
@@ -803,6 +826,12 @@ or else connect to the server's desktop using a local X server like X2Go.
 
     interpreter = utils.interpreter(script)
 
+    # Change working dir if needed
+
+    if args.workding_dir is not None:
+        script = os.path.join(path, script)
+        path = args.workding_dir
+
     # _MLHUB_CMD_CWD: a environment variable indicates current working
     #                 directory where command `ml xxx` is invoked.
     # _MLHUB_MODEL_NAME: env variable indicates the name of the model.
@@ -813,6 +842,11 @@ or else connect to the server's desktop using a local X server like X2Go.
 
     command = "export _MLHUB_CMD_CWD='{}'; export _MLHUB_MODEL_NAME='{}'; {} {} {}".format(
         os.getcwd(), model, interpreter, script, param)
+
+    # Run script inside conda environment if specified
+
+    if conda_env_name is not None:
+        command = 'bash -c "source activate {}; {}"'.format(conda_env_name, command)
 
     logger.debug("(cd " + path + "; " + command + ")")
 
