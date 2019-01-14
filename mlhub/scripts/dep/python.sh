@@ -33,6 +33,7 @@ elif [[ ${abbr} == 'pip' ]]; then
   # TODO: Add support for version specification
 
   # For conda3, pip is pip3, and pip3 may not exist.
+  old_src=${src}
   post=${src#pip}
   if [[ ! -z ${post} ]]; then
     if pip --version | grep -i "python ${post}" > /dev/null; then
@@ -43,7 +44,7 @@ elif [[ ${abbr} == 'pip' ]]; then
   sudo ${src} install --upgrade ${src}
   for pkg in "$@"; do
     echo
-    echo "*** Installing Python package ${pkg} by ${src}${post} ..."
+    echo "*** Installing Python package ${pkg} by ${old_src} ..."
     ${src} install ${pkg}
     _check_returncode
   done
