@@ -30,6 +30,8 @@ _check_returncode() {
 
 # Install system dependencies
 
+sudo apt-get update
+
 for pkg in ${PREREQUISITES}; do
   if ! dpkg-query -s ${pkg} 2>/dev/null | grep 'installed' > /dev/null; then
 
@@ -46,7 +48,7 @@ for pkg in ${PREREQUISITES}; do
           _check_returncode
         done
 
-        Rscript -e 'install.packages("devtools")'
+        Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); dir.create(lib, showWarnings=FALSE, recursive=TRUE); install.packages("devtools", lib=lib)'
         _check_returncode
 
       else
