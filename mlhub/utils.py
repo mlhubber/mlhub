@@ -742,7 +742,7 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
             - rstudio/keras
         python:
           conda:
-            file: environment.yaml  # dependencies specified as conda environment
+            - file: environment.yaml  # dependencies specified as conda environment
           pip:
             - pillow
             - tools=1.1
@@ -771,7 +771,7 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
       [[['system'], ['atril']],
        [['r', 'cran'], ['magrittr', 'dplyr=1.2.3', 'caret>4.5.6', 'e1017', 'httr']],
        [['r', 'github'], ['rstudio/tfruns', 'rstudio/reticulate', 'rstudio/keras']],
-       [['python', 'conda'], {'file': 'environment.yaml'}],
+       [['python', 'conda'], [{'file': 'environment.yaml'}]],
        [['python', 'pip'], ['pillow', 'tools=1.1']],
        [['files'], {'https://github.com/mlhubber/colorize/raw/master/configure.sh': None,
                     'https://github.com/mlhubber/colorize/raw/master/train.data': 'data/',
@@ -847,16 +847,17 @@ def install_python_deps(deps, model, source='pip'):
 
         # conda needs to deal with package list, environment name, and environment specification yaml file.
 
-        if isinstance(deps, list):
+        first_dep = deps[0]
+        if isinstance(deps, list) and not isinstance(first_dep, dict):
             category = "list"
-        elif list(deps)[0] == "file":  # For environment specification file, read and store environment name
+        elif list(first_dep)[0] == "file":  # For environment specification file, read and store environment name
             category = "file"
-            deps = deps[list(deps)[0]]
+            deps = first_dep[list(first_dep)[0]]
             with open(deps, 'r') as file:
                 name = yaml.load(file)['name']
             update_conda_env_name(model, name)
-        elif list(deps)[0] == "name":  # For environment name, store for later use
-            update_conda_env_name(model, deps[list(deps)[0]])
+        elif list(first_dep)[0] == "name":  # For environment name, store for later use
+            update_conda_env_name(model, first_dep[list(first_dep)[0]])
             return
 
         command = '/bin/bash {} {} {} "{}"'.format(script, source, category, '" "'.join(deps))
