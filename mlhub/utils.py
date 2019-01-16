@@ -172,23 +172,27 @@ def load_description(model):
     return entry
 
 
+def read_github_raw_file(name):
+    if is_github_url(name) and name.startswith("https://api"):
+        res = json.loads(urllib.request.urlopen(name).read())
+        content = base64.b64decode(res["content"])
+    elif is_url(name):
+        content = urllib.request.urlopen(name).read()
+    else:
+        content = open(name)
+
+    return content
+
+
 def read_mlhubyaml(name):
     """Read description from a specified local yaml file or the url of a yaml file."""
 
     try:
 
-        if is_github_url(name) and name.startswith("https://api"):
-            res = json.loads(urllib.request.urlopen(name).read())
-            content = base64.b64decode(res["content"])
-        elif is_url(name):
-            content = urllib.request.urlopen(name).read()
-        else:
-            content = open(name)
-
         # Use yamlordereddictloader to keep the order of entries specified inside YAML file.
         # Because the order of commands matters.
 
-        entry = yaml.load(content, Loader=yamlordereddictloader.Loader)
+        entry = yaml.load(read_github_raw_file(name), Loader=yamlordereddictloader.Loader)
 
     except (yaml.composer.ComposerError, yaml.scanner.ScannerError):
 
@@ -1351,12 +1355,10 @@ def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'
                 location = entry[model]
                 mlhubyaml = get_pkgyaml_github_url(location)
                 print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
-                res = json.loads(urllib.request.urlopen(mlhubyaml).read())
+                content = read_github_raw_file(mlhubyaml).decode()
             except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
                 failed_models.append(model)
                 continue
-
-            content = base64.b64decode(res["content"]).decode()
 
             for line in content.splitlines():
 
@@ -1396,12 +1398,10 @@ def gen_packages_yaml2(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml
                 location = meta[model]
                 mlhubyaml = get_pkgyaml_github_url(location)
                 print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
-                res = json.loads(urllib.request.urlopen(mlhubyaml).read())
+                content = read_github_raw_file(mlhubyaml).decode()
             except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
                 failed_models.append(model)
                 continue
-
-            content = base64.b64decode(res["content"]).decode()
 
             try:
                 entry = yaml.load(content, Loader=yamlordereddictloader.Loader)
