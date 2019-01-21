@@ -6,6 +6,8 @@ PREREQUISITES='
   r-cran-devtools
   libxml2-dev
   pandoc
+  eom
+  atril
 '
 
 R_DEVTOOLS_DEPS='
