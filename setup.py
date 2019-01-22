@@ -24,9 +24,10 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='mlhub',
-    version='3.0.5',  # DO NOT MODIFY. Managed from Makefile.
+    version='3.0.7',  # DO NOT MODIFY. Managed from Makefile.
     description='Machine learning model repository manager',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Graham Williams',
     author_email='mlhub@togaware.com',
     url='https://mlhub.ai',
