@@ -660,7 +660,7 @@ def get_command_suggestion(cmd, description=None, model=''):
             msg = meta.pop('description', None)
 
         if msg is not None:
-            msg = "\nTo " + msg
+            msg = "\nTo " + dropdot(lower_first_letter(msg))
         else:
             msg = "\nYou may try"
         msg += ":\n\n  $ {} {} {}"
