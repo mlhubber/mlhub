@@ -315,7 +315,7 @@ def main():
         msg = "No such package file: {}\n  The model package may be broken!"
         utils.print_error_exit(msg, e.args[0])
 
-    except utils.ModePkgDependencyFileNotFoundException as e:
+    except utils.ModelPkgDependencyFileNotFoundException as e:
         msg = "Failed to get File dependency: {}\n"
         utils.print_error_exit(msg, e.args[0])
 

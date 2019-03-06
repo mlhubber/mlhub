@@ -235,7 +235,7 @@ def install_model(args):
         #     $ ml install https://github.com/mlhubber/audit/...
 
         mlhubyaml = utils.get_pkgyaml_github_url(location)  # URL to MLHUB.yaml
-        location = utils.get_pkgzip_github_url(location)
+        location = utils.get_githubrepo_zip_url(location)
         logger.debug("location: {}".format(location))
         logger.debug("mlhubyaml: {}".format(mlhubyaml))
 
