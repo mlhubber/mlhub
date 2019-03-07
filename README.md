@@ -15,8 +15,7 @@ to install the model and run a demonstration within 5 minutes. Each
 model has been tested on Ubuntu (GNU/Linux).
 
 Visit the [repository index](https://mlhub.ai/Packages.html) on
-[mlhub.ai](https://mlhub.ai/) where the models themselves can be browsed
-from the [main pool](https://mlhub.ai/pool/main/).
+[mlhub.ai](https://mlhub.ai/) where the models themselves can be browsed.
 
 Quick Start
 -----------
