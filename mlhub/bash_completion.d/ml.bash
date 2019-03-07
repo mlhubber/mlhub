@@ -4,7 +4,7 @@
 # [1] https://github.com/syncany/syncany/blob/master/gradle/bash/syncany.bash-completion
 
 MLINIT="${HOME}/.mlhub"
-COMPLETION_DIR="${MLINIT}/.config/completion"
+COMPLETION_DIR="${MLINIT}/.completion"
 
 _mlhub_get_firstword() {
     # Gets the first non-option word of the command line, except the program name.

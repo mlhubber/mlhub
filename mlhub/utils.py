@@ -60,6 +60,9 @@ from mlhub.constants import (
     COMPLETION_COMMANDS,
     COMPLETION_DIR,
     COMPLETION_MODELS,
+    CONDA_ENV_NAME,
+    CONFIG_DIR,
+    CONFIG_FILE,
     DESC_YAML,
     DESC_YML,
     EXT_AIPK,
@@ -72,6 +75,7 @@ from mlhub.constants import (
     MLINIT,
     USAGE,
     VERSION,
+    WORKING_DIR,
 )
 
 # ----------------------------------------------------------------------
@@ -168,23 +172,27 @@ def load_description(model):
     return entry
 
 
+def read_github_raw_file(name):
+    if is_github_url(name) and name.startswith("https://api"):
+        res = json.loads(urllib.request.urlopen(name).read())
+        content = base64.b64decode(res["content"])
+    elif is_url(name):
+        content = urllib.request.urlopen(name).read()
+    else:
+        content = open(name)
+
+    return content
+
+
 def read_mlhubyaml(name):
     """Read description from a specified local yaml file or the url of a yaml file."""
 
     try:
 
-        if is_github_url(name) and name.startswith("https://api"):
-            res = json.loads(urllib.request.urlopen(name).read())
-            content = base64.b64decode(res["content"])
-        elif is_url(name):
-            content = urllib.request.urlopen(name).read()
-        else:
-            content = open(name)
-
         # Use yamlordereddictloader to keep the order of entries specified inside YAML file.
         # Because the order of commands matters.
 
-        entry = yaml.load(content, Loader=yamlordereddictloader.Loader)
+        entry = yaml.load(read_github_raw_file(name), Loader=yamlordereddictloader.Loader)
 
     except (yaml.composer.ComposerError, yaml.scanner.ScannerError):
 
@@ -519,12 +527,16 @@ def make_symlink(src, dst):
 def merge_folder(src_dir, dst_dir):
     """Move files from src_dir into dst_dir without removing existing files under dst_dir."""
 
+    file_list = []
     for path, dirs, files in os.walk(src_dir):
         for file in files:
             src = os.path.join(path, file)
             dst = os.path.join(dst_dir, os.path.relpath(src, src_dir))
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.move(src, dst)
+            file_list.append(os.path.relpath(src, src_dir))
+
+    return file_list
 
 
 def dir_size(dirpath):
@@ -652,7 +664,7 @@ def get_command_suggestion(cmd, description=None, model=''):
             msg = meta.pop('description', None)
 
         if msg is not None:
-            msg = "\nTo " + msg
+            msg = "\nTo " + dropdot(lower_first_letter(msg))
         else:
             msg = "\nYou may try"
         msg += ":\n\n  $ {} {} {}"
@@ -737,7 +749,8 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
             - rstudio/reticulate
             - rstudio/keras
         python:
-          conda: environment.yaml  # Use conda to interpret dependencies
+          conda:
+            - file: environment.yaml  # dependencies specified as conda environment
           pip:
             - pillow
             - tools=1.1
@@ -766,7 +779,7 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
       [[['system'], ['atril']],
        [['r', 'cran'], ['magrittr', 'dplyr=1.2.3', 'caret>4.5.6', 'e1017', 'httr']],
        [['r', 'github'], ['rstudio/tfruns', 'rstudio/reticulate', 'rstudio/keras']],
-       [['python', 'conda'], ['environment.yaml']],
+       [['python', 'conda'], [{'file': 'environment.yaml'}]],
        [['python', 'pip'], ['pillow', 'tools=1.1']],
        [['files'], {'https://github.com/mlhubber/colorize/raw/master/configure.sh': None,
                     'https://github.com/mlhubber/colorize/raw/master/train.data': 'data/',
@@ -835,11 +848,31 @@ def install_r_deps(deps, model, source='cran'):
         raise ConfigureFailedException()
 
 
-def install_python_deps(deps, source='pip'):
+def install_python_deps(deps, model, source='pip'):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
-    command = '/bin/bash {} "{}" "{}"'.format(script, source, '" "'.join(deps))
 
-    proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
+    if source.startswith("con"):
+
+        # conda needs to deal with package list, environment name, and environment specification yaml file.
+
+        first_dep = deps[0]
+        if isinstance(deps, list) and not isinstance(first_dep, dict):
+            category = "list"
+        elif list(first_dep)[0] == "file":  # For environment specification file, read and store environment name
+            category = "file"
+            deps = first_dep[list(first_dep)[0]]
+            with open(deps, 'r') as file:
+                name = yaml.load(file)['name']
+            update_conda_env_name(model, name)
+        elif list(first_dep)[0] == "name":  # For environment name, store for later use
+            update_conda_env_name(model, first_dep[list(first_dep)[0]])
+            return
+
+        command = '/bin/bash {} {} {} "{}"'.format(script, source, category, '" "'.join(deps))
+    else:
+        command = '/bin/bash {} {} "{}"'.format(script, source, '" "'.join(deps))
+
+    proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
     output, errors = proc.communicate()
     if proc.returncode != 0:
         errors = errors.decode("utf-8")
@@ -871,20 +904,31 @@ def install_file_deps(deps, model, downloadir=None):
     For example, if MLHUB.yaml is
     
       files:
-        - https://zzz.org/label                        # To package root dir
-        - https://zzz.org/cat.RData: data/             # To data/
-        - https://zzz.org/def.RData: data/dog.RData    # To data/dog.RData
-        - https://zzz.org/xyz.zip:   res/              # Uncompress into res/ and if all files are
-                                                       #     under a single top dir, remove the dir
-        - https://zzz.org/z.zip:     ./                # The same as above
-        - https://zzz.org/uvw.zip:   res/rst.zip       # To res/rst.zip
+        - https://zzz.org/label                      # URL: Download to package root dir
+        - https://zzz.org/cat.RData: data/           # URL: Download to data/
+        - https://zzz.org/def.RData: data/dog.RData  # URL: Download to data/dog.RData
+        - https://zzz.org/xyz.zip:   res/            # URL: Download and then unzip into res/.  If all files inside
+                                                     #      xyz.zip are under a single top dir, remove the dir, which
+                                                     #      means if all arbitrary file is under the same folder
+                                                     #      inside xyz.zip, for example yyy/path/to/xxx, then xxx will be
+                                                     #      be unzipped into res/path/to/xxx
+        - https://zzz.org/z.zip:     ./              # URL: The same as above
+        - https://zzz.org/uvw.zip:   res/rst.zip     # URL: Download to res/rst.zip
 
-        - description/README.md                        # To package root dir
-        - res/tree.RData:            resource/         # To resource/
+        - description/README.md                        # Move to package root dir
+        - res/tree.RData:            resource/         # Move to resource/
         - res/forest.RData:          resource/f.RData  # Change to resource/f.RData
         - images/:                   img               # Change to img
-        - audio/:                    resource/         # To resource/audio
+        - audio/:                    resource/         # Move to resource/audio
         - scripts/*                                    # All files under scripts/ to package's root dir
+
+        - mlhubber/mlhub@7fad23b                      # Repo: Download repo as folder 'mlhub' under package root dir
+        - mlhubber/mlhub@8c2df5a:          mlhubrepo  # Repo: Download repo as folder 'mlhubrepo' under package root dir
+        - mlhubber/mlhub@1fad2f3:          repo/      # Repo: Download repo as repo/mlhub
+        - 'mlhubber/mlhub@346abd6:doc'                # Repo: Download 'doc' as 'doc'.  NOTE the quotation mark
+        - 'mlhubber/mlhub@2d247bf:doc':    repodoc    # Repo: Download 'doc' as 'repodoc'
+        - 'mlhubber/mlhub@5bc89ea:doc':    repo/      # Repo: Download 'doc' as 'repo/doc'
+        - 'mlhubber/mlhub@6af3bc2:README'             # Repo: Download 'README' as 'README'
 
     <deps> will be:
       {
@@ -901,14 +945,27 @@ def install_file_deps(deps, model, downloadir=None):
         'images/':                   'img',
         'audio/':                    'resource/',
         'scripts/*':                 None,
+
+        'mlhubber/mlhub@7fad23b':      None,
+        'mlhubber/mlhub@8c2df5a':      'mlhubrepo',
+        'mlhubber/mlhub@1fad2f3':      'repo/',
+        'mlhubber/mlhub@346abd6:doc':  None,
+        'mlhubber/mlhub@2d247bf:doc/': 'repodoc',
+        'mlhubber/mlhub@5bc89ea:doc':  'repo/',
       }
     
     Then the directory structure will be:
 
       In archive dir:
-        ~/.mlhub/.cache/<pkg>/res/xyz.zip
-        ~/.mlhub/.cache/<pkg>/z.zip
-    
+        ~/.mlhub/.archive/<pkg>/res/xyz.zip
+        ~/.mlhub/.archive/<pkg>/z.zip
+        ~/.mlhub/.archive/<pkg>/mlhubber-mlhub-7fad23b.zip
+        ~/.mlhub/.archive/<pkg>/mlhubber-mlhub-8c2df5a.zip
+        ~/.mlhub/.archive/<pkg>/repo/mlhubber-mlhub-1fad2f3.zip
+        ~/.mlhub/.archive/<pkg>/mlhubber-mlhub-346abd6.zip
+        ~/.mlhub/.archive/<pkg>/mlhubber-mlhub-2d247bf.zip
+        ~/.mlhub/.archive/<pkg>/repo/mlhubber-mlhub-5bc89ea.zip
+
       In cache dir:
         ~/.mlhub/.cache/<pkg>/label
         ~/.mlhub/.cache/<pkg>/data/cat.RData
@@ -916,21 +973,35 @@ def install_file_deps(deps, model, downloadir=None):
         ~/.mlhub/.cache/<pkg>/res/<files-inside-xyz.zip>
         ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
         ~/.mlhub/.cache/<pkg>/res/rst.zip
+
+        ~/.mlhub/.cache/<pkg>/mlhub/<files under mlhubber-mlhub-7fad23b inside mlhubber-mlhub-7fad23b.zip>
+        ~/.mlhub/.cache/<pkg>/mlhubrepo/<files under mlhubber-mlhub-8c2df5a inside mlhubber-mlhub-8c2df5a.zip>
+        ~/.mlhub/.cache/<pkg>/repo/hub/<files under mlhubber-mlhub-1fad2f3 inside mlhubber-mlhub-1fad2f3.zip>
+        ~/.mlhub/.cache/<pkg>/doc/<files under mlhubber-mlhub-346abd6/doc inside mlhubber-mlhub-346abd6.zip>
+        ~/.mlhub/.cache/<pkg>/repodoc/<files under mlhubber-mlhub-2d247bf/doc inside mlhubber-mlhub-2d247bf.zip>
+        ~/.mlhub/.cache/<pkg>/repo/doc/<files under mlhubber-mlhub-5bc89ea/doc inside mlhubber-mlhub-5bc89ea.zip>
     
       In Package dir:
         ~/.mlhub/<pkg>/label                  --- link-to -->   ~/.mlhub/.cache/<pkg>/label
         ~/.mlhub/<pkg>/data/cat.RData         --- link-to -->   ~/.mlhub/.cache/<pkg>/data/cat.RData
         ~/.mlhub/<pkg>/data/dog.RData         --- link-to -->   ~/.mlhub/.cache/<pkg>/data/dog.RData
         ~/.mlhub/<pkg>/res/<files>            --- link-to -->   ~/.mlhub/.cache/<pkg>/res/<files>
-        ~/.mlhub/<pkg>/<files-inside-z.zip>   --- link-to -->   ~/.mlhub/.cache/<pkg>/<files-inside-z.zip>
+        ~/.mlhub/<pkg>/<files inside z.zip>   --- link-to -->   ~/.mlhub/.cache/<pkg>/<files inside z.zip>
         ~/.mlhub/<pkg>/res/rst.zip            --- link-to -->   ~/.mlhub/.cache/<pkg>/res/rst.zip
+
+        ~/.mlhub/<pkg>/mlhub/<files inside mlhubber-mlhub-7fad23b.zip>               --- link-to --> ~/.mlhub/.cache/<pkg>/mlhub/...
+        ~/.mlhub/<pkg>/mlhubrepo/<files inside mlhubber-mlhub-8c2df5a.zip>           --- link-to --> ~/.mlhub/.cache/<pkg>/mlhubrepo/...
+        ~/.mlhub/<pkg>/repo/hub/<files inside mlhubber-mlhub-1fad2f3.zip>            --- link-to --> ~/.mlhub/.cache/<pkg>/repo/hub/...
+        ~/.mlhub/<pkg>/doc/<files under doc inside mlhubber-mlhub-346abd6.zip>       --- link-to --> ~/.mlhub/.cache/<pkg>/doc/...
+        ~/.mlhub/<pkg>/repodoc/<files under doc inside mlhubber-mlhub-2d247bf.zip>   --- link-to --> ~/.mlhub/.cache/<pkg>/repodoc/...
+        ~/.mlhub/<pkg>/repo/doc/<files under doc inside mlhubber-mlhub-5bc89ea.zip>  --- link-to --> ~/.mlhub/.cache/<pkg>/repo/doc/...
 
         ~/.mlhub/<pkg>/README.md
         ~/.mlhub/<pkg>/resource/tree.RData
         ~/.mlhub/<pkg>/resource/f.RData
         ~/.mlhub/<pkg>/img
         ~/.mlhub/<pkg>/resource/audio
-        ~/.mlhub/<pkg>/<files-inside-scripts>
+        ~/.mlhub/<pkg>/<files inside scripts>
     """
 
     # TODO: Add download progress indicator, or use
@@ -974,15 +1045,24 @@ def install_file_deps(deps, model, downloadir=None):
         # If <location> is a path, it is a package file should be installed during `ml install`,
         # elif <location> is a URL, it is a file downloaded during `ml configure`.
 
-        if downloadir is None and is_url(location):  # URL for non-package files
+        if downloadir is None and (is_url(location) or is_github_ref(location)):  # URL for non-package files
 
             # Download file into Cache dir, then symbolically link it into Package dir.
             # Thus we can reuse the downloaded files after model package upgrade.
 
-            # Determine file name.
+            # Determine file name, type, real location and path
 
             logger.debug("Download file from URL: {}".format(location))
-            filename = get_url_filename(location)
+            filetype = 'file'  # The type of the item to be download: file, repo, dir
+            path = None        # The path of the item in the repo
+            repo = None        # The name of the repo if it is a GitHub repo otherwise None
+            foldername = None
+
+            if is_github_ref(location):
+                filetype, location, repo, path = get_github_type(location)
+
+            filename = get_url_filename(location)  # The name of the file to be downloaded
+
             if filename is None:
 
                 # TODO: The file name cannot be determined from URL.  How to deal with this scenario?
@@ -990,26 +1070,48 @@ def install_file_deps(deps, model, downloadir=None):
 
                 filename = 'mlhubtmp-' + str(uuid.uuid4().hex)
 
-            # Determine installation path.
+            isArchive = filetype != 'file' or is_archive(filename)
 
-            if target is None:  # Download to the top level dir without changing its name.
-                target = filename
+            # Determine target: relative path of the file under the package dir
 
-            if target.endswith(os.path.sep):
+            if filetype == 'repo':
+                foldername = repo
+            elif filetype == 'dir':
+                foldername = path.split('/')[-1]
+
+            if target is None:
+                if filetype == 'file':  # Use filename if not specified
+                    target = filename
+                else:  # Use repo or dir name if not specified
+                    target = os.path.join(foldername, '')
+            else:
+                if filetype == 'file':
+                    if target.endswith(os.path.sep) and not isArchive:  # Download into a specified folder
+                        target = os.path.join(target, filename)
+                else:
+                    if target.endswith(os.path.sep):  # Unzip repo/dir into a folder with the same name
+                        target = os.path.join(target, foldername, '')
+                    else:  # Unzip repo/dir into a folder with a different name
+                        target = os.path.join(target, '')
+
+            if target.endswith(os.path.sep):  # Expand path
                 target = os.path.relpath(target) + os.path.sep  # Ensure folder end with '/'
             else:
                 target = os.path.relpath(target)
 
-            cache = os.path.join(cache_dir, target)  # Where the file is cached
-            if target.endswith(os.path.sep) and not is_archive(filename):  # Download to a dir without changing name
-                cache = os.path.join(cache, filename)
-                target = os.path.join(target, filename)
+            needUnzip = target.endswith(os.path.sep) and isArchive
 
-            archive = cache  # Where the file is archived, the same as cache if not an archive file
-            if target.endswith(os.path.sep) and is_archive(filename):  # Archive needs uncompressed if target is a dir
-                archive = os.path.join(archive_dir, target, filename)
+            # Determine cache: absolute path of the file cached
 
-            # Download
+            cache = os.path.join(cache_dir, target)
+
+            # Determine archive: absolute path of the archive file downloaded
+
+            archive = cache  # Where the file is archived, the same as cache if no need to unzip
+            if needUnzip:
+                archive = os.path.join(archive_dir, target, filename)  # unzip file if target is a dir
+
+            # Download file
 
             download_msg = "\n    * from {}\n        into {} ..."
             confirm_msg = "      The file is cached.  Would you like to download it again"
@@ -1025,21 +1127,28 @@ def install_file_deps(deps, model, downloadir=None):
                 try:
                     urllib.request.urlretrieve(location, archive)
                 except urllib.error.HTTPError:
-                    raise ModePkgDependencyFileNotFoundException(location)
+                    raise ModelPkgDependencyFileNotFoundException(location)
 
-            # Install
+            # Install: unzip if necessary and make symbolic links
 
             src = cache
             dst = os.path.join(pkg_dir, target)
             symlinks = [(src, dst)]
-            if target.endswith(os.path.sep) and is_archive(filename):  # Uncompress archive file
-                _, _, file_list = unpack_with_promote(archive, cache, remove_dst=False)
+            if needUnzip:  # Uncompress archive file
+                file_list = []
+                if filetype != 'dir':
+                    _, _, file_list = unpack_with_promote(archive, cache, remove_dst=False)
+                else:
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        unpack_with_promote(archive, tmpdir, remove_dst=False)
+                        file_list = merge_folder(os.path.join(tmpdir, path, ''), cache)
+
                 symlinks = [(os.path.join(src, file), os.path.join(dst, file)) for file in file_list]
 
             for origin, goal in symlinks:
                 make_symlink(origin, goal)
 
-        elif downloadir is not None and not is_url(location):  # Path for package files
+        elif downloadir is not None and not (is_url(location) or is_github_ref(location)):  # Path for package files
 
             # Move the files from download dir to package dir.
 
@@ -1073,12 +1182,24 @@ def is_github_url(name):
         return False
 
 
+def is_github_ref(name):
+    """Check if name is a GitHub ref.
+
+    GitHub ref:
+        github:mlhubber/mlhub
+        mlhubber/mlhub:doc
+        mlhubber/mlhub@dev
+    """
+
+    return not is_url(name) and (':' in name or '@' in name or '#' in name)
+
+
 def interpret_github_url(url):
     """Interpret GitHub URL into user name, repo name, branch/blob name.
 
     The URL may be:
 
-              For master:  mlhubber/mlhub                or  mlhubber/mlhub:doc/MLHUB.yaml
+              For master:  mlhubber/mlhub    or github:mlhubber/mlhub    or  mlhubber/mlhub:doc/MLHUB.yaml
               For branch:  mlhubber/mlhub@dev            or  mlhubber/mlhub@dev:doc/MLHUB.yaml
               For commit:  mlhubber/mlhub@7fad23bdfdfjk  or  mlhubber/mlhub@7fad23bdfdfjk:doc/MLHUB.yaml
         For pull request:  mlhubber/mlhub#15             or  mlhubber/mlhub#15:doc/MLHUB.yaml
@@ -1099,10 +1220,13 @@ def interpret_github_url(url):
     logger.info("Interpret GitHub location.")
     logger.debug("url: {}".format(url))
 
+    if url.lower().startswith('github:'):  # Remove prefix 'github:'
+        url = url[7:].strip()
+
     seg = url.split('/')
     ref = 'master'  # Use master by default.
     yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
-    mlhubyaml = None
+    path = None
 
     if not is_url(url):  # Repo reference like mlhubber/mlhub
 
@@ -1110,6 +1234,10 @@ def interpret_github_url(url):
 
         owner = seg[0]
         repo = seg[1]
+
+        if ':' in repo:
+            path = url.split(':')[-1]
+
         if '@' in repo:
 
             # For branch or commit such as:
@@ -1130,9 +1258,10 @@ def interpret_github_url(url):
             tmp = repo.split('#')
             repo = tmp[0]
             ref = "pull/" + tmp[1].split(':')[0] + "/head"
-        elif ':' in repo:
+
+        elif ':' in repo:  # For master branch
+
             repo = repo.split(':')[0]
-            mlhubyaml = url.split(':')[-1]
 
     else:  # Repo URL like https://github.com/mlhubber/mlhub
 
@@ -1150,21 +1279,41 @@ def interpret_github_url(url):
 
             else:  # Branch, commit, or specific file
                 ref = seg[6]
-                mlhubyaml = '/'.join(seg[7:])
+                path = '/'.join(seg[7:])
 
-    logger.debug("owner: {}, repo: {}, ref: {}, mlhubyaml: {}".format(owner, repo, ref, mlhubyaml))
-    return owner, repo, ref, mlhubyaml
+    logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(owner, repo, ref, path))
+    return owner, repo, ref, path[:-1] if path is not None and path.endswith('/') else path
 
 
-def get_pkgzip_github_url(url):
+def compose_github_repo_zip_url(owner, repo, ref):
+    """Compose GitHub REST API URL for the repo's zipball."""
+
+    # Because GitHub REST API limits the number of requests within an hour, so the API is not used here.
+    #
+    # return "https://api.github.com/repos/{}/{}/zipball/{}".format(owner, repo, ref)
+
+    return "https://codeload.github.com/{}/{}/zip/{}".format(owner, repo, ref)
+
+
+def compose_github_content_url(owner, repo, ref, path, api=False):
+    """Compose GitHub REST API URL for the content of a file or a directory."""
+
+    if api or ref.startswith("pull/"):
+        url = "https://api.github.com/repos/{}/{}/contents/{}?ref={}".format(owner, repo, path, ref)
+    else:
+        url = "https://raw.githubusercontent.com/{}/{}/{}/{}".format(owner, repo, ref, path)
+
+    return url
+
+
+def get_githubrepo_zip_url(url):
     """Get the GitHub zip file url of model package.
 
     See https://developer.github.com/v3/repos/contents/#get-archive-link
     """
 
     owner, repo, ref, _ = interpret_github_url(url)
-    # return "https://api.github.com/repos/{}/{}/zipball/{}".format(owner, repo, ref)
-    return "https://codeload.github.com/{}/{}/zip/{}".format(owner, repo, ref)
+    return compose_github_repo_zip_url(owner, repo, ref)
 
 
 def get_pkgyaml_github_url(url):
@@ -1174,14 +1323,30 @@ def get_pkgyaml_github_url(url):
     """
 
     owner, repo, ref, mlhubyaml = interpret_github_url(url)
-    if ref.startswith("pull/"):
-        url = "https://api.github.com/repos/{}/{}/contents/{{}}?ref={}".format(owner, repo, ref)
-    else:
-        url = "https://raw.githubusercontent.com/{}/{}/{}/{{}}".format(owner, repo, ref)
+    url = compose_github_content_url(owner, repo, ref, '{}')
     if mlhubyaml is None:
         return get_available_pkgyaml(url)
     else:
         return url.format(mlhubyaml)
+
+
+def get_github_type(location):
+    """Query if location is a file or directory or a repo on GitHub."""
+
+    owner, repo, ref, path = interpret_github_url(location)
+    if path is None:
+        url = compose_github_repo_zip_url(owner, repo, ref)
+        return 'repo', url, repo, path
+    else:
+        url = compose_github_content_url(owner, repo, ref, path, api=True)
+        res = json.loads(urllib.request.urlopen(url).read())
+        if isinstance(res, list):
+            type = 'dir'
+            url = compose_github_repo_zip_url(owner, repo, ref)
+        else:
+            type = 'file'
+        return type, url, repo, path
+
 
 # ----------------------------------------------------------------------
 # Model package developer utilities
@@ -1276,6 +1441,29 @@ def create_package_archive_dir(model=None):
         ModelPkgArchiveDirCreateException(path))
 
 
+def get_package_config_dir(model=None):
+    """Return the dir where config files for the model pkg are stored."""
+
+    return os.path.join(CONFIG_DIR, get_package_name() if model is None else model)
+
+
+def create_package_config_dir(model=None):
+    """Check existence of dir where config files for the model pkg are stored, If not create it and return."""
+
+    path = get_package_config_dir(model)
+
+    return _create_dir(
+        path,
+        'Model package config dir creation failed: {}'.format(path),
+        ModelPkgConfigDirCreateException(path))
+
+
+def get_package_config_file(model=None):
+    """Check existence of model pkg config dir, create it and return config file path."""
+
+    return os.path.join(create_package_config_dir(model), CONFIG_FILE)
+
+
 def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'):
     """Generate Packages.yaml, the curated list of model packages, by just concatenate all MLHUB.yaml.
     By default, it will generate Packages.yaml in current working dir.
@@ -1303,12 +1491,10 @@ def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'
                 location = entry[model]
                 mlhubyaml = get_pkgyaml_github_url(location)
                 print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
-                res = json.loads(urllib.request.urlopen(mlhubyaml).read())
+                content = read_github_raw_file(mlhubyaml).decode()
             except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
                 failed_models.append(model)
                 continue
-
-            content = base64.b64decode(res["content"]).decode()
 
             for line in content.splitlines():
 
@@ -1348,12 +1534,10 @@ def gen_packages_yaml2(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml
                 location = meta[model]
                 mlhubyaml = get_pkgyaml_github_url(location)
                 print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
-                res = json.loads(urllib.request.urlopen(mlhubyaml).read())
+                content = read_github_raw_file(mlhubyaml).decode()
             except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
                 failed_models.append(model)
                 continue
-
-            content = base64.b64decode(res["content"]).decode()
 
             try:
                 entry = yaml.load(content, Loader=yamlordereddictloader.Loader)
@@ -1367,6 +1551,58 @@ def gen_packages_yaml2(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml
 
     if len(failed_models) != 0:
         print("Failed to curate list for models:\n    {}".format(', '.join(failed_models)))
+
+
+def update_config(model, entry):
+    """Update model package config file with entry."""
+
+    config_file = get_package_config_file(model)
+
+    if os.path.exists(config_file):
+        with open(config_file, 'r') as file:
+            old_entry = yaml.load(file)
+            old_entry.update(entry)
+            entry = old_entry
+
+    with open(config_file, 'w') as file:
+        yaml.dump(entry, file, default_flow_style=False)
+
+
+def update_conda_env_name(model, name):
+    """Update model package's conda environment name in config file."""
+
+    update_config(model, {CONDA_ENV_NAME: name})
+
+
+def update_working_dir(model, dir):
+    """Update model package's conda environment name in config file."""
+
+    update_config(model, {WORKING_DIR: dir})
+
+
+def get_config(model, name):
+    """Return config value."""
+
+    config_file = get_package_config_file(model)
+    if os.path.exists(config_file):
+        with open(config_file, 'r') as file:
+            entry = yaml.load(file)
+        if name in entry:
+            return entry[name]
+
+    return None
+
+
+def get_working_dir(model):
+    working_dir = get_config(model, WORKING_DIR)
+    if working_dir == '':
+        working_dir = None
+
+    return working_dir
+
+
+def get_conda_env_name(model):
+    return get_config(model, CONDA_ENV_NAME)
 
 # ----------------------------------------------------------------------
 # Bash completion helper
@@ -1789,5 +2025,9 @@ class ModePkgInstallationFileNotFoundException(Exception):
     pass
 
 
-class ModePkgDependencyFileNotFoundException(Exception):
+class ModelPkgDependencyFileNotFoundException(Exception):
+    pass
+
+
+class ModelPkgConfigDirCreateException(Exception):
     pass
