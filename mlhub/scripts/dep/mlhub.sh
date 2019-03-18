@@ -50,7 +50,7 @@ for pkg in ${PREREQUISITES}; do
           _check_returncode
         done
 
-        Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); dir.create(lib, showWarnings=FALSE, recursive=TRUE); install.packages("devtools", lib=lib)'
+        Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); dir.create(lib, showWarnings=FALSE, recursive=TRUE); install.packages("devtools", repos="https://cloud.r-project.org", lib=lib)'
         _check_returncode
 
       else
