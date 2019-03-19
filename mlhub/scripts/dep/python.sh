@@ -1,21 +1,10 @@
 #! /bin/bash -
 
+source $(dirname $0)/utils.sh
+
 src=$1
 abbr=${src:0:3}
 shift
-
-_check_returncode() {
-
-  # Check the return code of previous command and exit with specified return code if given.
-
-  if [[ $? -ne 0 ]]; then
-    if [[ $# -gt 0 ]]; then
-      exit $1
-    fi
-    exit 1
-  fi
-}
-
 
 if [[ ${abbr} == 'pyt' ]]; then
 
@@ -41,12 +30,17 @@ elif [[ ${abbr} == 'pip' ]]; then
     fi
   fi
 
-  sudo ${src} install --upgrade ${src}
+  if _is_yes "\nDo you want to upgrade ${src}"; then
+    sudo ${src} install --upgrade ${src}
+  fi
+
   for pkg in "$@"; do
     echo
     echo "*** Installing Python package ${pkg} by ${old_src} ..."
-    ${src} install ${pkg}
-    _check_returncode
+    if _is_yes "\nDo you want to ${src} install ${pkg}"; then
+      ${src} install ${pkg}
+      _check_returncode
+    fi
   done
 
 elif [[ ${abbr} == 'con' ]]; then
@@ -64,8 +58,10 @@ elif [[ ${abbr} == 'con' ]]; then
     for pkg in "$@"; do
       echo
       echo "*** Installing Python package ${pkg} by ${src} ..."
-      ${src} install -y ${pkg}
-      _check_returncode
+      if _is_yes "\nDo you want to ${src} install ${pkg}"; then
+        ${src} install -y ${pkg}
+        _check_returncode
+      fi
     done
 
   elif [[ ${category} == 'file' ]]; then
@@ -74,8 +70,10 @@ elif [[ ${abbr} == 'con' ]]; then
 
     echo
     echo "*** Creating conda environment from $@ ..."
-    ${src} env create -f $@
-    _check_returncode
+    if _is_yes "\nDo you want to continue"; then
+      ${src} env create -f $@
+      _check_returncode
+    fi
 
   fi
 

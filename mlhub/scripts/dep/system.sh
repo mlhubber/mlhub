@@ -1,6 +1,8 @@
 #! /bin/bash -
 # Install system packages required by model package.
 
+source $(dirname $0)/utils.sh
+
 installedpkgs=
 pkgstoinstall=
 
@@ -36,13 +38,16 @@ if [[ ! -z ${pkgstoinstall} ]]; then
   # wajig distupgrade -y > /dev/null
 
   for pkg in ${pkgstoinstall}; do
-    sudo apt-get install -y ${pkg}
+    if _is_yes "\nDo you want to install ${pkg}"; then
+      sudo apt-get install -y ${pkg}
 
-    if [[ $? -ne 0 ]]; then
-      exit 1
-    fi
+      if [[ $? -ne 0 ]]; then
+        exit 1
+      fi
 
     # Or:
     # wajig install -y ${pkg}
+
+    fi
   done
 fi

@@ -1,6 +1,8 @@
 #! /bin/bash -
 # Check and install pre-requisites of MLHUB per se as well as bash completion scripts.
 
+source $(dirname $0)/utils.sh
+
 PREREQUISITES='
   r-base
   r-cran-devtools
@@ -18,18 +20,6 @@ R_DEVTOOLS_DEPS='
 COMPLETION_SCRIPT=bash_completion.d/ml.bash
 COMPLETION_INSTALL_PATH=/etc/bash_completion.d
 
-_check_returncode() {
-
-  # Check the return code of previous command and exit with specified return code if given.
-
-  if [[ $? -ne 0 ]]; then
-    if [[ $# -gt 0 ]]; then
-      exit $1
-    fi
-    exit 1
-  fi
-}
-
 # Install system dependencies
 
 sudo apt-get update
@@ -38,25 +28,49 @@ for pkg in ${PREREQUISITES}; do
   if ! dpkg-query -s ${pkg} 2>/dev/null | grep 'installed' > /dev/null; then
 
     echo -e "\n*** Installing the system package '${pkg}' ..."
-    sudo apt-get install -y ${pkg}
 
-    if [[ $? -ne 0 ]]; then
-      if [[ ${pkg} == 'r-cran-devtools' ]]; then
+    if [[ ${pkg} == 'r-base' ]] && R --version 2>/dev/null; then
 
-        # Try to install devtools from within R if c-cran-tools cannot be installed
+      # Check if R is the newest version
 
+      r_version=$(R --version | head -1 | cut -d' ' -f3)
+      r_base_version=$(apt show r-base 2>/dev/null \
+                      | grep "^Version" \
+                      | cut -d' ' -f2 \
+                      | cut -d'-' -f1)
+
+      if _r_version_newer_than ${r_base_version} ${r_version}; then
+        if _is_yes "\nDo you want to install a newer version of R"; then
+          sudo apt-get install -y ${pkg}
+        fi
+      else
+        echo -e "\nThe installed R version is newer than in the repo."
+      fi
+
+    elif [[ ${pkg} == 'r-cran-devtools' ]] \
+         && ! dpkg-query -s ${pkg} 2>/dev/null ; then
+
+      # Try to install devtools from within R if r-cran-tools not available
+
+      echo -e "\n${pkg} is not available!"
+      if _is_yes "\nDo you want to install 'devtools' from CRAN"; then
         for dep in ${R_DEVTOOLS_DEPS}; do
-          sudo apt-get install -y ${dep}
-          _check_returncode
+          if _is_yes "\nDo you want to install '${dep}' required by 'devtools'"; then
+            sudo apt-get install -y ${dep}
+            _check_returncode
+          fi
         done
 
         Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); dir.create(lib, showWarnings=FALSE, recursive=TRUE); install.packages("devtools", repos="https://cloud.r-project.org", lib=lib)'
-        _check_returncode
+      fi
 
-      else
-        exit 1
+    else
+      if _is_yes "\nDo you want to install '${pkg}'"; then
+        sudo apt-get install -y ${pkg}
       fi
     fi
+
+    _check_returncode
 
   fi
 done
@@ -69,13 +83,13 @@ COMMANDS=(
   "ml installed > /dev/null"
 )
 
+echo -e '\n*** Configuring bash completion which may ask password for root privilege ...'
 if [[ ${COMPLETION_SCRIPT} -nt ${COMPLETION_INSTALL_PATH}/${COMPLETION_SCRIPT##*/} ]]; then
-    echo -e '\n*** Configuring bash completion which may ask password for root privilege ...'
-    for cmd in "${COMMANDS[@]}"; do
-      echo "Executing: " "${cmd}"
-      bash -c "${cmd}"
-    done
-    echo 'Done'
+  for cmd in "${COMMANDS[@]}"; do
+    echo "Executing: " "${cmd}"
+    bash -c "${cmd}"
+  done
+  echo 'Done'
 fi
 
 echo -e "\nFor tab completion to take immediate effect:"
