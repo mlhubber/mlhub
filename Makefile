@@ -11,7 +11,7 @@ APP=mlhubdev
 #   Minor update
 #   Bug fix
 
-VER=3.2.0 # Dev updated: config refinements
+VER=3.2.1# Dev updated: config refinements
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
