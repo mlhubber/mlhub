@@ -103,11 +103,11 @@ def get_repo_meta_data(repo):
 
     try:
         url = repo + META_YAML
-        meta_list = list(yaml.load_all(urllib.request.urlopen(url).read()))
+        meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(), Loader=yaml.SafeLoader))
     except urllib.error.URLError:
         try:
             url = repo + META_YML
-            meta_list = list(yaml.load_all(urllib.request.urlopen(url).read()))
+            meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(), Loader=yaml.SafeLoader))
         except urllib.error.URLError:
             logger = logging.getLogger(__name__)
             logger.error('Repo connection problem.', exc_info=True)
@@ -862,7 +862,7 @@ def install_python_deps(deps, model, source='pip'):
             category = "file"
             deps = first_dep[list(first_dep)[0]]
             with open(deps, 'r') as file:
-                name = yaml.load(file)['name']
+                name = yaml.load(file, Loader=yaml.SafeLoader)['name']
             update_conda_env_name(model, name)
         elif list(first_dep)[0] == "name":  # For environment name, store for later use
             update_conda_env_name(model, first_dep[list(first_dep)[0]])
@@ -1473,7 +1473,7 @@ def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'
         packagesyaml (str): YAML file which will hold meta data in all MLHUB.yaml.
     """
 
-    entry = yaml.load(open(mlmodelsyaml))
+    entry = yaml.load(open(mlmodelsyaml), Loader=yaml.SafeLoader)
     model_list = list(entry.keys())
     model_list.sort()
     failed_models = []
@@ -1519,7 +1519,7 @@ def gen_packages_yaml2(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml
         packagesyaml (str): YAML file which will hold meta data in all MLHUB.yaml.
     """
 
-    meta = yaml.load(open(mlmodelsyaml))
+    meta = yaml.load(open(mlmodelsyaml), Loader=yaml.SafeLoader)
     model_list = list(meta.keys())
     model_list.sort()
     failed_models = []
@@ -1560,7 +1560,7 @@ def update_config(model, entry):
 
     if os.path.exists(config_file):
         with open(config_file, 'r') as file:
-            old_entry = yaml.load(file)
+            old_entry = yaml.load(file, Loader=yaml.SafeLoader)
             old_entry.update(entry)
             entry = old_entry
 
@@ -1586,7 +1586,7 @@ def get_config(model, name):
     config_file = get_package_config_file(model)
     if os.path.exists(config_file):
         with open(config_file, 'r') as file:
-            entry = yaml.load(file)
+            entry = yaml.load(file, Loader=yaml.SafeLoader)
         if name in entry:
             return entry[name]
 
