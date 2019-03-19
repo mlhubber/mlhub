@@ -29,7 +29,8 @@ SOURCE = setup.py			\
 	 mlhub/scripts/dep/r.R \
 	 mlhub/scripts/dep/system.sh \
 	 mlhub/scripts/dep/mlhub.sh \
-	 mlhub/scripts/convert_readme.sh
+	 mlhub/scripts/convert_readme.sh \
+	 mlhub/scripts/dep/utils.sh
 
 BASH_COMPLETION = mlhub/bash_completion.d/ml.bash
 
