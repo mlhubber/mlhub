@@ -615,7 +615,7 @@ def configure_model(args):
 
         if distro.id() in ['debian', 'ubuntu']:
             path = os.path.dirname(__file__)
-            command = '/bin/bash {}'.format(os.path.join('scripts', 'dep', 'mlhub.sh'))
+            command = "{}/bin/bash {}".format("export _MLHUB_OPTION_YES='y'; " if args.y else '', os.path.join('scripts', 'dep', 'mlhub.sh'))
             proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
             output, errors = proc.communicate()
             if proc.returncode != 0:
@@ -689,27 +689,27 @@ def configure_model(args):
 
                 lang = entry['meta']['languages'].lower()
                 if lang == 'r':
-                    utils.install_r_deps(deplist, model, source='cran')
+                    utils.install_r_deps(deplist, model, source='cran', yes=args.y)
                 elif 'python'.startswith(lang):
-                    utils.install_python_deps(deplist, model, source='pip')
+                    utils.install_python_deps(deplist, model, source='pip', yes=args.y)
 
             # ----- System deps -----
 
             elif category == 'system' or 'shell'.startswith(category):
-                utils.install_system_deps(deplist)
+                utils.install_system_deps(deplist, yes=args.y)
 
             # ----- R deps -----
 
             elif category == 'r':
-                utils.install_r_deps(deplist, model, source='cran')
+                utils.install_r_deps(deplist, model, source='cran', yes=args.y)
 
             elif category == 'cran' or category == 'github' or category.startswith('cran-'):
-                utils.install_r_deps(deplist, model, source=category)
+                utils.install_r_deps(deplist, model, source=category, yes=args.y)
 
             # ----- Python deps -----
 
             elif category.startswith('python') or category.startswith('pip') or category == 'conda':
-                utils.install_python_deps(deplist, model, source=category)
+                utils.install_python_deps(deplist, model, source=category, yes=args.y)
 
             # ----- Files -----
 

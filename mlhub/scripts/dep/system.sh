@@ -37,7 +37,7 @@ if [[ ! -z ${pkgstoinstall} ]]; then
   # wajig distupgrade -y > /dev/null
 
   for pkg in ${pkgstoinstall}; do
-    if _is_yes "\nDo you want to install ${pkg}"; then
+    if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install ${pkg}"; then
       sudo apt-get install -y ${pkg}
 
       if [[ $? -ne 0 ]]; then

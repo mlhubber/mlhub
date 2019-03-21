@@ -33,7 +33,7 @@ elif [[ ${abbr} == 'pip' ]]; then
   for pkg in "$@"; do
     echo
     echo "*** Installing Python package ${pkg} by ${old_src} ..."
-    if _is_yes "\nDo you want to ${src} install ${pkg}"; then
+    if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to ${src} install ${pkg}"; then
       ${src} install ${pkg}
       _check_returncode
     fi
@@ -54,7 +54,7 @@ elif [[ ${abbr} == 'con' ]]; then
     for pkg in "$@"; do
       echo
       echo "*** Installing Python package ${pkg} by ${src} ..."
-      if _is_yes "\nDo you want to ${src} install ${pkg}"; then
+      if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to ${src} install ${pkg}"; then
         ${src} install -y ${pkg}
         _check_returncode
       fi
@@ -66,7 +66,7 @@ elif [[ ${abbr} == 'con' ]]; then
 
     echo
     echo "*** Creating conda environment from $@ ..."
-    if _is_yes "\nDo you want to continue"; then
+    if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to continue"; then
       ${src} env create -f $@
       _check_returncode
     fi

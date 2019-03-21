@@ -22,15 +22,16 @@ COMPLETION_INSTALL_PATH=/etc/bash_completion.d
 
 # Upgrade pip
 
-echo "Checking if pip is the latest version ..."
+echo -e "\n*** Checking if pip is the latest version ..."
 if pip list -o 2>/dev/null | grep -e "^pip" > /dev/null; then
-  if _is_yes "\nDo you want to upgrade pip"; then
+  if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to upgrade pip"; then
     pip install --upgrade pip
   fi
 fi
 
 # Install system dependencies
 
+echo -e "\n*** Updating package index which may ask password for root privilege ..."
 sudo apt-get update
 
 for pkg in ${PREREQUISITES}; do
@@ -49,7 +50,7 @@ for pkg in ${PREREQUISITES}; do
                       | cut -d'-' -f1)
 
       if _r_version_newer_than ${r_base_version} ${r_version}; then
-        if _is_yes "\nDo you want to install a newer version of R"; then
+        if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install a newer version of R"; then
           sudo apt-get install -y ${pkg}
         fi
       else
@@ -62,9 +63,9 @@ for pkg in ${PREREQUISITES}; do
       # Try to install devtools from within R if r-cran-tools not available
 
       echo -e "\n${pkg} is not available!"
-      if _is_yes "\nDo you want to install 'devtools' from CRAN"; then
+      if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install 'devtools' from CRAN"; then
         for dep in ${R_DEVTOOLS_DEPS}; do
-          if _is_yes "\nDo you want to install '${dep}' required by 'devtools'"; then
+          if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install '${dep}' required by 'devtools'"; then
             sudo apt-get install -y ${dep}
             _check_returncode
           fi
@@ -74,7 +75,7 @@ for pkg in ${PREREQUISITES}; do
       fi
 
     else
-      if _is_yes "\nDo you want to install '${pkg}'"; then
+      if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install '${pkg}'"; then
         sudo apt-get install -y ${pkg}
       fi
     fi

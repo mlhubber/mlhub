@@ -827,9 +827,9 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
     return res
 
 
-def install_r_deps(deps, model, source='cran'):
+def install_r_deps(deps, model, source='cran', yes=False):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'r.R')
-    command = 'Rscript {} "{}" "{}"'.format(script, source, '" "'.join(deps))
+    command = '{}Rscript {} "{}" "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -848,7 +848,7 @@ def install_r_deps(deps, model, source='cran'):
         raise ConfigureFailedException()
 
 
-def install_python_deps(deps, model, source='pip'):
+def install_python_deps(deps, model, source='pip', yes=False):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
 
     if source.startswith("con"):
@@ -868,9 +868,9 @@ def install_python_deps(deps, model, source='pip'):
             update_conda_env_name(model, first_dep[list(first_dep)[0]])
             return
 
-        command = '/bin/bash {} {} {} "{}"'.format(script, source, category, '" "'.join(deps))
+        command = '{}/bin/bash {} {} {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, category, '" "'.join(deps))
     else:
-        command = '/bin/bash {} {} "{}"'.format(script, source, '" "'.join(deps))
+        command = '{}/bin/bash {} {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -885,9 +885,9 @@ def install_python_deps(deps, model, source='pip'):
         raise ConfigureFailedException()
 
 
-def install_system_deps(deps):
+def install_system_deps(deps, yes=False):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'system.sh')
-    command = '/bin/bash {} "{}"'.format(script, '" "'.join(deps))
+    command = '{}/bin/bash {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
