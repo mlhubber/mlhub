@@ -30,8 +30,10 @@ elif [[ ${abbr} == 'pip' ]]; then
     fi
   fi
 
-  if _is_yes "\nDo you want to upgrade ${src}"; then
-    sudo ${src} install --upgrade ${src}
+  if pip list -o 2>/dev/null | grep -e "^pip" > /dev/null; then
+    if _is_yes "\nDo you want to upgrade ${src}"; then
+      ${src} install --upgrade ${src}
+    fi
   fi
 
   for pkg in "$@"; do
