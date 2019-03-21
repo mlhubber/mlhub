@@ -11,7 +11,7 @@ APP=mlhubdev
 #   Minor update
 #   Bug fix
 
-VER=3.2.4
+VER=3.2.5
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
