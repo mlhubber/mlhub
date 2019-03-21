@@ -31,7 +31,6 @@ if [[ ! -z ${pkgstoinstall} ]]; then
   echo
   echo '*** Installing the following system dependencies:'
   echo " ${pkgstoinstall}"
-  echo
 
   # sudo apt-get install -y wajig > /dev/null
   # wajig update > /dev/null
