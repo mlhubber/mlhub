@@ -20,6 +20,15 @@ R_DEVTOOLS_DEPS='
 COMPLETION_SCRIPT=bash_completion.d/ml.bash
 COMPLETION_INSTALL_PATH=/etc/bash_completion.d
 
+# Upgrade pip
+
+echo "Checking if pip is the latest version ..."
+if pip list -o 2>/dev/null | grep -e "^pip" > /dev/null; then
+  if _is_yes "\nDo you want to upgrade pip"; then
+    pip install --upgrade pip
+  fi
+fi
+
 # Install system dependencies
 
 sudo apt-get update
