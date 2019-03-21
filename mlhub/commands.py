@@ -384,7 +384,8 @@ def install_model(args):
             try:
                 utils.install_file_deps(utils.flatten_mlhubyaml_deps(file_spec)[0][1],
                                         model,
-                                        downloadir=uncompressdir)
+                                        downloadir=uncompressdir,
+                                        yes=True)
             except utils.ModePkgInstallationFileNotFoundException as e:
                 if os.path.exists(install_path):
                     shutil.rmtree(install_path)
@@ -714,7 +715,7 @@ def configure_model(args):
             # ----- Files -----
 
             elif 'files'.startswith(category):
-                utils.install_file_deps(deplist, model)
+                utils.install_file_deps(deplist, model, yes=args.y)
 
     # Run additional configure script if any.
 

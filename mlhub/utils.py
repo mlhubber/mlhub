@@ -898,7 +898,7 @@ def install_system_deps(deps, yes=False):
         raise ConfigureFailedException()
 
 
-def install_file_deps(deps, model, downloadir=None):
+def install_file_deps(deps, model, downloadir=None, yes=False):
     """Install file dependencies.
 
     For example, if MLHUB.yaml is
@@ -1114,14 +1114,17 @@ def install_file_deps(deps, model, downloadir=None):
             # Download file
 
             download_msg = "\n    * from {}\n        into {} ..."
-            confirm_msg = "      The file is cached.  Would you like to download it again"
+            confirm_msg = "      The file is cached.  Reuse the cached version"
             print(download_msg.format(location, target))
 
-            needownload = True
+            reuse = False
             if os.path.exists(archive):
-                needownload = yes_or_no(confirm_msg, yes=False)
+                if not yes:
+                    reuse = yes_or_no(confirm_msg, yes=True)
+                else:
+                    reuse = True
 
-            if needownload:
+            if not reuse:
                 os.makedirs(os.path.dirname(archive), exist_ok=True)
 
                 try:
