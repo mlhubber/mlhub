@@ -62,7 +62,7 @@ for pkg in ${PREREQUISITES}; do
 
       # Try to install devtools from within R if r-cran-tools not available
 
-      echo -e "\n${pkg} is not available!"
+      echo -e "\n${pkg} is not available! Trying to install 'devtools' from CRAN ..."
       if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install 'devtools' from CRAN"; then
         for dep in ${R_DEVTOOLS_DEPS}; do
           if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install '${dep}' required by 'devtools'"; then

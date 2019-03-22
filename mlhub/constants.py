@@ -217,7 +217,10 @@ COMMANDS = {
         {'description': "configure ml or the model's dependencies",
             'argument': {'model': {'nargs': "?"},
                          '-y': {'action': 'store_true',
-                                'help': 'assume "yes" as answer to all prompts',
+                                'help': 'the same as "--yes"',
+                               },
+                         '--yes': {'action': 'store_true',
+                                   'help': 'assume "yes" as answer to all prompts',
                                },
                         },
                'usage': "  configure [<model>]  "
