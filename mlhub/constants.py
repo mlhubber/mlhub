@@ -84,7 +84,7 @@ CMD = "ml"                 # The command line tool.
 EXT_MLM = ".mlm"    # Archive filename extension
 EXT_AIPK = ".aipk"  # Backward compatibility
 
-VERSION = "3.2.6"  # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "3.2.7"  # DO NOT MODIFY. Managed from ../Makefile.
 
 OPTIONS = {
 
