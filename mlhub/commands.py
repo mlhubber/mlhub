@@ -384,7 +384,8 @@ def install_model(args):
             try:
                 utils.install_file_deps(utils.flatten_mlhubyaml_deps(file_spec)[0][1],
                                         model,
-                                        downloadir=uncompressdir)
+                                        downloadir=uncompressdir,
+                                        yes=True)
             except utils.ModePkgInstallationFileNotFoundException as e:
                 if os.path.exists(install_path):
                     shutil.rmtree(install_path)
@@ -608,6 +609,8 @@ def configure_model(args):
     #     pip install -r requirements.txt
     #
 
+    YES = args.y | args.yes
+
     if not args.model:
 
         # Configure MLHUB per se.
@@ -615,7 +618,7 @@ def configure_model(args):
 
         if distro.id() in ['debian', 'ubuntu']:
             path = os.path.dirname(__file__)
-            command = '/bin/bash {}'.format(os.path.join('scripts', 'dep', 'mlhub.sh'))
+            command = "{}/bin/bash {}".format("export _MLHUB_OPTION_YES='y'; " if YES else '', os.path.join('scripts', 'dep', 'mlhub.sh'))
             proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
             output, errors = proc.communicate()
             if proc.returncode != 0:
@@ -689,32 +692,32 @@ def configure_model(args):
 
                 lang = entry['meta']['languages'].lower()
                 if lang == 'r':
-                    utils.install_r_deps(deplist, model, source='cran')
+                    utils.install_r_deps(deplist, model, source='cran', yes=YES)
                 elif 'python'.startswith(lang):
-                    utils.install_python_deps(deplist, model, source='pip')
+                    utils.install_python_deps(deplist, model, source='pip', yes=YES)
 
             # ----- System deps -----
 
             elif category == 'system' or 'shell'.startswith(category):
-                utils.install_system_deps(deplist)
+                utils.install_system_deps(deplist, yes=YES)
 
             # ----- R deps -----
 
             elif category == 'r':
-                utils.install_r_deps(deplist, model, source='cran')
+                utils.install_r_deps(deplist, model, source='cran', yes=YES)
 
             elif category == 'cran' or category == 'github' or category.startswith('cran-'):
-                utils.install_r_deps(deplist, model, source=category)
+                utils.install_r_deps(deplist, model, source=category, yes=YES)
 
             # ----- Python deps -----
 
             elif category.startswith('python') or category.startswith('pip') or category == 'conda':
-                utils.install_python_deps(deplist, model, source=category)
+                utils.install_python_deps(deplist, model, source=category, yes=YES)
 
             # ----- Files -----
 
             elif 'files'.startswith(category):
-                utils.install_file_deps(deplist, model)
+                utils.install_file_deps(deplist, model, yes=YES)
 
     # Run additional configure script if any.
 

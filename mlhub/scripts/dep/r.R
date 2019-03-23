@@ -45,7 +45,7 @@ no_devtools <- length(installed.packages('devtools')) == 0
 
 src <- allargs[1]  # Dependency type: cran, github, or cran-2018-12-01 for a CRAN snapshot
 snapshot <- FALSE
-if (startsWith(src, "cran-"))
+if (grepl("^cran-", src))
 {
   snapshot <- TRUE
 }

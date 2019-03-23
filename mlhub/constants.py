@@ -84,7 +84,7 @@ CMD = "ml"                 # The command line tool.
 EXT_MLM = ".mlm"    # Archive filename extension
 EXT_AIPK = ".aipk"  # Backward compatibility
 
-VERSION = "3.1.7"  # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "3.3.0"  # DO NOT MODIFY. Managed from ../Makefile.
 
 OPTIONS = {
 
@@ -215,7 +215,14 @@ COMMANDS = {
 
     'configure':
         {'description': "configure ml or the model's dependencies",
-            'argument': {'model': {'nargs': "?"}},
+            'argument': {'model': {'nargs': "?"},
+                         '-y': {'action': 'store_true',
+                                'help': 'the same as "--yes"',
+                               },
+                         '--yes': {'action': 'store_true',
+                                   'help': 'assume "yes" as answer to all prompts',
+                               },
+                        },
                'usage': "  configure [<model>]  "
                         "configure ml or the model's dependencies",
                 'func': "configure_model",

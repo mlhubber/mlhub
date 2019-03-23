@@ -6,3 +6,4 @@ include mlhub/scripts/dep/r.R
 include mlhub/scripts/dep/system.sh
 include mlhub/scripts/dep/mlhub.sh
 include mlhub/scripts/convert_readme.sh
+include mlhub/scripts/dep/utils.sh

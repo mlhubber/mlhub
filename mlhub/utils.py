@@ -103,11 +103,11 @@ def get_repo_meta_data(repo):
 
     try:
         url = repo + META_YAML
-        meta_list = list(yaml.load_all(urllib.request.urlopen(url).read()))
+        meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(), Loader=yaml.SafeLoader))
     except urllib.error.URLError:
         try:
             url = repo + META_YML
-            meta_list = list(yaml.load_all(urllib.request.urlopen(url).read()))
+            meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(), Loader=yaml.SafeLoader))
         except urllib.error.URLError:
             logger = logging.getLogger(__name__)
             logger.error('Repo connection problem.', exc_info=True)
@@ -827,9 +827,9 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
     return res
 
 
-def install_r_deps(deps, model, source='cran'):
+def install_r_deps(deps, model, source='cran', yes=False):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'r.R')
-    command = 'Rscript {} "{}" "{}"'.format(script, source, '" "'.join(deps))
+    command = '{}Rscript {} "{}" "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -848,7 +848,7 @@ def install_r_deps(deps, model, source='cran'):
         raise ConfigureFailedException()
 
 
-def install_python_deps(deps, model, source='pip'):
+def install_python_deps(deps, model, source='pip', yes=False):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
 
     if source.startswith("con"):
@@ -862,15 +862,15 @@ def install_python_deps(deps, model, source='pip'):
             category = "file"
             deps = first_dep[list(first_dep)[0]]
             with open(deps, 'r') as file:
-                name = yaml.load(file)['name']
+                name = yaml.load(file, Loader=yaml.SafeLoader)['name']
             update_conda_env_name(model, name)
         elif list(first_dep)[0] == "name":  # For environment name, store for later use
             update_conda_env_name(model, first_dep[list(first_dep)[0]])
             return
 
-        command = '/bin/bash {} {} {} "{}"'.format(script, source, category, '" "'.join(deps))
+        command = '{}/bin/bash {} {} {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, category, '" "'.join(deps))
     else:
-        command = '/bin/bash {} {} "{}"'.format(script, source, '" "'.join(deps))
+        command = '{}/bin/bash {} {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -885,9 +885,9 @@ def install_python_deps(deps, model, source='pip'):
         raise ConfigureFailedException()
 
 
-def install_system_deps(deps):
+def install_system_deps(deps, yes=False):
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'system.sh')
-    command = '/bin/bash {} "{}"'.format(script, '" "'.join(deps))
+    command = '{}/bin/bash {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -898,7 +898,7 @@ def install_system_deps(deps):
         raise ConfigureFailedException()
 
 
-def install_file_deps(deps, model, downloadir=None):
+def install_file_deps(deps, model, downloadir=None, yes=False):
     """Install file dependencies.
 
     For example, if MLHUB.yaml is
@@ -1114,14 +1114,17 @@ def install_file_deps(deps, model, downloadir=None):
             # Download file
 
             download_msg = "\n    * from {}\n        into {} ..."
-            confirm_msg = "      The file is cached.  Would you like to download it again"
+            confirm_msg = "      The file is cached.  Reuse the cached version"
             print(download_msg.format(location, target))
 
-            needownload = True
+            reuse = False
             if os.path.exists(archive):
-                needownload = yes_or_no(confirm_msg, yes=False)
+                if not yes:
+                    reuse = yes_or_no(confirm_msg, yes=True)
+                else:
+                    reuse = True
 
-            if needownload:
+            if not reuse:
                 os.makedirs(os.path.dirname(archive), exist_ok=True)
 
                 try:
@@ -1473,7 +1476,7 @@ def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'
         packagesyaml (str): YAML file which will hold meta data in all MLHUB.yaml.
     """
 
-    entry = yaml.load(open(mlmodelsyaml))
+    entry = yaml.load(open(mlmodelsyaml), Loader=yaml.SafeLoader)
     model_list = list(entry.keys())
     model_list.sort()
     failed_models = []
@@ -1519,7 +1522,7 @@ def gen_packages_yaml2(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml
         packagesyaml (str): YAML file which will hold meta data in all MLHUB.yaml.
     """
 
-    meta = yaml.load(open(mlmodelsyaml))
+    meta = yaml.load(open(mlmodelsyaml), Loader=yaml.SafeLoader)
     model_list = list(meta.keys())
     model_list.sort()
     failed_models = []
@@ -1560,7 +1563,7 @@ def update_config(model, entry):
 
     if os.path.exists(config_file):
         with open(config_file, 'r') as file:
-            old_entry = yaml.load(file)
+            old_entry = yaml.load(file, Loader=yaml.SafeLoader)
             old_entry.update(entry)
             entry = old_entry
 
@@ -1586,7 +1589,7 @@ def get_config(model, name):
     config_file = get_package_config_file(model)
     if os.path.exists(config_file):
         with open(config_file, 'r') as file:
-            entry = yaml.load(file)
+            entry = yaml.load(file, Loader=yaml.SafeLoader)
         if name in entry:
             return entry[name]
 
