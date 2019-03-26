@@ -7,6 +7,8 @@ The Machine Learning Hub
 [![Downloads](https://pepy.tech/badge/mlhub/month)](https://pepy.tech/project/mlhub)
 [![Downloads](https://pepy.tech/badge/mlhub/week)](https://pepy.tech/project/mlhub)
 
+Download statistics: https://pepy.tech/project/mlhub
+
 Introduction
 ------------
 
