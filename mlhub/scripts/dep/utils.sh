@@ -12,7 +12,7 @@ _check_returncode() {
   fi
 }
 
-_r_version_newer_than() {
+_version_newer_than() {
 
   # Check if a version is newer than the other one.
 

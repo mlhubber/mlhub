@@ -30,7 +30,29 @@ elif [[ ${abbr} == 'pip' ]]; then
     fi
   fi
 
+  # Check if the packages are already installed
+
+  local_pkgs=$(${src} list)  # List of installed pip packages
   for pkg in "$@"; do
+    name=${pkg%%[>=<]*}
+    version=${pkg##*[>=<]}
+    found=$(echo "${local_pkgs}" | grep "^${name} ")
+    if [[ -z ${found} ]] || [[ ${name} != ${version} ]]; then
+      # name != version means there is a version specified,
+      # we let pip to deal with packages with versions.
+      pkgstoinstall+=" ${pkg}"
+    else
+      installedpkgs+=" ${pkg}"
+    fi
+  done
+
+  if [[ ! -z ${installedpkgs} ]]; then
+    echo
+    echo '*** The following required ${src} packages are already installed:'
+    echo " ${installedpkgs}"
+  fi
+
+  for pkg in ${pkgstoinstall}; do
     echo
     echo "*** Installing Python package ${pkg} by ${old_src} ..."
     if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to ${src} install ${pkg}"; then
