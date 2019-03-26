@@ -49,7 +49,7 @@ for pkg in ${PREREQUISITES}; do
                       | cut -d' ' -f2 \
                       | cut -d'-' -f1)
 
-      if _version_newer_than ${r_base_version} ${r_version}; then
+      if [[ $(_compare_version ${r_base_version} ${r_version}) == '>' ]]; then
         if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install a newer version of R"; then
           sudo apt-get install -y ${pkg}
         fi

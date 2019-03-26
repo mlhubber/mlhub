@@ -35,20 +35,33 @@ elif [[ ${abbr} == 'pip' ]]; then
   local_pkgs=$(${src} list)  # List of installed pip packages
   for pkg in "$@"; do
     name=${pkg%%[>=<]*}
-    version=${pkg##*[>=<]}
+    required_version=${pkg##*[>=<]}
     found=$(echo "${local_pkgs}" | grep "^${name} ")
-    if [[ -z ${found} ]] || [[ ${name} != ${version} ]]; then
-      # name != version means there is a version specified,
-      # we let pip to deal with packages with versions.
+    if [[ -z ${found} ]]; then
       pkgstoinstall+=" ${pkg}"
-    else
+    elif [[ ${name} == ${required_version} ]]; then
+      # name == version means no version specified.
       installedpkgs+=" ${pkg}"
+    else
+      require=${pkg#${name}}
+      require=${require%${required_version}}
+      installed_version=$(echo "${found}" | awk '{print $2}')
+      actual="$(_compare_version ${installed_version} ${required_version})"
+      require_first=${require:0:1}
+      require_second=${require:1:1}
+      if [[ ${require_first} == ${actual} ]]; then
+        installedpkgs+=" ${pkg}"
+      elif [[ ! -z ${require_second} ]] && [[ ${actual} == '=' ]]; then
+        installedpkgs+=" ${pkg}"
+      else
+        pkgstoinstall+=" ${pkg}"
+      fi
     fi
   done
 
   if [[ ! -z ${installedpkgs} ]]; then
     echo
-    echo '*** The following required ${src} packages are already installed:'
+    echo "*** The following required ${src} packages are already installed:"
     echo " ${installedpkgs}"
   fi
 
