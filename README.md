@@ -3,15 +3,17 @@ The Machine Learning Hub
 
 **UNDER DEVELOPMENT**
 
-MLHub PyPI: [![Downloads](https://pepy.tech/badge/mlhub)](https://pepy.tech/project/mlhub)
+MLHub PyPI download statistics: https://pepy.tech/project/mlhub
+
+[![Downloads](https://pepy.tech/badge/mlhub)](https://pepy.tech/project/mlhub)
 [![Downloads](https://pepy.tech/badge/mlhub/month)](https://pepy.tech/project/mlhub)
 [![Downloads](https://pepy.tech/badge/mlhub/week)](https://pepy.tech/project/mlhub)
 
-MLHubDev PyPI: [![Downloads](https://pepy.tech/badge/mlhubdev)](https://pepy.tech/project/mlhubdev)
+MLHub Dev PyPI download statistics: https://pepy.tech/project/mlhubdev
+
+[![Downloads](https://pepy.tech/badge/mlhubdev)](https://pepy.tech/project/mlhubdev)
 [![Downloads](https://pepy.tech/badge/mlhubdev/month)](https://pepy.tech/project/mlhubdev)
 [![Downloads](https://pepy.tech/badge/mlhubdev/week)](https://pepy.tech/project/mlhubdev)
-
-MLHub PyPI download statistics: https://pepy.tech/project/mlhub
 
 Introduction
 ------------
