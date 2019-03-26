@@ -35,27 +35,11 @@ elif [[ ${abbr} == 'pip' ]]; then
   local_pkgs=$(${src} list)  # List of installed pip packages
   for pkg in "$@"; do
     name=${pkg%%[>=<]*}
-    required_version=${pkg##*[>=<]}
-    found=$(echo "${local_pkgs}" | grep "^${name} ")
-    if [[ -z ${found} ]]; then
-      pkgstoinstall+=" ${pkg}"
-    elif [[ ${name} == ${required_version} ]]; then
-      # name == version means no version specified.
+    installed_version=$(echo "${local_pkgs}" | grep "^${name} " | awk '{print $2}')
+    if _is_version_satisfied "${pkg}" "${installed_version}"; then
       installedpkgs+=" ${pkg}"
     else
-      require=${pkg#${name}}
-      require=${require%${required_version}}
-      installed_version=$(echo "${found}" | awk '{print $2}')
-      actual="$(_compare_version ${installed_version} ${required_version})"
-      require_first=${require:0:1}
-      require_second=${require:1:1}
-      if [[ ${require_first} == ${actual} ]]; then
-        installedpkgs+=" ${pkg}"
-      elif [[ ! -z ${require_second} ]] && [[ ${actual} == '=' ]]; then
-        installedpkgs+=" ${pkg}"
-      else
-        pkgstoinstall+=" ${pkg}"
-      fi
+      pkgstoinstall+=" ${pkg}"
     fi
   done
 

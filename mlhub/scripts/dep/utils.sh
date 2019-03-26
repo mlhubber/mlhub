@@ -73,6 +73,34 @@ _compare_version() {
   echo "${result}"
 }
 
+_is_version_satisfied() {
+  requirement=${1}
+  installed_version=${2}
+
+  name=${requirement%%[>=<]*}
+  required_version=${requirement##*[>=<]}
+
+  if [[ -z ${installed_version} ]]; then
+    return 1
+  elif [[ ${name} == ${required_version} ]]; then
+    # name == version means no version specified.
+    return 0
+  else
+    require=${requirement#${name}}
+    require=${require%${required_version}}
+    actual="$(_compare_version ${installed_version} ${required_version})"
+    require_first=${require:0:1}
+    require_second=${require:1:1}
+    if [[ ${require_first} == ${actual} ]]; then
+      return 0
+    elif [[ ! -z ${require_second} ]] && [[ ${actual} == '=' ]]; then
+      return 0
+    else
+      return 1
+    fi
+  fi
+}
+
 _is_yes() {
 
   # Ask and get yes or no input.
