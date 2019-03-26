@@ -3,17 +3,9 @@ The Machine Learning Hub
 
 **UNDER DEVELOPMENT**
 
-MLHub PyPI download statistics: https://pepy.tech/project/mlhub
-
 [![Downloads](https://pepy.tech/badge/mlhub)](https://pepy.tech/project/mlhub)
 [![Downloads](https://pepy.tech/badge/mlhub/month)](https://pepy.tech/project/mlhub)
 [![Downloads](https://pepy.tech/badge/mlhub/week)](https://pepy.tech/project/mlhub)
-
-MLHub Dev PyPI download statistics: https://pepy.tech/project/mlhubdev
-
-[![Downloads](https://pepy.tech/badge/mlhubdev)](https://pepy.tech/project/mlhubdev)
-[![Downloads](https://pepy.tech/badge/mlhubdev/month)](https://pepy.tech/project/mlhubdev)
-[![Downloads](https://pepy.tech/badge/mlhubdev/week)](https://pepy.tech/project/mlhubdev)
 
 Introduction
 ------------
@@ -174,3 +166,19 @@ hosted on [github](https://github.com/mlhubber) and contributions to
 both the command line tool and contributions of new open source
 pre-built machine learning models are most welcome. Feel free to submit
 pull requests.
+
+Metrics
+-------
+
+MLHub PyPI download statistics: https://pepy.tech/project/mlhub
+
+[![Downloads](https://pepy.tech/badge/mlhub)](https://pepy.tech/project/mlhub)
+[![Downloads](https://pepy.tech/badge/mlhub/month)](https://pepy.tech/project/mlhub)
+[![Downloads](https://pepy.tech/badge/mlhub/week)](https://pepy.tech/project/mlhub)
+
+MLHub Dev PyPI download statistics: https://pepy.tech/project/mlhubdev
+
+[![Downloads](https://pepy.tech/badge/mlhubdev)](https://pepy.tech/project/mlhubdev)
+[![Downloads](https://pepy.tech/badge/mlhubdev/month)](https://pepy.tech/project/mlhubdev)
+[![Downloads](https://pepy.tech/badge/mlhubdev/week)](https://pepy.tech/project/mlhubdev)
+
