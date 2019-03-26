@@ -3,6 +3,10 @@ The Machine Learning Hub
 
 **UNDER DEVELOPMENT**
 
+[![Downloads](https://pepy.tech/badge/mlhub)](https://pepy.tech/project/mlhub)
+[![Downloads](https://pepy.tech/badge/mlhub/month)](https://pepy.tech/project/mlhub)
+[![Downloads](https://pepy.tech/badge/mlhub/week)](https://pepy.tech/project/mlhub)
+
 Introduction
 ------------
 
