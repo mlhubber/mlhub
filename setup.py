@@ -24,7 +24,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='mlhubdev',
-    version='3.3.2',  # DO NOT MODIFY. Managed from Makefile.
+    version='3.3.3',  # DO NOT MODIFY. Managed from Makefile.
     description='Machine learning model repository manager',
     long_description=long_description,
     long_description_content_type='text/markdown',
