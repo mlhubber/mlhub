@@ -1131,7 +1131,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
                 download_msg = "      using cached copy found in {} ..."
                 reuse = True
 
-            print(download_msg.format(target))
+            print(download_msg.format(os.path.join(pkg_dir, target)))
 
             if not reuse:
                 os.makedirs(os.path.dirname(archive), exist_ok=True)
