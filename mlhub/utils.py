@@ -1113,16 +1113,25 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
 
             # Download file
 
-            download_msg = "\n    * from {}\n        into {} ..."
-            confirm_msg = "      The file is cached.  Reuse the cached version"
-            print(download_msg.format(location, target))
+            download_msg = "\n    * {}"
+            print(download_msg.format(location))
 
             reuse = False
+            download_msg = "      downloading into {} ..."
+        
             if os.path.exists(archive):
-                if not yes:
-                    reuse = yes_or_no(confirm_msg, yes=True)
-                else:
-                    reuse = True
+
+                # 20190327 gjw for now cache management is behind
+                # scenes and do not need to ask for each one. If
+                # already in cache then don't download. If user wants
+                # to download then maybe have a --force or simply
+                # REMOVE and INSTALL the model again, or delete the
+                # downloaded file manually.
+
+                download_msg = "      using cached copy found in {} ..."
+                reuse = True
+
+            print(download_msg.format(os.path.join(pkg_dir, target)))
 
             if not reuse:
                 os.makedirs(os.path.dirname(archive), exist_ok=True)

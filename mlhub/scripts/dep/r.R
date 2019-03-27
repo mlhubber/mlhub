@@ -74,6 +74,7 @@ if (!snapshot)
   already_ver <- installed.packages()[,"Version"]
   repos <- getOption("repos")
   avail_cran_pkgs <- available.packages()[, 'Package']
+  already_latest <- NULL
   for (pkg in name_pkgs)
   {
     if (pkg %in% already)
@@ -81,12 +82,19 @@ if (!snapshot)
       latest_ver <- old.packages(instPkgs=installed.packages()[pkg, , drop=FALSE])[, 'ReposVer']
       if (is.null(latest_ver))
       {
-        cat(sprintf("\n*** The installed R package '%s' is already the latest version.\n", pkg))
+        already_latest <- c(already_latest, pkg)
         next
       }
     }
+  }
+  if (! is.null(already_latest))
+    cat("\n*** The following R packages are already at their latest versions:",
+        "\n ", paste(already_latest), "\n")
 
-    cat(sprintf("\n*** Installing the latest version of the R package '%s' from CRAN into '%s' ...\n", pkg, lib))
+  for (pkg in setdiff(name_pkgs, already_latest))
+  {
+    cat(sprintf(paste0("\n*** Installing the latest version of the R package ",
+                       "'%s'\n  from CRAN into '%s' ...\n"), pkg, lib))
 
     if (! pkg %in% avail_cran_pkgs)
     {
@@ -98,6 +106,7 @@ if (!snapshot)
     else
       try_install(install.packages(pkg, lib=lib))
   }
+
 }
 
 ########################################################################

@@ -12,31 +12,93 @@ _check_returncode() {
   fi
 }
 
-_r_version_newer_than() {
+_major_version() {
+  echo $(echo ${1} | awk -F '.' '{print $1}')
+}
 
-  # Check if a version is newer than the other one.
+_minor_version() {
+  echo $(echo ${1} | awk -F '.' '{print $2}')
+}
 
-  local first_major=$(echo ${1} | cut -d'.' -f1)
-  local first_minor=$(echo ${1} | cut -d'.' -f2)
-  local first_patch=$(echo ${1} | cut -d'.' -f3)
+_patch_version() {
+  echo $(echo ${1} | awk -F '.' '{print $3}')
+}
 
-  local second_major=$(echo ${2} | cut -d'.' -f1)
-  local second_minor=$(echo ${2} | cut -d'.' -f2)
-  local second_patch=$(echo ${2} | cut -d'.' -f3)
+_compare_version_seg() {
+  if [[ -z ${1} ]]; then
+    echo '<'
+  elif [[ -z ${2} ]]; then
+    echo '>'
+  elif [[ ${1} -gt ${2} ]]; then
+    echo '>'
+  elif [[ ${1} -lt ${2} ]]; then
+    echo '<'
+  else
+    echo '='
+  fi
+}
 
-  if [[ ${first_major} -gt ${second_major} ]]; then
-    return 0
-  elif [[ ${first_major} -eq ${second_major} ]]; then
-    if [[ ${first_minor} -gt ${second_minor} ]]; then
-      return 0
-    elif [[ ${first_minor} -eq ${second_minor} ]]; then
-      if [[ ${first_patch} -gt ${second_patch} ]]; then
-        return 0
-      fi
+_compare_version() {
+
+  # Compare two versions composed of three segments.
+
+  local first_major=$(_major_version ${1})
+  local first_minor=$(_minor_version ${1})
+  local first_patch=$(_patch_version ${1})
+
+  local second_major=$(_major_version ${2})
+  local second_minor=$(_minor_version ${2})
+  local second_patch=$(_patch_version ${2})
+
+  # Compare major version
+
+  local result="$(_compare_version_seg "${first_major}" "${second_major}")"
+
+  if [[ ${result} == '=' ]]; then
+
+    # Compare minor version
+
+    result="$(_compare_version_seg "${first_minor}" "${second_minor}")"
+
+    if [[ ${result} == '=' ]]; then
+
+      # Compare patch version
+
+      result="$(_compare_version_seg "${first_patch}" "${second_patch}")"
+
     fi
+
   fi
 
-  return 1
+  echo "${result}"
+}
+
+_is_version_satisfied() {
+  requirement=${1}
+  installed_version=${2}
+
+  name=${requirement%%[>=<]*}
+  required_version=${requirement##*[>=<]}
+
+  if [[ -z ${installed_version} ]]; then
+    return 1
+  elif [[ ${name} == ${required_version} ]]; then
+    # name == version means no version specified.
+    return 0
+  else
+    require=${requirement#${name}}
+    require=${require%${required_version}}
+    actual="$(_compare_version ${installed_version} ${required_version})"
+    require_first=${require:0:1}
+    require_second=${require:1:1}
+    if [[ ${require_first} == ${actual} ]]; then
+      return 0
+    elif [[ ! -z ${require_second} ]] && [[ ${actual} == '=' ]]; then
+      return 0
+    else
+      return 1
+    fi
+  fi
 }
 
 _is_yes() {

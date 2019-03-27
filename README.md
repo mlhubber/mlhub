@@ -142,19 +142,19 @@ Alternative Install
 
 A tar.gz containing the mlhub package and the command line interface is
 available as
-[mlhub_3.3.0.tar.gz](https://mlhub.ai/dist/mlhub_3.3.0.tar.gz) within
+[mlhub_3.3.4.tar.gz](https://mlhub.ai/dist/mlhub_3.3.4.tar.gz) within
 the [distribution folder](https://mlhub.ai/dist/) of the MLHub.
 
 To install from the tar.gz file:
 
-    $ wget https://mlhub.ai/dist/mlhub_3.3.0.tar.gz
-    $ pip install mlhub_3.3.0.tar.gz
+    $ wget https://mlhub.ai/dist/mlhub_3.3.4.tar.gz
+    $ pip install mlhub_3.3.4.tar.gz
     $ ml
 
 Or extract the above downloaded .tar.gz and install:
 
-    $ wget https://mlhub.ai/dist/mlhub_3.3.0.tar.gz
-    $ tar xvf mlhub_3.3.0.tar.gz
+    $ wget https://mlhub.ai/dist/mlhub_3.3.4.tar.gz
+    $ tar xvf mlhub_3.3.4.tar.gz
     $ cd mlhub
     $ python3 setup.py install --user
 
@@ -166,3 +166,19 @@ hosted on [github](https://github.com/mlhubber) and contributions to
 both the command line tool and contributions of new open source
 pre-built machine learning models are most welcome. Feel free to submit
 pull requests.
+
+Metrics
+-------
+
+MLHub PyPI download statistics: https://pepy.tech/project/mlhub
+
+[![Downloads](https://pepy.tech/badge/mlhub)](https://pepy.tech/project/mlhub)
+[![Downloads](https://pepy.tech/badge/mlhub/month)](https://pepy.tech/project/mlhub)
+[![Downloads](https://pepy.tech/badge/mlhub/week)](https://pepy.tech/project/mlhub)
+
+MLHub Dev PyPI download statistics: https://pepy.tech/project/mlhubdev
+
+[![Downloads](https://pepy.tech/badge/mlhubdev)](https://pepy.tech/project/mlhubdev)
+[![Downloads](https://pepy.tech/badge/mlhubdev/month)](https://pepy.tech/project/mlhubdev)
+[![Downloads](https://pepy.tech/badge/mlhubdev/week)](https://pepy.tech/project/mlhubdev)
+
