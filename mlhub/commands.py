@@ -945,6 +945,8 @@ def remove_mlm(args):
 
 def remove_model(args):
     """Remove installed model."""
+
+    # TODO: Remove .archive and .config for the model.
     
     model = args.model
 
