@@ -1,16 +1,31 @@
 #! /bin/bash -
+# ----------------------------------------------------------------------
+# Utilities frequently used throughout various scripts.
+# ----------------------------------------------------------------------
 
-_check_returncode() {
+######################################################################
+# Global variables
+######################################################################
 
-  # Check the return code of previous command and exit with specified return code if given.
+# Use system's version of pip, R and Rscript to unify the execution environment
 
-  if [[ $? -ne 0 ]]; then
-    if [[ $# -gt 0 ]]; then
-      exit $1
-    fi
-    exit 1
-  fi
-}
+bash='/bin/bash'
+
+R='/usr/bin/R'
+Rscript='/usr/bin/Rscript'
+
+python='/usr/bin/python3'
+pip='/usr/bin/pip3'
+
+R_SYS_PKG='r-base'
+R_DEVTOOLS_SYS_PKG='r-cran-devtools'
+
+
+######################################################################
+# Version comparison
+######################################################################
+
+# Assume version number consists of three parts.
 
 _major_version() {
   echo $(echo ${1} | awk -F '.' '{print $1}')
@@ -74,11 +89,15 @@ _compare_version() {
 }
 
 _is_version_satisfied() {
-  requirement=${1}
-  installed_version=${2}
 
-  name=${requirement%%[>=<]*}
-  required_version=${requirement##*[>=<]}
+  # Given the description of version requirement and the installed version,
+  # return whether it is satisfied.
+
+  local requirement=${1}
+  local installed_version=${2}
+
+  local name=${requirement%%[>=<]*}
+  local required_version=${requirement##*[>=<]}
 
   if [[ -z ${installed_version} ]]; then
     return 1
@@ -86,11 +105,11 @@ _is_version_satisfied() {
     # name == version means no version specified.
     return 0
   else
-    require=${requirement#${name}}
-    require=${require%${required_version}}
-    actual="$(_compare_version ${installed_version} ${required_version})"
-    require_first=${require:0:1}
-    require_second=${require:1:1}
+    local require=${requirement#${name}}
+    local require=${require%${required_version}}
+    local actual="$(_compare_version ${installed_version} ${required_version})"
+    local require_first=${require:0:1}
+    local require_second=${require:1:1}
     if [[ ${require_first} == ${actual} ]]; then
       return 0
     elif [[ ! -z ${require_second} ]] && [[ ${actual} == '=' ]]; then
@@ -98,6 +117,79 @@ _is_version_satisfied() {
     else
       return 1
     fi
+  fi
+}
+
+
+######################################################################
+# R related
+######################################################################
+
+_get_R_version() {
+  echo "$(${R} --version | head -1 | cut -d' ' -f3)"
+}
+
+_get_r_base_version() {
+  echo "$(apt-cache show --no-all-versions "${R_SYS_PKG}" 2>/dev/null | grep "^Version" | cut -d' ' -f2 | cut -d'-' -f1)"
+}
+
+_is_R_installed() {
+  if ${R} --version 2>1 1>/dev/null; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+######################################################################
+# System related
+######################################################################
+
+_is_system_pkg_installed() {
+  local pkg=${1}
+  if dpkg-query -s ${pkg} 2>/dev/null | grep 'installed' > /dev/null; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+_is_system_pkg_found() {
+
+  # Check if there is a system package called $1
+
+  local pkg=${1}
+  if apt-cache show --no-all-versions ${pkg} 2>1 1>/dev/null; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+
+######################################################################
+# Python related
+######################################################################
+
+_get_pip_pkg_version() {
+  local pkg=${1}
+  echo "$(${pip} show ${pkg} 2>/dev/null | grep '^Version:' | cut -d' ' -f2)"
+}
+
+
+######################################################################
+# Misc
+######################################################################
+
+_check_returncode() {
+
+  # Check the return code of previous command and exit with specified return code if given.
+
+  if [[ $? -ne 0 ]]; then
+    if [[ $# -gt 0 ]]; then
+      exit $1
+    fi
+    exit 1
   fi
 }
 

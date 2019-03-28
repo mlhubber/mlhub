@@ -334,3 +334,15 @@ LOG_QUIET = {'quiet': True}
 CONDA_ENV_NAME = "conda_env_name"  # Conda environment name
 WORKING_DIR = "working_dir"        # Model's working dir
 
+
+# ------------------------------------------------------------------------
+# Command binary
+# ------------------------------------------------------------------------
+
+BASH_CMD ='/bin/bash'
+
+R_CMD = '/usr/bin/R'
+RSCRIPT_CMD = '/usr/bin/Rscript'
+
+PYTHON_CMD = '/usr/bin/python3'
+PIP_CMD = '/usr/bin/pip3'

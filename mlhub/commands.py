@@ -36,6 +36,7 @@ import mlhub.utils as utils
 import os
 import re
 import shutil
+import site
 import subprocess
 import sys
 import tempfile
@@ -45,6 +46,7 @@ import yaml
 
 from distutils.version import StrictVersion
 from mlhub.constants import (
+    BASH_CMD,
     EXT_MLM,
     MLHUB_YAML,
     README,
@@ -478,7 +480,7 @@ def readme(args):
                 raise utils.ModelReadmeNotFoundException(model, readme_file)
 
         script = os.path.join(os.path.dirname(__file__), 'scripts', 'convert_readme.sh')
-        command = "/bin/bash {} {} {}".format(script, readme_raw, README)
+        command = "{} {} {} {}".format(BASH_CMD, script, readme_raw, README)
         proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
         output, errors = proc.communicate()
         if proc.returncode != 0:
@@ -618,7 +620,9 @@ def configure_model(args):
 
         if distro.id() in ['debian', 'ubuntu']:
             path = os.path.dirname(__file__)
-            command = "{}/bin/bash {}".format("export _MLHUB_OPTION_YES='y'; " if YES else '', os.path.join('scripts', 'dep', 'mlhub.sh'))
+            env_var = "export _MLHUB_OPTION_YES='y'; " if YES else ''
+            script = os.path.join('scripts', 'dep', 'mlhub.sh')
+            command = "{}{} {}".format(env_var, BASH_CMD, script)
             proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
             output, errors = proc.communicate()
             if proc.returncode != 0:
@@ -843,13 +847,33 @@ or else connect to the server's desktop using a local X server like X2Go.
     # as utils.get_cmd_cwd().  And model package developer should be
     # use the helper function instead of the env vars directly.
 
-    command = "export _MLHUB_CMD_CWD='{}'; export _MLHUB_MODEL_NAME='{}'; {} {} {}".format(
-        os.getcwd(), model, interpreter, script, param)
+    python_pkg_bin = None
+    python_pkg_path = None
+    if script.endswith('py'):
+        python_pkg_base = os.path.sep.join([utils.get_package_dir(model), '.python'])
+        python_pkg_bin = python_pkg_base + site.USER_BASE + '/bin'
+        python_pkg_path = python_pkg_base + site.USER_SITE
+
+    # TODO: Make sure to document:
+    #     $ sudo apt-get install -y python3-pip
+    #     $ /usr/bin/pip3 install mlhub
+    #   Since in DSVM, the default pip is conda's pip, so if we stick to use system's command,
+    #   then the installation of MLHub itself should be completed via system's pip,
+    #   otherwise, MLHub will not work.
+
+    env_cmd_cwd = "export _MLHUB_CMD_CWD='{}'".format(os.getcwd())
+    env_model_name = "export _MLHUB_MODEL_NAME='{}'".format(model)
+    env_python_path = "export PYTHONPATH='{}'".format(python_pkg_path) if python_pkg_path else ""
+    env_python_pkg_bin = "export PATH=\"{}:$PATH\"".format(python_pkg_bin) if python_pkg_bin else ""
+    env_list = [env_cmd_cwd, env_model_name, env_python_path, env_python_pkg_bin]
+    env_list = '; '.join([x for x in env_list if x])
+
+    command = "{}; {} {} {}".format(env_list, interpreter, script, param)
 
     # Run script inside conda environment if specified
 
     if conda_env_name is not None:
-        command = 'bash -c "source activate {}; {}"'.format(conda_env_name, command)
+        command = '{} -c "source activate {}; {}"'.format(BASH_CMD, conda_env_name, command)
 
     logger.debug("(cd " + path + "; " + command + ")")
 

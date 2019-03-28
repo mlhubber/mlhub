@@ -54,6 +54,7 @@ from mlhub.constants import (
     APP,
     APPX,
     ARCHIVE_DIR,
+    BASH_CMD,
     CACHE_DIR,
     CMD,
     COMMANDS,
@@ -73,6 +74,8 @@ from mlhub.constants import (
     MLHUB,
     MLHUB_YAML,
     MLINIT,
+    PYTHON_CMD,
+    RSCRIPT_CMD,
     USAGE,
     VERSION,
     WORKING_DIR,
@@ -103,11 +106,13 @@ def get_repo_meta_data(repo):
 
     try:
         url = repo + META_YAML
-        meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(), Loader=yaml.SafeLoader))
+        meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(),
+                                       Loader=yaml.SafeLoader))
     except urllib.error.URLError:
         try:
             url = repo + META_YML
-            meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(), Loader=yaml.SafeLoader))
+            meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(),
+                                           Loader=yaml.SafeLoader))
         except urllib.error.URLError:
             logger = logging.getLogger(__name__)
             logger.error('Repo connection problem.', exc_info=True)
@@ -192,7 +197,8 @@ def read_mlhubyaml(name):
         # Use yamlordereddictloader to keep the order of entries specified inside YAML file.
         # Because the order of commands matters.
 
-        entry = yaml.load(read_github_raw_file(name), Loader=yamlordereddictloader.Loader)
+        entry = yaml.load(read_github_raw_file(name),
+                          Loader=yamlordereddictloader.Loader)
 
     except (yaml.composer.ComposerError, yaml.scanner.ScannerError):
 
@@ -828,8 +834,9 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
 
 
 def install_r_deps(deps, model, source='cran', yes=False):
+    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'r.R')
-    command = '{}Rscript {} "{}" "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, '" "'.join(deps))
+    command = '{}{} {} "{}" "{}"'.format(env_var, RSCRIPT_CMD, script, source, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -849,7 +856,9 @@ def install_r_deps(deps, model, source='cran', yes=False):
 
 
 def install_python_deps(deps, model, source='pip', yes=False):
+    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
+    pkg_dir = get_package_dir(model)
 
     if source.startswith("con"):
 
@@ -868,9 +877,11 @@ def install_python_deps(deps, model, source='pip', yes=False):
             update_conda_env_name(model, first_dep[list(first_dep)[0]])
             return
 
-        command = '{}/bin/bash {} {} {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, category, '" "'.join(deps))
+        command = '{}{} {} "{}" {} {} "{}"'.format(
+            env_var, BASH_CMD, script, pkg_dir, source, category, '" "'.join(deps))
     else:
-        command = '{}/bin/bash {} {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, '" "'.join(deps))
+        command = '{}{} {} "{}" {} "{}"'.format(
+            env_var, BASH_CMD, script, pkg_dir, source, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -886,8 +897,9 @@ def install_python_deps(deps, model, source='pip', yes=False):
 
 
 def install_system_deps(deps, yes=False):
+    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'system.sh')
-    command = '{}/bin/bash {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, '" "'.join(deps))
+    command = '{}{} {} "{}"'.format(env_var, BASH_CMD, script, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -1147,6 +1159,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             dst = os.path.join(pkg_dir, target)
             symlinks = [(src, dst)]
             if needUnzip:  # Uncompress archive file
+                print("      Uncompressing the cached file {} ...".format(archive))
                 file_list = []
                 if filetype != 'dir':
                     _, _, file_list = unpack_with_promote(archive, cache, remove_dst=False)
@@ -1900,11 +1913,11 @@ def interpreter(script):
     (root, ext) = os.path.splitext(script)
     ext = ext.strip()
     if ext == ".sh":
-        intrprt = "bash"
+        intrprt = BASH_CMD
     elif ext == ".R":
-        intrprt = "R_LIBS=./R Rscript"
+        intrprt = "R_LIBS=./R {}".format(RSCRIPT_CMD)
     elif ext == ".py":
-        intrprt = "python3"
+        intrprt = PYTHON_CMD
     else:
         raise UnsupportedScriptExtensionException(ext)
 

@@ -1,91 +1,90 @@
 #! /bin/bash -
+# ----------------------------------------------------------------------
+# This script is used for installing Python packages required by model
+# package.
+# ----------------------------------------------------------------------
 
 source $(dirname $0)/utils.sh
+
+# Python packages will be installed into package_path
+
+package_path=$1
+shift
+
+# src indicates the type of Python packages: system, pip, conda, etc
 
 src=$1
 abbr=${src:0:3}
 shift
 
-if [[ ${abbr} == 'pyt' ]]; then
-
-  # Install Python package from system
+if [[ ${abbr} == 'pyt' ]]; then  # Install Python package from system
 
   if [[ -n "$@" ]]; then
     pkgs=$(echo "$@" | sed 's/[^ ]* */'"${src}"'-&/g')
-    bash $(dirname $0)/system.sh ${pkgs}
+    ${bash} $(dirname $0)/system.sh ${pkgs}
     _check_returncode
   fi
 
-elif [[ ${abbr} == 'pip' ]]; then
-
-  # pip install package
-  # TODO: Add support for version specification
-
-  # For conda3, pip is pip3, and pip3 may not exist.
-  old_src=${src}
-  post=${src#pip}
-  if [[ ! -z ${post} ]]; then
-    if pip --version | grep -i "python ${post}" > /dev/null; then
-      src=pip
-    fi
-  fi
+elif [[ ${abbr} == 'pip' ]]; then  # pip install package
 
   # Check if the packages are already installed
 
-  local_pkgs=$(${src} list)  # List of installed pip packages
   for pkg in "$@"; do
+
     name=${pkg%%[>=<]*}
-    installed_version=$(echo "${local_pkgs}" | grep "^${name} " | awk '{print $2}')
+    installed_version="$(_get_pip_pkg_version ${name})"
     if _is_version_satisfied "${pkg}" "${installed_version}"; then
       installedpkgs+=" ${pkg}"
     else
       pkgstoinstall+=" ${pkg}"
     fi
+
   done
 
   if [[ ! -z ${installedpkgs} ]]; then
-    echo
-    echo "*** The following required ${src} packages are already installed:"
+    echo -e "\n*** The following required pip packages are already installed:"
     echo " ${installedpkgs}"
   fi
 
   for pkg in ${pkgstoinstall}; do
-    echo
-    echo "*** Installing Python package ${pkg} by ${old_src} ..."
-    if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to ${src} install ${pkg}"; then
-      ${src} install ${pkg}
+
+    echo -e "\n*** Installing Python package ${pkg} by pip ..."
+
+    msg="\nDo you want to pip install ${pkg}"
+    if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
+      ${pip} install --root ${package_path}/.python ${pkg}
       _check_returncode
     fi
+
   done
 
-elif [[ ${abbr} == 'con' ]]; then
+elif [[ ${abbr} == 'con' ]]; then  # Install Python packages by conda
 
-  # Install Python packages by conda
   # TODO: Add support for environment.yaml and specified channel
 
   category=$2
   shift
 
-  if [[ ${category} == 'list' ]]; then
-
-    # conda install package
+  if [[ ${category} == 'list' ]]; then  # conda install package
 
     for pkg in "$@"; do
-      echo
-      echo "*** Installing Python package ${pkg} by ${src} ..."
-      if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to ${src} install ${pkg}"; then
+
+      echo -e "\n*** Installing Python package ${pkg} by ${src} ..."
+
+      msg="\nDo you want to ${src} install ${pkg}"
+      if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
         ${src} install -y ${pkg}
         _check_returncode
       fi
+
     done
 
-  elif [[ ${category} == 'file' ]]; then
+  elif [[ ${category} == 'file' ]]; then  # conda env create -f environment.yaml
 
-    # conda env create -f environment.yaml
+    echo -e "\n*** Creating conda environment from $@ ..."
 
-    echo
-    echo "*** Creating conda environment from $@ ..."
-    if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to continue"; then
+    msg="\nDo you want to continue"
+    if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
       ${src} env create -f $@
       _check_returncode
     fi
