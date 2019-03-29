@@ -84,7 +84,7 @@ CMD = "ml"                 # The command line tool.
 EXT_MLM = ".mlm"    # Archive filename extension
 EXT_AIPK = ".aipk"  # Backward compatibility
 
-VERSION = "3.3.4"  # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "3.3.5"  # DO NOT MODIFY. Managed from ../Makefile.
 
 OPTIONS = {
 
@@ -288,12 +288,12 @@ Models are installed into '{{}}'.
 
 This is version {{}} of {{}}.
 
-Ensure pre-requisites installed and a better experience with tab completion
-the sys admin can run:
+To ensure the pre-requisites are installed and for a better experience
+with tab completion the sys admin can run the command:
 
   $ ml configure
 
-User can then run:
+The user can then run the following for tab completion:
 
   $ source /etc/bash_completion.d/ml.bash
 
