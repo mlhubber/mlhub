@@ -51,7 +51,7 @@ fi
 # Install system dependencies
 ######################################################################
 
-echo -e "\n*** Updating package index which may ask password for root privilege ..."
+echo -e "\n*** Updating package index which may ask for a password for admin privileges ...\n"
 sudo apt-get update
 
 for pkg in ${PREREQUISITES}; do
@@ -132,10 +132,10 @@ COMMANDS=(
   "ml installed > /dev/null"
 )
 
-echo -e '\n*** Configuring bash completion which may ask password for root privilege ...'
+echo -e '\n*** Configuring bash completion - may require password for admin privileges ...\n'
 if [[ ${COMPLETION_SCRIPT} -nt ${COMPLETION_INSTALL_PATH}/${COMPLETION_SCRIPT##*/} ]]; then
   for cmd in "${COMMANDS[@]}"; do
-    echo "Executing: " "${cmd}"
+    echo "Executing:" "${cmd}"
     bash -c "${cmd}"
   done
   echo 'Done'
