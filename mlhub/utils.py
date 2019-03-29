@@ -81,10 +81,10 @@ from mlhub.constants import (
     WORKING_DIR,
 )
 
+
 # ----------------------------------------------------------------------
 # MLHUB repo and model package
 # ----------------------------------------------------------------------
-
 
 def get_repo(mlhub):
     """Determine the repository to use: command line, environment, default."""
@@ -325,10 +325,10 @@ def get_available_pkgyaml(url):
 
     raise DescriptionYAMLNotFoundException(param)
 
+
 # ----------------------------------------------------------------------
 # String manipulation
 # ----------------------------------------------------------------------
-
 
 def dropdot(sentence):
     """Drop the period after a sentence."""
@@ -350,7 +350,6 @@ def lower_first_letter(sentence):
 # ----------------------------------------------------------------------
 # URL and download
 # ----------------------------------------------------------------------
-
 
 def is_url(name):
     """Check if name is a url."""
@@ -406,10 +405,10 @@ def download_model_pkg(url, local, pkgfile, quiet):
     except urllib.error.URLError as error:
         raise ModelDownloadHaltException(url, error.reason.lower())
 
+
 # ----------------------------------------------------------------------
 # Folder and file manipulation
 # ----------------------------------------------------------------------
-
 
 def _create_dir(path, error_msg, exception):
     """Create dir <path> if not exists.
@@ -581,10 +580,10 @@ def is_description_file(name):
 
     return name.endswith(DESC_YAML) or name.endswith(DESC_YML) or name.endswith(MLHUB_YAML)
 
+
 # ----------------------------------------------------------------------
 # Help message
 # ----------------------------------------------------------------------
-
 
 def print_usage():
     print(CMD)
@@ -629,10 +628,10 @@ def print_model_cmd_help(entry, cmd):
     else:
         raise MalformedYAMLException(model)
 
+
 # ----------------------------------------------------------------------
 # Next step suggestion
 # ----------------------------------------------------------------------
-
 
 def get_command_suggestion(cmd, description=None, model=''):
     """Return suggestion about how to use the cmd."""
@@ -736,10 +735,10 @@ def print_next_step(current, description=None, scenario=None, model=''):
 
     print()
 
+
 # ----------------------------------------------------------------------
 # Dependency
 # ----------------------------------------------------------------------
-
 
 def flatten_mlhubyaml_deps(deps, cats=None, res=None):
     """Flatten the hierarchical structure of dependencies in MLHUB.yaml.
@@ -1192,10 +1191,10 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             except FileNotFoundError:
                 raise ModePkgInstallationFileNotFoundException(location)
 
+
 # ----------------------------------------------------------------------
 # GitHub
 # ----------------------------------------------------------------------
-
 
 def is_github_url(name):
     """Check if name starts with http://github.com or https://github.com"""
@@ -1376,7 +1375,6 @@ def get_github_type(location):
 # ----------------------------------------------------------------------
 # Model package developer utilities
 # ----------------------------------------------------------------------
-
 
 def get_init_dir():
     """Return the path of MLHUB system folder."""
@@ -1629,10 +1627,10 @@ def get_working_dir(model):
 def get_conda_env_name(model):
     return get_config(model, CONDA_ENV_NAME)
 
+
 # ----------------------------------------------------------------------
 # Bash completion helper
 # ----------------------------------------------------------------------
-
 
 def create_completion_dir():
     """Check if the init dir exists and if not then create it."""
@@ -1707,10 +1705,10 @@ def get_model_completion_list():
 
     return get_completion_list(COMPLETION_MODELS)
 
+
 # -----------------------------------------------------------------------
 # Fuzzy match helper
 # -----------------------------------------------------------------------
-
 
 def find_best_match(misspelled, candidates):
     """Find the best matched word with <misspelled> in <candidates>."""
@@ -1757,7 +1755,6 @@ def get_misspelled_pkg(model):
 # -----------------------------------------------------------------------
 # Command line argument parse helper
 # -----------------------------------------------------------------------
-
 
 class SubCmdAdder(object):
     """Add the subcommands described in <commands> into <subparsers> with
@@ -1823,10 +1820,10 @@ class OptionAdder(object):
         for opt in self.options:
             self.add_option(opt)
 
+
 # ----------------------------------------------------------------------
 # Debug Log and Error Printing
 # ----------------------------------------------------------------------
-
 
 def create_log_dir():
     """Check if the log dir exists and if not then create it."""
@@ -1871,10 +1868,10 @@ def print_error_exit(msg, *param, exitcode=1):
     print_error(msg, *param)
     sys.exit(exitcode)
 
+
 # ----------------------------------------------------------------------
 # Misc
 # ----------------------------------------------------------------------
-
 
 def configure(path, script, quiet):
     """Run the provided configure scripts and handle errors and output."""
@@ -1945,10 +1942,10 @@ def yes_or_no(msg, *params, yes=True):
 
     return answer
 
+
 # ----------------------------------------------------------------------
 # Custom Exceptions
 # ----------------------------------------------------------------------
-
 
 class ModelURLAccessException(Exception):
     pass

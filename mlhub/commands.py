@@ -55,10 +55,10 @@ from mlhub.constants import (
 # The commands are implemented here in a logical order with each
 # command providing a suggesting of the following command.
 
+
 # ------------------------------------------------------------------------
 # AVAILABLE
 # ------------------------------------------------------------------------
-
 
 def list_available(args):
     """List the name and title of the models in the Hub."""
@@ -101,10 +101,10 @@ def list_available(args):
             print("Why not give the 'rain' model a go...\n\n"
                   "  $ ml install rain\n")
 
+
 # ------------------------------------------------------------------------
 # INSTALLED
 # ------------------------------------------------------------------------
-
 
 def list_installed(args):
     """List the installed models."""
@@ -179,10 +179,10 @@ def list_installed(args):
         else:
             utils.print_next_step('installed', scenario='none')
 
+
 # -----------------------------------------------------------------------
 # INSTALL
 # ------------------------------------------------------------------------
-
 
 def install_model(args):
     """Install a model.
@@ -420,10 +420,10 @@ def install_model(args):
 
             utils.print_next_step('install', model=model)
 
+
 # -----------------------------------------------------------------------
 # DOWNLOAD
 # ------------------------------------------------------------------------
-
 
 def download_model(args):
     """Download the large pre-built model."""
@@ -442,10 +442,10 @@ def download_model(args):
     if not args.quiet:
         utils.print_next_step('download', model=model)
 
+
 # ------------------------------------------------------------------------
 # README
 # ------------------------------------------------------------------------
-
 
 def readme(args):
     """Display the model's README information."""
@@ -501,20 +501,20 @@ def readme(args):
     if not args.quiet:
         utils.print_next_step('readme', model=model)
 
+
 # ------------------------------------------------------------------------
 # LICENSE
 # ------------------------------------------------------------------------
-
 
 def license(args):
     """Display the mode's LICENSE information."""
 
     print("Please assist by implementing this command.")
-    
+
+
 # -----------------------------------------------------------------------
 # COMMANDS
 # ------------------------------------------------------------------------
-
 
 def list_model_commands(args):
     """ List the commands supported by this model."""
@@ -566,10 +566,10 @@ def list_model_commands(args):
     if not args.quiet:
         utils.print_next_step('commands', description=entry, model=model)
 
+
 # -----------------------------------------------------------------------
 # CONFIGURE
 # ------------------------------------------------------------------------
-
 
 def configure_model(args):
     """Ensure the user's environment is configured."""
@@ -748,10 +748,10 @@ def configure_model(args):
     if not args.quiet:
         utils.print_next_step('configure', model=model)
 
+
 # -----------------------------------------------------------------------
 # DISPATCH
 # ------------------------------------------------------------------------
-
 
 def dispatch(args):
     """Dispatch other commands to the appropriate model provided script."""
@@ -913,21 +913,21 @@ or else connect to the server's desktop using a local X server like X2Go.
 
         if not args.quiet:
             utils.print_next_step(cmd, description=entry, model=model)
-    
+
+
 # ------------------------------------------------------------------------
 # DONATE
 # ------------------------------------------------------------------------
-
 
 def donate(args):
     """Consider a donation to the author."""
 
     print("Please assist by implementing this command: support donations to the author.")
-    
+
+
 # ------------------------------------------------------------------------
 # CLEAN
 # ------------------------------------------------------------------------
-
 
 def remove_mlm(args):
     """Remove downloaded {} files.""".format(EXT_MLM)
@@ -938,10 +938,10 @@ def remove_mlm(args):
         if utils.yes_or_no("Remove model package archive '{}'", m, yes=True):
             os.remove(m)
 
+
 # ------------------------------------------------------------------------
 # REMOVE
 # ------------------------------------------------------------------------
-
 
 def remove_model(args):
     """Remove installed model."""
