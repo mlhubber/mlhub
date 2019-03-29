@@ -74,8 +74,10 @@ from mlhub.constants import (
     MLHUB,
     MLHUB_YAML,
     MLINIT,
-    PYTHON_CMD,
+    PIP_PATH,
+    PYTHON_PATH,
     RSCRIPT_CMD,
+    SYS_PYTHON_PKG_USAGE,
     USAGE,
     VERSION,
     WORKING_DIR,
@@ -834,6 +836,7 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
 
 def install_r_deps(deps, model, source='cran', yes=False):
     env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
+    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'r.R')
     command = '{}{} {} "{}" "{}"'.format(env_var, RSCRIPT_CMD, script, source, '" "'.join(deps))
 
@@ -856,8 +859,16 @@ def install_r_deps(deps, model, source='cran', yes=False):
 
 def install_python_deps(deps, model, source='pip', yes=False):
     env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
+    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
     pkg_dir = get_package_dir(model)
+
+    # Check python environment
+
+    if source.startswith("pyt"):
+        update_sys_python_pkg_usage(model, True)
+
+    # Handle conda environment
 
     if source.startswith("con"):
 
@@ -897,6 +908,7 @@ def install_python_deps(deps, model, source='pip', yes=False):
 
 def install_system_deps(deps, yes=False):
     env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
+    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'system.sh')
     command = '{}{} {} "{}"'.format(env_var, BASH_CMD, script, '" "'.join(deps))
 
@@ -1477,7 +1489,7 @@ def create_package_config_dir(model=None):
 
     return _create_dir(
         path,
-        'Model package config dir creation failed: {}'.format(path),
+        'Config dir creation failed: {}'.format(path),
         ModelPkgConfigDirCreateException(path))
 
 
@@ -1603,6 +1615,11 @@ def update_working_dir(model, dir):
     update_config(model, {WORKING_DIR: dir})
 
 
+def update_sys_python_pkg_usage(model, usage=True):
+
+    update_config(model, {SYS_PYTHON_PKG_USAGE: usage})
+
+
 def get_config(model, name):
     """Return config value."""
 
@@ -1626,6 +1643,10 @@ def get_working_dir(model):
 
 def get_conda_env_name(model):
     return get_config(model, CONDA_ENV_NAME)
+
+
+def get_sys_python_pkg_usage(model):
+    return get_config(model, SYS_PYTHON_PKG_USAGE)
 
 
 # ----------------------------------------------------------------------
@@ -1914,7 +1935,7 @@ def interpreter(script):
     elif ext == ".R":
         intrprt = "R_LIBS=./R {}".format(RSCRIPT_CMD)
     elif ext == ".py":
-        intrprt = PYTHON_CMD
+        intrprt = sys.executable
     else:
         raise UnsupportedScriptExtensionException(ext)
 

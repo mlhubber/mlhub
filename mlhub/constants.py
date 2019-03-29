@@ -333,6 +333,9 @@ LOG_QUIET = {'quiet': True}
 
 CONDA_ENV_NAME = "conda_env_name"  # Conda environment name
 WORKING_DIR = "working_dir"        # Model's working dir
+PYTHON_PATH = "python_path"  # python path, such as /usr/bin/python3
+PIP_PATH = "pip_path"        # pip path, such as /usr/bin/pip3
+SYS_PYTHON_PKG_USAGE = "sys_python_pkg_usage"  # Whether system python packages installed
 
 
 # ------------------------------------------------------------------------
@@ -344,5 +347,23 @@ BASH_CMD ='/bin/bash'
 R_CMD = '/usr/bin/R'
 RSCRIPT_CMD = '/usr/bin/Rscript'
 
-PYTHON_CMD = '/usr/bin/python3'
-PIP_CMD = '/usr/bin/pip3'
+SYS_PYTHON_CMD = '/usr/bin/python3'
+SYS_PIP_CMD = '/usr/bin/pip3'
+
+
+# ------------------------------------------------------------------------
+# Messages
+# ------------------------------------------------------------------------
+
+MSG_INCOMPATIBLE_PYTHON_ENV ="""
+WARNING: MLHub is not installed in system's site package directory!
+The "{}" MLHub package requires system Python packages, which may not correctly
+be included in the its Python search path.
+To solve this problem, please make sure to install MLHub using:
+    $ pip uninstall -y mlhub  # or $ pip3 uninstall -y mlhub
+    $ sudo apt-get install -y python3-pip
+    $ /usr/bin/pip3 install mlhub
+followed by re-login.
+Or for advanced users, you could manually `pip install` those required Python
+packages.
+"""

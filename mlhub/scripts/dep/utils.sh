@@ -3,6 +3,26 @@
 # Utilities frequently used throughout various scripts.
 # ----------------------------------------------------------------------
 
+_get_corresponding_pip() {
+  local pyexe="${1}"
+  local pipname="pip3"
+  local pipexe="$(type -p ${pipname} 2>/dev/null)"
+
+  if [[ -z ${pipexe} ]]; then
+    pipname="pip"
+  fi
+
+  for x in $(type -ap ${pipname}); do
+    local pippypath="$(grep "^#!" ${x} | head -1 | cut -d'!' -f2)"
+    if [[ "${pippypath}" == "${pyexe}" ]]; then
+      pipexe="${x}"
+      break
+    fi
+  done
+
+  echo "${pipexe}"
+}
+
 ######################################################################
 # Global variables
 ######################################################################
@@ -14,8 +34,11 @@ bash='/bin/bash'
 R='/usr/bin/R'
 Rscript='/usr/bin/Rscript'
 
-python='/usr/bin/python3'
-pip='/usr/bin/pip3'
+sys_python='/usr/bin/python3'
+sys_pip='/usr/bin/pip3'
+
+python="${_MLHUB_PYTHON_EXE}"
+pip="$(_get_corresponding_pip ${python})"
 
 R_SYS_PKG='r-base'
 R_DEVTOOLS_SYS_PKG='r-cran-devtools'

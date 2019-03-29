@@ -48,7 +48,9 @@ from distutils.version import StrictVersion
 from mlhub.constants import (
     BASH_CMD,
     EXT_MLM,
+    MSG_INCOMPATIBLE_PYTHON_ENV,
     MLHUB_YAML,
+    SYS_PYTHON_CMD,
     README,
 )
 
@@ -621,6 +623,7 @@ def configure_model(args):
         if distro.id() in ['debian', 'ubuntu']:
             path = os.path.dirname(__file__)
             env_var = "export _MLHUB_OPTION_YES='y'; " if YES else ''
+            env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
             script = os.path.join('scripts', 'dep', 'mlhub.sh')
             command = "{}{} {}".format(env_var, BASH_CMD, script)
             proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
@@ -839,36 +842,43 @@ or else connect to the server's desktop using a local X server like X2Go.
         script = os.path.join(path, script)
         path = args.workding_dir
 
-    # _MLHUB_CMD_CWD: a environment variable indicates current working
-    #                 directory where command `ml xxx` is invoked.
-    # _MLHUB_MODEL_NAME: env variable indicates the name of the model.
-    # 
-    # The above two env vars can be obtained by helper function, such
-    # as utils.get_cmd_cwd().  And model package developer should be
-    # use the helper function instead of the env vars directly.
+    # Handle python environment
 
     python_pkg_bin = None
     python_pkg_path = None
     if script.endswith('py'):
         python_pkg_base = os.path.sep.join([utils.get_package_dir(model), '.python'])
-        python_pkg_bin = python_pkg_base + site.USER_BASE + '/bin'
         python_pkg_path = python_pkg_base + site.USER_SITE
+        python_pkg_bin = python_pkg_base + site.USER_BASE + '/bin'
 
-    # TODO: Make sure to document:
-    #     $ sudo apt-get install -y python3-pip
-    #     $ /usr/bin/pip3 install mlhub
-    #   Since in DSVM, the default pip is conda's pip, so if we stick to use system's command,
-    #   then the installation of MLHub itself should be completed via system's pip,
-    #   otherwise, MLHub will not work.
+        # TODO: Make sure to document:
+        #     $ sudo apt-get install -y python3-pip
+        #     $ /usr/bin/pip3 install mlhub
+        #   Since in DSVM, the default pip is conda's pip, so if we stick to
+        #   use system's command, then the installation of MLHub itself should
+        #   be completed via system's pip, otherwise, MLHub will not work.
 
-    env_cmd_cwd = "export _MLHUB_CMD_CWD='{}'".format(os.getcwd())
-    env_model_name = "export _MLHUB_MODEL_NAME='{}'".format(model)
-    env_python_path = "export PYTHONPATH='{}'".format(python_pkg_path) if python_pkg_path else ""
-    env_python_pkg_bin = "export PATH=\"{}:$PATH\"".format(python_pkg_bin) if python_pkg_bin else ""
-    env_list = [env_cmd_cwd, env_model_name, env_python_path, env_python_pkg_bin]
-    env_list = '; '.join([x for x in env_list if x])
+        if sys.executable != SYS_PYTHON_CMD:
+            python_pkg_path = python_pkg_base + site.getsitepackages()[0]
+            python_pkg_bin = python_pkg_base + site.PREFIXES[0]+ '/bin'
+            if utils.get_sys_python_pkg_usage(model):
+                utils.print_on_stderr(MSG_INCOMPATIBLE_PYTHON_ENV, model)
 
-    command = "{}; {} {} {}".format(env_list, interpreter, script, param)
+    # _MLHUB_CMD_CWD: a environment variable indicates current working
+    #                 directory where command `ml xxx` is invoked.
+    # _MLHUB_MODEL_NAME: env variable indicates the name of the model.
+    #
+    # The above two env vars can be obtained by helper function, such
+    # as utils.get_cmd_cwd().  And model package developer should be
+    # use the helper function instead of the env vars directly.
+
+    env_var = "export _MLHUB_CMD_CWD='{}'; ".format(os.getcwd())
+    env_var += "export _MLHUB_MODEL_NAME='{}'; ".format(model)
+    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
+    env_var += "export PYTHONPATH='{}'; ".format(python_pkg_path) if python_pkg_path else ""
+    env_var += "export PATH=\"{}:$PATH\"; ".format(python_pkg_bin) if python_pkg_bin else ""
+
+    command = "{}{} {} {}".format(env_var, interpreter, script, param)
 
     # Run script inside conda environment if specified
 
