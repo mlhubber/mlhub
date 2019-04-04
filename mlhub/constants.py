@@ -214,7 +214,7 @@ COMMANDS = {
         },
 
     'configure':
-        {'description': "configure ml or the model's dependencies",
+        {'description': "configure the package",
             'argument': {'model': {'nargs': "?"},
                          '-y': {'action': 'store_true',
                                 'help': 'the same as "--yes"',
