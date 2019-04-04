@@ -731,7 +731,7 @@ def print_next_step(current, description=None, scenario=None, model=''):
 
             msg = get_command_suggestion(next_cmd, description=description, model=model)
         else:
-            msg = "\nThank you for exploring the '{}' model.".format(model)
+            msg = "\nThank you for exploring the '{}' package.".format(model)
 
         print(msg)
 
