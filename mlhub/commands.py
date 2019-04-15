@@ -36,6 +36,7 @@ import mlhub.utils as utils
 import os
 import re
 import shutil
+import site
 import subprocess
 import sys
 import tempfile
@@ -45,18 +46,21 @@ import yaml
 
 from distutils.version import StrictVersion
 from mlhub.constants import (
+    BASH_CMD,
     EXT_MLM,
+    MSG_INCOMPATIBLE_PYTHON_ENV,
     MLHUB_YAML,
+    SYS_PYTHON_CMD,
     README,
 )
 
 # The commands are implemented here in a logical order with each
 # command providing a suggesting of the following command.
 
+
 # ------------------------------------------------------------------------
 # AVAILABLE
 # ------------------------------------------------------------------------
-
 
 def list_available(args):
     """List the name and title of the models in the Hub."""
@@ -99,10 +103,10 @@ def list_available(args):
             print("Why not give the 'rain' model a go...\n\n"
                   "  $ ml install rain\n")
 
+
 # ------------------------------------------------------------------------
 # INSTALLED
 # ------------------------------------------------------------------------
-
 
 def list_installed(args):
     """List the installed models."""
@@ -177,10 +181,10 @@ def list_installed(args):
         else:
             utils.print_next_step('installed', scenario='none')
 
+
 # -----------------------------------------------------------------------
 # INSTALL
 # ------------------------------------------------------------------------
-
 
 def install_model(args):
     """Install a model.
@@ -418,10 +422,10 @@ def install_model(args):
 
             utils.print_next_step('install', model=model)
 
+
 # -----------------------------------------------------------------------
 # DOWNLOAD
 # ------------------------------------------------------------------------
-
 
 def download_model(args):
     """Download the large pre-built model."""
@@ -440,10 +444,10 @@ def download_model(args):
     if not args.quiet:
         utils.print_next_step('download', model=model)
 
+
 # ------------------------------------------------------------------------
 # README
 # ------------------------------------------------------------------------
-
 
 def readme(args):
     """Display the model's README information."""
@@ -478,7 +482,7 @@ def readme(args):
                 raise utils.ModelReadmeNotFoundException(model, readme_file)
 
         script = os.path.join(os.path.dirname(__file__), 'scripts', 'convert_readme.sh')
-        command = "/bin/bash {} {} {}".format(script, readme_raw, README)
+        command = "{} {} {} {}".format(BASH_CMD, script, readme_raw, README)
         proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
         output, errors = proc.communicate()
         if proc.returncode != 0:
@@ -499,20 +503,20 @@ def readme(args):
     if not args.quiet:
         utils.print_next_step('readme', model=model)
 
+
 # ------------------------------------------------------------------------
 # LICENSE
 # ------------------------------------------------------------------------
-
 
 def license(args):
     """Display the mode's LICENSE information."""
 
     print("Please assist by implementing this command.")
-    
+
+
 # -----------------------------------------------------------------------
 # COMMANDS
 # ------------------------------------------------------------------------
-
 
 def list_model_commands(args):
     """ List the commands supported by this model."""
@@ -564,10 +568,10 @@ def list_model_commands(args):
     if not args.quiet:
         utils.print_next_step('commands', description=entry, model=model)
 
+
 # -----------------------------------------------------------------------
 # CONFIGURE
 # ------------------------------------------------------------------------
-
 
 def configure_model(args):
     """Ensure the user's environment is configured."""
@@ -618,7 +622,10 @@ def configure_model(args):
 
         if distro.id() in ['debian', 'ubuntu']:
             path = os.path.dirname(__file__)
-            command = "{}/bin/bash {}".format("export _MLHUB_OPTION_YES='y'; " if YES else '', os.path.join('scripts', 'dep', 'mlhub.sh'))
+            env_var = "export _MLHUB_OPTION_YES='y'; " if YES else ''
+            env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
+            script = os.path.join('scripts', 'dep', 'mlhub.sh')
+            command = "{}{} {}".format(env_var, BASH_CMD, script)
             proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
             output, errors = proc.communicate()
             if proc.returncode != 0:
@@ -744,10 +751,10 @@ def configure_model(args):
     if not args.quiet:
         utils.print_next_step('configure', model=model)
 
+
 # -----------------------------------------------------------------------
 # DISPATCH
 # ------------------------------------------------------------------------
-
 
 def dispatch(args):
     """Dispatch other commands to the appropriate model provided script."""
@@ -835,21 +842,48 @@ or else connect to the server's desktop using a local X server like X2Go.
         script = os.path.join(path, script)
         path = args.workding_dir
 
+    # Handle python environment
+
+    python_pkg_bin = None
+    python_pkg_path = None
+    if script.endswith('py'):
+        python_pkg_base = os.path.sep.join([utils.get_package_dir(model), '.python'])
+        python_pkg_path = python_pkg_base + site.USER_SITE
+        python_pkg_bin = python_pkg_base + site.USER_BASE + '/bin'
+
+        # TODO: Make sure to document:
+        #     $ sudo apt-get install -y python3-pip
+        #     $ /usr/bin/pip3 install mlhub
+        #   Since in DSVM, the default pip is conda's pip, so if we stick to
+        #   use system's command, then the installation of MLHub itself should
+        #   be completed via system's pip, otherwise, MLHub will not work.
+
+        if sys.executable != SYS_PYTHON_CMD:
+            python_pkg_path = python_pkg_base + site.getsitepackages()[0]
+            python_pkg_bin = python_pkg_base + site.PREFIXES[0]+ '/bin'
+            if utils.get_sys_python_pkg_usage(model):
+                utils.print_on_stderr(MSG_INCOMPATIBLE_PYTHON_ENV, model)
+
     # _MLHUB_CMD_CWD: a environment variable indicates current working
     #                 directory where command `ml xxx` is invoked.
     # _MLHUB_MODEL_NAME: env variable indicates the name of the model.
-    # 
+    #
     # The above two env vars can be obtained by helper function, such
     # as utils.get_cmd_cwd().  And model package developer should be
     # use the helper function instead of the env vars directly.
 
-    command = "export _MLHUB_CMD_CWD='{}'; export _MLHUB_MODEL_NAME='{}'; {} {} {}".format(
-        os.getcwd(), model, interpreter, script, param)
+    env_var = "export _MLHUB_CMD_CWD='{}'; ".format(os.getcwd())
+    env_var += "export _MLHUB_MODEL_NAME='{}'; ".format(model)
+    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
+    env_var += "export PYTHONPATH='{}'; ".format(python_pkg_path) if python_pkg_path else ""
+    env_var += "export PATH=\"{}:$PATH\"; ".format(python_pkg_bin) if python_pkg_bin else ""
+
+    command = "{}{} {} {}".format(env_var, interpreter, script, param)
 
     # Run script inside conda environment if specified
 
     if conda_env_name is not None:
-        command = 'bash -c "source activate {}; {}"'.format(conda_env_name, command)
+        command = '{} -c "source activate {}; {}"'.format(BASH_CMD, conda_env_name, command)
 
     logger.debug("(cd " + path + "; " + command + ")")
 
@@ -889,21 +923,21 @@ or else connect to the server's desktop using a local X server like X2Go.
 
         if not args.quiet:
             utils.print_next_step(cmd, description=entry, model=model)
-    
+
+
 # ------------------------------------------------------------------------
 # DONATE
 # ------------------------------------------------------------------------
-
 
 def donate(args):
     """Consider a donation to the author."""
 
     print("Please assist by implementing this command: support donations to the author.")
-    
+
+
 # ------------------------------------------------------------------------
 # CLEAN
 # ------------------------------------------------------------------------
-
 
 def remove_mlm(args):
     """Remove downloaded {} files.""".format(EXT_MLM)
@@ -914,13 +948,15 @@ def remove_mlm(args):
         if utils.yes_or_no("Remove model package archive '{}'", m, yes=True):
             os.remove(m)
 
+
 # ------------------------------------------------------------------------
 # REMOVE
 # ------------------------------------------------------------------------
 
-
 def remove_model(args):
     """Remove installed model."""
+
+    # TODO: Remove .archive and .config for the model.
     
     model = args.model
 

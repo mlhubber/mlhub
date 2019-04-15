@@ -54,6 +54,7 @@ from mlhub.constants import (
     APP,
     APPX,
     ARCHIVE_DIR,
+    BASH_CMD,
     CACHE_DIR,
     CMD,
     COMMANDS,
@@ -73,15 +74,19 @@ from mlhub.constants import (
     MLHUB,
     MLHUB_YAML,
     MLINIT,
+    PIP_PATH,
+    PYTHON_PATH,
+    RSCRIPT_CMD,
+    SYS_PYTHON_PKG_USAGE,
     USAGE,
     VERSION,
     WORKING_DIR,
 )
 
+
 # ----------------------------------------------------------------------
 # MLHUB repo and model package
 # ----------------------------------------------------------------------
-
 
 def get_repo(mlhub):
     """Determine the repository to use: command line, environment, default."""
@@ -103,11 +108,13 @@ def get_repo_meta_data(repo):
 
     try:
         url = repo + META_YAML
-        meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(), Loader=yaml.SafeLoader))
+        meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(),
+                                       Loader=yaml.SafeLoader))
     except urllib.error.URLError:
         try:
             url = repo + META_YML
-            meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(), Loader=yaml.SafeLoader))
+            meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(),
+                                           Loader=yaml.SafeLoader))
         except urllib.error.URLError:
             logger = logging.getLogger(__name__)
             logger.error('Repo connection problem.', exc_info=True)
@@ -192,7 +199,8 @@ def read_mlhubyaml(name):
         # Use yamlordereddictloader to keep the order of entries specified inside YAML file.
         # Because the order of commands matters.
 
-        entry = yaml.load(read_github_raw_file(name), Loader=yamlordereddictloader.Loader)
+        entry = yaml.load(read_github_raw_file(name),
+                          Loader=yamlordereddictloader.Loader)
 
     except (yaml.composer.ComposerError, yaml.scanner.ScannerError):
 
@@ -319,10 +327,10 @@ def get_available_pkgyaml(url):
 
     raise DescriptionYAMLNotFoundException(param)
 
+
 # ----------------------------------------------------------------------
 # String manipulation
 # ----------------------------------------------------------------------
-
 
 def dropdot(sentence):
     """Drop the period after a sentence."""
@@ -344,7 +352,6 @@ def lower_first_letter(sentence):
 # ----------------------------------------------------------------------
 # URL and download
 # ----------------------------------------------------------------------
-
 
 def is_url(name):
     """Check if name is a url."""
@@ -400,10 +407,10 @@ def download_model_pkg(url, local, pkgfile, quiet):
     except urllib.error.URLError as error:
         raise ModelDownloadHaltException(url, error.reason.lower())
 
+
 # ----------------------------------------------------------------------
 # Folder and file manipulation
 # ----------------------------------------------------------------------
-
 
 def _create_dir(path, error_msg, exception):
     """Create dir <path> if not exists.
@@ -575,10 +582,10 @@ def is_description_file(name):
 
     return name.endswith(DESC_YAML) or name.endswith(DESC_YML) or name.endswith(MLHUB_YAML)
 
+
 # ----------------------------------------------------------------------
 # Help message
 # ----------------------------------------------------------------------
-
 
 def print_usage():
     print(CMD)
@@ -623,10 +630,10 @@ def print_model_cmd_help(entry, cmd):
     else:
         raise MalformedYAMLException(model)
 
+
 # ----------------------------------------------------------------------
 # Next step suggestion
 # ----------------------------------------------------------------------
-
 
 def get_command_suggestion(cmd, description=None, model=''):
     """Return suggestion about how to use the cmd."""
@@ -724,16 +731,16 @@ def print_next_step(current, description=None, scenario=None, model=''):
 
             msg = get_command_suggestion(next_cmd, description=description, model=model)
         else:
-            msg = "\nThank you for exploring the '{}' model.".format(model)
+            msg = "\nThank you for exploring the '{}' package.".format(model)
 
         print(msg)
 
     print()
 
+
 # ----------------------------------------------------------------------
 # Dependency
 # ----------------------------------------------------------------------
-
 
 def flatten_mlhubyaml_deps(deps, cats=None, res=None):
     """Flatten the hierarchical structure of dependencies in MLHUB.yaml.
@@ -828,8 +835,10 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
 
 
 def install_r_deps(deps, model, source='cran', yes=False):
+    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
+    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'r.R')
-    command = '{}Rscript {} "{}" "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, '" "'.join(deps))
+    command = '{}{} {} "{}" "{}"'.format(env_var, RSCRIPT_CMD, script, source, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -849,7 +858,17 @@ def install_r_deps(deps, model, source='cran', yes=False):
 
 
 def install_python_deps(deps, model, source='pip', yes=False):
+    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
+    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
+    pkg_dir = get_package_dir(model)
+
+    # Check python environment
+
+    if source.startswith("pyt"):
+        update_sys_python_pkg_usage(model, True)
+
+    # Handle conda environment
 
     if source.startswith("con"):
 
@@ -868,9 +887,11 @@ def install_python_deps(deps, model, source='pip', yes=False):
             update_conda_env_name(model, first_dep[list(first_dep)[0]])
             return
 
-        command = '{}/bin/bash {} {} {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, category, '" "'.join(deps))
+        command = '{}{} {} "{}" {} {} "{}"'.format(
+            env_var, BASH_CMD, script, pkg_dir, source, category, '" "'.join(deps))
     else:
-        command = '{}/bin/bash {} {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, source, '" "'.join(deps))
+        command = '{}{} {} "{}" {} "{}"'.format(
+            env_var, BASH_CMD, script, pkg_dir, source, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -886,8 +907,10 @@ def install_python_deps(deps, model, source='pip', yes=False):
 
 
 def install_system_deps(deps, yes=False):
+    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
+    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
     script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'system.sh')
-    command = '{}/bin/bash {} "{}"'.format('export _MLHUB_OPTION_YES="y"; ' if yes else '', script, '" "'.join(deps))
+    command = '{}{} {} "{}"'.format(env_var, BASH_CMD, script, '" "'.join(deps))
 
     proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -1147,6 +1170,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             dst = os.path.join(pkg_dir, target)
             symlinks = [(src, dst)]
             if needUnzip:  # Uncompress archive file
+                print("      Uncompressing the cached file {} ...".format(archive))
                 file_list = []
                 if filetype != 'dir':
                     _, _, file_list = unpack_with_promote(archive, cache, remove_dst=False)
@@ -1179,10 +1203,10 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             except FileNotFoundError:
                 raise ModePkgInstallationFileNotFoundException(location)
 
+
 # ----------------------------------------------------------------------
 # GitHub
 # ----------------------------------------------------------------------
-
 
 def is_github_url(name):
     """Check if name starts with http://github.com or https://github.com"""
@@ -1364,7 +1388,6 @@ def get_github_type(location):
 # Model package developer utilities
 # ----------------------------------------------------------------------
 
-
 def get_init_dir():
     """Return the path of MLHUB system folder."""
 
@@ -1466,7 +1489,7 @@ def create_package_config_dir(model=None):
 
     return _create_dir(
         path,
-        'Model package config dir creation failed: {}'.format(path),
+        'Config dir creation failed: {}'.format(path),
         ModelPkgConfigDirCreateException(path))
 
 
@@ -1592,6 +1615,11 @@ def update_working_dir(model, dir):
     update_config(model, {WORKING_DIR: dir})
 
 
+def update_sys_python_pkg_usage(model, usage=True):
+
+    update_config(model, {SYS_PYTHON_PKG_USAGE: usage})
+
+
 def get_config(model, name):
     """Return config value."""
 
@@ -1616,10 +1644,14 @@ def get_working_dir(model):
 def get_conda_env_name(model):
     return get_config(model, CONDA_ENV_NAME)
 
+
+def get_sys_python_pkg_usage(model):
+    return get_config(model, SYS_PYTHON_PKG_USAGE)
+
+
 # ----------------------------------------------------------------------
 # Bash completion helper
 # ----------------------------------------------------------------------
-
 
 def create_completion_dir():
     """Check if the init dir exists and if not then create it."""
@@ -1694,10 +1726,10 @@ def get_model_completion_list():
 
     return get_completion_list(COMPLETION_MODELS)
 
+
 # -----------------------------------------------------------------------
 # Fuzzy match helper
 # -----------------------------------------------------------------------
-
 
 def find_best_match(misspelled, candidates):
     """Find the best matched word with <misspelled> in <candidates>."""
@@ -1744,7 +1776,6 @@ def get_misspelled_pkg(model):
 # -----------------------------------------------------------------------
 # Command line argument parse helper
 # -----------------------------------------------------------------------
-
 
 class SubCmdAdder(object):
     """Add the subcommands described in <commands> into <subparsers> with
@@ -1810,10 +1841,10 @@ class OptionAdder(object):
         for opt in self.options:
             self.add_option(opt)
 
+
 # ----------------------------------------------------------------------
 # Debug Log and Error Printing
 # ----------------------------------------------------------------------
-
 
 def create_log_dir():
     """Check if the log dir exists and if not then create it."""
@@ -1858,10 +1889,10 @@ def print_error_exit(msg, *param, exitcode=1):
     print_error(msg, *param)
     sys.exit(exitcode)
 
+
 # ----------------------------------------------------------------------
 # Misc
 # ----------------------------------------------------------------------
-
 
 def configure(path, script, quiet):
     """Run the provided configure scripts and handle errors and output."""
@@ -1900,11 +1931,11 @@ def interpreter(script):
     (root, ext) = os.path.splitext(script)
     ext = ext.strip()
     if ext == ".sh":
-        intrprt = "bash"
+        intrprt = BASH_CMD
     elif ext == ".R":
-        intrprt = "R_LIBS=./R Rscript"
+        intrprt = "R_LIBS=./R {}".format(RSCRIPT_CMD)
     elif ext == ".py":
-        intrprt = "python3"
+        intrprt = sys.executable
     else:
         raise UnsupportedScriptExtensionException(ext)
 
@@ -1935,7 +1966,6 @@ def yes_or_no(msg, *params, yes=True):
 # ----------------------------------------------------------------------
 # Custom Exceptions
 # ----------------------------------------------------------------------
-
 
 class ModelURLAccessException(Exception):
     pass

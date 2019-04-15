@@ -1,5 +1,7 @@
 #! /bin/bash -
-# Convert README into README.txt
+# ----------------------------------------------------------------------
+# This scrip is used for converting README into README.txt
+# ----------------------------------------------------------------------
 
 # Check if 'pandoc' is installed
 

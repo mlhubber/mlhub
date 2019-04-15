@@ -1,16 +1,19 @@
 #! /bin/bash -
-# Check and install pre-requisites of MLHUB per se as well as bash completion scripts.
+# ----------------------------------------------------------------------
+# This script is used for installing pre-requisites of MLHub per se,
+# as well as bash completion scripts for MLHub.
+# ----------------------------------------------------------------------
 
 source $(dirname $0)/utils.sh
 
-PREREQUISITES='
-  r-base
-  r-cran-devtools
+PREREQUISITES="
+  ${R_SYS_PKG}
+  ${R_DEVTOOLS_SYS_PKG}
   libxml2-dev
   pandoc
   eom
   atril
-'
+"
 
 R_DEVTOOLS_DEPS='
   libssl-dev
@@ -20,64 +23,98 @@ R_DEVTOOLS_DEPS='
 COMPLETION_SCRIPT=bash_completion.d/ml.bash
 COMPLETION_INSTALL_PATH=/etc/bash_completion.d
 
-# Upgrade pip
+######################################################################
+# Upgrade pip if possible
+######################################################################
 
 echo -e "\n*** Checking if pip is the latest version ..."
-if pip list -o 2>/dev/null | grep -e "^pip" > /dev/null; then
-  if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to upgrade pip"; then
-    pip install --upgrade pip
+
+# TODO: Need to find a fast way to figure out if pip is the newest version
+
+pip_version=$(${pip} list -o 2>/dev/null | grep -e "^pip")
+
+if [[ ! -z ${pip_version} ]]; then
+  old_pip_version=$(echo ${pip_version} | awk '{ print $2 }')
+  new_pip_version=$(echo ${pip_version} | awk '{ print $3 }')
+  msg="\nDo you want to upgrade pip from ${old_pip_version} to ${new_pip_version}"
+  if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
+    echo "Upgrading pip ..."
+    ${pip} install --upgrade pip
+  else
+    echo "Keep pip as it is."
   fi
+else
+  echo -e "\npip is already the newest."
 fi
 
+######################################################################
 # Install system dependencies
+######################################################################
 
-echo -e "\n*** Updating package index which may ask password for root privilege ..."
+echo -e "\n*** Updating package index which may ask for a password for admin privileges ...\n"
 sudo apt-get update
 
 for pkg in ${PREREQUISITES}; do
-  if ! dpkg-query -s ${pkg} 2>/dev/null | grep 'installed' > /dev/null; then
+  if ! _is_system_pkg_installed ${pkg}; then
 
     echo -e "\n*** Installing the system package '${pkg}' ..."
 
-    if [[ ${pkg} == 'r-base' ]] && R --version 2>/dev/null; then
+    if [[ ${pkg} == "${R_SYS_PKG}" ]] && _is_R_installed; then
 
-      # Check if R is the newest version
+      # R is already installed, so check if R is the newest version
 
-      r_version=$(R --version | head -1 | cut -d' ' -f3)
-      r_base_version=$(apt show r-base 2>/dev/null \
-                      | grep "^Version" \
-                      | cut -d' ' -f2 \
-                      | cut -d'-' -f1)
+      r_version="$(_get_R_version)"
+      r_base_version="$(_get_r_base_version)"
 
       if [[ $(_compare_version ${r_base_version} ${r_version}) == '>' ]]; then
-        if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install a newer version of R"; then
+        msg="\nDo you want to install a newer version of R"
+        if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
           sudo apt-get install -y ${pkg}
         fi
       else
-        echo -e "\nThe installed R version is newer than in the repo."
+        echo -e "\nThe installed R version is already newer than in the repo."
       fi
 
-    elif [[ ${pkg} == 'r-cran-devtools' ]] \
-         && ! dpkg-query -s ${pkg} 2>/dev/null ; then
+    elif [[ ${pkg} == "${R_DEVTOOLS_SYS_PKG}" ]]; then
 
-      # Try to install devtools from within R if r-cran-tools not available
+      sudo apt-get install -y ${pkg}
 
-      echo -e "\n${pkg} is not available! Trying to install 'devtools' from CRAN ..."
-      if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install 'devtools' from CRAN"; then
-        for dep in ${R_DEVTOOLS_DEPS}; do
-          if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install '${dep}' required by 'devtools'"; then
-            sudo apt-get install -y ${dep}
-            _check_returncode
-          fi
-        done
+      if [[ $? -ne 0 ]]; then
 
-        Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); dir.create(lib, showWarnings=FALSE, recursive=TRUE); install.packages("devtools", repos="https://cloud.r-project.org", lib=lib)'
+        # Try to install devtools from within R if r-cran-tools not available
+
+        echo -e "\n${pkg} is not available! Trying to install 'devtools' from CRAN ..."
+
+        msg="\nDo you want to install 'devtools' from CRAN"
+        if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
+
+          for dep in ${R_DEVTOOLS_DEPS}; do
+            msg="\nDo you want to install '${dep}' required by 'devtools'"
+            if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
+              sudo apt-get install -y ${dep}
+              _check_returncode
+            fi
+          done
+
+          commands='lib <- Sys.getenv("R_LIBS_USER"); '
+          commands+='dir.create(lib, showWarnings=FALSE, recursive=TRUE); '
+          commands+='install.packages("devtools", repos="https://cloud.r-project.org", lib=lib)'
+
+          echo -e "\nInstalling 'devtools' from CRAN ..."
+
+          ${Rscript} -e "${commands}"
+
+        fi
+
       fi
 
     else
-      if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "\nDo you want to install '${pkg}'"; then
+
+      msg="\nDo you want to install '${pkg}'"
+      if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
         sudo apt-get install -y ${pkg}
       fi
+
     fi
 
     _check_returncode
@@ -85,7 +122,9 @@ for pkg in ${PREREQUISITES}; do
   fi
 done
 
+######################################################################
 # Configure bash completion
+######################################################################
 
 COMMANDS=(
   "sudo install -m 0644 ${COMPLETION_SCRIPT} ${COMPLETION_INSTALL_PATH}"
@@ -93,10 +132,10 @@ COMMANDS=(
   "ml installed > /dev/null"
 )
 
-echo -e '\n*** Configuring bash completion which may ask password for root privilege ...'
+echo -e '\n*** Configuring bash completion - may require password for admin privileges ...\n'
 if [[ ${COMPLETION_SCRIPT} -nt ${COMPLETION_INSTALL_PATH}/${COMPLETION_SCRIPT##*/} ]]; then
   for cmd in "${COMMANDS[@]}"; do
-    echo "Executing: " "${cmd}"
+    echo "Executing:" "${cmd}"
     bash -c "${cmd}"
   done
   echo 'Done'
