@@ -16,5 +16,5 @@ inform_about <- function(title="", text="", delim="=", begin="", end="\n")
   sep <- paste0(paste(rep(delim, nchar(title)), collapse=""),
                 ifelse(nchar(title) > 0, "\n", ""))
   ttl_sep <- ifelse(nchar(title) > 0, "\n", "")
-  cat(begin, sep, title, ttl_sep, sep, ttl_sep, text, end)
+  cat(begin, sep, title, ttl_sep, sep, ttl_sep, text, end, sep="")
 }
