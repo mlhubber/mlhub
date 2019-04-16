@@ -9,7 +9,8 @@
  
 ask_continue <- function(msg="Press Enter to continue: ", begin="\n", end="\n")
 {
-  cat(begin, msg, end, sep="")
+  cat(begin, msg, sep="")
   invisible(readChar("stdin", 1))
+  cat(end)
 }
 
