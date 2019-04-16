@@ -6,7 +6,7 @@ Date: 2019-04-16
 Authors@R: c(person("Graham", "Williams", 
 	   	    role=c("aut", "cph", "cre"),
 	            email="Graham.Williams@togaware.com"))
-Depends: R
+Depends: R (>= 2.13.0)
 Description: MLHub is a project to provide open access to pre-built
   AI and machine learning models. This package provides various
   functions to support the developer of packages.
