@@ -1,0 +1,16 @@
+Package: mlhub
+Type: Package
+Title: Support for MLHub package developers
+Version: 0.0.0
+Date: 2019-04-16
+Authors@R: c(person("Graham", "Williams", 
+	   	    role=c("aut", "cph", "cre"),
+	            email="Graham.Williams@togaware.com"))
+Depends: R
+Description: MLHub is a project to provide open access to pre-built
+  AI and machine learning models. This package provides various
+  functions to support the developer of packages.
+License: GPL (>= 2)
+LazyLoad: yes
+URL: https://mlhub.ai/
+RoxygenNote: 6.1.1
