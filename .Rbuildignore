@@ -1,0 +1,8 @@
+^Makefile
+^dist
+^Dockerfile
+^MANIFEST.in
+^mlhub.*
+^pandoc.css
+^README.md
+^setup.*
