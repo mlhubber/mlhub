@@ -4,7 +4,8 @@
 \alias{ask_continue}
 \title{Ask Continue}
 \usage{
-ask_continue(msg = "Press Enter to continue: ", begin = "")
+ask_continue(msg = "Press Enter to continue: ", begin = "\\n",
+  end = "\\n")
 }
 \arguments{
 \item{msg}{A message to display.}
