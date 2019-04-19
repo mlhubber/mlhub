@@ -12,6 +12,7 @@ APP=mlhub
 #   Bug fix
 
 VER=3.4.1
+DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
@@ -61,7 +62,6 @@ help::
 ifneq ("$(wildcard $(INC_CLEAN))","")
   include $(INC_CLEAN)
 endif
-#NOT YET - BULD TARGET CONFLICTS WITH DOCKER
 ifneq ("$(wildcard $(INC_R))","")
   include $(INC_R)
 endif
