@@ -62,9 +62,9 @@ ifneq ("$(wildcard $(INC_CLEAN))","")
   include $(INC_CLEAN)
 endif
 #NOT YET - BULD TARGET CONFLICTS WITH DOCKER
-#ifneq ("$(wildcard $(INC_R))","")
-#  include $(INC_R)
-#endif
+ifneq ("$(wildcard $(INC_R))","")
+  include $(INC_R)
+endif
 ifneq ("$(wildcard $(INC_PANDOC))","")
   include $(INC_PANDOC)
 endif
