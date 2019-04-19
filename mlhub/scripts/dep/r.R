@@ -94,7 +94,7 @@ if (!snapshot)
   for (pkg in setdiff(name_pkgs, already_latest))
   {
     cat(sprintf(paste0("\n*** Installing the latest version of the R package ",
-                       "'%s'\n  from CRAN into '%s' ...\n\n"), pkg, lib))
+                       "'%s'\n  from CRAN into '%s' ...\n"), pkg, lib))
 
     if (! pkg %in% avail_cran_pkgs)
     {
