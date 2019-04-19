@@ -2,3 +2,4 @@
 
 export(ask_continue)
 export(inform_about)
+export(preview_file)
