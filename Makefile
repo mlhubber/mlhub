@@ -11,7 +11,7 @@ APP=mlhub
 #   Minor update
 #   Bug fix
 
-VER=3.4.4
+VER=3.4.5
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
