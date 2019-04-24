@@ -178,7 +178,7 @@ def azrequest(endpoint, url, subscription_key, request_data):
     headers = {'Content-Type': 'application/json',
                'Ocp-Apim-Subscription-Key': subscription_key}
     
-    response = requests.post(endpoint+url,
+    response = requests.post(os.path.join(endpoint, url),
                              data=json.dumps(request_data),
                              headers=headers)
     
