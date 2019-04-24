@@ -166,7 +166,8 @@ def ask_password(prompt=None):
 
 # Send a request.
 
-def send_request(endpoint, url, subscription_key, request_data):
+
+def azrequest(endpoint, url, subscription_key, request_data):
     """Send anomaly detection request to the Anomaly Detector API. 
 
     If the request is successful, the JSON response is returned.
