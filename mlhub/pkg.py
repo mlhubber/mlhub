@@ -66,7 +66,7 @@ def load_key(path):
 
 # Either load key/endpoint from file or ask user and save to file.
 
-def mlkey(key_file, service="Cognitive Services"):
+def azkey(key_file, service="Cognitive Services"):
     """The user is asked for an Azure subscription key and endpoint. The
     provided information is saved into a file for future use. The
     contents of that file is the key and endpoint with the endpoint
