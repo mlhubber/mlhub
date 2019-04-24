@@ -184,11 +184,11 @@ def send_request(endpoint, url, subscription_key, request_data):
         print(response.status_code)
         raise Exception(response.text)
 
-def ask_continue(begin=""):
+def mlask(begin=""):
     print(begin + "Press Enter to continue: ", end="")
     answer = input()
 
-def inform_about(title="", text="", delim="=", begin="", end="\n"):
+def mlcat(title="", text="", delim="=", begin="", end="\n"):
     sep = delim*len(title) + "\n" if len(title) > 0 else ""
     ttl_sep = "\n" if len(title) > 0 else ""
     print(begin + sep + title + ttl_sep + sep + ttl_sep + text, end=end)
