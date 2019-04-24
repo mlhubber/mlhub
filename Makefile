@@ -11,7 +11,7 @@ APP=mlhub
 #   Minor update
 #   Bug fix
 
-VER=3.4.2
+VER=3.4.3
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
@@ -24,6 +24,7 @@ SOURCE = setup.py			\
 	 mlhub/constants.py		\
 	 mlhub/commands.py		\
 	 mlhub/utils.py			\
+	 mlhub/pkg.py			\
 	 mlhub/__init__.py		\
 	 mlhub/bash_completion.d/ml.bash \
 	 mlhub/scripts/dep/python.sh \
