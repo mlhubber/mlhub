@@ -32,6 +32,8 @@ import json
 import os
 import sys
 import requests
+import termios
+import tty
 
 # ----------------------------------------------------------------------
 # Support Package Developers
@@ -64,14 +66,14 @@ def load_key(path):
 
 # Either load key/endpoint from file or ask user and save to file.
 
-def get_key_endpoint(key_file, service="Cognitive Services"):
+def mlkey(key_file, service="Cognitive Services"):
     """The user is asked for an Azure subscription key and endpoint. The
     provided information is saved into a file for future use. The
     contents of that file is the key and endpoint with the endpoint
     identified as starting with http:
 
     a14d1234abcda4f2f6e9f565df34ef24
-    https://westus2.api.cognitive.microsoft.com
+    https://westus2.api.cognitive.microsoft.com/
 
     """
 
