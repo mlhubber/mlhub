@@ -5,9 +5,9 @@
 #' @keywords continue
 #' @export
 #' @examples
-#' ask_continue()
+#' mlask()
  
-ask_continue <- function(msg="Press Enter to continue: ", begin="\n", end="\n")
+mlask <- function(msg="Press Enter to continue: ", begin="\n", end="\n")
 {
   cat(begin, msg, sep="")
   invisible(readChar("stdin", 1))

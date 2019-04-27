@@ -9,9 +9,9 @@
 #' @keywords informative
 #' @export
 #' @examples
-#' inform_user()
+#' mlcat()
  
-inform_about <- function(title="", text="", delim="=", begin="", end="\n")
+mlcat <- function(title="", text="", delim="=", begin="", end="\n")
 {
   sep <- paste0(paste(rep(delim, nchar(title)), collapse=""),
                 ifelse(nchar(title) > 0, "\n", ""))
