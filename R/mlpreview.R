@@ -11,8 +11,9 @@
  
 mlpreview <- function(fname,
                       msg="Close the graphic window using Ctrl-w.\n",
+                      begin="\n",
                       previewer="atril --preview")
 {
   system(paste(previewer, fname), ignore.stderr=TRUE, wait=FALSE)
-  cat(msg)
+  cat(begin, msg, sep="")
 }
