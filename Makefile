@@ -44,6 +44,25 @@ INC_AZURE   = $(INC_BASE)/azure.mk
 INC_DOCKER  = $(INC_BASE)/docker.mk
 INC_CLEAN   = $(INC_BASE)/clean.mk
 
+ifneq ("$(wildcard $(INC_CLEAN))","")
+  include $(INC_CLEAN)
+endif
+ifneq ("$(wildcard $(INC_PANDOC))","")
+  include $(INC_PANDOC)
+endif
+ifneq ("$(wildcard $(INC_GIT))","")
+  include $(INC_GIT)
+endif
+ifneq ("$(wildcard $(INC_AZURE))","")
+  include $(INC_AZURE)
+endif
+ifneq ("$(wildcard $(INC_DOCKER))","")
+  include $(INC_DOCKER)
+endif
+ifneq ("$(wildcard $(INC_R))","")
+  include $(INC_R)
+endif
+
 define HELP
 MLHUB Makefile
 
@@ -59,25 +78,6 @@ export HELP
 
 help::
 	@echo "$$HELP"
-
-ifneq ("$(wildcard $(INC_CLEAN))","")
-  include $(INC_CLEAN)
-endif
-ifneq ("$(wildcard $(INC_R))","")
-  include $(INC_R)
-endif
-ifneq ("$(wildcard $(INC_PANDOC))","")
-  include $(INC_PANDOC)
-endif
-ifneq ("$(wildcard $(INC_GIT))","")
-  include $(INC_GIT)
-endif
-ifneq ("$(wildcard $(INC_AZURE))","")
-  include $(INC_AZURE)
-endif
-ifneq ("$(wildcard $(INC_DOCKER))","")
-  include $(INC_DOCKER)
-endif
 
 .PHONY: mlhub
 mlhub: version $(TAR_GZ) $(BASH_COMPLETION)
