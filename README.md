@@ -158,6 +158,18 @@ Or extract the above downloaded .tar.gz and install:
     $ cd mlhub
     $ python3 setup.py install --user
 
+Under Development
+-----------------
+
+An interactive MLHub session that is initiated through the demo
+command is quite similar to a Jupyter Notebook presentation running on
+top of a Jupyter interpreter. Notebooks can be automatically
+transformed into a MLHub package so that the notebook becomes the
+source for the interactive demo.py or demo.R script required by
+MLHub. In this way users have the choice to either run the Notebook
+interactively within Jupyter or from the command line as an
+interactive script.
+
 Contributions
 -------------
 
