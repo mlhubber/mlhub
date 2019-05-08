@@ -7,6 +7,9 @@ The Machine Learning Hub
 [![Downloads](https://pepy.tech/badge/mlhub/month)](https://pepy.tech/project/mlhub)
 [![Downloads](https://pepy.tech/badge/mlhub/week)](https://pepy.tech/project/mlhub)
 
+A *Command Line* platform for presenting Machine Learning, Artificial
+Intelligence, and Data Science capabilities.
+
 Introduction
 ------------
 
