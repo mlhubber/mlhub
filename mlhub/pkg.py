@@ -34,6 +34,7 @@ import sys
 import requests
 import termios
 import tty
+import subprocess
 
 # ----------------------------------------------------------------------
 # Support Package Developers
@@ -112,7 +113,8 @@ I've saved that information into the file:
         print(msg_request)
         
         key      = ask_password(prompt_key)
-        endpoint = input(prompt_endpoint)
+        sys.stdout.write(prompt_endpoint)
+        endpoint = input()
 
         if len(key) > 0 and len(endpoint) > 0:
             ofname = open(key_file, "w")
@@ -188,12 +190,19 @@ def azrequest(endpoint, url, subscription_key, request_data):
         print(response.status_code)
         raise Exception(response.text)
 
-def mlask(begin=""):
-    print(begin + "Press Enter to continue: ", end="")
+def mlask(begin="", end=""):
+    sys,stdout.write(begin + "Press Enter to continue: ")
     answer = input()
-
+    sys.stdout.write(end)
+    
 def mlcat(title="", text="", delim="=", begin="", end="\n"):
     sep = delim*len(title) + "\n" if len(title) > 0 else ""
     ttl_sep = "\n" if len(title) > 0 else ""
     print(begin + sep + title + ttl_sep + sep + ttl_sep + text, end=end)
 
+def mlpreview(fname,
+              begin="\n",
+              msg="Close the graphic window using Ctrl-w.\n",
+              previewer="eog"):
+    print(begin + msg)
+    subprocess.Popen([previewer, fname])
