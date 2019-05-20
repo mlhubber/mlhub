@@ -67,7 +67,7 @@ def load_key(path):
 
 # Either load key/endpoint from file or ask user and save to file.
 
-def azkey(key_file, service="Cognitive Services"):
+def azkey(key_file, service="Cognitive Services", verbose=True):
     """The user is asked for an Azure subscription key and endpoint. The
     provided information is saved into a file for future use. The
     contents of that file is the key and endpoint with the endpoint
@@ -107,7 +107,7 @@ I've saved that information into the file:
     # Obtain the key/endpoint.
     
     if os.path.isfile(key_file) and os.path.getsize(key_file) > 0:
-        print(msg_found)
+        if verbose: print(msg_found)
         key, endpoint = load_key(key_file)
     else:
         print(msg_request)
@@ -191,10 +191,10 @@ def azrequest(endpoint, url, subscription_key, request_data):
         raise Exception(response.text)
 
 def mlask(begin="", end=""):
-    sys,stdout.write(begin + "Press Enter to continue: ")
+    sys.stdout.write(begin + "Press Enter to continue: ")
     answer = input()
     sys.stdout.write(end)
-    
+
 def mlcat(title="", text="", delim="=", begin="", end="\n"):
     sep = delim*len(title) + "\n" if len(title) > 0 else ""
     ttl_sep = "\n" if len(title) > 0 else ""
