@@ -84,7 +84,7 @@ CMD = "ml"                 # The command line tool.
 EXT_MLM = ".mlm"    # Archive filename extension
 EXT_AIPK = ".aipk"  # Backward compatibility
 
-VERSION = "3.4.10"  # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "3.4.11"  # DO NOT MODIFY. Managed from ../Makefile.
 
 OPTIONS = {
 
@@ -103,7 +103,7 @@ OPTIONS = {
          'action': 'store_true',
         },
     '--quiet':
-        {'alias': ['q', ],
+        {'alias': ['-q', ],
          'help': "reduce noise.",
          'action': 'store_true',
         },
