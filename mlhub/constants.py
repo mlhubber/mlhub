@@ -103,7 +103,8 @@ OPTIONS = {
          'action': 'store_true',
         },
     '--quiet':
-        {'help': "reduce noise.",
+        {'alias': ['q', ],
+         'help': "reduce noise.",
          'action': 'store_true',
         },
     '--init-dir':
