@@ -35,6 +35,7 @@ import requests
 import termios
 import tty
 import subprocess
+import re
 
 # ----------------------------------------------------------------------
 # Support Package Developers
