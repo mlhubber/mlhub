@@ -919,9 +919,10 @@ or else connect to the server's desktop using a local X server like X2Go.
             print(errors)
 
     else:
-        # Suggest next step
+        # Suggest next step - in the context of the command line view
+        # of the tool, let's not provide a next step for now. 20190528
 
-        if not args.quiet:
+        if False: # not args.quiet:
             utils.print_next_step(cmd, description=entry, model=model)
 
 
