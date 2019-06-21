@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="120"
+   width="120"
+   viewBox="-124 -124 248 248"
+   version="1.1"
+   id="svg20"
+   sodipodi:docname="logo-mlhub.svg"
+   inkscape:version="0.92.4 (33fec40, 2019-01-16)"
+   inkscape:export-filename="/home/gjw/projects/mlhub/logo-mlhub.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <metadata
+     id="metadata26">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs24">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4580">
+      <stop
+         style="stop-color:#009e00;stop-opacity:1;"
+         offset="0"
+         id="stop4576" />
+      <stop
+         style="stop-color:#009e00;stop-opacity:0;"
+         offset="1"
+         id="stop4578" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4580"
+       id="linearGradient4582"
+       x1="-62.308142"
+       y1="3.5526369"
+       x2="60.78769"
+       y2="3.5526369"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1492"
+     inkscape:window-height="845"
+     id="namedview22"
+     showgrid="false"
+     inkscape:zoom="1.9666667"
+     inkscape:cx="-26.440677"
+     inkscape:cy="60"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg20" />
+  <use
+     stroke-width="10"
+     stroke="#fff"
+     xlink:href="#o"
+     id="use2" />
+  <path
+     stroke="#069"
+     id="o"
+     stroke-width="12"
+     d="m0.1-74.9c41 0 75 33.7 75 75 0 41-34 75-75 75s-75-34-75-75 33.7-75 75-75zm-33.9-36c-7.2 2.2-14.2 5.1-20.7 8.6l6.3 30-23.7 23.7-30.4-6.3c-3.5 6.6-6.4 13.6-8.6 20.9l26 16.8v34l-26 17c2.2 7 5.1 14 8.6 21l30.4-7 23.6 24-6.3 30c6.6 4 13.5 7 20.7 9l17-26h34l17 26c7-2 14-5 21-9l-7-30 24-24 30 7c4-7 7-14 9-21-9-6-15-10-26-17v-34l26-16.8c-2-7.3-5-14.3-9-20.9l-30 6.3-24-23.7 7-30.4c-7-3.5-14-6.3-21-8.6l-17 26h-34z"
+     fill="#069" />
+  <circle
+     r="69"
+     fill="#fff"
+     id="circle5" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:92.33674622px;line-height:1.25;font-family:cmsy10;-inkscape-font-specification:'cmsy10, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:#006dbd;stroke-width:2.88552332;stroke-opacity:1"
+     x="-99.029205"
+     y="30.986118"
+     id="text3769"
+     transform="scale(0.79221557,1.2622827)"><tspan
+       sodipodi:role="line"
+       id="tspan3767"
+       x="-99.029205"
+       y="30.986118"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:92.33674622px;font-family:cmsy10;-inkscape-font-specification:'cmsy10, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke:#006dbd;stroke-width:2.88552332;stroke-opacity:1">ML</tspan></text>
+</svg>
