@@ -887,7 +887,7 @@ or else connect to the server's desktop using a local X server like X2Go.
 
     logger.debug("(cd " + path + "; " + command + ")")
 
-    proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(command, shell=True, cwd=path)
     output, errors = proc.communicate()
     missing_r_dep = False
     if proc.returncode != 0:
