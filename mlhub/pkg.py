@@ -108,20 +108,20 @@ I've saved that information into the file:
     # Obtain the key/endpoint.
     
     if os.path.isfile(key_file) and os.path.getsize(key_file) > 0:
-        if verbose: print(msg_found)
+        if verbose: print(msg_found, file=sys.stderr)
         key, endpoint = load_key(key_file)
     else:
-        print(msg_request)
+        print(msg_request, file=sys.stderr)
         
         key      = ask_password(prompt_key)
-        sys.stdout.write(prompt_endpoint)
+        sys.stderr.write(prompt_endpoint)
         endpoint = input()
 
         if len(key) > 0 and len(endpoint) > 0:
             ofname = open(key_file, "w")
             ofname.write("{}\n{}\n".format(key, endpoint))
             ofname.close()
-            print(msg_saved)
+            print(msg_saved, file=sys.stderr)
 
     return key, endpoint
 
@@ -137,8 +137,8 @@ def ask_password(prompt=None):
 
     symbol = "`~!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?"
     if prompt:
-        sys.stdout.write(prompt)
-        sys.stdout.flush()
+        sys.stderr.write(prompt)
+        sys.stderr.flush()
 
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
@@ -153,17 +153,17 @@ def ask_password(prompt=None):
                 raise KeyboardInterrupt
             if c == '\x7f':  # Backspace.
                 if chars:
-                    sys.stdout.write('\b \b')
-                    sys.stdout.flush()
+                    sys.stderr.write('\b \b')
+                    sys.stderr.flush()
                     del chars[-1]
                 continue
             if c.isalnum() or c in symbol:
-                sys.stdout.write('*')
-                sys.stdout.flush()
+                sys.stderr.write('*')
+                sys.stderr.flush()
                 chars.append(c)
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        sys.stdout.write('\n')
+        sys.stderr.write('\n')
 
     return ''.join(chars)
 
