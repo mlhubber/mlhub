@@ -3,9 +3,9 @@ The Machine Learning Hub
 
 **UNDER DEVELOPMENT**
 
-[![MLHub badge](https://img.shields.io/badge/mlhub-released-orange.svg)](https://shields.io/)
-[![PyPi version](https://pypip.in/v/mlhub/badge.png)](https://crate.io/packages/mlhub/)
-[![PyPi downloads](https://pypip.in/d/mlhub/badge.png)](https://crate.io/packages/mlhub/)
+[![MLHub Status](http://badge.kloud51.com/pypi/s/mlhub.svg)(https://mlhub.ai)
+[![PyPi version](https://img.shields.io/pypi/v/mlhub.svg)(https://mlhub.ai)
+[![PyPi downloads](https://pypip.in/d/mlhub/badge.png)(https://mlhub.ai)
 
 A *Command Line* platform for presenting Machine Learning, Artificial
 Intelligence, and Data Science capabilities.
