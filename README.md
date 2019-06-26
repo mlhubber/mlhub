@@ -3,9 +3,9 @@ The Machine Learning Hub
 
 **UNDER DEVELOPMENT**
 
-[![Downloads](https://pepy.tech/badge/mlhub)](https://pepy.tech/project/mlhub)
-[![Downloads](https://pepy.tech/badge/mlhub/month)](https://pepy.tech/project/mlhub)
-[![Downloads](https://pepy.tech/badge/mlhub/week)](https://pepy.tech/project/mlhub)
+[![MLHub badge](https://img.shields.io/badge/mlhub-released-orange.svg)](https://shields.io/)
+[![PyPi version](https://pypip.in/v/mlhub/badge.png)](https://crate.io/packages/mlhub/)
+[![PyPi downloads](https://pypip.in/d/mlhub/badge.png)](https://crate.io/packages/mlhub/)
 
 A *Command Line* platform for presenting Machine Learning, Artificial
 Intelligence, and Data Science capabilities.
