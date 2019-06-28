@@ -32,7 +32,7 @@ setup(
     author_email='mlhub@togaware.com',
     url='https://mlhub.ai',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: MIT License',
