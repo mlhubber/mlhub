@@ -99,6 +99,16 @@ worthy:
 $(TAR_GZ): $(SOURCE)
 	python3 setup.py sdist
 
+logo-mlhub.png: logo-mlhub.svg
+	convert $^ -resize 256x256 -transparent white -negate -fuzz 40% -fill '#ff9966' -opaque white $@
+
+favicon.ico: logo-mlhub.png
+	convert $^ -define icon:auto-resize="256,128,96,64,48,32,16" $@
+
+favicon.install: favicon.ico
+	scp $^ togaware.com:webapps/mlhub2/
+	ssh togaware.com chmod a+r webapps/mlhub2/$^
+
 .PHONY: pypi
 pypi: README.md version $(TAR_GZ)
 	twine upload $(TAR_GZ)
@@ -119,4 +129,4 @@ clean:
 	rm -f README.html
 
 realclean:: clean
-	rm -f mlhub_*.tar.gz
+	rm -f mlhub_*.tar.gz favicon.ico logo-mlhub.png
