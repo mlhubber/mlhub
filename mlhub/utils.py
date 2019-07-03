@@ -74,8 +74,6 @@ from mlhub.constants import (
     MLHUB,
     MLHUB_YAML,
     MLINIT,
-    PIP_PATH,
-    PYTHON_PATH,
     RSCRIPT_CMD,
     SYS_PYTHON_PKG_USAGE,
     USAGE,
@@ -192,12 +190,14 @@ def read_github_raw_file(name):
 
 
 def read_mlhubyaml(name):
-    """Read description from a specified local yaml file or the url of a yaml file."""
+    """Read description from a specified local yaml file or the url of a
+yaml file."""
 
     try:
 
-        # Use yamlordereddictloader to keep the order of entries specified inside YAML file.
-        # Because the order of commands matters.
+        # Use yamlordereddictloader to keep the order of entries
+        # specified inside YAML file, because the order of commands
+        # matters.
 
         entry = yaml.load(read_github_raw_file(name),
                           Loader=yamlordereddictloader.Loader)
@@ -289,9 +289,10 @@ def interpret_mlm_name(mlm):
 def get_available_pkgyaml(url):
     """Return the available package yaml file path.
 
-    Possible options are MLHUB.yaml, DESCRIPTION.yaml or DESCRIPTION.yml.
-    If both exist, MLHUB.yaml takes precedence.
-    Path can be a path to the package directory or a URL to the top level of the pacakge repo
+    Possible options are MLHUB.yaml, DESCRIPTION.yaml or
+    DESCRIPTION.yml.  If both exist, MLHUB.yaml takes precedence.
+    Path can be a path to the package directory or a URL to the top
+    level of the pacakge repo.
     """
 
     yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
@@ -437,8 +438,9 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
     If all files in the zip file are under a top level directory,
     remove the top level dir and promote the dir level of those files.
 
-    If <remove_dst> is True, then the directory <dest> will be remove first,
-    otherwise, unextracted files will co-exist with those already in <dest>.
+    If <remove_dst> is True, then the directory <dest> will be remove
+    first, otherwise, unextracted files will co-exist with those
+    already in <dest>.
 
     Return whether promotion happend and the top level dir if did.
     """
@@ -491,11 +493,14 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
 
                 with tempfile.TemporaryDirectory() as tmpdir2:
 
-                    # Repack files without top dir and then extract again into <dest>.
+                    # Repack files without top dir and then extract
+                    # again into <dest>.
                     #
-                    # Extraction can be done on a existing dir, without removing the dir first,
-                    # and the extracted files can co-exist with the files already inside the dir,
-                    # without affecting the existing files except they have the same name.
+                    # Extraction can be done on a existing dir,
+                    # without removing the dir first, and the
+                    # extracted files can co-exist with the files
+                    # already inside the dir, without affecting the
+                    # existing files except they have the same name.
 
                     with opener(os.path.join(tmpdir2, 'tmpball'), 'w') as new_pkg_file:
                         appender = getattr(new_pkg_file, appender_name)
@@ -532,7 +537,8 @@ def make_symlink(src, dst):
 
 
 def merge_folder(src_dir, dst_dir):
-    """Move files from src_dir into dst_dir without removing existing files under dst_dir."""
+    """Move files from src_dir into dst_dir without removing existing
+files under dst_dir."""
 
     file_list = []
     for path, dirs, files in os.walk(src_dir):
@@ -649,7 +655,7 @@ def get_command_suggestion(cmd, description=None, model=''):
 
         msg = meta.get('suggestion',
                        "\nTo " + dropdot(lower_first_letter(meta['description'])) + ":"
-                        "\n\n  $ {} {} {}")
+                       "\n\n  $ {} {} {}")
         msg = msg.format(CMD, cmd, model)
         return msg
 
@@ -1030,17 +1036,18 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
     # TODO: Add download progress indicator, or use
     #       wget --quiet --show-progress <url> 2>&1
     #
-    # TODO: Add support for file type specification, because the file type may
-    #       not be determined by URL:
+    # TODO: Add support for file type specification, because the file
+    #       type may not be determined by URL:
     #
     #         dependencies:
     #           files:
     #             - https://api.github.com/repos/mlhubber/audit/zipball/master
     #               zip: data/
     #
-    # TODO: How to deal with different files? Should we download all of them when
-    #       'ml install' or separately when 'ml install' for Path, and `ml
-    #       configure` for URL (which is by default now)? :
+    # TODO: How to deal with different files? Should we download all
+    #       of them when 'ml install' or separately when 'ml install'
+    #       for Path, and `ml configure` for URL (which is by default
+    #       now)? :
     #
     #         dependencies:
     #           files:
@@ -1065,13 +1072,16 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
 
         # Deal with URL and path differently.
         #
-        # If <location> is a path, it is a package file should be installed during `ml install`,
-        # elif <location> is a URL, it is a file downloaded during `ml configure`.
+        # If <location> is a path, it is a package file should be
+        # installed during `ml install`,
+        # elif <location> is a URL, it is a file downloaded during `ml
+        # configure`.
 
         if downloadir is None and (is_url(location) or is_github_ref(location)):  # URL for non-package files
 
-            # Download file into Cache dir, then symbolically link it into Package dir.
-            # Thus we can reuse the downloaded files after model package upgrade.
+            # Download file into Cache dir, then symbolically link it
+            # into Package dir.  Thus we can reuse the downloaded
+            # files after model package upgrade.
 
             # Determine file name, type, real location and path
 
@@ -1088,14 +1098,17 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
 
             if filename is None:
 
-                # TODO: The file name cannot be determined from URL.  How to deal with this scenario?
-                #       Currently solution: We give it a random name.  This should not occur.
+                # TODO: The file name cannot be determined from URL.
+                #       How to deal with this scenario?  Currently
+                #       solution: We give it a random name.  This
+                #       should not occur.
 
                 filename = 'mlhubtmp-' + str(uuid.uuid4().hex)
 
             isArchive = filetype != 'file' or is_archive(filename)
 
-            # Determine target: relative path of the file under the package dir
+            # Determine target: relative path of the file under the
+            # package dir
 
             if filetype == 'repo':
                 foldername = repo
@@ -1128,7 +1141,8 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
 
             cache = os.path.join(cache_dir, target)
 
-            # Determine archive: absolute path of the archive file downloaded
+            # Determine archive: absolute path of the archive file
+            # downloaded
 
             archive = cache  # Where the file is archived, the same as cache if no need to unzip
             if needUnzip:
@@ -1324,9 +1338,11 @@ def interpret_github_url(url):
 def compose_github_repo_zip_url(owner, repo, ref):
     """Compose GitHub REST API URL for the repo's zipball."""
 
-    # Because GitHub REST API limits the number of requests within an hour, so the API is not used here.
+    # Because GitHub REST API limits the number of requests within an
+    # hour, so the API is not used here.  If in the future, we find a
+    # solution, then we will revert to use GitHub API, which will be:
     #
-    # return "https://api.github.com/repos/{}/{}/zipball/{}".format(owner, repo, ref)
+    #   return "https://api.github.com/repos/{}/{}/zipball/{}".format(owner, repo, ref)
 
     return "https://codeload.github.com/{}/{}/zip/{}".format(owner, repo, ref)
 
@@ -1416,10 +1432,12 @@ def get_package_name():
 def get_cmd_cwd():
     """Return the dir where model pkg command is invoked.
 
-    For example, if `cd /temp; ml demo xxx`, then get_cmd_cwd() returns `/temp`.
-    It is used by model pkg developer, and is different from where the model pkg script is located.
+    For example, if `cd /temp; ml demo xxx`, then get_cmd_cwd()
+    returns `/temp`.  It is used by model pkg developer, and is
+    different from where the model pkg script is located.
 
-    `CMD_CWD` is a environment variable passed by mlhub.utils.dispatch() when invoke model pkg script.
+    `CMD_CWD` is a environment variable passed by
+    mlhub.utils.dispatch() when invoke model pkg script.
     """
 
     return os.environ.get('_MLHUB_CMD_CWD', '')
@@ -1432,7 +1450,8 @@ def get_package_dir(model=None):
 
 
 def create_package_dir(model=None):
-    """Check existence of dir where the model package is installed, if not create it and return."""
+    """Check existence of dir where the model package is installed, if not
+create it and return."""
 
     path = get_package_dir(model)
 
@@ -1443,13 +1462,15 @@ def create_package_dir(model=None):
 
 
 def get_package_cache_dir(model=None):
-    """Return the dir where the model package stores cached files, such as pre-built model, data, image files, etc."""
+    """Return the dir where the model package stores cached files, such as
+pre-built model, data, image files, etc."""
 
     return os.path.join(CACHE_DIR, get_package_name() if model is None else model)
 
 
 def create_package_cache_dir(model=None):
-    """Check existence of dir where the model package stores cached files, If not create it and return."""
+    """Check existence of dir where the model package stores cached files,
+If not create it and return."""
 
     path = get_package_cache_dir(model)
 
@@ -1460,13 +1481,15 @@ def create_package_cache_dir(model=None):
 
 
 def get_package_archive_dir(model=None):
-    """Return the dir where the model package stores cached archived files."""
+    """Return the dir where the model package stores cached archived
+files."""
 
     return os.path.join(ARCHIVE_DIR, get_package_name() if model is None else model)
 
 
 def create_package_archive_dir(model=None):
-    """Check existence of dir where the model package stores cached archived files, If not create it and return."""
+    """Check existence of dir where the model package stores cached
+archived files, If not create it and return."""
 
     path = get_package_archive_dir(model)
 
@@ -1483,7 +1506,8 @@ def get_package_config_dir(model=None):
 
 
 def create_package_config_dir(model=None):
-    """Check existence of dir where config files for the model pkg are stored, If not create it and return."""
+    """Check existence of dir where config files for the model pkg are
+stored, If not create it and return."""
 
     path = get_package_config_dir(model)
 
@@ -1494,14 +1518,16 @@ def create_package_config_dir(model=None):
 
 
 def get_package_config_file(model=None):
-    """Check existence of model pkg config dir, create it and return config file path."""
+    """Check existence of model pkg config dir, create it and return
+config file path."""
 
     return os.path.join(create_package_config_dir(model), CONFIG_FILE)
 
 
 def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'):
-    """Generate Packages.yaml, the curated list of model packages, by just concatenate all MLHUB.yaml.
-    By default, it will generate Packages.yaml in current working dir.
+    """Generate Packages.yaml, the curated list of model packages, by just
+concatenate all MLHUB.yaml.  By default, it will generate
+Packages.yaml in current working dir.
 
     Args:
         mlmodelsyaml (str): YAML file which list all available models and their location.
@@ -1533,7 +1559,8 @@ def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'
 
             for line in content.splitlines():
 
-                # Remove yaml entry separator in model's MLHUB.yaml to avoid duplication
+                # Remove yaml entry separator in model's MLHUB.yaml to
+                # avoid duplication
 
                 if line.startswith('---') or line.startswith('...'):
                     continue
@@ -1546,8 +1573,9 @@ def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'
 
 
 def gen_packages_yaml2(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'):
-    """Generate Packages.yaml, the curated list of model packages, using yaml to ensure correct format.
-    By default, it will generate Packages.yaml in current working dir.
+    """Generate Packages.yaml, the curated list of model packages, using
+yaml to ensure correct format.  By default, it will generate
+Packages.yaml in current working dir.
 
     Args:
         mlmodelsyaml (str): YAML file which list all available models and their location.
@@ -1814,7 +1842,8 @@ corresponding functions defined in <module>."""
             parser.set_defaults(func=getattr(self.module, cmd_meta['func']))
 
     def add_allsubcmds(self):
-        """Add all subcommands described in <self.commands> into <self.subparsers>."""
+        """Add all subcommands described in <self.commands> into
+<self.subparsers>."""
 
         for cmd in self.commands:
             self.add_subcmd(cmd)
@@ -1962,6 +1991,7 @@ def yes_or_no(msg, *params, yes=True):
         answer = True
 
     return answer
+
 
 # ----------------------------------------------------------------------
 # Custom Exceptions

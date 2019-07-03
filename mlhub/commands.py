@@ -860,7 +860,7 @@ or else connect to the server's desktop using a local X server like X2Go.
 
         if sys.executable != SYS_PYTHON_CMD:
             python_pkg_path = python_pkg_base + site.getsitepackages()[0]
-            python_pkg_bin = python_pkg_base + site.PREFIXES[0]+ '/bin'
+            python_pkg_bin = python_pkg_base + site.PREFIXES[0] + '/bin'
             if utils.get_sys_python_pkg_usage(model):
                 utils.print_on_stderr(MSG_INCOMPATIBLE_PYTHON_ENV, model)
 
@@ -922,7 +922,7 @@ or else connect to the server's desktop using a local X server like X2Go.
         # Suggest next step - in the context of the command line view
         # of the tool, let's not provide a next step for now. 20190528
 
-        if False: # not args.quiet:
+        if False:  # not args.quiet:
             utils.print_next_step(cmd, description=entry, model=model)
 
 
