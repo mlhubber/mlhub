@@ -4,28 +4,28 @@
 #
 # A command line tool for managing machine learning models.
 #
-# Copyright 2018 (c) Graham.Williams@togaware.com All rights reserved. 
+# Copyright 2018 (c) Graham.Williams@togaware.com All rights reserved.
 #
 # This file is part of mlhub.
 #
 # MIT License
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy 
-# of this software and associated documentation files (the ""Software""), to deal 
-# in the Software without restriction, including without limitation the rights 
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-# copies of the Software, and to permit persons to whom the Software is 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the ""Software""), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in 
+# The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
 import distro
@@ -96,7 +96,7 @@ def list_available(args):
         utils.print_meta_line(entry)
 
     # Suggest next step.
-    
+
     if not args.quiet:
         utils.print_next_step('available')
         if not os.path.exists(utils.get_init_dir()):
@@ -135,15 +135,15 @@ def list_installed(args):
     if args.name_only:
         print('\n'.join(models))
         return
-        
+
     # Report on how many models we found installed.
-        
+
     mcnt = len(models)
     plural = "s" if mcnt != 1 else ""
     print("Found {} model{} installed{}".format(mcnt, plural, msg))
 
     # Report on each of the installed models.
-        
+
     if mcnt > 0:
         print("")
 
@@ -174,7 +174,7 @@ def list_installed(args):
         print(utils.get_command_suggestion('remove'))
 
     # Suggest next step.
-    
+
     if not args.quiet:
         if mcnt > 0:
             utils.print_next_step('installed', scenario='exist')
@@ -249,8 +249,8 @@ def install_model(args):
         #   $ ml install bitbucket:mlhubber/audit                        # BitBucket repo
         #   $ ml install https://bitbucket.org/mlhubber/audit/...        # BitBucket repo
 
-        mlhubyaml = utils.get_pkgyaml_github_url(location)  # URL to MLHUB.yaml
-        location = utils.get_githubrepo_zip_url(location)
+        mlhubyaml = utils.get_pkgyaml_github_gitlab_url(location)  # URL to MLHUB.yaml
+        location = utils.get_github_gitlab_repo_zip_url(location)
         logger.debug("location: {}".format(location))
         logger.debug("mlhubyaml: {}".format(mlhubyaml))
 
@@ -292,7 +292,7 @@ def install_model(args):
 
                 model, version = utils.interpret_mlm_name(pkgfile)
 
-            elif not utils.is_github_url(location):  # Get MLHUB.yaml inside the archive file.
+            elif not utils.is_github_url(location) and not utils.is_gitlab_url(location):  # Get MLHUB.yaml inside the archive file.
 
                 if utils.is_url(location):  # Download the package file because it is not from GitHub.
                     utils.download_model_pkg(location, local, pkgfile, args.quiet)
@@ -445,13 +445,13 @@ def download_model(args):
     # download.sh script. Which ever (maybe either), if it is present
     # then this command is available and will download the required
     # file, perhaps from the actual source of the model.
-    
+
     model = args.model
-   
+
     # Check that the model is installed.
 
     utils.check_model_installed(model)
-    
+
     if not args.quiet:
         utils.print_next_step('download', model=model)
 
@@ -546,14 +546,14 @@ def list_model_commands(args):
     # Check that the model is installed.
 
     utils.check_model_installed(model)
-    
+
     entry = utils.load_description(model)
     commands = entry['commands']
 
     if args.name_only:
         print('\n'.join(list(commands)))
         return
-    
+
     msg = "The '{}' model "
     meta = entry['meta']
     if 'title' not in meta:
@@ -575,7 +575,7 @@ def list_model_commands(args):
     utils.update_command_completion(set(commands))
 
     # Suggest next step.
-    
+
     if not args.quiet:
         utils.print_next_step('commands', description=entry, model=model)
 
@@ -660,7 +660,7 @@ def configure_model(args):
     # Setup.
 
     pkg_dir = utils.get_package_dir(model)
-   
+
     # Check if the model package is installed.
 
     utils.check_model_installed(model)
@@ -756,9 +756,9 @@ def configure_model(args):
 
     if args.workding_dir is not None:
         utils.update_working_dir(model, args.workding_dir)
-            
+
     # Suggest next step.
-    
+
     if not args.quiet:
         utils.print_next_step('configure', model=model)
 
@@ -792,7 +792,7 @@ def dispatch(args):
     # Check that the model is installed and has commands.
 
     utils.check_model_installed(model)
-    
+
     entry = utils.load_description(model)
 
     if 'commands' not in entry or len(entry['commands']) == 0:
@@ -824,20 +824,20 @@ or else connect to the server's desktop using a local X server like X2Go.
     lang = meta["languages"]
 
     # Deal with malformed 'languages' field
-    
+
     lang_opts = {"python": "py", "R": "R"}
     for k in list(lang_opts):
         if lang in k:
             lang = lang_opts[k]
             break
-        
+
     # Obtain the specified script file.
-    
+
     script = cmd + "." + lang
 
     logger = logging.getLogger(__name__)
     logger.debug("Execute the script: " + os.path.join(path, script))
-     
+
     if cmd not in list(entry['commands']) or not os.path.exists(os.path.join(path, script)):
         raise utils.CommandNotFoundException(cmd, model)
 
@@ -969,7 +969,7 @@ def remove_model(args):
     """Remove installed model."""
 
     # TODO: Remove .archive and .config for the model.
-    
+
     model = args.model
 
     # Determine if remove all model pkgs or a certain model pkg.
@@ -996,7 +996,7 @@ def remove_model(args):
         if os.path.exists(utils.get_package_cache_dir(model)):
             cache = utils.get_package_cache_dir(model)
         msg = "Remove '{}'"
-        
+
         # Check that the model is installed.
 
         utils.check_model_installed(model)

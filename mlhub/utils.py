@@ -4,28 +4,28 @@
 #
 # A command line tool for managing machine learning models.
 #
-# Copyright 2018 (c) Graham.Williams@togaware.com All rights reserved. 
+# Copyright 2018 (c) Graham.Williams@togaware.com All rights reserved.
 #
 # This file is part of mlhub.
 #
 # MIT License
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy 
-# of this software and associated documentation files (the ""Software""), to deal 
-# in the Software without restriction, including without limitation the rights 
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-# copies of the Software, and to permit persons to whom the Software is 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the ""Software""), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in 
+# The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
 import base64
@@ -177,18 +177,6 @@ def load_description(model):
     return entry
 
 
-def read_github_raw_file(name):
-    if is_github_url(name) and name.startswith("https://api"):
-        res = json.loads(urllib.request.urlopen(name).read())
-        content = base64.b64decode(res["content"])
-    elif is_url(name):
-        content = urllib.request.urlopen(name).read()
-    else:
-        content = open(name)
-
-    return content
-
-
 def read_mlhubyaml(name):
     """Read description from a specified local yaml file or the url of a
 yaml file."""
@@ -199,7 +187,7 @@ yaml file."""
         # specified inside YAML file, because the order of commands
         # matters.
 
-        entry = yaml.load(read_github_raw_file(name),
+        entry = yaml.load(read_repo_raw_file(name),
                           Loader=yamlordereddictloader.Loader)
 
     except (yaml.composer.ComposerError, yaml.scanner.ScannerError):
@@ -297,7 +285,7 @@ def get_available_pkgyaml(url):
 
     yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
 
-    if is_github_url(url):
+    if is_github_url(url) or is_gitlab_url(url):
         yaml_list = [url.format(x) for x in yaml_list]
     elif is_url(url):
         yaml_list = ['/'.join([url, x]) for x in yaml_list]
@@ -363,19 +351,14 @@ def is_url(name):
 def get_url_filename(url):
     """Obtain the file name from URL or None if not available."""
 
+    filename = os.path.basename(url).split('?')[0]
     info = urllib.request.urlopen(url).getheader('Content-Disposition')
-    if info is None:  # File name can be obtained from URL per se.
-        filename = os.path.basename(url)
-        if filename == '':
-            filename = None
-    else:  # File name may be obtained from 'Content-Disposition'.
+    if info:
         _, params = cgi.parse_header(info)
         if 'filename' in params:
             filename = params['filename']
-        else:
-            filename = None
 
-    return filename
+    return filename or None
 
 
 def download_model_pkg(url, local, pkgfile, quiet):
@@ -931,7 +914,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
     """Install file dependencies.
 
     For example, if MLHUB.yaml is
-    
+
       files:
         - https://zzz.org/label                      # URL: Download to package root dir
         - https://zzz.org/cat.RData: data/           # URL: Download to data/
@@ -982,7 +965,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
         'mlhubber/mlhub@2d247bf:doc/': 'repodoc',
         'mlhubber/mlhub@5bc89ea:doc':  'repo/',
       }
-    
+
     Then the directory structure will be:
 
       In archive dir:
@@ -1009,7 +992,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
         ~/.mlhub/.cache/<pkg>/doc/<files under mlhubber-mlhub-346abd6/doc inside mlhubber-mlhub-346abd6.zip>
         ~/.mlhub/.cache/<pkg>/repodoc/<files under mlhubber-mlhub-2d247bf/doc inside mlhubber-mlhub-2d247bf.zip>
         ~/.mlhub/.cache/<pkg>/repo/doc/<files under mlhubber-mlhub-5bc89ea/doc inside mlhubber-mlhub-5bc89ea.zip>
-    
+
       In Package dir:
         ~/.mlhub/<pkg>/label                  --- link-to -->   ~/.mlhub/.cache/<pkg>/label
         ~/.mlhub/<pkg>/data/cat.RData         --- link-to -->   ~/.mlhub/.cache/<pkg>/data/cat.RData
@@ -1077,7 +1060,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
         # elif <location> is a URL, it is a file downloaded during `ml
         # configure`.
 
-        if downloadir is None and (is_url(location) or is_github_ref(location)):  # URL for non-package files
+        if downloadir is None and (is_url(location) or is_github_ref(location) or is_gitlab_ref(location)):  # URL for non-package files
 
             # Download file into Cache dir, then symbolically link it
             # into Package dir.  Thus we can reuse the downloaded
@@ -1091,15 +1074,15 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             repo = None        # The name of the repo if it is a GitHub repo otherwise None
             foldername = None
 
-            if is_github_ref(location):
-                filetype, location, repo, path = get_github_type(location)
+            if is_github_ref(location) or is_gitlab_ref(location):
+                filetype, location, repo, path = get_github_gitlab_type(location)
 
             filename = get_url_filename(location)  # The name of the file to be downloaded
 
             if filename is None:
 
                 # TODO: The file name cannot be determined from URL.
-                #       How to deal with this scenario?  Currently
+                #       How to deal with this scenario?  Current
                 #       solution: We give it a random name.  This
                 #       should not occur.
 
@@ -1155,7 +1138,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
 
             reuse = False
             download_msg = "      downloading into {} ..."
-        
+
             if os.path.exists(archive):
 
                 # 20190327 gjw for now cache management is behind
@@ -1198,7 +1181,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             for origin, goal in symlinks:
                 make_symlink(origin, goal)
 
-        elif downloadir is not None and not (is_url(location) or is_github_ref(location)):  # Path for package files
+        elif downloadir is not None and not (is_url(location) or is_github_ref(location) or is_gitlab_ref(location)):  # Path for package files
 
             # Move the files from download dir to package dir.
 
@@ -1219,8 +1202,22 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
 
 
 # ----------------------------------------------------------------------
-# GitHub
+# Hosting service related
 # ----------------------------------------------------------------------
+
+def read_repo_raw_file(name):
+    if is_github_url(name) and name.startswith("https://api"):
+        res = json.loads(urllib.request.urlopen(name).read())
+        content = base64.b64decode(res["content"])
+    elif is_url(name):
+        content = urllib.request.urlopen(name).read()
+    else:
+        content = open(name)
+
+    return content
+
+
+# GitHub
 
 def is_github_url(name):
     """Check if name starts with http://github.com or https://github.com"""
@@ -1254,7 +1251,9 @@ def is_github_ref(name):
 
 
 def interpret_github_gitlab_url(url):
-    """Interpret GitHub/GitLab URL into user name, repo name, branch/blob name and path.
+    """Interpret GitHub/GitLab URL into user name, repo name, branch/blob
+name and path.  If a path is specified, then we assume it is a
+MLHUB.yaml file.
 
     The URL may be a reference:
 
@@ -1294,6 +1293,7 @@ def interpret_github_gitlab_url(url):
                            https://gitlab.com/mlhubber/mlhub/archive/dev.zip
               For a file:  https://gitlab.com/mlhubber/mlhub/blob/dev/DESCRIPTION.yaml
         For pull request:  https://gitlab.com/simonyansenzhao/test/merge_requests/2
+
     """
 
     logger = logging.getLogger(__name__)
@@ -1395,51 +1395,70 @@ def compose_github_content_url(owner, repo, ref, path, api=False):
     return url
 
 
-def get_githubrepo_zip_url(url):
+def get_github_gitlab_repo_zip_url(url):
     """Get the GitHub zip file url of model package.
 
     See https://developer.github.com/v3/repos/contents/#get-archive-link
     """
 
     host, owner, repo, ref, _ = interpret_github_gitlab_url(url)
-    return compose_github_repo_zip_url(owner, repo, ref)
+    if host == 'github':
+        return compose_github_repo_zip_url(owner, repo, ref)
+    elif host == 'gitlab':
+        return compose_gitlab_repo_zip_url(owner, repo, ref)
 
 
-def get_pkgyaml_github_url(url):
+def get_pkgyaml_github_gitlab_url(url):
     """Get the GitHub url of DESCRIPTION.yaml file of model package.
 
     See https://developer.github.com/v3/repos/contents/#get-contents
     """
 
     host, owner, repo, ref, mlhubyaml = interpret_github_gitlab_url(url)
-    url = compose_github_content_url(owner, repo, ref, '{}')
+
+    if host == 'github':
+        url = compose_github_content_url(owner, repo, ref, '{}')
+    elif host == 'gitlab':
+        url = compose_gitlab_content_url(owner, repo, ref, '{}')
+
     if mlhubyaml is None:
         return get_available_pkgyaml(url)
     else:
         return url.format(mlhubyaml)
 
 
-def get_github_type(location):
+def get_github_gitlab_type(location):
     """Query if location is a file or directory or a repo on GitHub."""
 
     host, owner, repo, ref, path = interpret_github_gitlab_url(location)
     if path is None:
-        url = compose_github_repo_zip_url(owner, repo, ref)
-        return 'repo', url, repo, path
-    else:
-        url = compose_github_content_url(owner, repo, ref, path, api=True)
-        res = json.loads(urllib.request.urlopen(url).read())
-        if isinstance(res, list):
-            type = 'dir'
+        res_type = 'repo'
+        if host == "github":
             url = compose_github_repo_zip_url(owner, repo, ref)
-        else:
-            type = 'file'
-        return type, url, repo, path
+        elif host == 'gitlab':
+            url = compose_gitlab_repo_zip_url(owner, repo, ref)
+    else:
+        if host == 'github':
+            url = compose_github_content_url(owner, repo, ref, path, api=True)
+            res = json.loads(urllib.request.urlopen(url).read())
+            if isinstance(res, list):
+                res_type = 'dir'
+                url = compose_github_repo_zip_url(owner, repo, ref)
+            else:
+                res_type = 'file'
+        elif host == 'gitlab':
+            url = compose_gitlab_content_url(owner, repo, ref, path)
+            res_type = 'file'
+            try:
+                urllib.request.urlopen(url)
+            except urllib.error.HTTPError as e:
+                if e.code == 404:
+                    res_type = 'dir'
+                    url = compose_gitlab_repo_zip_url(owner, repo, ref)
+    return res_type, url, repo, path
 
 
-# ----------------------------------------------------------------------
 # GitLab
-# ----------------------------------------------------------------------
 
 def is_gitlab_url(name):
     """Check if name starts with http://gitlab.com or https://gitlab.com"""
@@ -1463,6 +1482,18 @@ def is_gitlab_ref(name):
     """
 
     return name.lower().startswith('gitlab:')
+
+
+def compose_gitlab_content_url(owner, repo, ref, path):
+    """Compose GitLab URL for the content of a file or a directory."""
+
+    return "https://gitlab.com/{}/{}/raw/{}/{}".format(owner, repo, ref, path)
+
+
+def compose_gitlab_repo_zip_url(owner, repo, ref):
+    """Compose GitLab URL for the repo's zipball."""
+
+    return "https://gitlab.com/{owner}/{repo}/-/archive/{ref}/{repo}-{ref}.zip".format(owner=owner, repo=repo, ref=ref)
 
 
 # ----------------------------------------------------------------------
@@ -1615,9 +1646,9 @@ Packages.yaml in current working dir.
 
             try:
                 location = entry[model]
-                mlhubyaml = get_pkgyaml_github_url(location)
+                mlhubyaml = get_pkgyaml_github_gitlab_url(location)
                 print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
-                content = read_github_raw_file(mlhubyaml).decode()
+                content = read_repo_raw_file(mlhubyaml).decode()
             except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
                 failed_models.append(model)
                 continue
@@ -1660,9 +1691,9 @@ Packages.yaml in current working dir.
 
             try:
                 location = meta[model]
-                mlhubyaml = get_pkgyaml_github_url(location)
+                mlhubyaml = get_pkgyaml_github_gitlab_url(location)
                 print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
-                content = read_github_raw_file(mlhubyaml).decode()
+                content = read_repo_raw_file(mlhubyaml).decode()
             except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
                 failed_models.append(model)
                 continue
