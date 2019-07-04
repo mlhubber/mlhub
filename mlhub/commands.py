@@ -200,10 +200,10 @@ def install_model(args):
     logger.info('Install a model.')
     logger.debug('args: {}'.format(args))
 
-    model = args.model   # model pkg name
-    location = args.model     # pkg file path or URL
-    version = None       # model pkg version
-    mlhubyaml = None     # MLHUB.yaml path or URL
+    model = args.model     # model pkg name
+    location = args.model  # pkg file path or URL
+    version = None         # model pkg version
+    mlhubyaml = None       # MLHUB.yaml path or URL
 
     # Obtain the model URL if not a local file.
 
@@ -233,10 +233,21 @@ def install_model(args):
     if not utils.is_archive(location):
 
         # Model from GitHub.
-        # Like:
-        #     $ ml install mlhubber/audit
-        #     $ ml install mlhubber/audit:doc/MLHUB.yaml
-        #     $ ml install https://github.com/mlhubber/audit/...
+        #
+        # Possible options are:
+        #   $ ml install mlhubber/audit            # latest commit on the master branch of GitHub repo mlhubber/audit
+        #   $ ml install mlhubber/audit@dev        # latest commit on the dev branch of GitHub repo mlhubber/audit
+        #   $ ml install mlhubber/audit@0001ea4    # commit 0001ea4 of mlhubber/audit
+        #   $ ml install mlhubber/audit:doc/MLHUB.yaml            # latest commit on master, but a specified YAML file
+        #   $ ml install https://github.com/mlhubber/audit/...    # Arbitrary GitHub link address
+        #
+        #   $ ml install github:mlhubber/audit    # GitHub repo, the same as ml install mlhubber/audit
+        #
+        #   $ ml install gitlab:mlhubber/audit@2fe89kh:doc/MLHUB.yaml    # GitLab repo
+        #   $ ml install https://https://gitlab.com/mlhubber/audit/...   # GitLab repo
+        #
+        #   $ ml install bitbucket:mlhubber/audit                        # BitBucket repo
+        #   $ ml install https://bitbucket.org/mlhubber/audit/...        # BitBucket repo
 
         mlhubyaml = utils.get_pkgyaml_github_url(location)  # URL to MLHUB.yaml
         location = utils.get_githubrepo_zip_url(location)

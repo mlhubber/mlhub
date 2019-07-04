@@ -1233,49 +1233,83 @@ def is_github_url(name):
 
 
 def is_github_ref(name):
-    """Check if name is a GitHub ref.
+    """Check if name is a GitHub ref.  It is used to check in the file
+    dependency part of a MLHUB.yaml file whether the file is a GitHub
+    reference.
 
-    GitHub ref:
+    GitHub Ref:
         github:mlhubber/mlhub
         mlhubber/mlhub:doc
         mlhubber/mlhub@dev
     """
 
-    return not is_url(name) and (':' in name or '@' in name or '#' in name)
+    name = name.lower()
+    if name.startswith('github:'):  # like github:mlhubber/mlhub
+        return True
+    elif not is_url(name):
+        if not name.startswith('gitlab:') and not name.startswith('bitbucket:'):
+            return ':' in name or '@' in name or '#' in name  # like mlhubber/mlhub@dev:doc
+
+    return False
 
 
-def interpret_github_url(url):
-    """Interpret GitHub URL into user name, repo name, branch/blob name.
+def interpret_github_gitlab_url(url):
+    """Interpret GitHub/GitLab URL into user name, repo name, branch/blob name and path.
 
-    The URL may be:
+    The URL may be a reference:
+
+      GitHub:
 
               For master:  mlhubber/mlhub    or github:mlhubber/mlhub    or  mlhubber/mlhub:doc/MLHUB.yaml
               For branch:  mlhubber/mlhub@dev            or  mlhubber/mlhub@dev:doc/MLHUB.yaml
               For commit:  mlhubber/mlhub@7fad23bdfdfjk  or  mlhubber/mlhub@7fad23bdfdfjk:doc/MLHUB.yaml
         For pull request:  mlhubber/mlhub#15             or  mlhubber/mlhub#15:doc/MLHUB.yaml
 
-    Support for URL like https://github.com/... would not be portable.
+      GitLab:
+
+               For master:  gitlab:mlhubber/mlhub                or  gitlab:mlhubber/mlhub:doc/MLHUB.yaml
+               For branch:  gitlab:mlhubber/mlhub@dev            or  gitlab:mlhubber/mlhub@dev:doc/MLHUB.yaml
+               For commit:  gitlab:mlhubber/mlhub@7fad23bdfdfjk  or  gitlab:mlhubber/mlhub@7fad23bdfdfjk:doc/MLHUB.yaml
+        For merge request:  gitlab:mlhubber/mlhub#15             or  gitlab:mlhubber/mlhub#15:doc/MLHUB.yaml
+
+    Or a real URL like https://github.com/..., but it would not be portable.
     We just leave it in case someone doesn't know how to use Git refs.
 
-              For master:  https://github.com/mlhubber/mlhub
+      GitHub:
+
+               Main page:  https://github.com/mlhubber/mlhub
           For repo clone:  https://github.com/mlhubber/mlhub.git
               For branch:  https://github.com/mlhubber/mlhub/tree/dev
              For archive:  https://github.com/mlhubber/mlhub/archive/v2.0.0.zip
                            https://github.com/mlhubber/mlhub/archive/dev.zip
               For a file:  https://github.com/mlhubber/mlhub/blob/dev/DESCRIPTION.yaml
         For pull request:  https://github.com/mlhubber/mlhub/pull/15
+
+      GitLab:
+
+               Main page:  https://gitlab.com/mlhubber/mlhub
+          For repo clone:  https://gitlab.com/mlhubber/mlhub.git
+              For branch:  https://gitlab.com/mlhubber/mlhub/tree/dev
+             For archive:  ? (for a tag or release)
+                           https://gitlab.com/mlhubber/mlhub/archive/dev.zip
+              For a file:  https://gitlab.com/mlhubber/mlhub/blob/dev/DESCRIPTION.yaml
+        For pull request:  https://gitlab.com/simonyansenzhao/test/merge_requests/2
     """
 
     logger = logging.getLogger(__name__)
-    logger.info("Interpret GitHub location.")
+    logger.info("Interpret GitHub/GitLab location.")
     logger.debug("url: {}".format(url))
 
-    if url.lower().startswith('github:'):  # Remove prefix 'github:'
+    host = 'github'
+    if url.lower().startswith('github:'):  # Remove prefix 'github:' or 'gitlab'
         url = url[7:].strip()
+
+    if url.lower().startswith('gitlab:'):
+        url = url[7:].strip()
+        host = 'gitlab'
 
     seg = url.split('/')
     ref = 'master'  # Use master by default.
-    yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
     path = None
 
     if not is_url(url):  # Repo reference like mlhubber/mlhub
@@ -1322,17 +1356,20 @@ def interpret_github_url(url):
 
         if len(seg) >= 7:
             if len(seg) == 7:
-                if seg[5] == "archive" and seg[6].endswith(".zip"):  # Archive url
+                if seg[5] == "archive" and is_archive(seg[6]):  # GitHub Archive url
                     ref = seg[6][:-4]
-                elif seg[5] == "pull":  # Pull request url
+                elif seg[5] == "pull":  # GitHub pull request url
                     ref = "pull/" + seg[6] + "/head"
-
+                elif seg[5] == "merge_requests":  # GitLab merge request url
+                    pass  # TODO: need to figure out what the ref is for GitLab merge request
+            elif len(seg) == 9 and seg[6] == "archive" and is_archive(seg[8]):  # GitLab Archive url
+                    ref = seg[7]
             else:  # Branch, commit, or specific file
                 ref = seg[6]
                 path = '/'.join(seg[7:])
 
-    logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(owner, repo, ref, path))
-    return owner, repo, ref, path[:-1] if path is not None and path.endswith('/') else path
+    logger.debug("host: {}, owner: {}, repo: {}, ref: {}, path: {}".format(host, owner, repo, ref, path))
+    return host, owner, repo, ref, path[:-1] if path is not None and path.endswith('/') else path
 
 
 def compose_github_repo_zip_url(owner, repo, ref):
@@ -1364,7 +1401,7 @@ def get_githubrepo_zip_url(url):
     See https://developer.github.com/v3/repos/contents/#get-archive-link
     """
 
-    owner, repo, ref, _ = interpret_github_url(url)
+    host, owner, repo, ref, _ = interpret_github_gitlab_url(url)
     return compose_github_repo_zip_url(owner, repo, ref)
 
 
@@ -1374,7 +1411,7 @@ def get_pkgyaml_github_url(url):
     See https://developer.github.com/v3/repos/contents/#get-contents
     """
 
-    owner, repo, ref, mlhubyaml = interpret_github_url(url)
+    host, owner, repo, ref, mlhubyaml = interpret_github_gitlab_url(url)
     url = compose_github_content_url(owner, repo, ref, '{}')
     if mlhubyaml is None:
         return get_available_pkgyaml(url)
@@ -1385,7 +1422,7 @@ def get_pkgyaml_github_url(url):
 def get_github_type(location):
     """Query if location is a file or directory or a repo on GitHub."""
 
-    owner, repo, ref, path = interpret_github_url(location)
+    host, owner, repo, ref, path = interpret_github_gitlab_url(location)
     if path is None:
         url = compose_github_repo_zip_url(owner, repo, ref)
         return 'repo', url, repo, path
@@ -1398,6 +1435,34 @@ def get_github_type(location):
         else:
             type = 'file'
         return type, url, repo, path
+
+
+# ----------------------------------------------------------------------
+# GitLab
+# ----------------------------------------------------------------------
+
+def is_gitlab_url(name):
+    """Check if name starts with http://gitlab.com or https://gitlab.com"""
+
+    if is_url(name):
+        domain = name.lower().split('/')[2]
+        return domain.endswith("gitlab.com")
+    else:
+        return False
+
+
+def is_gitlab_ref(name):
+    """Check if name is a GitLab ref.  It is used to check in the file
+    dependency part of a MLHUB.yaml file whether the file is a GitLab
+    reference.
+
+    GitLab Ref:
+        gitlab:mlhubber/mlhub
+        gitlab:mlhubber/mlhub:doc
+        gitlab:mlhubber/mlhub@dev
+    """
+
+    return name.lower().startswith('gitlab:')
 
 
 # ----------------------------------------------------------------------
