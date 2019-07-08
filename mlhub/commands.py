@@ -207,7 +207,7 @@ def install_model(args):
 
     # Obtain the model URL if not a local file.
 
-    if not utils.is_archive(model) and not utils.is_url(model) and '/' not in model:
+    if not utils.is_archive_file(model) and not utils.is_url(model) and '/' not in model:
 
         # Model package name, which can be found in mlhub repo.
         # Like:
@@ -230,7 +230,7 @@ def install_model(args):
 
         utils.update_model_completion({e['meta']['name'] for e in meta_list})
 
-    if not utils.is_archive(location):
+    if not utils.is_archive_file(location):
 
         # Model from GitHub.
         #
@@ -257,14 +257,14 @@ def install_model(args):
     # Determine the path of downloaded/existing model package file
 
     pkgfile = None
-    if utils.is_archive(location):
+    if utils.is_archive_file(location):
         pkgfile = os.path.basename(location)  # pkg file name
     elif utils.is_url(location):
         pkgfile = utils.get_url_filename(location)
 
     # Query archive type if not available from file name per se.
 
-    while pkgfile is None or not utils.is_archive(pkgfile):
+    while pkgfile is None or not utils.is_archive_file(pkgfile):
         print("The file type cannot be determined.\n"
               "Please give it a file name with explicit valid archive extension: ", end='')
         pkgfile = input()
@@ -292,7 +292,9 @@ def install_model(args):
 
                 model, version = utils.interpret_mlm_name(pkgfile)
 
-            elif not utils.is_github_url(location) and not utils.is_gitlab_url(location):  # Get MLHUB.yaml inside the archive file.
+            elif not utils.is_github_url(location) and not utils.is_gitlab_url(location):
+
+                # Get MLHUB.yaml inside the archive file.
 
                 if utils.is_url(location):  # Download the package file because it is not from GitHub.
                     utils.download_model_pkg(location, local, pkgfile, args.quiet)
@@ -401,7 +403,7 @@ def install_model(args):
                                         model,
                                         downloadir=uncompressdir,
                                         yes=True)
-            except utils.ModePkgInstallationFileNotFoundException as e:
+            except utils.ModePkgInstallationFileNotFoundException:
                 if os.path.exists(install_path):
                     shutil.rmtree(install_path)
 

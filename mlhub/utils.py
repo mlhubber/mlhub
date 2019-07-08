@@ -233,7 +233,7 @@ def get_model_info_from_repo(model, repo):
 
                 # If url refers to an archive, its version must be known.
 
-                if is_archive(url):
+                if is_archive_file(url):
                     version = meta["version"]
 
                 break
@@ -560,7 +560,7 @@ def is_tar(name):
     return name.endswith(".tar") or name.endswith(".gz") or name.endswith(".bz2")
 
 
-def is_archive(name):
+def is_archive_file(name):
     """Check if name is a archive file."""
 
     return is_mlm_zip(name) or is_tar(name)
@@ -922,7 +922,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
         - https://zzz.org/xyz.zip:   res/            # URL: Download and then unzip into res/.  If all files inside
                                                      #      xyz.zip are under a single top dir, remove the dir, which
                                                      #      means if all arbitrary file is under the same folder
-                                                     #      inside xyz.zip, for example yyy/path/to/xxx, then xxx will be
+                                                     #      inside xyz.zip, for example yyy/path/to/xxx, then xxx will
                                                      #      be unzipped into res/path/to/xxx
         - https://zzz.org/z.zip:     ./              # URL: The same as above
         - https://zzz.org/uvw.zip:   res/rst.zip     # URL: Download to res/rst.zip
@@ -1060,8 +1060,10 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
         # elif <location> is a URL, it is a file downloaded during `ml
         # configure`.
 
-        if downloadir is None and (is_url(location) or is_github_ref(location) or is_gitlab_ref(location)):  # URL for non-package files
+        if downloadir is None and (is_url(location) or is_github_ref(location) or is_gitlab_ref(location)):
 
+            # URL for non-package files
+            #
             # Download file into Cache dir, then symbolically link it
             # into Package dir.  Thus we can reuse the downloaded
             # files after model package upgrade.
@@ -1088,7 +1090,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
 
                 filename = 'mlhubtmp-' + str(uuid.uuid4().hex)
 
-            isArchive = filetype != 'file' or is_archive(filename)
+            is_archive = filetype != 'file' or is_archive_file(filename)
 
             # Determine target: relative path of the file under the
             # package dir
@@ -1105,7 +1107,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
                     target = os.path.join(foldername, '')
             else:
                 if filetype == 'file':
-                    if target.endswith(os.path.sep) and not isArchive:  # Download into a specified folder
+                    if target.endswith(os.path.sep) and not is_archive:  # Download into a specified folder
                         target = os.path.join(target, filename)
                 else:
                     if target.endswith(os.path.sep):  # Unzip repo/dir into a folder with the same name
@@ -1118,7 +1120,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             else:
                 target = os.path.relpath(target)
 
-            needUnzip = target.endswith(os.path.sep) and isArchive
+            need_unzip = target.endswith(os.path.sep) and is_archive
 
             # Determine cache: absolute path of the file cached
 
@@ -1128,7 +1130,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             # downloaded
 
             archive = cache  # Where the file is archived, the same as cache if no need to unzip
-            if needUnzip:
+            if need_unzip:
                 archive = os.path.join(archive_dir, target, filename)  # unzip file if target is a dir
 
             # Download file
@@ -1166,9 +1168,8 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             src = cache
             dst = os.path.join(pkg_dir, target)
             symlinks = [(src, dst)]
-            if needUnzip:  # Uncompress archive file
+            if need_unzip:  # Uncompress archive file
                 print("      Uncompressing the cached file {} ...".format(archive))
-                file_list = []
                 if filetype != 'dir':
                     _, _, file_list = unpack_with_promote(archive, cache, remove_dst=False)
                 else:
@@ -1181,8 +1182,10 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             for origin, goal in symlinks:
                 make_symlink(origin, goal)
 
-        elif downloadir is not None and not (is_url(location) or is_github_ref(location) or is_gitlab_ref(location)):  # Path for package files
+        elif downloadir is not None and not (is_url(location) or is_github_ref(location) or is_gitlab_ref(location)):
 
+            # Path for package files
+            #
             # Move the files from download dir to package dir.
 
             try:
@@ -1356,14 +1359,14 @@ MLHUB.yaml file.
 
         if len(seg) >= 7:
             if len(seg) == 7:
-                if seg[5] == "archive" and is_archive(seg[6]):  # GitHub Archive url
+                if seg[5] == "archive" and is_archive_file(seg[6]):  # GitHub Archive url
                     ref = seg[6][:-4]
                 elif seg[5] == "pull":  # GitHub pull request url
                     ref = "pull/" + seg[6] + "/head"
                 elif seg[5] == "merge_requests":  # GitLab merge request url
                     pass  # TODO: need to figure out what the ref is for GitLab merge request
-            elif len(seg) == 9 and seg[6] == "archive" and is_archive(seg[8]):  # GitLab Archive url
-                    ref = seg[7]
+            elif len(seg) == 9 and seg[6] == "archive" and is_archive_file(seg[8]):  # GitLab Archive url
+                ref = seg[7]
             else:  # Branch, commit, or specific file
                 ref = seg[6]
                 path = '/'.join(seg[7:])
@@ -1733,10 +1736,10 @@ def update_conda_env_name(model, name):
     update_config(model, {CONDA_ENV_NAME: name})
 
 
-def update_working_dir(model, dir):
+def update_working_dir(model, folder):
     """Update model package's conda environment name in config file."""
 
-    update_config(model, {WORKING_DIR: dir})
+    update_config(model, {WORKING_DIR: folder})
 
 
 def update_sys_python_pkg_usage(model, usage=True):
