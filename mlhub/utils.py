@@ -1201,7 +1201,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
                         os.makedirs(os.path.dirname(goal), exist_ok=True)
                         shutil.move(origin, goal)
             except FileNotFoundError:
-                raise ModePkgInstallationFileNotFoundException(location)
+                raise ModelPkgInstallationFileNotFoundException(location)
 
 
 # ----------------------------------------------------------------------
@@ -1209,9 +1209,16 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
 # ----------------------------------------------------------------------
 
 def read_repo_raw_file(name):
+    """Read the raw file from a repo of a hosting service."""
+
     if is_github_url(name) and name.startswith("https://api"):
+
+        # Raw file from GitHub API, where the content of the file is encoded
+        # in the 'content' field
+
         res = json.loads(urllib.request.urlopen(name).read())
         content = base64.b64decode(res["content"])
+
     elif is_url(name):
         content = urllib.request.urlopen(name).read()
     else:
@@ -1223,7 +1230,7 @@ def read_repo_raw_file(name):
 # GitHub
 
 def is_github_url(name):
-    """Check if name starts with http://github.com or https://github.com"""
+    """Check if name is a GitHub URL."""
 
     if is_url(name):
         domain = name.lower().split('/')[2]
@@ -1464,7 +1471,7 @@ def get_github_gitlab_type(location):
 # GitLab
 
 def is_gitlab_url(name):
-    """Check if name starts with http://gitlab.com or https://gitlab.com"""
+    """Check if name is a GitLab URL."""
 
     if is_url(name):
         domain = name.lower().split('/')[2]
@@ -2192,7 +2199,7 @@ class ModelPkgArchiveDirCreateException(Exception):
     pass
 
 
-class ModePkgInstallationFileNotFoundException(Exception):
+class ModelPkgInstallationFileNotFoundException(Exception):
     pass
 
 

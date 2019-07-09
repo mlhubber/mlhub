@@ -403,7 +403,7 @@ def install_model(args):
                                         model,
                                         downloadir=uncompressdir,
                                         yes=True)
-            except utils.ModePkgInstallationFileNotFoundException:
+            except utils.ModelPkgInstallationFileNotFoundException:
                 if os.path.exists(install_path):
                     shutil.rmtree(install_path)
 

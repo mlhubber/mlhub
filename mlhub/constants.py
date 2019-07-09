@@ -4,28 +4,28 @@
 #
 # A command line tool for managing machine learning models.
 #
-# Copyright 2018 (c) Graham.Williams@togaware.com All rights reserved. 
+# Copyright 2018 (c) Graham.Williams@togaware.com All rights reserved.
 #
 # This file is part of mlhub.
 #
 # MIT License
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy 
-# of this software and associated documentation files (the ""Software""), to deal 
-# in the Software without restriction, including without limitation the rights 
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-# copies of the Software, and to permit persons to whom the Software is 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the ""Software""), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in 
+# The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
 import collections
@@ -343,7 +343,7 @@ SYS_PYTHON_PKG_USAGE = "sys_python_pkg_usage"  # Whether system python packages 
 # Command binary
 # ------------------------------------------------------------------------
 
-BASH_CMD ='/bin/bash'
+BASH_CMD = '/bin/bash'
 
 R_CMD = '/usr/bin/R'
 RSCRIPT_CMD = '/usr/bin/Rscript'
@@ -356,7 +356,7 @@ SYS_PIP_CMD = '/usr/bin/pip3'
 # Messages
 # ------------------------------------------------------------------------
 
-MSG_INCOMPATIBLE_PYTHON_ENV ="""
+MSG_INCOMPATIBLE_PYTHON_ENV = """
 WARNING: MLHub is not installed in system's site package directory!
 The "{}" MLHub package requires system Python packages, which may not correctly
 be included in the its Python search path.
