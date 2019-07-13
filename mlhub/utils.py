@@ -42,12 +42,14 @@ import sys
 import tarfile
 import tempfile
 import urllib.error
+import urllib.parse
 import urllib.request
 import uuid
 import yaml
 import yamlordereddictloader
 import zipfile
 
+from abc import ABC, abstractmethod
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process as fuzzprocess
 from mlhub.constants import (
@@ -285,7 +287,7 @@ def get_available_pkgyaml(url):
 
     yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
 
-    if is_github_url(url) or is_gitlab_url(url):
+    if RepoTypeURL.is_repo_url(url):
         yaml_list = [url.format(x) for x in yaml_list]
     elif is_url(url):
         yaml_list = ['/'.join([url, x]) for x in yaml_list]
@@ -336,6 +338,10 @@ def lower_first_letter(sentence):
     """Lowercase the first letter of a sentence."""
 
     return sentence[:1].lower() + sentence[1:] if sentence else ''
+
+
+def drop_archive_ext(name):
+    return re.sub(r'(\.zip|\.tar|\.tar\.gz|\.tar\.bz2|\.bz2)$', '', name)
 
 
 # ----------------------------------------------------------------------
@@ -1060,7 +1066,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
         # elif <location> is a URL, it is a file downloaded during `ml
         # configure`.
 
-        if downloadir is None and (is_url(location) or is_github_ref(location) or is_gitlab_ref(location)):
+        if downloadir is None and (is_url(location) or RepoTypeURL.is_repo_ref(location)):
 
             # URL for non-package files
             #
@@ -1076,8 +1082,8 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             repo = None        # The name of the repo if it is a GitHub repo otherwise None
             foldername = None
 
-            if is_github_ref(location) or is_gitlab_ref(location):
-                filetype, location, repo, path = get_github_gitlab_type(location)
+            if RepoTypeURL.is_repo_ref(location):
+                filetype, location, repo, path = RepoTypeURL.get_repo_obj(location).get_res_type()
 
             filename = get_url_filename(location)  # The name of the file to be downloaded
 
@@ -1182,7 +1188,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             for origin, goal in symlinks:
                 make_symlink(origin, goal)
 
-        elif downloadir is not None and not (is_url(location) or is_github_ref(location) or is_gitlab_ref(location)):
+        elif downloadir is not None and not (is_url(location) or RepoTypeURL.is_repo_ref(location)):
 
             # Path for package files
             #
@@ -1205,305 +1211,384 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
 
 
 # ----------------------------------------------------------------------
-# Hosting service related
+# Repo hosting service related
 # ----------------------------------------------------------------------
+
+class RepoTypeURL(ABC):
+
+    REPO_DOMAINS = {
+        "github": ["github.com", "githubusercontent.com", ],
+        "gitlab": ["gitlab.com", ],
+        "bitbucket": ["bitbucket.org", ],
+    }
+
+    def __init__(self, url):
+        self.url = url  # URL or ref
+        self.owner = None
+        self.repo = None
+        self.ref = 'master'  # Use master by default.
+        self.path = None
+        self.res_type = None
+        self.composed_url = None
+        self.is_api = False
+
+        self.interpret()
+
+    def get_pkg_yaml_url(self):
+        """Get the URL of DESCRIPTION.yaml/MLHUB.yaml file of the model package."""
+
+        yaml_url = self.compose_content_url()
+        if self.path is None:
+            return get_available_pkgyaml(yaml_url)
+        else:
+            return yaml_url
+
+    @staticmethod
+    def get_url_repo_type(url):
+        """Determine the repo type (such as GitHub) from a real <url>."""
+
+        domain = '.'.join(url.lower().split('/')[2].split('.')[-2:])
+        repo_type = next((x for x, domain_list in RepoTypeURL.REPO_DOMAINS.items() if domain in domain_list), None)
+        return repo_type
+
+    @staticmethod
+    def get_repo_obj(url):
+        """Factory method to get a Repo URL Object for constructing URLs for a
+        specific repo, such as GitHub.  <url> can be a URL or ref."""
+
+        if is_url(url):
+            repo_type = RepoTypeURL.get_url_repo_type(url)
+        else:
+
+            # Refs, such as:
+            #     mlhubber/mlhub
+            #     mlhubber/mlhub:doc
+            #     mlhubber/mlhub@dev
+            #     mlhubber/mlhub#2
+            #     github:mlhubber/mlhub
+            #     bitbucket:mlhubber/mlhub
+
+            repo_type = url.lower().split(':')[0]
+            if '/' in repo_type:
+                repo_type = 'github'
+
+        if repo_type == "github":
+            return GitHubURL(url)
+        elif repo_type == "gitlab":
+            return GitLabURL(url)
+        elif repo_type == 'bitbucket':
+            return BitbucketURL(url)
+
+        return None
+
+    @staticmethod
+    def is_repo_url(url):
+        """Check if <url> is a URL of a repo."""
+
+        if is_url(url) and RepoTypeURL.get_url_repo_type(url):
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def is_repo_ref(ref):
+        """Check if <ref> is a reference of a repo.  Only used in MLHUB.yaml to
+        indicate a file or dir of a repo."""
+
+        repo_type = ref.lower().split(':')[0]
+        if '/' in repo_type:  # GitHub ref, like mlhubber/mlhub@dev:doc
+            return ':' in ref or '@' in ref or '#' in ref
+        elif repo_type in RepoTypeURL.REPO_DOMAINS.keys():
+            return True  # Explicitly specified repo type
+        else:
+            return False
+
+    @staticmethod
+    def interpret_repo_ref(url):
+
+        # TODO: Add regexp to validate the url.
+
+        ref = 'master'  # Use master by default.
+        path = None     # Path to a specific file, if not, the repo.
+
+        if ':' in url:  # Get path
+            url, path = url.split(':')
+
+        owner, repo = url.split('/')
+
+        if '@' in repo:  # Branch or commit: mlhub@dev
+            repo, ref = repo.split('@')
+        elif '#' in repo:  # Pull request: mlhub#15
+            repo, ref = repo.split('#')
+
+        return owner, repo, ref, path
+
+    @abstractmethod
+    def compose_repo_zip_url(self):
+        return None
+
+    @abstractmethod
+    def compose_content_url(self, api=False, tree=False):
+        """Construct the appropriate URL for a specific file or dir.
+
+        Args:
+            api (bool): Whether use REST API
+            tree (bool): For file or dir (tree)
+        """
+        return None
+
+    @abstractmethod
+    def interpret(self):
+        pass
+
+    @abstractmethod
+    def get_res_type(self):
+        return None, None, None, None
+
+    @abstractmethod
+    def read_raw_file(self):
+        return None
+
+
+class GitHubURL(RepoTypeURL):
+    def compose_repo_zip_url(self):
+        """Compose GitHub URL for the repo's zipball."""
+
+        # Because GitHub REST API limits the number of requests within an
+        # hour, so the API is not used here.  If in the future, we find a
+        # solution, then we will revert to use GitHub API, which will be:
+        #
+        #   return "https://api.github.com/repos/{}/{}/zipball/{}".format(
+        #       self.owner, self.repo, self.ref)
+
+        return "https://codeload.github.com/{}/{}/zip/{}".format(
+            self.owner, self.repo, self.ref)
+
+    def compose_content_url(self, api=False, tree=False):
+        """Compose GitHub URL for the content of a file or a directory."""
+
+        if api or self.ref.startswith("pull/"):
+            return "https://api.github.com/repos/{}/{}/contents/{}?ref={}".format(
+                self.owner, self.repo, self.path or "{}", self.ref)
+        else:
+            return "https://raw.githubusercontent.com/{}/{}/{}/{}".format(
+                self.owner, self.repo, self.ref, self.path or "{}")
+
+    def get_res_type(self):
+        """Query if the URL is a file or directory or a repo."""
+
+        if self.path is None:
+            self.res_type = 'repo'
+            self.composed_url = self.compose_repo_zip_url()
+        else:
+            self.res_type = 'file'
+            self.composed_url = self.compose_content_url(api=True)
+
+            try:
+                res = json.loads(urllib.request.urlopen(self.composed_url).read())
+            except urllib.error.HTTPError:
+                raise ModelPkgDependencyFileNotFoundException(self.url)
+
+            if isinstance(res, list):
+                self.res_type = 'dir'
+                self.composed_url = self.compose_repo_zip_url()
+
+        return self.res_type, self.composed_url, self.repo, self.path
+
+    def read_raw_file(self):
+        if self.url.lower().split('/')[2] == "api.github.com":
+            res = json.loads(urllib.request.urlopen(self.url).read())
+            return base64.b64decode(res["content"])
+        else:
+            return urllib.request.urlopen(self.url).read()
+
+    def interpret(self):
+        """Interpret GitHub URL into user name, repo name, ref and path.  If a
+        path is specified, then we assume it is a MLHUB.yaml file.
+
+        The URL may be a reference: [github:]owner/repo[@ref|#pull_request][:path]
+
+        Or a real URL, but URL would not be portable.
+        We just leave it in case someone doesn't know how to use Git references.
+        See https://github.com/simonzhaoms/tips/blob/master/github/compose-github-links.md#web-url
+        """
+
+        logger = logging.getLogger(__name__)
+        logger.info("Interpret GitHub location.")
+        logger.debug("URL: {}".format(self.url))
+
+        url = self.url
+        if url.lower().startswith('github:'):  # Remove prefix 'github:'
+            url = url[7:].strip()
+
+        if not is_url(url):  # Reference such as mlhubber/mlhub@dev:doc/MLHUB.yaml
+
+            self.owner, self.repo, self.ref, self.path = RepoTypeURL.interpret_repo_ref(url)
+
+            if '#' in url:
+                self.ref = "pull/" + self.ref + "/head"
+
+        else:  # URL such as https://github.com/mlhubber/mlhub
+
+            seg = url.split('/')[3:]
+            self.owner, self.repo = seg[:2]
+
+            if self.repo.endswith(".git"):  # Repo clone url
+                self.repo = self.repo[:-4]
+
+            seg = seg[2:]
+            if seg:
+                if seg[0] in ['blob', 'commit', 'raw', 'tree']:
+                    self.ref = seg[1]
+                    self.path = '/'.join(seg[2:]) or None
+                elif seg[0] == 'releases':
+                    self.ref = seg[2]
+                elif seg[0] == 'archive':
+                    self.ref = drop_archive_ext(seg[1])
+                elif seg[0] == 'pull':
+                    self.ref = '/'.join(seg[3:]) or \
+                               '/'.join(seg[:2]) + "/head"
+                else:
+                    self.ref = seg[0]
+                    self.path = '/'.join(seg[1:])
+
+        if self.path and self.path.endswith('/'):
+            self.path = self.path[:-1]
+
+        logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
+            self.owner, self.repo, self.ref, self.path))
+
+
+class GitLabURL(RepoTypeURL):
+    def compose_repo_zip_url(self):
+        """Compose GitLab URL for the repo's zipball."""
+
+        return "https://gitlab.com/{owner}/{repo}/-/archive/{ref}/{repo}-{ref}.zip".format(
+            owner=self.owner, repo=self.repo, ref=self.ref)
+
+    def compose_content_url(self, api=False, tree=False):
+        """Compose GitLab URL for the content of a file or a directory."""
+
+        if api:
+            if not tree:
+                return "https://gitlab.com/api/v4/projects/{}%2F{}/repository/files/{}/raw?ref={}".format(
+                    self.owner, self.repo, urllib.parse.quote(self.path, safe='') if self.path else "{}", self.ref)
+            else:
+                return "https://gitlab.com/api/v4/projects/{}%2F{}/repository/tree?path={}&ref={}".format(
+                    self.owner, self.repo, self.path or "{}", self.ref)
+        else:
+            return "https://gitlab.com/{}/{}/raw/{}/{}".format(
+                self.owner, self.repo, self.ref, self.path or "{}")
+
+    def get_res_type(self):
+        """Query if location is a file or directory or a repo on GitHub."""
+
+        if self.path is None:
+            self.res_type = 'repo'
+            self.composed_url = self.compose_repo_zip_url()
+        else:
+            self.res_type = 'file'
+            self.composed_url = self.compose_content_url(api=True)
+
+            try:
+                urllib.request.urlopen(self.composed_url)
+            except urllib.error.HTTPError:
+                self.res_type = 'dir'
+                self.composed_url = self.compose_content_url(api=True, tree=True)
+
+                try:
+                    res = json.loads(urllib.request.urlopen(self.composed_url).read())
+                except urllib.error.HTTPError:
+                    raise ModelPkgDependencyFileNotFoundException(self.url)
+
+                if not isinstance(res, list):
+                    raise ModelPkgDependencyFileTypeUnknownException(self.url)
+
+                self.composed_url = self.compose_repo_zip_url()
+
+        return self.res_type, self.composed_url, self.repo, self.path
+
+    def read_raw_file(self):
+        return urllib.request.urlopen(self.url).read()
+
+    def interpret(self):
+        """Interpret GitLab URL into user name, repo name, ref and path.  If a
+        path is specified, then we assume it is a MLHUB.yaml file.
+
+        The URL may be a reference: gitlab:owner/repo[@ref|#pull_request][:path]
+        Or a real URL.
+        See https://github.com/simonzhaoms/tips/blob/master/github/compose-github-links.md#web-url-1
+        """
+
+        logger = logging.getLogger(__name__)
+        logger.info("Interpret GitLab location.")
+        logger.debug("URL: {}".format(self.url))
+
+        url = self.url
+        if url.lower().startswith('gitlab:'):  # Remove prefix 'gitlab'
+            url = url[7:].strip()
+
+        if not is_url(url):  # Reference
+
+            self.owner, self.repo, self.ref, self.path = RepoTypeURL.interpret_repo_ref(url)
+
+            if '#' in url:
+                self.ref = "merge_requests/" + self.ref + "/head"
+
+        else:  # URL
+
+            seg = url.split('/')[3:]
+            self.owner, self.repo = seg[:2]
+
+            if self.repo.endswith(".git"):  # Repo clone url
+                self.repo = self.repo[:-4]
+
+            seg = seg[2:]
+            if seg:
+                if seg[0] in ['blob', 'commit', 'raw', 'tree']:
+                    self.ref = seg[1]
+                    self.path = '/'.join(seg[2:]).split('?')[0] or None
+                elif seg[0] == '-' and seg[1] == 'archive':
+                    self.ref = seg[2]
+                elif seg[0] == 'merge_requests':
+                    self.ref = '/'.join('/'.join(seg[2:]).split('=')[1:]) or \
+                               '/'.join(seg[:2]) + "/head"
+
+        if self.path and self.path.endswith('/'):
+            self.path = self.path[:-1]
+
+        logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
+            self.owner, self.repo, self.ref, self.path))
+
+
+class BitbucketURL(RepoTypeURL):
+    def compose_repo_zip_url(self):
+        return None
+
+    def compose_content_url(self, api=False, tree=False):
+        return None
+
+    def get_res_type(self):
+        pass
+
+    def read_raw_file(self):
+        pass
+
+    def interpret(self):
+        pass
+
 
 def read_repo_raw_file(name):
     """Read the raw file from a repo of a hosting service."""
 
-    if is_github_url(name) and name.startswith("https://api"):
-
-        # Raw file from GitHub API, where the content of the file is encoded
-        # in the 'content' field
-
-        res = json.loads(urllib.request.urlopen(name).read())
-        content = base64.b64decode(res["content"])
-
-    elif is_url(name):
-        content = urllib.request.urlopen(name).read()
+    if not is_url(name):
+        return open(name)
     else:
-        content = open(name)
-
-    return content
-
-
-# GitHub
-
-def is_github_url(name):
-    """Check if name is a GitHub URL."""
-
-    if is_url(name):
-        domain = name.lower().split('/')[2]
-        return domain.endswith("github.com") or domain.endswith("githubusercontent.com")
-    else:
-        return False
-
-
-def is_github_ref(name):
-    """Check if name is a GitHub ref.  It is used to check in the file
-    dependency part of a MLHUB.yaml file whether the file is a GitHub
-    reference.
-
-    GitHub Ref:
-        github:mlhubber/mlhub
-        mlhubber/mlhub:doc
-        mlhubber/mlhub@dev
-    """
-
-    name = name.lower()
-    if name.startswith('github:'):  # like github:mlhubber/mlhub
-        return True
-    elif not is_url(name):
-        if not name.startswith('gitlab:') and not name.startswith('bitbucket:'):
-            return ':' in name or '@' in name or '#' in name  # like mlhubber/mlhub@dev:doc
-
-    return False
-
-
-def interpret_github_gitlab_url(url):
-    """Interpret GitHub/GitLab URL into user name, repo name, branch/blob
-name and path.  If a path is specified, then we assume it is a
-MLHUB.yaml file.
-
-    The URL may be a reference:
-
-      GitHub:
-
-              For master:  mlhubber/mlhub    or github:mlhubber/mlhub    or  mlhubber/mlhub:doc/MLHUB.yaml
-              For branch:  mlhubber/mlhub@dev            or  mlhubber/mlhub@dev:doc/MLHUB.yaml
-              For commit:  mlhubber/mlhub@7fad23bdfdfjk  or  mlhubber/mlhub@7fad23bdfdfjk:doc/MLHUB.yaml
-        For pull request:  mlhubber/mlhub#15             or  mlhubber/mlhub#15:doc/MLHUB.yaml
-
-      GitLab:
-
-               For master:  gitlab:mlhubber/mlhub                or  gitlab:mlhubber/mlhub:doc/MLHUB.yaml
-               For branch:  gitlab:mlhubber/mlhub@dev            or  gitlab:mlhubber/mlhub@dev:doc/MLHUB.yaml
-               For commit:  gitlab:mlhubber/mlhub@7fad23bdfdfjk  or  gitlab:mlhubber/mlhub@7fad23bdfdfjk:doc/MLHUB.yaml
-        For merge request:  gitlab:mlhubber/mlhub#15             or  gitlab:mlhubber/mlhub#15:doc/MLHUB.yaml
-
-    Or a real URL like https://github.com/..., but it would not be portable.
-    We just leave it in case someone doesn't know how to use Git refs.
-
-      GitHub:
-
-               Main page:  https://github.com/mlhubber/mlhub
-          For repo clone:  https://github.com/mlhubber/mlhub.git
-              For branch:  https://github.com/mlhubber/mlhub/tree/dev
-             For archive:  https://github.com/mlhubber/mlhub/archive/v2.0.0.zip
-                           https://github.com/mlhubber/mlhub/archive/dev.zip
-              For a file:  https://github.com/mlhubber/mlhub/blob/dev/DESCRIPTION.yaml
-        For pull request:  https://github.com/mlhubber/mlhub/pull/15
-
-      GitLab:
-
-               Main page:  https://gitlab.com/mlhubber/mlhub
-          For repo clone:  https://gitlab.com/mlhubber/mlhub.git
-              For branch:  https://gitlab.com/mlhubber/mlhub/tree/dev
-             For archive:  ? (for a tag or release)
-                           https://gitlab.com/mlhubber/mlhub/archive/dev.zip
-              For a file:  https://gitlab.com/mlhubber/mlhub/blob/dev/DESCRIPTION.yaml
-        For pull request:  https://gitlab.com/simonyansenzhao/test/merge_requests/2
-
-    """
-
-    logger = logging.getLogger(__name__)
-    logger.info("Interpret GitHub/GitLab location.")
-    logger.debug("url: {}".format(url))
-
-    host = 'github'
-    if url.lower().startswith('github:'):  # Remove prefix 'github:' or 'gitlab'
-        url = url[7:].strip()
-
-    if url.lower().startswith('gitlab:'):
-        url = url[7:].strip()
-        host = 'gitlab'
-
-    seg = url.split('/')
-    ref = 'master'  # Use master by default.
-    path = None
-
-    if not is_url(url):  # Repo reference like mlhubber/mlhub
-
-        # TODO: Add regexp to validate the url.
-
-        owner = seg[0]
-        repo = seg[1]
-
-        if ':' in repo:
-            path = url.split(':')[-1]
-
-        if '@' in repo:
-
-            # For branch or commit such as:
-            #     mlhubber/mlhub@dev
-            #     mlhubber/mlhub@7fad23bdfdfjk
-            #     mlhubber/mlhub@dev:doc/MLHUB.yaml
-
-            tmp = repo.split('@')
-            repo = tmp[0]
-            ref = tmp[1].split(':')[0]
-
-        elif '#' in repo:
-
-            # For pull request such as:
-            #     mlhubber/mlhub#15
-            #     mlhubber/mlhub#15:doc/MLHUB.yaml
-
-            tmp = repo.split('#')
-            repo = tmp[0]
-            ref = "pull/" + tmp[1].split(':')[0] + "/head"
-
-        elif ':' in repo:  # For master branch
-
-            repo = repo.split(':')[0]
-
-    else:  # Repo URL like https://github.com/mlhubber/mlhub
-
-        owner = seg[3]
-        repo = seg[4]
-        if repo.endswith(".git"):  # Repo clone url
-            repo = repo[:-4]
-
-        if len(seg) >= 7:
-            if len(seg) == 7:
-                if seg[5] == "archive" and is_archive_file(seg[6]):  # GitHub Archive url
-                    ref = seg[6][:-4]
-                elif seg[5] == "pull":  # GitHub pull request url
-                    ref = "pull/" + seg[6] + "/head"
-                elif seg[5] == "merge_requests":  # GitLab merge request url
-                    pass  # TODO: need to figure out what the ref is for GitLab merge request
-            elif len(seg) == 9 and seg[6] == "archive" and is_archive_file(seg[8]):  # GitLab Archive url
-                ref = seg[7]
-            else:  # Branch, commit, or specific file
-                ref = seg[6]
-                path = '/'.join(seg[7:])
-
-    logger.debug("host: {}, owner: {}, repo: {}, ref: {}, path: {}".format(host, owner, repo, ref, path))
-    return host, owner, repo, ref, path[:-1] if path is not None and path.endswith('/') else path
-
-
-def compose_github_repo_zip_url(owner, repo, ref):
-    """Compose GitHub REST API URL for the repo's zipball."""
-
-    # Because GitHub REST API limits the number of requests within an
-    # hour, so the API is not used here.  If in the future, we find a
-    # solution, then we will revert to use GitHub API, which will be:
-    #
-    #   return "https://api.github.com/repos/{}/{}/zipball/{}".format(owner, repo, ref)
-
-    return "https://codeload.github.com/{}/{}/zip/{}".format(owner, repo, ref)
-
-
-def compose_github_content_url(owner, repo, ref, path, api=False):
-    """Compose GitHub REST API URL for the content of a file or a directory."""
-
-    if api or ref.startswith("pull/"):
-        url = "https://api.github.com/repos/{}/{}/contents/{}?ref={}".format(owner, repo, path, ref)
-    else:
-        url = "https://raw.githubusercontent.com/{}/{}/{}/{}".format(owner, repo, ref, path)
-
-    return url
-
-
-def get_github_gitlab_repo_zip_url(url):
-    """Get the GitHub zip file url of model package.
-
-    See https://developer.github.com/v3/repos/contents/#get-archive-link
-    """
-
-    host, owner, repo, ref, _ = interpret_github_gitlab_url(url)
-    if host == 'github':
-        return compose_github_repo_zip_url(owner, repo, ref)
-    elif host == 'gitlab':
-        return compose_gitlab_repo_zip_url(owner, repo, ref)
-
-
-def get_pkgyaml_github_gitlab_url(url):
-    """Get the GitHub url of DESCRIPTION.yaml file of model package.
-
-    See https://developer.github.com/v3/repos/contents/#get-contents
-    """
-
-    host, owner, repo, ref, mlhubyaml = interpret_github_gitlab_url(url)
-
-    if host == 'github':
-        url = compose_github_content_url(owner, repo, ref, '{}')
-    elif host == 'gitlab':
-        url = compose_gitlab_content_url(owner, repo, ref, '{}')
-
-    if mlhubyaml is None:
-        return get_available_pkgyaml(url)
-    else:
-        return url.format(mlhubyaml)
-
-
-def get_github_gitlab_type(location):
-    """Query if location is a file or directory or a repo on GitHub."""
-
-    host, owner, repo, ref, path = interpret_github_gitlab_url(location)
-    if path is None:
-        res_type = 'repo'
-        if host == "github":
-            url = compose_github_repo_zip_url(owner, repo, ref)
-        elif host == 'gitlab':
-            url = compose_gitlab_repo_zip_url(owner, repo, ref)
-    else:
-        if host == 'github':
-            url = compose_github_content_url(owner, repo, ref, path, api=True)
-            res = json.loads(urllib.request.urlopen(url).read())
-            if isinstance(res, list):
-                res_type = 'dir'
-                url = compose_github_repo_zip_url(owner, repo, ref)
-            else:
-                res_type = 'file'
-        elif host == 'gitlab':
-            url = compose_gitlab_content_url(owner, repo, ref, path)
-            res_type = 'file'
-            try:
-                urllib.request.urlopen(url)
-            except urllib.error.HTTPError as e:
-                if e.code == 404:
-                    res_type = 'dir'
-                    url = compose_gitlab_repo_zip_url(owner, repo, ref)
-    return res_type, url, repo, path
-
-
-# GitLab
-
-def is_gitlab_url(name):
-    """Check if name is a GitLab URL."""
-
-    if is_url(name):
-        domain = name.lower().split('/')[2]
-        return domain.endswith("gitlab.com")
-    else:
-        return False
-
-
-def is_gitlab_ref(name):
-    """Check if name is a GitLab ref.  It is used to check in the file
-    dependency part of a MLHUB.yaml file whether the file is a GitLab
-    reference.
-
-    GitLab Ref:
-        gitlab:mlhubber/mlhub
-        gitlab:mlhubber/mlhub:doc
-        gitlab:mlhubber/mlhub@dev
-    """
-
-    return name.lower().startswith('gitlab:')
-
-
-def compose_gitlab_content_url(owner, repo, ref, path):
-    """Compose GitLab URL for the content of a file or a directory."""
-
-    return "https://gitlab.com/{}/{}/raw/{}/{}".format(owner, repo, ref, path)
-
-
-def compose_gitlab_repo_zip_url(owner, repo, ref):
-    """Compose GitLab URL for the repo's zipball."""
-
-    return "https://gitlab.com/{owner}/{repo}/-/archive/{ref}/{repo}-{ref}.zip".format(owner=owner, repo=repo, ref=ref)
+        repo_obj = RepoTypeURL.get_repo_obj(name)
+        if repo_obj:
+            return repo_obj.read_raw_file()
+        else:
+            return urllib.request.urlopen(name).read()
 
 
 # ----------------------------------------------------------------------
@@ -1656,7 +1741,7 @@ Packages.yaml in current working dir.
 
             try:
                 location = entry[model]
-                mlhubyaml = get_pkgyaml_github_gitlab_url(location)
+                mlhubyaml = RepoTypeURL.get_repo_obj(location).get_pkg_yaml_url()
                 print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
                 content = read_repo_raw_file(mlhubyaml).decode()
             except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
@@ -1701,7 +1786,7 @@ Packages.yaml in current working dir.
 
             try:
                 location = meta[model]
-                mlhubyaml = get_pkgyaml_github_gitlab_url(location)
+                mlhubyaml = RepoTypeURL.get_repo_obj(location).get_pkg_yaml_url()
                 print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
                 content = read_repo_raw_file(mlhubyaml).decode()
             except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
@@ -2208,4 +2293,8 @@ class ModelPkgDependencyFileNotFoundException(Exception):
 
 
 class ModelPkgConfigDirCreateException(Exception):
+    pass
+
+
+class ModelPkgDependencyFileTypeUnknownException(Exception):
     pass

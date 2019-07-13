@@ -204,6 +204,7 @@ def install_model(args):
     location = args.model  # pkg file path or URL
     version = None         # model pkg version
     mlhubyaml = None       # MLHUB.yaml path or URL
+    repo_obj = None        # RepoTypeURL object for related URL interpretation
 
     # Obtain the model URL if not a local file.
 
@@ -232,7 +233,7 @@ def install_model(args):
 
     if not utils.is_archive_file(location):
 
-        # Model from GitHub.
+        # Model from a repo such as GitHub, GitLab, Bitbucket etc.
         #
         # Possible options are:
         #   $ ml install mlhubber/audit            # latest commit on the master branch of GitHub repo mlhubber/audit
@@ -249,8 +250,9 @@ def install_model(args):
         #   $ ml install bitbucket:mlhubber/audit                        # BitBucket repo
         #   $ ml install https://bitbucket.org/mlhubber/audit/...        # BitBucket repo
 
-        mlhubyaml = utils.get_pkgyaml_github_gitlab_url(location)  # URL to MLHUB.yaml
-        location = utils.get_github_gitlab_repo_zip_url(location)
+        repo_obj = utils.RepoTypeURL.get_repo_obj(location)
+        mlhubyaml = repo_obj.get_pkg_yaml_url()
+        location = repo_obj.compose_repo_zip_url()
         logger.debug("location: {}".format(location))
         logger.debug("mlhubyaml: {}".format(mlhubyaml))
 
@@ -292,7 +294,7 @@ def install_model(args):
 
                 model, version = utils.interpret_mlm_name(pkgfile)
 
-            elif not utils.is_github_url(location) and not utils.is_gitlab_url(location):
+            elif not repo_obj:
 
                 # Get MLHUB.yaml inside the archive file.
 

@@ -316,7 +316,11 @@ def main():
         utils.print_error_exit(msg, e.args[0])
 
     except utils.ModelPkgDependencyFileNotFoundException as e:
-        msg = "Failed to get File dependency: {}\n"
+        msg = "Failed to get file dependency: {}\n"
+        utils.print_error_exit(msg, e.args[0])
+
+    except utils.ModelPkgDependencyFileTypeUnknownException as e:
+        msg = "Unknown file dependency type: {}\n"
         utils.print_error_exit(msg, e.args[0])
 
     except utils.ConfigureFailedException:  # configure failed, then just quit
