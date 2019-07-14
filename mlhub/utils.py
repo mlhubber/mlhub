@@ -1079,11 +1079,13 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             logger.debug("Download file from URL: {}".format(location))
             filetype = 'file'  # The type of the item to be download: file, repo, dir
             path = None        # The path of the item in the repo
-            repo = None        # The name of the repo if it is a GitHub repo otherwise None
             foldername = None
+            repo_obj = None
 
             if RepoTypeURL.is_repo_ref(location):
-                filetype, location, repo, path = RepoTypeURL.get_repo_obj(location).get_res_type()
+                repo_obj = RepoTypeURL.get_repo_obj(location)
+                filetype, location = repo_obj.get_res_type()
+                path = repo_obj.path
 
             filename = get_url_filename(location)  # The name of the file to be downloaded
 
@@ -1102,7 +1104,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             # package dir
 
             if filetype == 'repo':
-                foldername = repo
+                foldername = repo_obj.repo
             elif filetype == 'dir':
                 foldername = path.split('/')[-1]
 
@@ -1211,7 +1213,7 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
 
 
 # ----------------------------------------------------------------------
-# Repo hosting service related
+# Source code repo hosting service
 # ----------------------------------------------------------------------
 
 class RepoTypeURL(ABC):
@@ -1237,7 +1239,7 @@ class RepoTypeURL(ABC):
     def get_pkg_yaml_url(self):
         """Get the URL of DESCRIPTION.yaml/MLHUB.yaml file of the model package."""
 
-        yaml_url = self.compose_content_url()
+        yaml_url = self.compose_content_url(default="{}")
         if self.path is None:
             return get_available_pkgyaml(yaml_url)
         else:
@@ -1328,7 +1330,7 @@ class RepoTypeURL(ABC):
         return None
 
     @abstractmethod
-    def compose_content_url(self, api=False, tree=False):
+    def compose_content_url(self, api=False, tree=False, default="{}"):
         """Construct the appropriate URL for a specific file or dir.
 
         Args:
@@ -1343,7 +1345,7 @@ class RepoTypeURL(ABC):
 
     @abstractmethod
     def get_res_type(self):
-        return None, None, None, None
+        return None, None
 
     @abstractmethod
     def read_raw_file(self):
@@ -1364,15 +1366,15 @@ class GitHubURL(RepoTypeURL):
         return "https://codeload.github.com/{}/{}/zip/{}".format(
             self.owner, self.repo, self.ref)
 
-    def compose_content_url(self, api=False, tree=False):
+    def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose GitHub URL for the content of a file or a directory."""
 
         if api or self.ref.startswith("pull/"):
             return "https://api.github.com/repos/{}/{}/contents/{}?ref={}".format(
-                self.owner, self.repo, self.path or "{}", self.ref)
+                self.owner, self.repo, self.path or default, self.ref)
         else:
             return "https://raw.githubusercontent.com/{}/{}/{}/{}".format(
-                self.owner, self.repo, self.ref, self.path or "{}")
+                self.owner, self.repo, self.ref, self.path or default)
 
     def get_res_type(self):
         """Query if the URL is a file or directory or a repo."""
@@ -1381,19 +1383,19 @@ class GitHubURL(RepoTypeURL):
             self.res_type = 'repo'
             self.composed_url = self.compose_repo_zip_url()
         else:
-            self.res_type = 'file'
-            self.composed_url = self.compose_content_url(api=True)
-
             try:
-                res = json.loads(urllib.request.urlopen(self.composed_url).read())
+                res = json.loads(urllib.request.urlopen(self.compose_content_url(api=True)).read())
             except urllib.error.HTTPError:
                 raise ModelPkgDependencyFileNotFoundException(self.url)
 
             if isinstance(res, list):
                 self.res_type = 'dir'
                 self.composed_url = self.compose_repo_zip_url()
+            else:
+                self.res_type = 'file'
+                self.composed_url = self.compose_content_url()
 
-        return self.res_type, self.composed_url, self.repo, self.path
+        return self.res_type, self.composed_url
 
     def read_raw_file(self):
         if self.url.lower().split('/')[2] == "api.github.com":
@@ -1419,7 +1421,7 @@ class GitHubURL(RepoTypeURL):
 
         url = self.url
         if url.lower().startswith('github:'):  # Remove prefix 'github:'
-            url = url[7:].strip()
+            url = url[len('github:'):].strip()
 
         if not is_url(url):  # Reference such as mlhubber/mlhub@dev:doc/MLHUB.yaml
 
@@ -1433,10 +1435,11 @@ class GitHubURL(RepoTypeURL):
             seg = url.split('/')[3:]
             self.owner, self.repo = seg[:2]
 
-            if self.repo.endswith(".git"):  # Repo clone url
+            seg = seg[2:]
+
+            if self.repo.endswith(".git") and not seg:  # Repo clone url
                 self.repo = self.repo[:-4]
 
-            seg = seg[2:]
             if seg:
                 if seg[0] in ['blob', 'commit', 'raw', 'tree']:
                     self.ref = seg[1]
@@ -1466,19 +1469,19 @@ class GitLabURL(RepoTypeURL):
         return "https://gitlab.com/{owner}/{repo}/-/archive/{ref}/{repo}-{ref}.zip".format(
             owner=self.owner, repo=self.repo, ref=self.ref)
 
-    def compose_content_url(self, api=False, tree=False):
+    def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose GitLab URL for the content of a file or a directory."""
 
         if api:
             if not tree:
                 return "https://gitlab.com/api/v4/projects/{}%2F{}/repository/files/{}/raw?ref={}".format(
-                    self.owner, self.repo, urllib.parse.quote(self.path, safe='') if self.path else "{}", self.ref)
+                    self.owner, self.repo, urllib.parse.quote(self.path, safe='') if self.path else default, self.ref)
             else:
                 return "https://gitlab.com/api/v4/projects/{}%2F{}/repository/tree?path={}&ref={}".format(
-                    self.owner, self.repo, self.path or "{}", self.ref)
+                    self.owner, self.repo, self.path or default, self.ref)
         else:
             return "https://gitlab.com/{}/{}/raw/{}/{}".format(
-                self.owner, self.repo, self.ref, self.path or "{}")
+                self.owner, self.repo, self.ref, self.path or default)
 
     def get_res_type(self):
         """Query if location is a file or directory or a repo on GitHub."""
@@ -1487,26 +1490,25 @@ class GitLabURL(RepoTypeURL):
             self.res_type = 'repo'
             self.composed_url = self.compose_repo_zip_url()
         else:
-            self.res_type = 'file'
-            self.composed_url = self.compose_content_url(api=True)
-
             try:
-                urllib.request.urlopen(self.composed_url)
+                urllib.request.urlopen(self.compose_content_url(api=True))
             except urllib.error.HTTPError:
-                self.res_type = 'dir'
-                self.composed_url = self.compose_content_url(api=True, tree=True)
-
                 try:
-                    res = json.loads(urllib.request.urlopen(self.composed_url).read())
+                    res = json.loads(urllib.request.urlopen(self.compose_content_url(api=True, tree=True)).read())
                 except urllib.error.HTTPError:
                     raise ModelPkgDependencyFileNotFoundException(self.url)
 
                 if not isinstance(res, list):
                     raise ModelPkgDependencyFileTypeUnknownException(self.url)
 
+                self.res_type = 'dir'
                 self.composed_url = self.compose_repo_zip_url()
 
-        return self.res_type, self.composed_url, self.repo, self.path
+        if not self.res_type:
+            self.res_type = 'file'
+            self.composed_url = self.compose_content_url()
+
+        return self.res_type, self.composed_url
 
     def read_raw_file(self):
         return urllib.request.urlopen(self.url).read()
@@ -1526,7 +1528,7 @@ class GitLabURL(RepoTypeURL):
 
         url = self.url
         if url.lower().startswith('gitlab:'):  # Remove prefix 'gitlab'
-            url = url[7:].strip()
+            url = url[len('gitlab:'):].strip()
 
         if not is_url(url):  # Reference
 
@@ -1540,10 +1542,11 @@ class GitLabURL(RepoTypeURL):
             seg = url.split('/')[3:]
             self.owner, self.repo = seg[:2]
 
-            if self.repo.endswith(".git"):  # Repo clone url
+            seg = seg[2:]
+
+            if self.repo.endswith(".git") and not seg:  # Repo clone url
                 self.repo = self.repo[:-4]
 
-            seg = seg[2:]
             if seg:
                 if seg[0] in ['blob', 'commit', 'raw', 'tree']:
                     self.ref = seg[1]
@@ -1563,19 +1566,94 @@ class GitLabURL(RepoTypeURL):
 
 class BitbucketURL(RepoTypeURL):
     def compose_repo_zip_url(self):
-        return None
+        """Compose Bitbucket URL for the repo's zipball."""
 
-    def compose_content_url(self, api=False, tree=False):
-        return None
+        return "https://bitbucket.org/{}/{}/get/{}.zip".format(
+            self.owner, self.repo, self.ref)
+
+    def compose_content_url(self, api=False, tree=False, default="{}"):
+        """Compose Bitbuckt URL for the content of a file or a directory."""
+
+        if api:
+            return "https://api.bitbucket.org/2.0/repositories/{}/{}/src/{}/{}?format=meta".format(
+                self.owner, self.repo, self.ref, self.path or default)
+        else:
+            return "https://bitbucket.org/{}/{}/raw/{}/{}".format(
+                self.owner, self.repo, self.ref, self.path or default)
 
     def get_res_type(self):
-        pass
+        if self.path is None:
+            self.res_type = 'repo'
+            self.composed_url = self.compose_repo_zip_url()
+        else:
+            self.res_type = 'file'
+            self.composed_url = self.compose_content_url(api=True)
+
+            try:
+                res = json.loads(urllib.request.urlopen(self.composed_url).read())
+            except urllib.error.HTTPError:
+                raise ModelPkgDependencyFileNotFoundException(self.url)
+
+            if res['type'] == 'commit_file':
+                self.res_type = 'file'
+                self.composed_url = self.compose_content_url()
+            elif res['type'] == 'commit_directory':
+                self.res_type = 'dir'
+                self.composed_url = self.compose_repo_zip_url()
+
+        return self.res_type, self.composed_url
 
     def read_raw_file(self):
-        pass
+        return urllib.request.urlopen(self.url).read()
 
     def interpret(self):
-        pass
+        """Interpret Bitbucket URL into user name, repo name, ref and path.  If
+        a path is specified, then we assume it is a MLHUB.yaml file.
+
+        The URL may be a reference: gitlab:owner/repo[@ref|#pull_request][:path]
+        Or a real URL.
+        See https://github.com/simonzhaoms/tips/blob/master/github/compose-github-links.md#web-url-2
+        """
+
+        logger = logging.getLogger(__name__)
+        logger.info("Interpret GitLab location.")
+        logger.debug("URL: {}".format(self.url))
+
+        url = self.url
+        if url.lower().startswith('bitbucket:'):  # Remove prefix 'bitbucket'
+            url = url[len('bitbucket:'):].strip()
+
+        if not is_url(url):  # Reference
+
+            self.owner, self.repo, self.ref, self.path = RepoTypeURL.interpret_repo_ref(url)
+
+            if '#' in url:
+                self.ref = "pull-requests/" + self.ref + "/head"
+
+        else:  # URL
+
+            seg = url.split('/')[3:]
+            self.owner, self.repo = seg[:2]
+
+            seg = seg[2:]
+
+            if self.repo.endswith(".git") and not seg:  # Repo clone url
+                self.repo = self.repo[:-4]
+
+            if seg:
+                if seg[0] in ['branch', 'commits', 'raw', 'src']:
+                    self.ref = seg[1].split('?')[0]
+                    self.path = '/'.join(seg[2:]) or None
+                elif seg[0] == 'get':
+                    self.ref = drop_archive_ext(seg[1])
+                elif seg[0] == 'pull-requests':
+                    self.ref = '/'.join(seg[:2]) + "/head"
+
+            if self.path and self.path.endswith('/'):
+                self.path = self.path[:-1]
+
+            logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
+                self.owner, self.repo, self.ref, self.path))
 
 
 def read_repo_raw_file(name):
