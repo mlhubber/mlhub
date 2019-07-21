@@ -119,7 +119,8 @@ I've saved that information into the file:
 
         if len(key) > 0 and len(endpoint) > 0:
             ofname = open(key_file, "w")
-            ofname.write("{}\n{}\n".format(key, endpoint))
+            # Use the explicit format in case endpoint has no http prefix.
+            ofname.write("key={}\nendpoint={}\n".format(key, endpoint))
             ofname.close()
             print(msg_saved, file=sys.stderr)
 
