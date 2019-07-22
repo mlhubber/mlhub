@@ -100,7 +100,7 @@ the file and use this information.
 """.format(service, key_file)
 
     msg_saved = """
-I've saved that information into the file:
+That information has been saved into the file:
 
     {}
 """.format(key_file)
