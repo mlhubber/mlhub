@@ -875,7 +875,7 @@ def install_python_deps(deps, model, source='pip', yes=False):
         elif list(first_dep)[0] == "file":  # For environment specification file, read and store environment name
             category = "file"
             deps = first_dep[list(first_dep)[0]]
-            with open(deps, 'r') as file:
+            with open(os.path.join(pkg_dir, deps), 'r') as file:
                 name = yaml.load(file, Loader=yaml.SafeLoader)['name']
             update_conda_env_name(model, name)
         elif list(first_dep)[0] == "name":  # For environment name, store for later use
@@ -883,7 +883,7 @@ def install_python_deps(deps, model, source='pip', yes=False):
             return
 
         command = '{}{} {} "{}" {} {} "{}"'.format(
-            env_var, BASH_CMD, script, pkg_dir, source, category, '" "'.join(deps))
+            env_var, BASH_CMD, script, pkg_dir, source, category, '" "'.join(deps) if isinstance(deps, list) else deps)
     else:
         command = '{}{} {} "{}" {} "{}"'.format(
             env_var, BASH_CMD, script, pkg_dir, source, '" "'.join(deps))

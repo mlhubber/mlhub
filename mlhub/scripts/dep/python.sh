@@ -62,7 +62,7 @@ elif [[ ${abbr} == 'con' ]]; then  # Install Python packages by conda
 
   # TODO: Add support for environment.yaml and specified channel
 
-  category=$2
+  category=$1
   shift
 
   if [[ ${category} == 'list' ]]; then  # conda install package
@@ -85,7 +85,7 @@ elif [[ ${abbr} == 'con' ]]; then  # Install Python packages by conda
 
     msg="\nDo you want to continue"
     if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
-      ${src} env create -f $@
+      ${src} env create -f ${package_path}/$@
       _check_returncode
     fi
 
