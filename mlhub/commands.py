@@ -889,16 +889,17 @@ or else connect to the server's desktop using a local X server like X2Go.
 
     env_var = "export _MLHUB_CMD_CWD='{}'; ".format(os.getcwd())
     env_var += "export _MLHUB_MODEL_NAME='{}'; ".format(model)
-    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
-    env_var += "export PYTHONPATH='{}'; ".format(python_pkg_path) if python_pkg_path else ""
-    env_var += "export PATH=\"{}:$PATH\"; ".format(python_pkg_bin) if python_pkg_bin else ""
+    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable) if not conda_env_name else ""
+    if not conda_env_name:
+        env_var += "export PYTHONPATH='{}'; ".format(python_pkg_path) if python_pkg_path else ""
+        env_var += "export PATH=\"{}:$PATH\"; ".format(python_pkg_bin) if python_pkg_bin else ""
 
-    command = "{}{} {} {}".format(env_var, interpreter, script, param)
+    command = "{}{} {} {}".format(env_var, interpreter if not conda_env_name else "python", script, param)
 
     # Run script inside conda environment if specified
 
     if conda_env_name is not None:
-        command = '{} -c "source activate {}; {}"'.format(BASH_CMD, conda_env_name, command)
+        command = '{} -ic "conda activate {}; {}"'.format(BASH_CMD, conda_env_name, command)
 
     logger.debug("(cd " + path + "; " + command + ")")
 
