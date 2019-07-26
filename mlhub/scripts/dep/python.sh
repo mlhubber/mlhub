@@ -81,12 +81,31 @@ elif [[ ${abbr} == 'con' ]]; then  # Install Python packages by conda
 
   elif [[ ${category} == 'file' ]]; then  # conda env create -f environment.yaml
 
-    echo -e "\n*** Creating conda environment from $@ ..."
+    env_yaml="${package_path}/$@"
+    env_name=$(grep '^name' ${env_yaml} | awk '{print $2}')
 
-    msg="\nDo you want to continue"
-    if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
-      ${src} env create -f ${package_path}/$@
-      _check_returncode
+    echo -e "\n*** Creating conda environment ${env_name} from $@ ..."
+
+    reuse=0
+    exists=0
+    if conda env list | awk '{print $1}' | grep "${env_name}" > /dev/null; then
+      exists=1
+      msg="\nThe conda environment '${env_name}' exists!\nDo you want to re-use '${env_name}'"
+      if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
+	reuse=1
+      fi
+    fi
+
+    if [[ ${reuse} -eq 0 ]]; then
+      if [[ ${exists} -eq 1 ]]; then
+	${src} env remove -y -n ${env_name}
+      fi
+
+      msg="\nDo you want to create conda environment '${env_name}'"
+      if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
+        ${src} env create -f ${package_path}/$@
+        _check_returncode
+      fi
     fi
 
   fi
