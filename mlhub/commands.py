@@ -202,6 +202,7 @@ def install_model(args):
 
     model = args.model     # model pkg name
     location = args.model  # pkg file path or URL
+    key = args.i           # SSH key
     version = None         # model pkg version
     mlhubyaml = None       # MLHUB.yaml path or URL
     repo_obj = None        # RepoTypeURL object for related URL interpretation
@@ -251,10 +252,14 @@ def install_model(args):
         #   $ ml install https://bitbucket.org/mlhubber/audit/...        # BitBucket repo
 
         repo_obj = utils.RepoTypeURL.get_repo_obj(location)
-        mlhubyaml = repo_obj.get_pkg_yaml_url()
-        location = repo_obj.compose_repo_zip_url()
-        logger.debug("location: {}".format(location))
-        logger.debug("mlhubyaml: {}".format(mlhubyaml))
+        if not key:
+            try:
+                mlhubyaml = repo_obj.get_pkg_yaml_url()
+                location = repo_obj.compose_repo_zip_url()
+                logger.debug("location: {}".format(location))
+                logger.debug("mlhubyaml: {}".format(mlhubyaml))
+            except utils.DescriptionYAMLNotFoundException:  # Maybe private repo
+                pass
 
     # Determine the path of downloaded/existing model package file
 
@@ -263,15 +268,20 @@ def install_model(args):
         pkgfile = os.path.basename(location)  # pkg file name
     elif utils.is_url(location):
         pkgfile = utils.get_url_filename(location)
+    elif repo_obj:  # Maybe private repo
+        pkgfile = repo_obj.repo
 
     # Query archive type if not available from file name per se.
 
-    while pkgfile is None or not utils.is_archive_file(pkgfile):
+    while pkgfile is None or not utils.is_archive_file(pkgfile) or not (repo_obj and not mlhubyaml):
         print("The file type cannot be determined.\n"
               "Please give it a file name with explicit valid archive extension: ", end='')
         pkgfile = input()
 
-    uncompressdir = pkgfile[:pkgfile.rfind('.')]  # Dir Where pkg file is extracted
+    if repo_obj and not mlhubyaml:
+        uncompressdir = pkgfile
+    else:
+        uncompressdir = pkgfile[:pkgfile.rfind('.')]  # Dir Where pkg file is extracted
 
     # Installation.
 
@@ -282,6 +292,8 @@ def install_model(args):
 
         if utils.is_url(location):
             local = os.path.join(mlhubtmpdir, pkgfile)  # downloaded
+        elif repo_obj:
+            local = None
         else:
             local = location  # local file path
 
@@ -306,6 +318,22 @@ def install_model(args):
 
                 utils.unpack_with_promote(local, uncompressdir, valid_name=pkgfile)
                 mlhubyaml = utils.get_available_pkgyaml(uncompressdir)  # Path to MLHUB.yaml
+
+            elif repo_obj:
+
+                identity_env = "GIT_SSH_COMMAND='ssh -i {}' ".format(key) if key else ''
+                command = "cd {}; {}git clone {}; cd {}; git checkout {}".format(
+                    mlhubtmpdir, identity_env, repo_obj.get_ssh_clone_url(), repo_obj.repo, repo_obj.ref)
+                proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
+                output, errors = proc.communicate()
+                if proc.returncode != 0:
+                    errors = errors.decode("utf-8")
+                    raise utils.InstallFailedException(errors)
+
+                if repo_obj.path:
+                    mlhubyaml = os.path.join(uncompressdir, repo_obj.path)
+                else:
+                    mlhubyaml = utils.get_available_pkgyaml(uncompressdir)  # Path to MLHUB.yaml
 
             if mlhubyaml is not None:  # Get version number from MLHUB.yaml
                 entry = utils.read_mlhubyaml(mlhubyaml)
@@ -644,10 +672,7 @@ def configure_model(args):
             proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
             output, errors = proc.communicate()
             if proc.returncode != 0:
-                errors = errors.decode("utf-8")
-                print("\nAn error was encountered:\n")
-                print(errors)
-                raise utils.ConfigureFailedException()
+                raise utils.ConfigureFailedException(errors.decode("utf-8"))
 
         return
 

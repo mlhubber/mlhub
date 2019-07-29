@@ -323,8 +323,13 @@ def main():
         msg = "Unknown file dependency type: {}\n"
         utils.print_error_exit(msg, e.args[0])
 
-    except utils.ConfigureFailedException:  # configure failed, then just quit
-        sys.exit(1)
+    except utils.ConfigureFailedException as e:  # configure failed, then just quit
+        msg = "An error was encountered:\n{}\n"
+        utils.print_error_exit(msg, e.args[0])
+
+    except utils.InstallFailedException as e:
+        msg = "An error was encountered:\n{}\n"
+        utils.print_error_exit(msg, e.args[0])
 
     except (KeyboardInterrupt, EOFError):  # Catch Ctrl-C and Ctrl-D
         print()

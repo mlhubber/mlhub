@@ -13,6 +13,7 @@ PREREQUISITES="
   pandoc
   eom
   atril
+  git
 "
 
 R_DEVTOOLS_DEPS='

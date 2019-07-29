@@ -847,9 +847,7 @@ def install_r_deps(deps, model, source='cran', yes=False):
         if pkg_not_found is not None:
             raise LackPrerequisiteException(pkg_not_found.group(1))
 
-        print("An error was encountered:\n")
-        print(errors)
-        raise ConfigureFailedException()
+        raise ConfigureFailedException(errors)
 
 
 def install_python_deps(deps, model, source='pip', yes=False):
@@ -896,9 +894,7 @@ def install_python_deps(deps, model, source='pip', yes=False):
         if command_not_found is not None:
             raise LackPrerequisiteException(command_not_found.group(1))
 
-        print("An error was encountered:\n")
-        print(errors)
-        raise ConfigureFailedException()
+        raise ConfigureFailedException(errors)
 
 
 def install_system_deps(deps, yes=False):
@@ -910,10 +906,7 @@ def install_system_deps(deps, yes=False):
     proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
     if proc.returncode != 0:
-        errors = errors.decode("utf-8")
-        print("An error was encountered:\n")
-        print(errors)
-        raise ConfigureFailedException()
+        raise ConfigureFailedException(errors.decode("utf-8"))
 
 
 def install_file_deps(deps, model, downloadir=None, yes=False):
@@ -1351,6 +1344,10 @@ class RepoTypeURL(ABC):
     def read_raw_file(self):
         return None
 
+    @abstractmethod
+    def get_ssh_clone_url(self):
+        return None
+
 
 class GitHubURL(RepoTypeURL):
     def compose_repo_zip_url(self):
@@ -1461,6 +1458,9 @@ class GitHubURL(RepoTypeURL):
         logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
             self.owner, self.repo, self.ref, self.path))
 
+    def get_ssh_clone_url(self):
+        return "git@github.com:{}/{}.git".format(self.owner, self.repo)
+
 
 class GitLabURL(RepoTypeURL):
     def compose_repo_zip_url(self):
@@ -1563,6 +1563,9 @@ class GitLabURL(RepoTypeURL):
         logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
             self.owner, self.repo, self.ref, self.path))
 
+    def get_ssh_clone_url(self):
+        return "git@gitlab.com:{}/{}.git".format(self.owner, self.repo)
+
 
 class BitbucketURL(RepoTypeURL):
     def compose_repo_zip_url(self):
@@ -1654,6 +1657,9 @@ class BitbucketURL(RepoTypeURL):
 
             logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
                 self.owner, self.repo, self.ref, self.path))
+
+    def get_ssh_clone_url(self):
+        return "git@bitbucket.org:{}/{}.git".format(self.owner, self.repo)
 
 
 def read_repo_raw_file(name):
@@ -2213,11 +2219,7 @@ def configure(path, script, quiet):
             proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
             output, errors = proc.communicate()
             if proc.returncode != 0:
-                errors = errors.decode("utf-8")
-                logger.error("Configure failed: \n{}".format(errors))
-                print("An error was encountered:\n")
-                print(errors)
-                raise ConfigureFailedException()
+                raise ConfigureFailedException(errors.decode("utf-8"))
             configured = True
 
     return configured
@@ -2375,4 +2377,8 @@ class ModelPkgConfigDirCreateException(Exception):
 
 
 class ModelPkgDependencyFileTypeUnknownException(Exception):
+    pass
+
+
+class InstallFailedException(Exception):
     pass
