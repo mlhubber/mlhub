@@ -413,7 +413,7 @@ def install_model(args):
 
         else:
             # Otherwise, put all files under package dir.
-            # **Note** Here we must make sure <instal_path> does not exist.
+            # **Note** Here we must make sure <install_path> does not exist.
             # Otherwise, <unzipdir> will be inside <install_path>
             shutil.move(uncompressdir, install_path)
 
@@ -423,8 +423,8 @@ def install_model(args):
 
         # Update working dir if any.
 
-        if args.workding_dir is not None:
-            utils.update_working_dir(model, args.workding_dir)
+        if args.working_dir is not None:
+            utils.update_working_dir(model, args.working_dir)
 
         if not args.quiet:
 
@@ -609,7 +609,7 @@ def configure_model(args):
     #
     # 4 Assume model packager provides a configure.R script. This is a
     #   override and no other configuration happens if this is
-    #   supplied. Alternatively this is viewed as a cop-out prividing
+    #   supplied. Alternatively this is viewed as a cop-out providing
     #   no support from mlhub for the model packager. The preference
     #   would be to use the dependencies: tag to list the required R
     #   or python packages.
@@ -624,7 +624,7 @@ def configure_model(args):
     #     if(length(new.packages)) install.packages(install)
     #   else if language: == "python":
     #     packages = dependencies:
-    #     cat pacakges > requirements.txt
+    #     cat packages > requirements.txt
     #     pip install -r requirements.txt
     #
 
@@ -758,8 +758,8 @@ def configure_model(args):
 
     # Update working dir if any.
 
-    if args.workding_dir is not None:
-        utils.update_working_dir(model, args.workding_dir)
+    if args.working_dir is not None:
+        utils.update_working_dir(model, args.working_dir)
 
     # Suggest next step.
 
@@ -782,10 +782,10 @@ def dispatch(args):
 
     # Get working dir if any.
 
-    if args.workding_dir is not None:
-        utils.update_working_dir(model, args.workding_dir)
-        if args.workding_dir == '':
-            args.workding_dir = None
+    if args.working_dir is not None:
+        utils.update_working_dir(model, args.working_dir)
+        if args.working_dir == '':
+            args.working_dir = None
     else:
         args.working_dir = utils.get_working_dir(model)
 
@@ -853,9 +853,9 @@ or else connect to the server's desktop using a local X server like X2Go.
 
     # Change working dir if needed
 
-    if args.workding_dir is not None:
+    if args.working_dir is not None:
         script = os.path.join(path, script)
-        path = args.workding_dir
+        path = args.working_dir
 
     # Handle python environment
 
@@ -913,7 +913,7 @@ or else connect to the server's desktop using a local X server like X2Go.
 
         dep_required = re.compile(r"ModuleNotFoundError: No module named '(.*)'").search(errors)
 
-        # Check if R dependency unsatisified
+        # Check if R dependency unsatisfied
 
         if dep_required is None:
             dep_required = re.compile(r"there is no package called ‘(.*)’").search(errors)
