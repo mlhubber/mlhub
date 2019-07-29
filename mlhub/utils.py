@@ -1238,7 +1238,7 @@ class RepoTypeURL(ABC):
         "bitbucket": ["bitbucket.org", ],
     }
 
-    def __init__(self, url):
+    def __init__(self, url, prefix, ssh_host):
         self.url = url  # URL or ref
         self.owner = None
         self.repo = None
@@ -1247,6 +1247,8 @@ class RepoTypeURL(ABC):
         self.res_type = None
         self.composed_url = None
         self.is_api = False
+        self.prefix = prefix
+        self.ssh_host = ssh_host
 
         self.interpret()
 
@@ -1258,6 +1260,18 @@ class RepoTypeURL(ABC):
             return get_available_pkgyaml(yaml_url)
         else:
             return yaml_url
+
+    def remove_prefix(self):
+        url = self.url
+        prefix_len = len(self.prefix)
+        if url.lower().startswith(self.prefix):  # Remove prefix 'prefix[@xxx]:'
+            if url[prefix_len] in '@':
+                colon_index = url.index(':')
+                self.ssh_host = url[prefix_len + 1:colon_index]
+                url = url[colon_index + 1:].strip()
+            elif url[prefix_len] in ':':
+                url = url[prefix_len + 1:].strip()
+        return url
 
     @staticmethod
     def get_url_repo_type(url):
@@ -1284,16 +1298,16 @@ class RepoTypeURL(ABC):
             #     github:mlhubber/mlhub
             #     bitbucket:mlhubber/mlhub
 
-            repo_type = url.lower().split(':')[0]
+            repo_type = url.lower().split(':')[0].split('@')[0]
             if '/' in repo_type:
                 repo_type = 'github'
 
         if repo_type == "github":
-            return GitHubURL(url)
+            return GitHubURL(url, "github", "github.com")
         elif repo_type == "gitlab":
-            return GitLabURL(url)
+            return GitLabURL(url, "gitlab", "gitlab.com")
         elif repo_type == 'bitbucket':
-            return BitbucketURL(url)
+            return BitbucketURL(url, "bitbucket", "bitbucket.org")
 
         return None
 
@@ -1314,7 +1328,7 @@ class RepoTypeURL(ABC):
         repo_type = ref.lower().split(':')[0]
         if '/' in repo_type:  # GitHub ref, like mlhubber/mlhub@dev:doc
             return ':' in ref or '@' in ref or '#' in ref
-        elif repo_type in RepoTypeURL.REPO_DOMAINS.keys():
+        elif repo_type.split('@')[0] in RepoTypeURL.REPO_DOMAINS.keys():
             return True  # Explicitly specified repo type
         else:
             return False
@@ -1365,9 +1379,8 @@ class RepoTypeURL(ABC):
     def read_raw_file(self):
         return None
 
-    @abstractmethod
     def get_ssh_clone_url(self):
-        return None
+        return "git@{}:{}/{}.git".format(self.ssh_host, self.owner, self.repo)
 
 
 class GitHubURL(RepoTypeURL):
@@ -1437,9 +1450,7 @@ class GitHubURL(RepoTypeURL):
         logger.info("Interpret GitHub location.")
         logger.debug("URL: {}".format(self.url))
 
-        url = self.url
-        if url.lower().startswith('github:'):  # Remove prefix 'github:'
-            url = url[len('github:'):].strip()
+        url = self.remove_prefix()
 
         if not is_url(url):  # Reference such as mlhubber/mlhub@dev:doc/MLHUB.yaml
 
@@ -1478,9 +1489,6 @@ class GitHubURL(RepoTypeURL):
 
         logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
             self.owner, self.repo, self.ref, self.path))
-
-    def get_ssh_clone_url(self):
-        return "git@github.com:{}/{}.git".format(self.owner, self.repo)
 
 
 class GitLabURL(RepoTypeURL):
@@ -1547,9 +1555,7 @@ class GitLabURL(RepoTypeURL):
         logger.info("Interpret GitLab location.")
         logger.debug("URL: {}".format(self.url))
 
-        url = self.url
-        if url.lower().startswith('gitlab:'):  # Remove prefix 'gitlab'
-            url = url[len('gitlab:'):].strip()
+        url = self.remove_prefix()
 
         if not is_url(url):  # Reference
 
@@ -1583,9 +1589,6 @@ class GitLabURL(RepoTypeURL):
 
         logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
             self.owner, self.repo, self.ref, self.path))
-
-    def get_ssh_clone_url(self):
-        return "git@gitlab.com:{}/{}.git".format(self.owner, self.repo)
 
 
 class BitbucketURL(RepoTypeURL):
@@ -1643,9 +1646,7 @@ class BitbucketURL(RepoTypeURL):
         logger.info("Interpret GitLab location.")
         logger.debug("URL: {}".format(self.url))
 
-        url = self.url
-        if url.lower().startswith('bitbucket:'):  # Remove prefix 'bitbucket'
-            url = url[len('bitbucket:'):].strip()
+        url = self.remove_prefix()
 
         if not is_url(url):  # Reference
 
@@ -1678,9 +1679,6 @@ class BitbucketURL(RepoTypeURL):
 
             logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
                 self.owner, self.repo, self.ref, self.path))
-
-    def get_ssh_clone_url(self):
-        return "git@bitbucket.org:{}/{}.git".format(self.owner, self.repo)
 
 
 def read_repo_raw_file(name):
