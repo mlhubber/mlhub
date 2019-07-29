@@ -327,8 +327,7 @@ def install_model(args):
                 proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
                 output, errors = proc.communicate()
                 if proc.returncode != 0:
-                    errors = errors.decode("utf-8")
-                    raise utils.InstallFailedException(errors)
+                    raise utils.InstallFailedException(errors.decode("utf-8"))
 
                 if repo_obj.path:
                     mlhubyaml = os.path.join(uncompressdir, repo_obj.path)
@@ -764,7 +763,7 @@ def configure_model(args):
             # ----- Files -----
 
             elif 'files'.startswith(category):
-                utils.install_file_deps(deplist, model, yes=YES)
+                utils.install_file_deps(deplist, model, key=args.i, yes=YES)
 
     # Run additional configure script if any.
 

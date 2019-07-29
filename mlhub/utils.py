@@ -909,7 +909,7 @@ def install_system_deps(deps, yes=False):
         raise ConfigureFailedException(errors.decode("utf-8"))
 
 
-def install_file_deps(deps, model, downloadir=None, yes=False):
+def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
     """Install file dependencies.
 
     For example, if MLHUB.yaml is
@@ -1042,6 +1042,8 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
     cache_dir = create_package_cache_dir(model)
     archive_dir = create_package_archive_dir(model)
     pkg_dir = get_package_dir(model)
+    maybe_private = False
+    repo_obj = None
 
     logger = logging.getLogger(__name__)
     logger.info("Install file dependencies.")
@@ -1073,12 +1075,15 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             filetype = 'file'  # The type of the item to be download: file, repo, dir
             path = None        # The path of the item in the repo
             foldername = None
-            repo_obj = None
 
             if RepoTypeURL.is_repo_ref(location):
                 repo_obj = RepoTypeURL.get_repo_obj(location)
-                filetype, location = repo_obj.get_res_type()
                 path = repo_obj.path
+                if not key:
+                    try:
+                        filetype, location = repo_obj.get_res_type()
+                    except ModelPkgDependencyFileNotFoundException:  # Maybe private repo
+                        maybe_private = True
 
             filename = get_url_filename(location)  # The name of the file to be downloaded
 
@@ -1183,9 +1188,9 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
             for origin, goal in symlinks:
                 make_symlink(origin, goal)
 
-        elif downloadir is not None and not (is_url(location) or RepoTypeURL.is_repo_ref(location)):
+        if downloadir is not None and not (is_url(location) or RepoTypeURL.is_repo_ref(location)) or maybe_private:
 
-            # Path for package files
+            # Path for package files or private Git repo
             #
             # Move the files from download dir to package dir.
 
@@ -1195,12 +1200,28 @@ def install_file_deps(deps, model, downloadir=None, yes=False):
                     origin = os.path.join(downloadir, location[:-2])
                     merge_folder(origin, goal)
                 else:
-                    origin = os.path.join(downloadir, location)
-                    if os.path.isdir(origin) and not goal.endswith(os.path.sep):
-                        merge_folder(origin, goal)
-                    else:
-                        os.makedirs(os.path.dirname(goal), exist_ok=True)
-                        shutil.move(origin, goal)
+
+                    with tempfile.TemporaryDirectory() as mlhubtmpdir:
+
+                        if maybe_private:
+                            identity_env = "GIT_SSH_COMMAND='ssh -i {}' ".format(key) if key else ''
+                            command = "cd {}; {}git clone {}; cd {}; git checkout {}".format(
+                                mlhubtmpdir, identity_env, repo_obj.get_ssh_clone_url(), repo_obj.repo, repo_obj.ref)
+                            proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
+                            output, errors = proc.communicate()
+                            if proc.returncode != 0:
+                                raise ConfigureFailedException(errors.decode("utf-8"))
+
+                            origin = os.path.join(mlhubtmpdir, repo_obj.repo)
+                            if repo_obj.path:
+                                origin = os.path.join(origin, repo_obj.path)
+                        else:
+                            origin = os.path.join(downloadir, location)
+                        if os.path.isdir(origin) and not goal.endswith(os.path.sep):
+                            merge_folder(origin, goal)
+                        else:
+                            os.makedirs(os.path.dirname(goal), exist_ok=True)
+                            shutil.move(origin, goal)
             except FileNotFoundError:
                 raise ModelPkgInstallationFileNotFoundException(location)
 
