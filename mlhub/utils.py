@@ -1079,114 +1079,114 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
             if RepoTypeURL.is_repo_ref(location):
                 repo_obj = RepoTypeURL.get_repo_obj(location)
                 path = repo_obj.path
-                if not key:
-                    try:
-                        filetype, location = repo_obj.get_res_type()
-                    except ModelPkgDependencyFileNotFoundException:  # Maybe private repo
-                        maybe_private = True
-
-            filename = get_url_filename(location)  # The name of the file to be downloaded
-
-            if filename is None:
-
-                # TODO: The file name cannot be determined from URL.
-                #       How to deal with this scenario?  Current
-                #       solution: We give it a random name.  This
-                #       should not occur.
-
-                filename = 'mlhubtmp-' + str(uuid.uuid4().hex)
-
-            is_archive = filetype != 'file' or is_archive_file(filename)
-
-            # Determine target: relative path of the file under the
-            # package dir
-
-            if filetype == 'repo':
-                foldername = repo_obj.repo
-            elif filetype == 'dir':
-                foldername = path.split('/')[-1]
-
-            if target is None:
-                if filetype == 'file':  # Use filename if not specified
-                    target = filename
-                else:  # Use repo or dir name if not specified
-                    target = os.path.join(foldername, '')
-            else:
-                if filetype == 'file':
-                    if target.endswith(os.path.sep) and not is_archive:  # Download into a specified folder
-                        target = os.path.join(target, filename)
-                else:
-                    if target.endswith(os.path.sep):  # Unzip repo/dir into a folder with the same name
-                        target = os.path.join(target, foldername, '')
-                    else:  # Unzip repo/dir into a folder with a different name
-                        target = os.path.join(target, '')
-
-            if target.endswith(os.path.sep):  # Expand path
-                target = os.path.relpath(target) + os.path.sep  # Ensure folder end with '/'
-            else:
-                target = os.path.relpath(target)
-
-            need_unzip = target.endswith(os.path.sep) and is_archive
-
-            # Determine cache: absolute path of the file cached
-
-            cache = os.path.join(cache_dir, target)
-
-            # Determine archive: absolute path of the archive file
-            # downloaded
-
-            archive = cache  # Where the file is archived, the same as cache if no need to unzip
-            if need_unzip:
-                archive = os.path.join(archive_dir, target, filename)  # unzip file if target is a dir
-
-            # Download file
-
-            download_msg = "\n    * {}"
-            print(download_msg.format(location))
-
-            reuse = False
-            download_msg = "      downloading into {} ..."
-
-            if os.path.exists(archive):
-
-                # 20190327 gjw for now cache management is behind
-                # scenes and do not need to ask for each one. If
-                # already in cache then don't download. If user wants
-                # to download then maybe have a --force or simply
-                # REMOVE and INSTALL the model again, or delete the
-                # downloaded file manually.
-
-                download_msg = "      using cached copy found in {} ..."
-                reuse = True
-
-            print(download_msg.format(os.path.join(pkg_dir, target)))
-
-            if not reuse:
-                os.makedirs(os.path.dirname(archive), exist_ok=True)
-
                 try:
-                    urllib.request.urlretrieve(location, archive)
-                except urllib.error.HTTPError:
-                    raise ModelPkgDependencyFileNotFoundException(location)
+                    filetype, location = repo_obj.get_res_type()
+                except ModelPkgDependencyFileNotFoundException:  # Maybe private repo
+                    maybe_private = True
 
-            # Install: unzip if necessary and make symbolic links
+            if not maybe_private:
+                filename = get_url_filename(location)  # The name of the file to be downloaded
 
-            src = cache
-            dst = os.path.join(pkg_dir, target)
-            symlinks = [(src, dst)]
-            if need_unzip:  # Uncompress archive file
-                print("      Uncompressing the cached file {} ...".format(archive))
-                if filetype != 'dir':
-                    _, _, file_list = unpack_with_promote(archive, cache, remove_dst=False)
+                if filename is None:
+
+                    # TODO: The file name cannot be determined from URL.
+                    #       How to deal with this scenario?  Current
+                    #       solution: We give it a random name.  This
+                    #       should not occur.
+
+                    filename = 'mlhubtmp-' + str(uuid.uuid4().hex)
+
+                is_archive = filetype != 'file' or is_archive_file(filename)
+
+                # Determine target: relative path of the file under the
+                # package dir
+
+                if filetype == 'repo':
+                    foldername = repo_obj.repo
+                elif filetype == 'dir':
+                    foldername = path.split('/')[-1]
+
+                if target is None:
+                    if filetype == 'file':  # Use filename if not specified
+                        target = filename
+                    else:  # Use repo or dir name if not specified
+                        target = os.path.join(foldername, '')
                 else:
-                    with tempfile.TemporaryDirectory() as tmpdir:
-                        unpack_with_promote(archive, tmpdir, remove_dst=False)
-                        file_list = merge_folder(os.path.join(tmpdir, path, ''), cache)
+                    if filetype == 'file':
+                        if target.endswith(os.path.sep) and not is_archive:  # Download into a specified folder
+                            target = os.path.join(target, filename)
+                    else:
+                        if target.endswith(os.path.sep):  # Unzip repo/dir into a folder with the same name
+                            target = os.path.join(target, foldername, '')
+                        else:  # Unzip repo/dir into a folder with a different name
+                            target = os.path.join(target, '')
 
-                symlinks = [(os.path.join(src, file), os.path.join(dst, file)) for file in file_list]
+                if target.endswith(os.path.sep):  # Expand path
+                    target = os.path.relpath(target) + os.path.sep  # Ensure folder end with '/'
+                else:
+                    target = os.path.relpath(target)
 
-            for origin, goal in symlinks:
-                make_symlink(origin, goal)
+                need_unzip = target.endswith(os.path.sep) and is_archive
+
+                # Determine cache: absolute path of the file cached
+
+                cache = os.path.join(cache_dir, target)
+
+                # Determine archive: absolute path of the archive file
+                # downloaded
+
+                archive = cache  # Where the file is archived, the same as cache if no need to unzip
+                if need_unzip:
+                    archive = os.path.join(archive_dir, target, filename)  # unzip file if target is a dir
+
+                # Download file
+
+                download_msg = "\n    * {}"
+                print(download_msg.format(location))
+
+                reuse = False
+                download_msg = "      downloading into {} ..."
+
+                if os.path.exists(archive):
+
+                    # 20190327 gjw for now cache management is behind
+                    # scenes and do not need to ask for each one. If
+                    # already in cache then don't download. If user wants
+                    # to download then maybe have a --force or simply
+                    # REMOVE and INSTALL the model again, or delete the
+                    # downloaded file manually.
+
+                    download_msg = "      using cached copy found in {} ..."
+                    reuse = True
+
+                print(download_msg.format(os.path.join(pkg_dir, target)))
+
+                if not reuse:
+                    os.makedirs(os.path.dirname(archive), exist_ok=True)
+
+                    try:
+                        urllib.request.urlretrieve(location, archive)
+                    except urllib.error.HTTPError:
+                        raise ModelPkgDependencyFileNotFoundException(location)
+
+                # Install: unzip if necessary and make symbolic links
+
+                src = cache
+                dst = os.path.join(pkg_dir, target)
+                symlinks = [(src, dst)]
+                if need_unzip:  # Uncompress archive file
+                    print("      Uncompressing the cached file {} ...".format(archive))
+                    if filetype != 'dir':
+                        _, _, file_list = unpack_with_promote(archive, cache, remove_dst=False)
+                    else:
+                        with tempfile.TemporaryDirectory() as tmpdir:
+                            unpack_with_promote(archive, tmpdir, remove_dst=False)
+                            file_list = merge_folder(os.path.join(tmpdir, path, ''), cache)
+
+                    symlinks = [(os.path.join(src, file), os.path.join(dst, file)) for file in file_list]
+
+                for origin, goal in symlinks:
+                    make_symlink(origin, goal)
 
         if downloadir is not None and not (is_url(location) or RepoTypeURL.is_repo_ref(location)) or maybe_private:
 

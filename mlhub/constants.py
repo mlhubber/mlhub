@@ -115,7 +115,7 @@ OPTIONS = {
         {'help': "command display name instead of '{}'.".format(CMD),
          'dest': 'mlmetavar',
         },
-    '--workding-dir':
+    '--working-dir':
         {'alias': ['--wd', ],
          'help': "use this as the working dir instead of '{}'/<model>.".format(MLINIT),
         },

@@ -252,14 +252,13 @@ def install_model(args):
         #   $ ml install https://bitbucket.org/mlhubber/audit/...        # BitBucket repo
 
         repo_obj = utils.RepoTypeURL.get_repo_obj(location)
-        if not key:
-            try:
-                mlhubyaml = repo_obj.get_pkg_yaml_url()
-                location = repo_obj.compose_repo_zip_url()
-                logger.debug("location: {}".format(location))
-                logger.debug("mlhubyaml: {}".format(mlhubyaml))
-            except utils.DescriptionYAMLNotFoundException:  # Maybe private repo
-                pass
+        try:
+            mlhubyaml = repo_obj.get_pkg_yaml_url()
+            location = repo_obj.compose_repo_zip_url()
+            logger.debug("location: {}".format(location))
+            logger.debug("mlhubyaml: {}".format(mlhubyaml))
+        except utils.DescriptionYAMLNotFoundException:  # Maybe private repo
+            pass
 
     # Determine the path of downloaded/existing model package file
 
@@ -273,10 +272,11 @@ def install_model(args):
 
     # Query archive type if not available from file name per se.
 
-    while pkgfile is None or not utils.is_archive_file(pkgfile) or not (repo_obj and not mlhubyaml):
-        print("The file type cannot be determined.\n"
-              "Please give it a file name with explicit valid archive extension: ", end='')
-        pkgfile = input()
+    if not (repo_obj and not mlhubyaml):
+        while pkgfile is None or not utils.is_archive_file(pkgfile):
+            print("The file type cannot be determined.\n"
+                  "Please give it a file name with explicit valid archive extension: ", end='')
+            pkgfile = input()
 
     if repo_obj and not mlhubyaml:
         uncompressdir = pkgfile
