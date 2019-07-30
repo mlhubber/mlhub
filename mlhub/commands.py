@@ -206,6 +206,7 @@ def install_model(args):
     version = None         # model pkg version
     mlhubyaml = None       # MLHUB.yaml path or URL
     repo_obj = None        # RepoTypeURL object for related URL interpretation
+    maybe_private = False  # Maybe private repo
 
     # Obtain the model URL if not a local file.
 
@@ -258,27 +259,28 @@ def install_model(args):
             logger.debug("location: {}".format(location))
             logger.debug("mlhubyaml: {}".format(mlhubyaml))
         except utils.DescriptionYAMLNotFoundException:  # Maybe private repo
+            maybe_private = True
             pass
 
     # Determine the path of downloaded/existing model package file
 
     pkgfile = None
-    if utils.is_archive_file(location):
+    if maybe_private:  # Maybe private repo
+        pkgfile = repo_obj.repo
+    elif utils.is_archive_file(location):
         pkgfile = os.path.basename(location)  # pkg file name
     elif utils.is_url(location):
         pkgfile = utils.get_url_filename(location)
-    elif repo_obj:  # Maybe private repo
-        pkgfile = repo_obj.repo
 
     # Query archive type if not available from file name per se.
 
-    if not (repo_obj and not mlhubyaml):
+    if not maybe_private:
         while pkgfile is None or not utils.is_archive_file(pkgfile):
             print("The file type cannot be determined.\n"
                   "Please give it a file name with explicit valid archive extension: ", end='')
             pkgfile = input()
 
-    if repo_obj and not mlhubyaml:
+    if maybe_private:
         uncompressdir = pkgfile
     else:
         uncompressdir = pkgfile[:pkgfile.rfind('.')]  # Dir Where pkg file is extracted
@@ -290,10 +292,10 @@ def install_model(args):
 
         # Determine the local path of the model package
 
-        if utils.is_url(location):
-            local = os.path.join(mlhubtmpdir, pkgfile)  # downloaded
-        elif repo_obj:
+        if maybe_private:
             local = None
+        elif utils.is_url(location):
+            local = os.path.join(mlhubtmpdir, pkgfile)  # downloaded
         else:
             local = location  # local file path
 
@@ -319,7 +321,7 @@ def install_model(args):
                 utils.unpack_with_promote(local, uncompressdir, valid_name=pkgfile)
                 mlhubyaml = utils.get_available_pkgyaml(uncompressdir)  # Path to MLHUB.yaml
 
-            elif repo_obj:
+            elif maybe_private:
 
                 identity_env = "GIT_SSH_COMMAND='ssh -i {}' ".format(key) if key else ''
                 command = "cd {}; {}git clone {}; cd {}; git checkout {}".format(
