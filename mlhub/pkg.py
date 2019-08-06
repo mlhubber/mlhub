@@ -68,14 +68,16 @@ def load_key(path):
 
 # Either load key/endpoint from file or ask user and save to file.
 
-def azkey(key_file, service="Cognitive Services", verbose=True):
+def azkey(key_file, service="Cognitive Services", verbose=True, baseurl=False):
     """The user is asked for an Azure subscription key and endpoint. The
     provided information is saved into a file for future use. The
     contents of that file is the key and endpoint with the endpoint
-    identified as starting with http:
+    identified as starting with http. Some endpoints may include the
+    full cognitive service path and so the baseurl option will strip
+    to just the base name of the URL.
 
     a14d1234abcda4f2f6e9f565df34ef24
-    https://westus2.api.cognitive.microsoft.com/
+    https://westus2.api.cognitive.microsoft.com
 
     """
 
@@ -124,6 +126,11 @@ That information has been saved into the file:
             ofname.close()
             print(msg_saved, file=sys.stderr)
 
+    if baseurl:
+        from urllib.parse import urlsplit
+        splurl = urlsplit(endpoint)
+        endpoint = splurl.scheme + "://" + splurl.netloc
+        
     return key, endpoint
 
 # Simple input of password.
