@@ -130,6 +130,10 @@ That information has been saved into the file:
         from urllib.parse import urlsplit
         splurl = urlsplit(endpoint)
         endpoint = splurl.scheme + "://" + splurl.netloc
+
+    # Ensure endpoint ends in /
+
+    if endpoint[len(endpoint)-1] != "/": endpoint = endpoint + "/"
         
     return key, endpoint
 
