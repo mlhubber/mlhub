@@ -37,6 +37,7 @@ import logging
 import os
 import re
 import shutil
+import site
 import subprocess
 import sys
 import tarfile
@@ -76,7 +77,9 @@ from mlhub.constants import (
     MLHUB,
     MLHUB_YAML,
     MLINIT,
+    MSG_INCOMPATIBLE_PYTHON_ENV,
     RSCRIPT_CMD,
+    SYS_PYTHON_CMD,
     SYS_PYTHON_PKG_USAGE,
     USAGE,
     VERSION,
@@ -883,6 +886,9 @@ def install_python_deps(deps, model, source='pip', yes=False):
         command = '{}{} {} "{}" {} {} "{}"'.format(
             env_var, BASH_CMD, script, pkg_dir, source, category, '" "'.join(deps) if isinstance(deps, list) else deps)
     else:
+        if source.startswith("pip"):
+            env_var += get_py_pkg_path_env(model)
+
         command = '{}{} {} "{}" {} "{}"'.format(
             env_var, BASH_CMD, script, pkg_dir, source, '" "'.join(deps))
 
@@ -1969,6 +1975,27 @@ def get_conda_env_name(model):
 
 def get_sys_python_pkg_usage(model):
     return get_config(model, SYS_PYTHON_PKG_USAGE)
+
+
+def get_py_pkg_path_env(model):
+    python_pkg_base = os.path.sep.join([get_package_dir(model), '.python'])
+    python_pkg_path = python_pkg_base + site.USER_SITE
+    python_pkg_bin = python_pkg_base + site.USER_BASE + '/bin'
+
+    # TODO: Make sure to document:
+    #     $ sudo apt-get install -y python3-pip
+    #     $ /usr/bin/pip3 install mlhub
+    #   Since in DSVM, the default pip is conda's pip, so if we stick to
+    #   use system's command, then the installation of MLHub itself should
+    #   be completed via system's pip, otherwise, MLHub will not work.
+
+    if sys.executable != SYS_PYTHON_CMD:
+        python_pkg_path = python_pkg_base + site.getsitepackages()[0]
+        python_pkg_bin = python_pkg_base + site.PREFIXES[0] + '/bin'
+        if get_sys_python_pkg_usage(model):
+            print_on_stderr(MSG_INCOMPATIBLE_PYTHON_ENV, model)
+
+    return "export PATH=\"{}:$PATH\"; export PYTHONPATH='{}'; ".format(python_pkg_bin, python_pkg_path)
 
 
 # ----------------------------------------------------------------------

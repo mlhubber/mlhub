@@ -29,24 +29,26 @@ elif [[ ${abbr} == 'pip' ]]; then  # pip install package
 
   # Check if the packages are already installed
 
+  pkgstoinstall=()
+  installedpkgs=()
   for pkg in "$@"; do
 
     name=${pkg%%[>=<]*}
     installed_version="$(_get_pip_pkg_version ${name})"
     if _is_version_satisfied "${pkg}" "${installed_version}"; then
-      installedpkgs+=" ${pkg}"
+      installedpkgs+=("${pkg}")
     else
-      pkgstoinstall+=" ${pkg}"
+      pkgstoinstall+=("${pkg}")
     fi
 
   done
 
   if [[ ! -z ${installedpkgs} ]]; then
     echo -e "\n*** The following required pip packages are already installed:"
-    echo " ${installedpkgs}"
+    echo "  ${installedpkgs[@]}"
   fi
 
-  for pkg in ${pkgstoinstall}; do
+  for pkg in "${pkgstoinstall[@]}"; do
 
     echo -e "\n*** Installing Python package ${pkg} by pip ..."
 

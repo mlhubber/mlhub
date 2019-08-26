@@ -883,28 +883,6 @@ or else connect to the server's desktop using a local X server like X2Go.
         script = os.path.join(path, script)
         path = args.working_dir
 
-    # Handle python environment
-
-    python_pkg_bin = None
-    python_pkg_path = None
-    if script.endswith('py'):
-        python_pkg_base = os.path.sep.join([utils.get_package_dir(model), '.python'])
-        python_pkg_path = python_pkg_base + site.USER_SITE
-        python_pkg_bin = python_pkg_base + site.USER_BASE + '/bin'
-
-        # TODO: Make sure to document:
-        #     $ sudo apt-get install -y python3-pip
-        #     $ /usr/bin/pip3 install mlhub
-        #   Since in DSVM, the default pip is conda's pip, so if we stick to
-        #   use system's command, then the installation of MLHub itself should
-        #   be completed via system's pip, otherwise, MLHub will not work.
-
-        if sys.executable != SYS_PYTHON_CMD:
-            python_pkg_path = python_pkg_base + site.getsitepackages()[0]
-            python_pkg_bin = python_pkg_base + site.PREFIXES[0] + '/bin'
-            if utils.get_sys_python_pkg_usage(model):
-                utils.print_on_stderr(MSG_INCOMPATIBLE_PYTHON_ENV, model)
-
     # _MLHUB_CMD_CWD: a environment variable indicates current working
     #                 directory where command `ml xxx` is invoked.
     # _MLHUB_MODEL_NAME: env variable indicates the name of the model.
@@ -916,9 +894,8 @@ or else connect to the server's desktop using a local X server like X2Go.
     env_var = "export _MLHUB_CMD_CWD='{}'; ".format(os.getcwd())
     env_var += "export _MLHUB_MODEL_NAME='{}'; ".format(model)
     env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable) if not conda_env_name else ""
-    if not conda_env_name:
-        env_var += "export PYTHONPATH='{}'; ".format(python_pkg_path) if python_pkg_path else ""
-        env_var += "export PATH=\"{}:$PATH\"; ".format(python_pkg_bin) if python_pkg_bin else ""
+    if not conda_env_name and script.endswith('py'):  # Handle python environment
+        env_var += utils.get_py_pkg_path_env(model)
 
     command = "{}{} {} {}".format(env_var, interpreter if not conda_env_name else "python", script, param)
 
