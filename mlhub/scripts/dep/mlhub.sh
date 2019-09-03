@@ -124,10 +124,10 @@ for pkg in ${PREREQUISITES}; do
 done
 
 ######################################################################
-# Add specific R packages
+# Add specific R packages - Use sudo for now to system install it.
 ######################################################################
 
-Rscript -e 'devtools::install_github("mlhubber/mlhub")'
+sudo Rscript -e 'devtools::install_github("mlhubber/mlhub")'
 
 ######################################################################
 # Configure bash completion
