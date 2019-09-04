@@ -127,6 +127,7 @@ done
 # Add specific R packages - Use sudo for now to system install it.
 ######################################################################
 
+echo -e '\n*** Ensuring mlhub R package is installed - requires admin privileges ...\n'
 sudo Rscript -e 'devtools::install_github("mlhubber/mlhub")'
 
 ######################################################################
