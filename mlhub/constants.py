@@ -180,7 +180,7 @@ COMMANDS = {
                'usage': "  install    <model>   "
                         "install a named model, local model file or URL",
                 'func': "install_model",
-                'next': ['readme'],
+                'next': ['configure'],
         },
 
     # 'download':
@@ -196,7 +196,7 @@ COMMANDS = {
                'usage': "  readme     <model>   "
                         "view the model's README",
                 'func': "readme",
-                'next': ['configure'],
+                'next': ['commands'],
         },
 
     # 'license':
@@ -230,7 +230,7 @@ COMMANDS = {
                'usage': "  configure [<model>]  "
                         "configure ml or the model's dependencies",
                 'func': "configure_model",
-                'next': ['commands'],
+                'next': ['readme'],
         },
 
     'remove':
