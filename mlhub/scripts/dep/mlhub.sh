@@ -128,7 +128,7 @@ done
 ######################################################################
 
 echo -e '\n*** Ensuring mlhub R package is installed - requires admin privileges ...\n'
-sudo Rscript -e 'devtools::install_github("mlhubber/mlhub")'
+sudo Rscript -e 'devtools::install_github("mlhubber/mlhub", quiet=TRUE)'
 
 ######################################################################
 # Configure bash completion
