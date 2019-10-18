@@ -16,13 +16,21 @@ Introduction
 The [machine learning hub](https://mlhub.ai) is an open source project
 hosted on [github](https://github.com/mlhubber/mlhub) aimed at easily
 sharing [pre-built machine learning
-models](https://github.com/mlhubber/mlmodels). The models are accessed
-and managed using the *ml* command from the *mlhub* package designed
-to install the model and run a demonstration within 5 minutes. Each
-model has been tested on Ubuntu (GNU/Linux).
+models](https://github.com/mlhubber/mlmodels) that may be found on
+[github](https://github.com), [gitlab](https://gitlab.com), or
+[bitbucket](https://bitbucket.org). The models are installed and
+managed using the *ml* command from the *mlhub* package designed to
+install the model and run a demonstration within 5 minutes, as well as
+providing a suite of useful command line tools based on the pre-built
+models. Each model has been tested on Ubuntu (GNU/Linux).
 
-Visit the [repository index](https://mlhub.ai/Packages.html) on
-[mlhub.ai](https://mlhub.ai/) where the models themselves can be browsed.
+A number of demonstration models have been packages and are listed in
+the [repository index](https://mlhub.ai/Packages.html) on
+[mlhub.ai](https://mlhub.ai/) where the models themselves can be
+browsed.
+
+In this blog post we first review how to get started with MLHub and
+then illustrate some of its functionality.
 
 Quick Start
 -----------
