@@ -223,13 +223,13 @@ MLHub Dev PyPI download statistics: https://pepy.tech/project/mlhubdev
    :target: https://mlhub.ai
 .. |Downloads| image:: https://pepy.tech/badge/mlhub
    :target: https://pepy.tech/project/mlhub
-.. |Downloads| image:: https://pepy.tech/badge/mlhub/month
+.. |Downloads per Month| image:: https://pepy.tech/badge/mlhub/month
    :target: https://pepy.tech/project/mlhub
-.. |Downloads| image:: https://pepy.tech/badge/mlhub/week
+.. |Downloads per Week| image:: https://pepy.tech/badge/mlhub/week
    :target: https://pepy.tech/project/mlhub
-.. |Downloads| image:: https://pepy.tech/badge/mlhubdev
+.. |Dev Downloads| image:: https://pepy.tech/badge/mlhubdev
    :target: https://pepy.tech/project/mlhubdev
-.. |Downloads| image:: https://pepy.tech/badge/mlhubdev/month
+.. |Dev Downloads per Month| image:: https://pepy.tech/badge/mlhubdev/month
    :target: https://pepy.tech/project/mlhubdev
-.. |Downloads| image:: https://pepy.tech/badge/mlhubdev/week
+.. |Dev Downloads per Week| image:: https://pepy.tech/badge/mlhubdev/week
    :target: https://pepy.tech/project/mlhubdev
