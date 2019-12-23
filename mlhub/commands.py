@@ -36,7 +36,6 @@ import mlhub.utils as utils
 import os
 import re
 import shutil
-import site
 import subprocess
 import sys
 import tempfile
@@ -48,9 +47,7 @@ from distutils.version import StrictVersion
 from mlhub.constants import (
     BASH_CMD,
     EXT_MLM,
-    MSG_INCOMPATIBLE_PYTHON_ENV,
     MLHUB_YAML,
-    SYS_PYTHON_CMD,
     README,
 )
 
@@ -62,14 +59,15 @@ from mlhub.constants import (
 # AVAILABLE
 # ------------------------------------------------------------------------
 
+
 def list_available(args):
     """List the name and title of the models in the Hub."""
 
     # Setup.
 
     logger = logging.getLogger(__name__)
-    logger.info('List available models.')
-    logger.debug('args: {}'.format(args))
+    logger.info("List available models.")
+    logger.debug("args: {}".format(args))
 
     meta, repo = utils.get_repo_meta_data(args.mlhub)
     model_names = [entry["meta"]["name"] for entry in meta]
@@ -81,7 +79,7 @@ def list_available(args):
     # List model name only.
 
     if args.name_only:
-        print('\n'.join(model_names))
+        print("\n".join(model_names))
         return
 
     # Provide some context.
@@ -98,32 +96,38 @@ def list_available(args):
     # Suggest next step.
 
     if not args.quiet:
-        utils.print_next_step('available')
+        utils.print_next_step("available")
         if not os.path.exists(utils.get_init_dir()):
-            print("Why not give the 'rain' model a go...\n\n"
-                  "  $ ml install rain\n")
+            print(
+                "Why not give the 'rain' model a go...\n\n"
+                "  $ ml install rain\n"
+            )
 
 
 # ------------------------------------------------------------------------
 # INSTALLED
 # ------------------------------------------------------------------------
 
+
 def list_installed(args):
     """List the installed models."""
 
     logger = logging.getLogger(__name__)
-    logger.info('List installed models.')
+    logger.info("List installed models.")
 
     # Find installed models, ignoring special folders like R.
 
     init = utils.get_init_dir()
     if os.path.exists(init):
         msg = " in '{}'.".format(init)
-        models = [f for f in os.listdir(init)
-                  if os.path.isdir(os.path.join(init, f))
-                  and f != "R"
-                  and not f.startswith('.')
-                  and not f.startswith('_')]
+        models = [
+            f
+            for f in os.listdir(init)
+            if os.path.isdir(os.path.join(init, f))
+            and f != "R"
+            and not f.startswith(".")
+            and not f.startswith("_")
+        ]
     else:
         msg = ". '{}' does not exist.".format(init)
         models = []
@@ -133,7 +137,7 @@ def list_installed(args):
     # Only list model names
 
     if args.name_only:
-        print('\n'.join(models))
+        print("\n".join(models))
         return
 
     # Report on how many models we found installed.
@@ -152,39 +156,45 @@ def list_installed(args):
         try:
             entry = utils.load_description(p)
             utils.print_meta_line(entry)
-        except (utils.DescriptionYAMLNotFoundException,
-                utils.MalformedYAMLException,
-                KeyError):
+        except (
+            utils.DescriptionYAMLNotFoundException,
+            utils.MalformedYAMLException,
+            KeyError,
+        ):
             mcnt -= 1
             invalid_models.append(p)
             continue
 
         # Update bash completion list.
 
-        if 'commands' in entry:
-            utils.update_command_completion(set(entry['commands']))
+        if "commands" in entry:
+            utils.update_command_completion(set(entry["commands"]))
 
     invalid_mcnt = len(invalid_models)
     if invalid_mcnt > 0:
-        print("\nOf which {} model package{} {} broken:\n".format(
-            invalid_mcnt,
-            's' if invalid_mcnt > 1 else '',
-            'are' if invalid_mcnt > 1 else 'is'))
-        print("  ====> \033[31m" + ', '.join(invalid_models) + "\033[0m")
-        print(utils.get_command_suggestion('remove'))
+        print(
+            "\nOf which {} model package{} {} broken:\n".format(
+                invalid_mcnt,
+                "s" if invalid_mcnt > 1 else "",
+                "are" if invalid_mcnt > 1 else "is",
+            )
+        )
+        print("  ====> \033[31m" + ", ".join(invalid_models) + "\033[0m")
+        print(utils.get_command_suggestion("remove"))
 
     # Suggest next step.
 
     if not args.quiet:
         if mcnt > 0:
-            utils.print_next_step('installed', scenario='exist')
+            utils.print_next_step("installed", scenario="exist")
         else:
-            utils.print_next_step('installed', scenario='none')
+            utils.print_next_step("installed", scenario="none")
 
 
 # -----------------------------------------------------------------------
 # INSTALL
 # ------------------------------------------------------------------------
+
 
 def install_model(args):
     """Install a model.
@@ -197,20 +207,24 @@ def install_model(args):
     """
 
     logger = logging.getLogger(__name__)
-    logger.info('Install a model.')
-    logger.debug('args: {}'.format(args))
+    logger.info("Install a model.")
+    logger.debug("args: {}".format(args))
 
-    model = args.model     # model pkg name
+    model = args.model  # model pkg name
     location = args.model  # pkg file path or URL
-    key = args.i           # SSH key
-    version = None         # model pkg version
-    mlhubyaml = None       # MLHUB.yaml path or URL
-    repo_obj = None        # RepoTypeURL object for related URL interpretation
+    key = args.i  # SSH key
+    version = None  # model pkg version
+    mlhubyaml = None  # MLHUB.yaml path or URL
+    repo_obj = None  # RepoTypeURL object for related URL interpretation
     maybe_private = False  # Maybe private repo
 
     # Obtain the model URL if not a local file.
 
-    if not utils.is_archive_file(model) and not utils.is_url(model) and '/' not in model:
+    if (
+        not utils.is_archive_file(model)
+        and not utils.is_url(model)
+        and "/" not in model
+    ):
 
         # Model package name, which can be found in mlhub repo.
         # Like:
@@ -227,11 +241,13 @@ def install_model(args):
 
         # Get model pkg meta data from mlhub repo.
 
-        location, version, meta_list = utils.get_model_info_from_repo(model, args.mlhub)
+        location, version, meta_list = utils.get_model_info_from_repo(
+            model, args.mlhub
+        )
 
         # Update bash completion list.
 
-        utils.update_model_completion({e['meta']['name'] for e in meta_list})
+        utils.update_model_completion({e["meta"]["name"] for e in meta_list})
 
     if not utils.is_archive_file(location):
 
@@ -276,18 +292,23 @@ def install_model(args):
 
     if not maybe_private:
         while pkgfile is None or not utils.is_archive_file(pkgfile):
-            print("The file type cannot be determined.\n"
-                  "Please give it a file name with explicit valid archive extension: ", end='')
+            print(
+                "The file type cannot be determined.\n"
+                "Please give it a file name with explicit valid archive extension: ",
+                end="",
+            )
             pkgfile = input()
 
     if maybe_private:
         uncompressdir = pkgfile
     else:
-        uncompressdir = pkgfile[:pkgfile.rfind('.')]  # Dir Where pkg file is extracted
+        uncompressdir = pkgfile[
+            : pkgfile.rfind(".")
+        ]  # Dir Where pkg file is extracted
 
     # Installation.
 
-    entry = None     # Meta info read from MLHUB.yaml
+    entry = None  # Meta info read from MLHUB.yaml
     with tempfile.TemporaryDirectory() as mlhubtmpdir:
 
         # Determine the local path of the model package
@@ -304,7 +325,9 @@ def install_model(args):
         # Obtain model version.
 
         if version is None:
-            if utils.ends_with_mlm(pkgfile):  # Get version number from MLM file name.
+            if utils.ends_with_mlm(
+                pkgfile
+            ):  # Get version number from MLM file name.
 
                 model, version = utils.interpret_mlm_name(pkgfile)
 
@@ -312,21 +335,38 @@ def install_model(args):
 
                 # Get MLHUB.yaml inside the archive file.
 
-                if utils.is_url(location):  # Download the package file because it is not from GitHub.
-                    utils.download_model_pkg(location, local, pkgfile, args.quiet)
+                if utils.is_url(
+                    location
+                ):  # Download the package file because it is not from GitHub.
+                    utils.download_model_pkg(
+                        location, local, pkgfile, args.quiet
+                    )
 
                 if not args.quiet:
                     print("Extracting '{}' ...\n".format(pkgfile))
 
-                utils.unpack_with_promote(local, uncompressdir, valid_name=pkgfile)
-                mlhubyaml = utils.get_available_pkgyaml(uncompressdir)  # Path to MLHUB.yaml
+                utils.unpack_with_promote(
+                    local, uncompressdir, valid_name=pkgfile
+                )
+                mlhubyaml = utils.get_available_pkgyaml(
+                    uncompressdir
+                )  # Path to MLHUB.yaml
 
             elif maybe_private:
 
-                identity_env = "GIT_SSH_COMMAND='ssh -i {}' ".format(key) if key else ''
+                identity_env = (
+                    "GIT_SSH_COMMAND='ssh -i {}' ".format(key) if key else ""
+                )
                 command = "cd {}; {}git clone {}; cd {}; git checkout {}".format(
-                    mlhubtmpdir, identity_env, repo_obj.get_ssh_clone_url(), repo_obj.repo, repo_obj.ref)
-                proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
+                    mlhubtmpdir,
+                    identity_env,
+                    repo_obj.get_ssh_clone_url(),
+                    repo_obj.repo,
+                    repo_obj.ref,
+                )
+                proc = subprocess.Popen(
+                    command, shell=True, stderr=subprocess.PIPE
+                )
                 output, errors = proc.communicate()
                 if proc.returncode != 0:
                     raise utils.InstallFailedException(errors.decode("utf-8"))
@@ -334,7 +374,9 @@ def install_model(args):
                 if repo_obj.path:
                     mlhubyaml = os.path.join(uncompressdir, repo_obj.path)
                 else:
-                    mlhubyaml = utils.get_available_pkgyaml(uncompressdir)  # Path to MLHUB.yaml
+                    mlhubyaml = utils.get_available_pkgyaml(
+                        uncompressdir
+                    )  # Path to MLHUB.yaml
 
             if mlhubyaml is not None:  # Get version number from MLHUB.yaml
                 entry = utils.read_mlhubyaml(mlhubyaml)
@@ -342,13 +384,17 @@ def install_model(args):
                 model = meta["name"]
                 version = meta["version"]
 
-            utils.update_model_completion({model})  # Update bash completion list.
+            utils.update_model_completion(
+                {model}
+            )  # Update bash completion list.
 
         # Check if model is already installed.
 
         install_path = utils.get_package_dir(model)  # Installation path
         if os.path.exists(install_path):
-            installed_version = utils.load_description(model)['meta']['version']
+            installed_version = utils.load_description(model)["meta"][
+                "version"
+            ]
 
             # Ensure version number is string.
 
@@ -358,15 +404,27 @@ def install_model(args):
             if StrictVersion(installed_version) > StrictVersion(version):
                 yes = utils.yes_or_no(
                     "Downgrade '{}' from version '{}' to version '{}'",
-                    model, installed_version, version, yes=True)
+                    model,
+                    installed_version,
+                    version,
+                    yes=True,
+                )
             elif StrictVersion(installed_version) == StrictVersion(version):
                 yes = utils.yes_or_no(
                     "Replace '{}' version '{}' with version '{}'",
-                    model, installed_version, version, yes=True)
+                    model,
+                    installed_version,
+                    version,
+                    yes=True,
+                )
             else:
                 yes = utils.yes_or_no(
                     "Upgrade '{}' from version '{}' to version '{}'",
-                    model, installed_version, version, yes=True)
+                    model,
+                    installed_version,
+                    version,
+                    yes=True,
+                )
 
             if not yes:
                 sys.exit(0)
@@ -377,7 +435,9 @@ def install_model(args):
 
         # Uncompress package file.
 
-        if not os.path.exists(uncompressdir):  # Model pkg mlm or GitHub pkg has not unzipped yet.
+        if not os.path.exists(
+            uncompressdir
+        ):  # Model pkg mlm or GitHub pkg has not unzipped yet.
             if utils.is_url(location):  # Download the package file if needed.
                 utils.download_model_pkg(location, local, pkgfile, args.quiet)
 
@@ -394,46 +454,57 @@ def install_model(args):
 
         # Find if any files specified in MLHUB.yaml
 
-        if mlhubyaml is None:  # MLM file which can obtain version number from it name.
+        if (
+            mlhubyaml is None
+        ):  # MLM file which can obtain version number from it name.
             mlhubyaml = utils.get_available_pkgyaml(uncompressdir)
             entry = utils.read_mlhubyaml(mlhubyaml)
 
         depspec = None
-        if 'dependencies' in entry:
-            depspec = entry['dependencies']
-        elif 'dependencies' in entry['meta']:
-            depspec = entry['meta']['dependencies']
+        if "dependencies" in entry:
+            depspec = entry["dependencies"]
+        elif "dependencies" in entry["meta"]:
+            depspec = entry["meta"]["dependencies"]
 
         file_spec = None
-        if depspec is not None and 'files' in depspec:
-            file_spec = {'files': depspec['files']}
-        elif 'files' in entry:
-            file_spec = {'files': entry['files']}
+        if depspec is not None and "files" in depspec:
+            file_spec = {"files": depspec["files"]}
+        elif "files" in entry:
+            file_spec = {"files": entry["files"]}
 
-        if file_spec is not None:  # install package files if they are specified in MLHUB.yaml
+        if (
+            file_spec is not None
+        ):  # install package files if they are specified in MLHUB.yaml
 
             # MLHUB.yaml should always be at the package root.
 
             os.mkdir(install_path)
-            if utils.is_url(mlhubyaml):  # We currently only support MLHUB.yaml specified on GitHub.
+            if utils.is_url(
+                mlhubyaml
+            ):  # We currently only support MLHUB.yaml specified on GitHub.
                 if mlhubyaml.startswith("https://api"):
                     urllib.request.urlretrieve(
-                        json.loads(urllib.request.urlopen(mlhubyaml).read())['download_url'],
-                        os.path.join(install_path, MLHUB_YAML))
+                        json.loads(urllib.request.urlopen(mlhubyaml).read())[
+                            "download_url"
+                        ],
+                        os.path.join(install_path, MLHUB_YAML),
+                    )
                 else:
                     urllib.request.urlretrieve(
-                        mlhubyaml,
-                        os.path.join(install_path, MLHUB_YAML))
+                        mlhubyaml, os.path.join(install_path, MLHUB_YAML)
+                    )
             else:
                 shutil.move(mlhubyaml, install_path)
 
             # All package files except MLHUB.yaml should be specified in 'files' of MLHUB.yaml
 
             try:
-                utils.install_file_deps(utils.flatten_mlhubyaml_deps(file_spec)[0][1],
-                                        model,
-                                        downloadir=uncompressdir,
-                                        yes=True)
+                utils.install_file_deps(
+                    utils.flatten_mlhubyaml_deps(file_spec)[0][1],
+                    model,
+                    downloadir=uncompressdir,
+                    yes=True,
+                )
             except utils.ModelPkgInstallationFileNotFoundException:
                 if os.path.exists(install_path):
                     shutil.rmtree(install_path)
@@ -448,7 +519,9 @@ def install_model(args):
 
         # Update bash completion list.
 
-        utils.update_command_completion(set(utils.load_description(model)['commands']))
+        utils.update_command_completion(
+            set(utils.load_description(model)["commands"])
+        )
 
         # Update working dir if any.
 
@@ -459,17 +532,21 @@ def install_model(args):
 
             # Informative message about the size of the installed model.
 
-            print("Installed '{}' into '{}' ({:,} bytes).".format(
-                model, install_path, utils.dir_size(install_path)))
+            print(
+                "Installed '{}' into '{}' ({:,} bytes).".format(
+                    model, install_path, utils.dir_size(install_path)
+                )
+            )
 
             # Suggest next step. README or DOWNLOAD
 
-            utils.print_next_step('install', model=model)
+            utils.print_next_step("install", model=model)
 
 
 # -----------------------------------------------------------------------
 # DOWNLOAD
 # ------------------------------------------------------------------------
+
 
 def download_model(args):
     """Download the large pre-built model."""
@@ -486,12 +563,13 @@ def download_model(args):
     utils.check_model_installed(model)
 
     if not args.quiet:
-        utils.print_next_step('download', model=model)
+        utils.print_next_step("download", model=model)
 
 
 # ------------------------------------------------------------------------
 # README
 # ------------------------------------------------------------------------
+
 
 def readme(args):
     """Display the model's README information."""
@@ -518,39 +596,50 @@ def readme(args):
 
     # Display the README.
 
-    if not os.path.exists(readme_file):  # Try to generate README from README.md
-        readme_raw = readme_file[:readme_file.rfind('.')] + '.md'
+    if not os.path.exists(
+        readme_file
+    ):  # Try to generate README from README.md
+        readme_raw = readme_file[: readme_file.rfind(".")] + ".md"
         if not os.path.exists(readme_raw):
-            readme_raw = readme_raw[:readme_raw.rfind('.')] + '.rst'
+            readme_raw = readme_raw[: readme_raw.rfind(".")] + ".rst"
             if not os.path.exists(readme_raw):
                 raise utils.ModelReadmeNotFoundException(model, readme_file)
 
-        script = os.path.join(os.path.dirname(__file__), 'scripts', 'convert_readme.sh')
+        script = os.path.join(
+            os.path.dirname(__file__), "scripts", "convert_readme.sh"
+        )
         command = "{} {} {} {}".format(BASH_CMD, script, readme_raw, README)
-        proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(
+            command, shell=True, cwd=path, stderr=subprocess.PIPE
+        )
         output, errors = proc.communicate()
         if proc.returncode != 0:
             errors = errors.decode("utf-8")
-            command_not_found = re.compile(r"\d: (.*):.*not found").search(errors)
+            command_not_found = re.compile(r"\d: (.*):.*not found").search(
+                errors
+            )
             if command_not_found is not None:
-                raise utils.LackPrerequisiteException(command_not_found.group(1))
+                raise utils.LackPrerequisiteException(
+                    command_not_found.group(1)
+                )
 
             print("An error was encountered:\n")
             print(errors)
             raise utils.ModelReadmeNotFoundException(model, readme_file)
 
-    with open(readme_file, 'r') as f:
+    with open(readme_file, "r") as f:
         print(utils.drop_newline(f.read()))
 
     # Suggest next step.
 
     if not args.quiet:
-        utils.print_next_step('readme', model=model)
+        utils.print_next_step("readme", model=model)
 
 
 # ------------------------------------------------------------------------
 # LICENSE
 # ------------------------------------------------------------------------
+
 
 def license(args):
     """Display the mode's LICENSE information."""
@@ -561,6 +650,7 @@ def license(args):
 # -----------------------------------------------------------------------
 # COMMANDS
 # ------------------------------------------------------------------------
+
 
 def list_model_commands(args):
     """ List the commands supported by this model."""
@@ -581,18 +671,18 @@ def list_model_commands(args):
     utils.check_model_installed(model)
 
     entry = utils.load_description(model)
-    commands = entry['commands']
+    commands = entry["commands"]
 
     if args.name_only:
-        print('\n'.join(list(commands)))
+        print("\n".join(list(commands)))
         return
 
     msg = "The '{}' model "
-    meta = entry['meta']
-    if 'title' not in meta:
+    meta = entry["meta"]
+    if "title" not in meta:
         title = None
     else:
-        title = utils.lower_first_letter(utils.dropdot(meta['title']))
+        title = utils.lower_first_letter(utils.dropdot(meta["title"]))
         msg += "({}) "
 
     msg += "supports the following commands:"
@@ -610,12 +700,13 @@ def list_model_commands(args):
     # Suggest next step.
 
     if not args.quiet:
-        utils.print_next_step('commands', description=entry, model=model)
+        utils.print_next_step("commands", description=entry, model=model)
 
 
 # -----------------------------------------------------------------------
 # CONFIGURE
 # ------------------------------------------------------------------------
+
 
 def configure_model(args):
     """Ensure the user's environment is configured."""
@@ -664,13 +755,15 @@ def configure_model(args):
         # Configure MLHUB per se.
         # Includes bash completion and system pre-requisites
 
-        if distro.id() in ['debian', 'ubuntu']:
+        if distro.id() in ["debian", "ubuntu"]:
             path = os.path.dirname(__file__)
-            env_var = "export _MLHUB_OPTION_YES='y'; " if YES else ''
+            env_var = "export _MLHUB_OPTION_YES='y'; " if YES else ""
             env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
-            script = os.path.join('scripts', 'dep', 'mlhub.sh')
+            script = os.path.join("scripts", "dep", "mlhub.sh")
             command = "{}{} {}".format(env_var, BASH_CMD, script)
-            proc = subprocess.Popen(command, shell=True, cwd=path, stderr=subprocess.PIPE)
+            proc = subprocess.Popen(
+                command, shell=True, cwd=path, stderr=subprocess.PIPE
+            )
             output, errors = proc.communicate()
             if proc.returncode != 0:
                 raise utils.ConfigureFailedException(errors.decode("utf-8"))
@@ -699,10 +792,10 @@ def configure_model(args):
 
     entry = utils.load_description(model)
     depspec = None
-    if 'dependencies' in entry:
-        depspec = entry['dependencies']
-    elif 'dependencies' in entry['meta']:
-        depspec = entry['meta']['dependencies']
+    if "dependencies" in entry:
+        depspec = entry["dependencies"]
+    elif "dependencies" in entry["meta"]:
+        depspec = entry["meta"]["dependencies"]
 
     if depspec is not None:
         for spec in utils.flatten_mlhubyaml_deps(depspec):
@@ -738,33 +831,47 @@ def configure_model(args):
 
             if category is None:
 
-                lang = entry['meta']['languages'].lower()
-                if lang == 'r':
-                    utils.install_r_deps(deplist, model, source='cran', yes=YES)
-                elif 'python'.startswith(lang):
-                    utils.install_python_deps(deplist, model, source='pip', yes=YES)
+                lang = entry["meta"]["languages"].lower()
+                if lang == "r":
+                    utils.install_r_deps(
+                        deplist, model, source="cran", yes=YES
+                    )
+                elif "python".startswith(lang):
+                    utils.install_python_deps(
+                        deplist, model, source="pip", yes=YES
+                    )
 
             # ----- System deps -----
 
-            elif category == 'system' or 'shell'.startswith(category):
+            elif category == "system" or "shell".startswith(category):
                 utils.install_system_deps(deplist, yes=YES)
 
             # ----- R deps -----
 
-            elif category == 'r':
-                utils.install_r_deps(deplist, model, source='cran', yes=YES)
+            elif category == "r":
+                utils.install_r_deps(deplist, model, source="cran", yes=YES)
 
-            elif category == 'cran' or category == 'github' or category.startswith('cran-'):
+            elif (
+                category == "cran"
+                or category == "github"
+                or category.startswith("cran-")
+            ):
                 utils.install_r_deps(deplist, model, source=category, yes=YES)
 
             # ----- Python deps -----
 
-            elif category.startswith('python') or category.startswith('pip') or category == 'conda':
-                utils.install_python_deps(deplist, model, source=category, yes=YES)
+            elif (
+                category.startswith("python")
+                or category.startswith("pip")
+                or category == "conda"
+            ):
+                utils.install_python_deps(
+                    deplist, model, source=category, yes=YES
+                )
 
             # ----- Files -----
 
-            elif 'files'.startswith(category):
+            elif "files".startswith(category):
                 utils.install_file_deps(deplist, model, key=args.i, yes=YES)
 
     # Run additional configure script if any.
@@ -775,8 +882,10 @@ def configure_model(args):
 
     if not conf:
         if depspec is not None:
-            msg = ("No configuration script provided for this model. "
-                   "The following dependencies are required:\n")
+            msg = (
+                "No configuration script provided for this model. "
+                "The following dependencies are required:\n"
+            )
             print(msg)
             print(yaml.dump(depspec))
         else:
@@ -790,12 +899,13 @@ def configure_model(args):
     # Suggest next step.
 
     if not args.quiet:
-        utils.print_next_step('configure', model=model)
+        utils.print_next_step("configure", model=model)
 
 
 # -----------------------------------------------------------------------
 # DISPATCH
 # ------------------------------------------------------------------------
+
 
 def dispatch(args):
     """Dispatch other commands to the appropriate model provided script."""
@@ -810,7 +920,7 @@ def dispatch(args):
 
     if args.working_dir is not None:
         utils.update_working_dir(model, args.working_dir)
-        if args.working_dir == '':
+        if args.working_dir == "":
             args.working_dir = None
     else:
         args.working_dir = utils.get_working_dir(model)
@@ -825,19 +935,23 @@ def dispatch(args):
 
     entry = utils.load_description(model)
 
-    if 'commands' not in entry or len(entry['commands']) == 0:
+    if "commands" not in entry or len(entry["commands"]) == 0:
         raise utils.CommandNotFoundException(cmd, model)
 
     # Correct misspelled command if possible.
 
-    matched_cmd = utils.get_misspelled_command(cmd, list(entry['commands']))
+    matched_cmd = utils.get_misspelled_command(cmd, list(entry["commands"]))
     if matched_cmd is not None:
         cmd = matched_cmd
 
     # Check if cmd needs to use graphic display indicated in DESCRIPTION.yaml.
 
-    meta = entry['meta']
-    if 'display' in meta and cmd in meta['display'] and os.environ.get('DISPLAY', '') == '':
+    meta = entry["meta"]
+    if (
+        "display" in meta
+        and cmd in meta["display"]
+        and os.environ.get("DISPLAY", "") == ""
+    ):
         msg = "Graphic display is required but not available for command '{}'. Continue"
         yes = utils.yes_or_no(msg, cmd, yes=False)
         if not yes:
@@ -868,7 +982,9 @@ or else connect to the server's desktop using a local X server like X2Go.
     logger = logging.getLogger(__name__)
     logger.debug("Execute the script: " + os.path.join(path, script))
 
-    if cmd not in list(entry['commands']) or not os.path.exists(os.path.join(path, script)):
+    if cmd not in list(entry["commands"]) or not os.path.exists(
+        os.path.join(path, script)
+    ):
         raise utils.CommandNotFoundException(cmd, model)
 
     # Determine the interpreter to use
@@ -893,16 +1009,26 @@ or else connect to the server's desktop using a local X server like X2Go.
 
     env_var = "export _MLHUB_CMD_CWD='{}'; ".format(os.getcwd())
     env_var += "export _MLHUB_MODEL_NAME='{}'; ".format(model)
-    env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable) if not conda_env_name else ""
-    if not conda_env_name and script.endswith('py'):  # Handle python environment
+    env_var += (
+        'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
+        if not conda_env_name
+        else ""
+    )
+    if not conda_env_name and script.endswith(
+        "py"
+    ):  # Handle python environment
         env_var += utils.get_py_pkg_path_env(model)
 
-    command = "{}{} {} {}".format(env_var, interpreter if not conda_env_name else "python", script, param)
+    command = "{}{} {} {}".format(
+        env_var, interpreter if not conda_env_name else "python", script, param
+    )
 
     # Run script inside conda environment if specified
 
     if conda_env_name is not None:
-        command = '{} -ic "conda activate {}; {}"'.format(BASH_CMD, conda_env_name, command)
+        command = '{} -ic "conda activate {}; {}"'.format(
+            BASH_CMD, conda_env_name, command
+        )
 
     logger.debug("(cd " + path + "; " + command + ")")
 
@@ -914,23 +1040,33 @@ or else connect to the server's desktop using a local X server like X2Go.
 
         # Check if it is Python dependency unsatisfied
 
-        dep_required = re.compile(r"ModuleNotFoundError: No module named '(.*)'").search(errors)
+        dep_required = re.compile(
+            r"ModuleNotFoundError: No module named '(.*)'"
+        ).search(errors)
 
         # Check if R dependency unsatisfied
 
         if dep_required is None:
-            dep_required = re.compile(r"there is no package called ‘(.*)’").search(errors)
+            dep_required = re.compile(
+                r"there is no package called ‘(.*)’"
+            ).search(errors)
             if dep_required is not None:
                 missing_r_dep = True
 
         # Check if required data resource not found
 
-        data_required = re.compile(r"mlhub.utils.DataResourceNotFoundException").search(errors)
+        data_required = re.compile(
+            r"mlhub.utils.DataResourceNotFoundException"
+        ).search(errors)
 
         if dep_required is not None:  # Dependency unsatisfied
             dep_required = dep_required.group(1)
-            logger.error("Dependency unsatisfied: {}\n{}".format(dep_required, errors))
-            raise utils.LackDependencyException(dep_required, missing_r_dep, model)
+            logger.error(
+                "Dependency unsatisfied: {}\n{}".format(dep_required, errors)
+            )
+            raise utils.LackDependencyException(
+                dep_required, missing_r_dep, model
+            )
         elif data_required is not None:  # Data not found
             raise utils.DataResourceNotFoundException()
         else:  # Other unknown errors
@@ -949,15 +1085,19 @@ or else connect to the server's desktop using a local X server like X2Go.
 # DONATE
 # ------------------------------------------------------------------------
 
+
 def donate(args):
     """Consider a donation to the author."""
 
-    print("Please assist by implementing this command: support donations to the author.")
+    print(
+        "Please assist by implementing this command: support donations to the author."
+    )
 
 
 # ------------------------------------------------------------------------
 # CLEAN
 # ------------------------------------------------------------------------
+
 
 def remove_mlm(args):
     """Remove downloaded {} files.""".format(EXT_MLM)
@@ -972,6 +1112,7 @@ def remove_mlm(args):
 # ------------------------------------------------------------------------
 # REMOVE
 # ------------------------------------------------------------------------
+
 
 def remove_model(args):
     """Remove installed model."""
@@ -1023,11 +1164,13 @@ def remove_model(args):
 
         # Ask if remove cached files
 
-        if cache is not None and utils.yes_or_no("Remove cache '{}' as well", cache, yes=False):
+        if cache is not None and utils.yes_or_no(
+            "Remove cache '{}' as well", cache, yes=False
+        ):
             shutil.rmtree(cache)
             archive = utils.get_package_archive_dir(model)
             if os.path.exists(archive):
                 shutil.rmtree(archive)
     else:
         if model is None and not args.quiet:
-            utils.print_next_step('remove')
+            utils.print_next_step("remove")

@@ -91,6 +91,7 @@ from mlhub.constants import (
 # MLHUB repo and model package
 # ----------------------------------------------------------------------
 
+
 def get_repo(mlhub):
     """Determine the repository to use: command line, environment, default."""
 
@@ -111,16 +112,22 @@ def get_repo_meta_data(repo):
 
     try:
         url = repo + META_YAML
-        meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(),
-                                       Loader=yaml.SafeLoader))
+        meta_list = list(
+            yaml.load_all(
+                urllib.request.urlopen(url).read(), Loader=yaml.SafeLoader
+            )
+        )
     except urllib.error.URLError:
         try:
             url = repo + META_YML
-            meta_list = list(yaml.load_all(urllib.request.urlopen(url).read(),
-                                           Loader=yaml.SafeLoader))
+            meta_list = list(
+                yaml.load_all(
+                    urllib.request.urlopen(url).read(), Loader=yaml.SafeLoader
+                )
+            )
         except urllib.error.URLError:
             logger = logging.getLogger(__name__)
-            logger.error('Repo connection problem.', exc_info=True)
+            logger.error("Repo connection problem.", exc_info=True)
             raise RepoAccessException(repo)
 
     return meta_list, repo
@@ -146,8 +153,9 @@ def print_meta_line(entry):
     if len(title) > max_descr:
         long = "..."
 
-    formatter = "{0:<TITLE.TITLE} {1:^6} {2:<DESCR.DESCR}{3}".\
-        replace("TITLE", str(max_title)).replace("DESCR", str(max_descr))
+    formatter = "{0:<TITLE.TITLE} {1:^6} {2:<DESCR.DESCR}{3}".replace(
+        "TITLE", str(max_title)
+    ).replace("DESCR", str(max_descr))
     print(formatter.format(name, version, title, long))
 
 
@@ -192,8 +200,9 @@ yaml file."""
         # specified inside YAML file, because the order of commands
         # matters.
 
-        entry = yaml.load(read_repo_raw_file(name),
-                          Loader=yamlordereddictloader.Loader)
+        entry = yaml.load(
+            read_repo_raw_file(name), Loader=yamlordereddictloader.Loader
+        )
 
     except (yaml.composer.ComposerError, yaml.scanner.ScannerError):
 
@@ -270,11 +279,11 @@ def interpret_mlm_name(mlm):
 
     mlmfile = os.path.basename(mlm)
     try:
-        model, version = mlmfile.split('_')
+        model, version = mlmfile.split("_")
     except ValueError:
         raise MalformedMLMFileNameException(mlm)
 
-    version = '.'.join(version.split('.')[: -1])
+    version = ".".join(version.split(".")[:-1])
 
     return model, version
 
@@ -285,7 +294,7 @@ def get_available_pkgyaml(url):
     Possible options are MLHUB.yaml, DESCRIPTION.yaml or
     DESCRIPTION.yml.  If both exist, MLHUB.yaml takes precedence.
     Path can be a path to the package directory or a URL to the top
-    level of the pacakge repo.
+    level of the package repo.
     """
 
     yaml_list = [MLHUB_YAML, DESC_YAML, DESC_YML]
@@ -293,7 +302,7 @@ def get_available_pkgyaml(url):
     if RepoTypeURL.is_repo_url(url):
         yaml_list = [url.format(x) for x in yaml_list]
     elif is_url(url):
-        yaml_list = ['/'.join([url, x]) for x in yaml_list]
+        yaml_list = ["/".join([url, x]) for x in yaml_list]
     else:
         if os.path.sep not in url:  # url is a model name
             url = os.path.join(get_init_dir(), url)
@@ -326,6 +335,7 @@ def get_available_pkgyaml(url):
 # String manipulation
 # ----------------------------------------------------------------------
 
+
 def dropdot(sentence):
     """Drop the period after a sentence."""
     return re.sub("[.]$", "", sentence)
@@ -340,32 +350,33 @@ def drop_newline(paragraph):
 def lower_first_letter(sentence):
     """Lowercase the first letter of a sentence."""
 
-    return sentence[:1].lower() + sentence[1:] if sentence else ''
+    return sentence[:1].lower() + sentence[1:] if sentence else ""
 
 
 def drop_archive_ext(name):
-    return re.sub(r'(\.zip|\.tar|\.tar\.gz|\.tar\.bz2|\.bz2)$', '', name)
+    return re.sub(r"(\.zip|\.tar|\.tar\.gz|\.tar\.bz2|\.bz2)$", "", name)
 
 
 # ----------------------------------------------------------------------
 # URL and download
 # ----------------------------------------------------------------------
 
+
 def is_url(name):
     """Check if name is a url."""
 
-    return re.findall('http[s]?:', name)
+    return re.findall("http[s]?:", name)
 
 
 def get_url_filename(url):
     """Obtain the file name from URL or None if not available."""
 
-    filename = os.path.basename(url).split('?')[0]
-    info = urllib.request.urlopen(url).getheader('Content-Disposition')
+    filename = os.path.basename(url).split("?")[0]
+    info = urllib.request.urlopen(url).getheader("Content-Disposition")
     if info:
         _, params = cgi.parse_header(info)
-        if 'filename' in params:
-            filename = params['filename']
+        if "filename" in params:
+            filename = params["filename"]
 
     return filename or None
 
@@ -405,6 +416,7 @@ def download_model_pkg(url, local, pkgfile, quiet):
 # Folder and file manipulation
 # ----------------------------------------------------------------------
 
+
 def _create_dir(path, error_msg, exception):
     """Create dir <path> if not exists.
 
@@ -431,10 +443,10 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
     remove the top level dir and promote the dir level of those files.
 
     If <remove_dst> is True, then the directory <dest> will be remove
-    first, otherwise, unextracted files will co-exist with those
-    already in <dest>.
+    first, otherwise, extracted files will co-exist with those already in
+    <dest>.
 
-    Return whether promotion happend and the top level dir if did.
+    Return whether promotion happened and the top level dir if did.
     """
 
     logger = logging.getLogger(__name__)
@@ -450,9 +462,13 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
         valid_name = file
 
     if is_mlm_zip(valid_name):
-        opener, lister_name, appender_name = zipfile.ZipFile, 'namelist', 'write'
+        opener, lister_name, appender_name = (
+            zipfile.ZipFile,
+            "namelist",
+            "write",
+        )
     else:
-        opener, lister_name, appender_name = tarfile.open, 'getnames', 'add'
+        opener, lister_name, appender_name = tarfile.open, "getnames", "add"
 
     # Unpack <file>.
 
@@ -462,8 +478,10 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
 
         file_list = getattr(pkg_file, lister_name)()
         first_segs = [x.split(os.path.sep)[0] for x in file_list]
-        if (len(file_list) == 1 and os.path.sep in file_list[0]) or \
-                (len(file_list) != 1 and all([x == first_segs[0] for x in first_segs])):
+        if (len(file_list) == 1 and os.path.sep in file_list[0]) or (
+            len(file_list) != 1
+            and all([x == first_segs[0] for x in first_segs])
+        ):
             promote, top_dir = True, file_list[0].split(os.path.sep)[0]
         else:
             promote, top_dir = False, None
@@ -475,7 +493,9 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
             return False, top_dir, file_list
 
         else:  # All files are under a top dir.
-            logger.debug("Extract {} without top dir into {}".format(file, dest))
+            logger.debug(
+                "Extract {} without top dir into {}".format(file, dest)
+            )
             file_list = []
             with tempfile.TemporaryDirectory() as tmpdir:
 
@@ -494,7 +514,9 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
                     # already inside the dir, without affecting the
                     # existing files except they have the same name.
 
-                    with opener(os.path.join(tmpdir2, 'tmpball'), 'w') as new_pkg_file:
+                    with opener(
+                        os.path.join(tmpdir2, "tmpball"), "w"
+                    ) as new_pkg_file:
                         appender = getattr(new_pkg_file, appender_name)
                         dir_path = os.path.join(tmpdir, top_dir)
                         for path, dirs, files in os.walk(dir_path):
@@ -504,7 +526,9 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
                                 file_list.append(arc_path)
                                 appender(file_path, arc_path)
 
-                    with opener(os.path.join(tmpdir2, 'tmpball')) as new_pkg_file:
+                    with opener(
+                        os.path.join(tmpdir2, "tmpball")
+                    ) as new_pkg_file:
                         new_pkg_file.extractall(dest)
 
             return True, top_dir, file_list
@@ -547,8 +571,12 @@ files under dst_dir."""
 def dir_size(dirpath):
     """Get total size of dirpath."""
 
-    return sum([sum(map(lambda f: os.path.getsize(os.path.join(pth, f)), files))
-                for pth, dirs, files in os.walk(dirpath)])
+    return sum(
+        [
+            sum(map(lambda f: os.path.getsize(os.path.join(pth, f)), files))
+            for pth, dirs, files in os.walk(dirpath)
+        ]
+    )
 
 
 def ends_with_mlm(name):
@@ -566,7 +594,9 @@ def is_mlm_zip(name):
 def is_tar(name):
     """Check if name is a Tarball."""
 
-    return name.endswith(".tar") or name.endswith(".gz") or name.endswith(".bz2")
+    return (
+        name.endswith(".tar") or name.endswith(".gz") or name.endswith(".bz2")
+    )
 
 
 def is_archive_file(name):
@@ -578,12 +608,17 @@ def is_archive_file(name):
 def is_description_file(name):
     """Check if name ends with DESCRIPTION.yaml or DESCRIPTION.yml"""
 
-    return name.endswith(DESC_YAML) or name.endswith(DESC_YML) or name.endswith(MLHUB_YAML)
+    return (
+        name.endswith(DESC_YAML)
+        or name.endswith(DESC_YML)
+        or name.endswith(MLHUB_YAML)
+    )
 
 
 # ----------------------------------------------------------------------
 # Help message
 # ----------------------------------------------------------------------
+
 
 def print_usage():
     print(CMD)
@@ -592,9 +627,9 @@ def print_usage():
 
 def print_model_cmd_help(entry, cmd):
     model = entry["meta"]["name"]
-    print("\n  $ {} {} {}".format(CMD, cmd, model), end='')
+    print("\n  $ {} {} {}".format(CMD, cmd, model), end="")
 
-    cmd_entry = entry['commands'][cmd]
+    cmd_entry = entry["commands"][cmd]
     if type(cmd_entry) is str:
         print("\n    " + cmd_entry)
     elif type(cmd_entry) is collections.OrderedDict:
@@ -614,14 +649,14 @@ def print_model_cmd_help(entry, cmd):
         #   train   : Build a new model on your own image ...
 
         for key in cmd_entry:
-            if key == 'required':
-                for param in cmd_entry['required']:
-                    print(" <{}>".format(param), end='')
-            elif key == 'optional':
-                for param in cmd_entry['optional']:
-                    print(" [<{}>]".format(param), end='')
+            if key == "required":
+                for param in cmd_entry["required"]:
+                    print(" <{}>".format(param), end="")
+            elif key == "optional":
+                for param in cmd_entry["optional"]:
+                    print(" [<{}>]".format(param), end="")
 
-        desc = cmd_entry.get('description', None)
+        desc = cmd_entry.get("description", None)
         if desc is not None:
             print("\n    " + desc)
 
@@ -633,7 +668,8 @@ def print_model_cmd_help(entry, cmd):
 # Next step suggestion
 # ----------------------------------------------------------------------
 
-def get_command_suggestion(cmd, description=None, model=''):
+
+def get_command_suggestion(cmd, description=None, model=""):
     """Return suggestion about how to use the cmd."""
 
     if cmd in COMMANDS:
@@ -642,17 +678,19 @@ def get_command_suggestion(cmd, description=None, model=''):
         # If there is customized suggestion, use it; otherwise
         # generate from description.
 
-        if 'argument' in meta and 'model' in meta['argument'] and model == '':
-            model = '<model>'
+        if "argument" in meta and "model" in meta["argument"] and model == "":
+            model = "<model>"
 
-        msg = meta.get('suggestion',
-                       "\nTo " + dropdot(lower_first_letter(meta['description'])) + ":"
-                       "\n\n  $ {} {} {}")
+        msg = meta.get(
+            "suggestion",
+            "\nTo " + dropdot(lower_first_letter(meta["description"])) + ":"
+            "\n\n  $ {} {} {}",
+        )
         msg = msg.format(CMD, cmd, model)
         return msg
 
     elif description is not None:
-        meta = description['commands'][cmd]
+        meta = description["commands"][cmd]
 
         if type(meta) is str:
             msg = dropdot(lower_first_letter(meta))
@@ -666,7 +704,7 @@ def get_command_suggestion(cmd, description=None, model=''):
             #     required: the name of a CSV file containing a header and 6 columns
             #     description: apply the model to a supplied dataset
 
-            msg = meta.pop('description', None)
+            msg = meta.pop("description", None)
 
         if msg is not None:
             msg = "\nTo " + dropdot(lower_first_letter(msg))
@@ -684,10 +722,10 @@ def print_commands_suggestions_on_stderr(*commands):
     for cmd in commands:
         print_on_stderr(get_command_suggestion(cmd))
 
-    print_on_stderr('')
+    print_on_stderr("")
 
 
-def print_next_step(current, description=None, scenario=None, model=''):
+def print_next_step(current, description=None, scenario=None, model=""):
     """Print next step suggestions for the command.
 
     Args:
@@ -701,10 +739,10 @@ def print_next_step(current, description=None, scenario=None, model=''):
 
         # Use the order for basic commands
 
-        if 'next' not in COMMANDS[current]:
+        if "next" not in COMMANDS[current]:
             return
 
-        steps = COMMANDS[current]['next']
+        steps = COMMANDS[current]["next"]
 
         if scenario is not None:
             steps = steps[scenario]
@@ -716,10 +754,12 @@ def print_next_step(current, description=None, scenario=None, model=''):
 
         # Use the order in DESCRIPTION.yaml
 
-        avail_cmds = list(description['commands'])
+        avail_cmds = list(description["commands"])
 
         try:
-            next_index = avail_cmds.index(current) + 1 if current != 'commands' else 0
+            next_index = (
+                avail_cmds.index(current) + 1 if current != "commands" else 0
+            )
         except ValueError:
             # The command is not described in DESCRIPTION.yaml, ignore it.
             next_index = len(avail_cmds)
@@ -727,7 +767,9 @@ def print_next_step(current, description=None, scenario=None, model=''):
         if next_index < len(avail_cmds):
             next_cmd = avail_cmds[next_index]
 
-            msg = get_command_suggestion(next_cmd, description=description, model=model)
+            msg = get_command_suggestion(
+                next_cmd, description=description, model=model
+            )
         else:
             msg = "\nThank you for exploring the '{}' package.".format(model)
 
@@ -739,6 +781,7 @@ def print_next_step(current, description=None, scenario=None, model=''):
 # ----------------------------------------------------------------------
 # Dependency
 # ----------------------------------------------------------------------
+
 
 def flatten_mlhubyaml_deps(deps, cats=None, res=None):
     """Flatten the hierarchical structure of dependencies in MLHUB.yaml.
@@ -795,10 +838,12 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
     """
 
     def _dep_split(deps_spec):
-        return [x.strip() for x in deps_spec.split(',')]
+        return [x.strip() for x in deps_spec.split(",")]
 
     def _get_file_target_dict(dep_list):
-        results = {}  # TODO: Change to [] instead of {}, in case that the same file needs to be used twice.
+        results = (
+            {}
+        )  # TODO: Change to [] instead of {}, in case that the same file needs to be used twice.
         for dep in dep_list:
             if isinstance(dep, str):
                 results[dep] = None
@@ -819,31 +864,43 @@ def flatten_mlhubyaml_deps(deps, cats=None, res=None):
     else:
 
         for category in deps:
-            if 'files'.startswith(category):
+            if "files".startswith(category):
                 if isinstance(deps[category], str):
-                    dep_dict = _get_file_target_dict(_dep_split(deps[category]))
+                    dep_dict = _get_file_target_dict(
+                        _dep_split(deps[category])
+                    )
                 else:
                     dep_dict = _get_file_target_dict(deps[category])
-                res.append([['files'], dep_dict])
+                res.append([["files"], dep_dict])
             else:
-                cat_list = [category.lower()] if cats is None else cats + [category.lower()]
+                cat_list = (
+                    [category.lower()]
+                    if cats is None
+                    else cats + [category.lower()]
+                )
                 flatten_mlhubyaml_deps(deps[category], cat_list, res)
 
     return res
 
 
-def install_r_deps(deps, model, source='cran', yes=False):
-    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
+def install_r_deps(deps, model, source="cran", yes=False):
+    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ""
     env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
-    script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'r.R')
-    command = '{}{} {} "{}" "{}"'.format(env_var, RSCRIPT_CMD, script, source, '" "'.join(deps))
+    script = os.path.join(os.path.dirname(__file__), "scripts", "dep", "r.R")
+    command = '{}{} {} "{}" "{}"'.format(
+        env_var, RSCRIPT_CMD, script, source, '" "'.join(deps)
+    )
 
-    proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
+    proc = subprocess.Popen(
+        command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE
+    )
     output, errors = proc.communicate()
     if proc.returncode != 0:
         errors = errors.decode("utf-8")
         command_not_found = re.compile(r"\d: (.*):.*not found").search(errors)
-        pkg_not_found = re.compile(r"there is no package called ‘(.*)’").search(errors)
+        pkg_not_found = re.compile(
+            r"there is no package called ‘(.*)’"
+        ).search(errors)
         if command_not_found is not None:
             raise LackPrerequisiteException(command_not_found.group(1))
 
@@ -853,10 +910,12 @@ def install_r_deps(deps, model, source='cran', yes=False):
         raise ConfigureFailedException(errors)
 
 
-def install_python_deps(deps, model, source='pip', yes=False):
-    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
+def install_python_deps(deps, model, source="pip", yes=False):
+    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ""
     env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
-    script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'python.sh')
+    script = os.path.join(
+        os.path.dirname(__file__), "scripts", "dep", "python.sh"
+    )
     pkg_dir = get_package_dir(model)
 
     # Check python environment
@@ -873,26 +932,40 @@ def install_python_deps(deps, model, source='pip', yes=False):
         first_dep = deps[0]
         if isinstance(deps, list) and not isinstance(first_dep, dict):
             category = "list"
-        elif list(first_dep)[0] == "file":  # For environment specification file, read and store environment name
+        elif (
+            list(first_dep)[0] == "file"
+        ):  # For environment specification file, read and store environment name
             category = "file"
             deps = first_dep[list(first_dep)[0]]
-            with open(os.path.join(pkg_dir, deps), 'r') as file:
-                name = yaml.load(file, Loader=yaml.SafeLoader)['name']
+            with open(os.path.join(pkg_dir, deps), "r") as file:
+                name = yaml.load(file, Loader=yaml.SafeLoader)["name"]
             update_conda_env_name(model, name)
-        elif list(first_dep)[0] == "name":  # For environment name, store for later use
+        elif (
+            list(first_dep)[0] == "name"
+        ):  # For environment name, store for later use
             update_conda_env_name(model, first_dep[list(first_dep)[0]])
             return
 
         command = '{}{} {} "{}" {} {} "{}"'.format(
-            env_var, BASH_CMD, script, pkg_dir, source, category, '" "'.join(deps) if isinstance(deps, list) else deps)
+            env_var,
+            BASH_CMD,
+            script,
+            pkg_dir,
+            source,
+            category,
+            '" "'.join(deps) if isinstance(deps, list) else deps,
+        )
     else:
         if source.startswith("pip"):
             env_var += get_py_pkg_path_env(model)
 
         command = '{}{} {} "{}" {} "{}"'.format(
-            env_var, BASH_CMD, script, pkg_dir, source, '" "'.join(deps))
+            env_var, BASH_CMD, script, pkg_dir, source, '" "'.join(deps)
+        )
 
-    proc = subprocess.Popen(command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE)
+    proc = subprocess.Popen(
+        command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE
+    )
     output, errors = proc.communicate()
     if proc.returncode != 0:
         errors = errors.decode("utf-8")
@@ -904,10 +977,14 @@ def install_python_deps(deps, model, source='pip', yes=False):
 
 
 def install_system_deps(deps, yes=False):
-    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ''
+    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ""
     env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
-    script = os.path.join(os.path.dirname(__file__), 'scripts', 'dep', 'system.sh')
-    command = '{}{} {} "{}"'.format(env_var, BASH_CMD, script, '" "'.join(deps))
+    script = os.path.join(
+        os.path.dirname(__file__), "scripts", "dep", "system.sh"
+    )
+    command = '{}{} {} "{}"'.format(
+        env_var, BASH_CMD, script, '" "'.join(deps)
+    )
 
     proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
     output, errors = proc.communicate()
@@ -1067,7 +1144,9 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
         # elif <location> is a URL, it is a file downloaded during `ml
         # configure`.
 
-        if downloadir is None and (is_url(location) or RepoTypeURL.is_repo_ref(location)):
+        if downloadir is None and (
+            is_url(location) or RepoTypeURL.is_repo_ref(location)
+        ):
 
             # URL for non-package files
             #
@@ -1078,8 +1157,10 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
             # Determine file name, type, real location and path
 
             logger.debug("Download file from URL: {}".format(location))
-            filetype = 'file'  # The type of the item to be download: file, repo, dir
-            path = None        # The path of the item in the repo
+            filetype = (
+                "file"  # The type of the item to be download: file, repo, dir
+            )
+            path = None  # The path of the item in the repo
             foldername = None
 
             if RepoTypeURL.is_repo_ref(location):
@@ -1091,7 +1172,9 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                     maybe_private = True
 
             if not maybe_private:
-                filename = get_url_filename(location)  # The name of the file to be downloaded
+                filename = get_url_filename(
+                    location
+                )  # The name of the file to be downloaded
 
                 if filename is None:
 
@@ -1100,35 +1183,41 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                     #       solution: We give it a random name.  This
                     #       should not occur.
 
-                    filename = 'mlhubtmp-' + str(uuid.uuid4().hex)
+                    filename = "mlhubtmp-" + str(uuid.uuid4().hex)
 
-                is_archive = filetype != 'file' or is_archive_file(filename)
+                is_archive = filetype != "file" or is_archive_file(filename)
 
                 # Determine target: relative path of the file under the
                 # package dir
 
-                if filetype == 'repo':
+                if filetype == "repo":
                     foldername = repo_obj.repo
-                elif filetype == 'dir':
-                    foldername = path.split('/')[-1]
+                elif filetype == "dir":
+                    foldername = path.split("/")[-1]
 
                 if target is None:
-                    if filetype == 'file':  # Use filename if not specified
+                    if filetype == "file":  # Use filename if not specified
                         target = filename
                     else:  # Use repo or dir name if not specified
-                        target = os.path.join(foldername, '')
+                        target = os.path.join(foldername, "")
                 else:
-                    if filetype == 'file':
-                        if target.endswith(os.path.sep) and not is_archive:  # Download into a specified folder
+                    if filetype == "file":
+                        if (
+                            target.endswith(os.path.sep) and not is_archive
+                        ):  # Download into a specified folder
                             target = os.path.join(target, filename)
                     else:
-                        if target.endswith(os.path.sep):  # Unzip repo/dir into a folder with the same name
-                            target = os.path.join(target, foldername, '')
+                        if target.endswith(
+                            os.path.sep
+                        ):  # Unzip repo/dir into a folder with the same name
+                            target = os.path.join(target, foldername, "")
                         else:  # Unzip repo/dir into a folder with a different name
-                            target = os.path.join(target, '')
+                            target = os.path.join(target, "")
 
                 if target.endswith(os.path.sep):  # Expand path
-                    target = os.path.relpath(target) + os.path.sep  # Ensure folder end with '/'
+                    target = (
+                        os.path.relpath(target) + os.path.sep
+                    )  # Ensure folder end with '/'
                 else:
                     target = os.path.relpath(target)
 
@@ -1143,7 +1232,9 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
 
                 archive = cache  # Where the file is archived, the same as cache if no need to unzip
                 if need_unzip:
-                    archive = os.path.join(archive_dir, target, filename)  # unzip file if target is a dir
+                    archive = os.path.join(
+                        archive_dir, target, filename
+                    )  # unzip file if target is a dir
 
                 # Download file
 
@@ -1181,28 +1272,47 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                 dst = os.path.join(pkg_dir, target)
                 symlinks = [(src, dst)]
                 if need_unzip:  # Uncompress archive file
-                    print("      Uncompressing the cached file {} ...".format(archive))
-                    if filetype != 'dir':
-                        _, _, file_list = unpack_with_promote(archive, cache, remove_dst=False)
+                    print(
+                        "      Uncompressing the cached file {} ...".format(
+                            archive
+                        )
+                    )
+                    if filetype != "dir":
+                        _, _, file_list = unpack_with_promote(
+                            archive, cache, remove_dst=False
+                        )
                     else:
                         with tempfile.TemporaryDirectory() as tmpdir:
-                            unpack_with_promote(archive, tmpdir, remove_dst=False)
-                            file_list = merge_folder(os.path.join(tmpdir, path, ''), cache)
+                            unpack_with_promote(
+                                archive, tmpdir, remove_dst=False
+                            )
+                            file_list = merge_folder(
+                                os.path.join(tmpdir, path, ""), cache
+                            )
 
-                    symlinks = [(os.path.join(src, file), os.path.join(dst, file)) for file in file_list]
+                    symlinks = [
+                        (os.path.join(src, file), os.path.join(dst, file))
+                        for file in file_list
+                    ]
 
                 for origin, goal in symlinks:
                     make_symlink(origin, goal)
 
-        if downloadir is not None and not (is_url(location) or RepoTypeURL.is_repo_ref(location)) or maybe_private:
+        if (
+            downloadir is not None
+            and not (is_url(location) or RepoTypeURL.is_repo_ref(location))
+            or maybe_private
+        ):
 
             # Path for package files or private Git repo
             #
             # Move the files from download dir to package dir.
 
             try:
-                goal = os.path.join(pkg_dir, '' if target is None else target)
-                if location.endswith('*'):  # Move all files under <location> to package's root dir
+                goal = os.path.join(pkg_dir, "" if target is None else target)
+                if location.endswith(
+                    "*"
+                ):  # Move all files under <location> to package's root dir
                     origin = os.path.join(downloadir, location[:-2])
                     merge_folder(origin, goal)
                 else:
@@ -1210,20 +1320,35 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                     with tempfile.TemporaryDirectory() as mlhubtmpdir:
 
                         if maybe_private:
-                            identity_env = "GIT_SSH_COMMAND='ssh -i {}' ".format(key) if key else ''
+                            identity_env = (
+                                "GIT_SSH_COMMAND='ssh -i {}' ".format(key)
+                                if key
+                                else ""
+                            )
                             command = "cd {}; {}git clone {}; cd {}; git checkout {}".format(
-                                mlhubtmpdir, identity_env, repo_obj.get_ssh_clone_url(), repo_obj.repo, repo_obj.ref)
-                            proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
+                                mlhubtmpdir,
+                                identity_env,
+                                repo_obj.get_ssh_clone_url(),
+                                repo_obj.repo,
+                                repo_obj.ref,
+                            )
+                            proc = subprocess.Popen(
+                                command, shell=True, stderr=subprocess.PIPE
+                            )
                             output, errors = proc.communicate()
                             if proc.returncode != 0:
-                                raise ConfigureFailedException(errors.decode("utf-8"))
+                                raise ConfigureFailedException(
+                                    errors.decode("utf-8")
+                                )
 
                             origin = os.path.join(mlhubtmpdir, repo_obj.repo)
                             if repo_obj.path:
                                 origin = os.path.join(origin, repo_obj.path)
                         else:
                             origin = os.path.join(downloadir, location)
-                        if os.path.isdir(origin) and not goal.endswith(os.path.sep):
+                        if os.path.isdir(origin) and not goal.endswith(
+                            os.path.sep
+                        ):
                             merge_folder(origin, goal)
                         else:
                             os.makedirs(os.path.dirname(goal), exist_ok=True)
@@ -1236,19 +1361,20 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
 # Source code repo hosting service
 # ----------------------------------------------------------------------
 
+
 class RepoTypeURL(ABC):
 
     REPO_DOMAINS = {
-        "github": ["github.com", "githubusercontent.com", ],
-        "gitlab": ["gitlab.com", ],
-        "bitbucket": ["bitbucket.org", ],
+        "github": ["github.com", "githubusercontent.com",],
+        "gitlab": ["gitlab.com",],
+        "bitbucket": ["bitbucket.org",],
     }
 
     def __init__(self, url, prefix, ssh_host):
         self.url = url  # URL or ref
         self.owner = None
         self.repo = None
-        self.ref = 'master'  # Use master by default.
+        self.ref = "master"  # Use master by default.
         self.path = None
         self.res_type = None
         self.composed_url = None
@@ -1270,21 +1396,30 @@ class RepoTypeURL(ABC):
     def remove_prefix(self):
         url = self.url
         prefix_len = len(self.prefix)
-        if url.lower().startswith(self.prefix):  # Remove prefix 'prefix[@xxx]:'
-            if url[prefix_len] in '@':
-                colon_index = url.index(':')
-                self.ssh_host = url[prefix_len + 1:colon_index]
-                url = url[colon_index + 1:].strip()
-            elif url[prefix_len] in ':':
-                url = url[prefix_len + 1:].strip()
+        if url.lower().startswith(
+            self.prefix
+        ):  # Remove prefix 'prefix[@xxx]:'
+            if url[prefix_len] in "@":
+                colon_index = url.index(":")
+                self.ssh_host = url[prefix_len + 1 : colon_index]
+                url = url[colon_index + 1 :].strip()
+            elif url[prefix_len] in ":":
+                url = url[prefix_len + 1 :].strip()
         return url
 
     @staticmethod
     def get_url_repo_type(url):
         """Determine the repo type (such as GitHub) from a real <url>."""
 
-        domain = '.'.join(url.lower().split('/')[2].split('.')[-2:])
-        repo_type = next((x for x, domain_list in RepoTypeURL.REPO_DOMAINS.items() if domain in domain_list), None)
+        domain = ".".join(url.lower().split("/")[2].split(".")[-2:])
+        repo_type = next(
+            (
+                x
+                for x, domain_list in RepoTypeURL.REPO_DOMAINS.items()
+                if domain in domain_list
+            ),
+            None,
+        )
         return repo_type
 
     @staticmethod
@@ -1304,15 +1439,15 @@ class RepoTypeURL(ABC):
             #     github:mlhubber/mlhub
             #     bitbucket:mlhubber/mlhub
 
-            repo_type = url.lower().split(':')[0].split('@')[0]
-            if '/' in repo_type:
-                repo_type = 'github'
+            repo_type = url.lower().split(":")[0].split("@")[0]
+            if "/" in repo_type:
+                repo_type = "github"
 
         if repo_type == "github":
             return GitHubURL(url, "github", "github.com")
         elif repo_type == "gitlab":
             return GitLabURL(url, "gitlab", "gitlab.com")
-        elif repo_type == 'bitbucket':
+        elif repo_type == "bitbucket":
             return BitbucketURL(url, "bitbucket", "bitbucket.org")
 
         return None
@@ -1331,10 +1466,10 @@ class RepoTypeURL(ABC):
         """Check if <ref> is a reference of a repo.  Only used in MLHUB.yaml to
         indicate a file or dir of a repo."""
 
-        repo_type = ref.lower().split(':')[0]
-        if '/' in repo_type:  # GitHub ref, like mlhubber/mlhub@dev:doc
-            return ':' in ref or '@' in ref or '#' in ref
-        elif repo_type.split('@')[0] in RepoTypeURL.REPO_DOMAINS.keys():
+        repo_type = ref.lower().split(":")[0]
+        if "/" in repo_type:  # GitHub ref, like mlhubber/mlhub@dev:doc
+            return ":" in ref or "@" in ref or "#" in ref
+        elif repo_type.split("@")[0] in RepoTypeURL.REPO_DOMAINS.keys():
             return True  # Explicitly specified repo type
         else:
             return False
@@ -1344,18 +1479,18 @@ class RepoTypeURL(ABC):
 
         # TODO: Add regexp to validate the url.
 
-        ref = 'master'  # Use master by default.
-        path = None     # Path to a specific file, if not, the repo.
+        ref = "master"  # Use master by default.
+        path = None  # Path to a specific file, if not, the repo.
 
-        if ':' in url:  # Get path
-            url, path = url.split(':')
+        if ":" in url:  # Get path
+            url, path = url.split(":")
 
-        owner, repo = url.split('/')
+        owner, repo = url.split("/")
 
-        if '@' in repo:  # Branch or commit: mlhub@dev
-            repo, ref = repo.split('@')
-        elif '#' in repo:  # Pull request: mlhub#15
-            repo, ref = repo.split('#')
+        if "@" in repo:  # Branch or commit: mlhub@dev
+            repo, ref = repo.split("@")
+        elif "#" in repo:  # Pull request: mlhub#15
+            repo, ref = repo.split("#")
 
         return owner, repo, ref, path
 
@@ -1401,41 +1536,48 @@ class GitHubURL(RepoTypeURL):
         #       self.owner, self.repo, self.ref)
 
         return "https://codeload.github.com/{}/{}/zip/{}".format(
-            self.owner, self.repo, self.ref)
+            self.owner, self.repo, self.ref
+        )
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose GitHub URL for the content of a file or a directory."""
 
         if api or self.ref.startswith("pull/"):
             return "https://api.github.com/repos/{}/{}/contents/{}?ref={}".format(
-                self.owner, self.repo, self.path or default, self.ref)
+                self.owner, self.repo, self.path or default, self.ref
+            )
         else:
             return "https://raw.githubusercontent.com/{}/{}/{}/{}".format(
-                self.owner, self.repo, self.ref, self.path or default)
+                self.owner, self.repo, self.ref, self.path or default
+            )
 
     def get_res_type(self):
         """Query if the URL is a file or directory or a repo."""
 
         if self.path is None:
-            self.res_type = 'repo'
+            self.res_type = "repo"
             self.composed_url = self.compose_repo_zip_url()
         else:
             try:
-                res = json.loads(urllib.request.urlopen(self.compose_content_url(api=True)).read())
+                res = json.loads(
+                    urllib.request.urlopen(
+                        self.compose_content_url(api=True)
+                    ).read()
+                )
             except urllib.error.HTTPError:
                 raise ModelPkgDependencyFileNotFoundException(self.url)
 
             if isinstance(res, list):
-                self.res_type = 'dir'
+                self.res_type = "dir"
                 self.composed_url = self.compose_repo_zip_url()
             else:
-                self.res_type = 'file'
+                self.res_type = "file"
                 self.composed_url = self.compose_content_url()
 
         return self.res_type, self.composed_url
 
     def read_raw_file(self):
-        if self.url.lower().split('/')[2] == "api.github.com":
+        if self.url.lower().split("/")[2] == "api.github.com":
             res = json.loads(urllib.request.urlopen(self.url).read())
             return base64.b64decode(res["content"])
         else:
@@ -1458,16 +1600,23 @@ class GitHubURL(RepoTypeURL):
 
         url = self.remove_prefix()
 
-        if not is_url(url):  # Reference such as mlhubber/mlhub@dev:doc/MLHUB.yaml
+        if not is_url(
+            url
+        ):  # Reference such as mlhubber/mlhub@dev:doc/MLHUB.yaml
 
-            self.owner, self.repo, self.ref, self.path = RepoTypeURL.interpret_repo_ref(url)
+            (
+                self.owner,
+                self.repo,
+                self.ref,
+                self.path,
+            ) = RepoTypeURL.interpret_repo_ref(url)
 
-            if '#' in url:
+            if "#" in url:
                 self.ref = "pull/" + self.ref + "/head"
 
         else:  # URL such as https://github.com/mlhubber/mlhub
 
-            seg = url.split('/')[3:]
+            seg = url.split("/")[3:]
             self.owner, self.repo = seg[:2]
 
             seg = seg[2:]
@@ -1476,25 +1625,27 @@ class GitHubURL(RepoTypeURL):
                 self.repo = self.repo[:-4]
 
             if seg:
-                if seg[0] in ['blob', 'commit', 'raw', 'tree']:
+                if seg[0] in ["blob", "commit", "raw", "tree"]:
                     self.ref = seg[1]
-                    self.path = '/'.join(seg[2:]) or None
-                elif seg[0] == 'releases':
+                    self.path = "/".join(seg[2:]) or None
+                elif seg[0] == "releases":
                     self.ref = seg[2]
-                elif seg[0] == 'archive':
+                elif seg[0] == "archive":
                     self.ref = drop_archive_ext(seg[1])
-                elif seg[0] == 'pull':
-                    self.ref = '/'.join(seg[3:]) or \
-                               '/'.join(seg[:2]) + "/head"
+                elif seg[0] == "pull":
+                    self.ref = "/".join(seg[3:]) or "/".join(seg[:2]) + "/head"
                 else:
                     self.ref = seg[0]
-                    self.path = '/'.join(seg[1:])
+                    self.path = "/".join(seg[1:])
 
-        if self.path and self.path.endswith('/'):
+        if self.path and self.path.endswith("/"):
             self.path = self.path[:-1]
 
-        logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
-            self.owner, self.repo, self.ref, self.path))
+        logger.debug(
+            "owner: {}, repo: {}, ref: {}, path: {}".format(
+                self.owner, self.repo, self.ref, self.path
+            )
+        )
 
 
 class GitLabURL(RepoTypeURL):
@@ -1502,7 +1653,8 @@ class GitLabURL(RepoTypeURL):
         """Compose GitLab URL for the repo's zipball."""
 
         return "https://gitlab.com/{owner}/{repo}/-/archive/{ref}/{repo}-{ref}.zip".format(
-            owner=self.owner, repo=self.repo, ref=self.ref)
+            owner=self.owner, repo=self.repo, ref=self.ref
+        )
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose GitLab URL for the content of a file or a directory."""
@@ -1510,37 +1662,49 @@ class GitLabURL(RepoTypeURL):
         if api:
             if not tree:
                 return "https://gitlab.com/api/v4/projects/{}%2F{}/repository/files/{}/raw?ref={}".format(
-                    self.owner, self.repo, urllib.parse.quote(self.path, safe='') if self.path else default, self.ref)
+                    self.owner,
+                    self.repo,
+                    urllib.parse.quote(self.path, safe="")
+                    if self.path
+                    else default,
+                    self.ref,
+                )
             else:
                 return "https://gitlab.com/api/v4/projects/{}%2F{}/repository/tree?path={}&ref={}".format(
-                    self.owner, self.repo, self.path or default, self.ref)
+                    self.owner, self.repo, self.path or default, self.ref
+                )
         else:
             return "https://gitlab.com/{}/{}/raw/{}/{}".format(
-                self.owner, self.repo, self.ref, self.path or default)
+                self.owner, self.repo, self.ref, self.path or default
+            )
 
     def get_res_type(self):
         """Query if location is a file or directory or a repo on GitHub."""
 
         if self.path is None:
-            self.res_type = 'repo'
+            self.res_type = "repo"
             self.composed_url = self.compose_repo_zip_url()
         else:
             try:
                 urllib.request.urlopen(self.compose_content_url(api=True))
             except urllib.error.HTTPError:
                 try:
-                    res = json.loads(urllib.request.urlopen(self.compose_content_url(api=True, tree=True)).read())
+                    res = json.loads(
+                        urllib.request.urlopen(
+                            self.compose_content_url(api=True, tree=True)
+                        ).read()
+                    )
                 except urllib.error.HTTPError:
                     raise ModelPkgDependencyFileNotFoundException(self.url)
 
                 if not isinstance(res, list):
                     raise ModelPkgDependencyFileTypeUnknownException(self.url)
 
-                self.res_type = 'dir'
+                self.res_type = "dir"
                 self.composed_url = self.compose_repo_zip_url()
 
         if not self.res_type:
-            self.res_type = 'file'
+            self.res_type = "file"
             self.composed_url = self.compose_content_url()
 
         return self.res_type, self.composed_url
@@ -1565,14 +1729,19 @@ class GitLabURL(RepoTypeURL):
 
         if not is_url(url):  # Reference
 
-            self.owner, self.repo, self.ref, self.path = RepoTypeURL.interpret_repo_ref(url)
+            (
+                self.owner,
+                self.repo,
+                self.ref,
+                self.path,
+            ) = RepoTypeURL.interpret_repo_ref(url)
 
-            if '#' in url:
+            if "#" in url:
                 self.ref = "merge_requests/" + self.ref + "/head"
 
         else:  # URL
 
-            seg = url.split('/')[3:]
+            seg = url.split("/")[3:]
             self.owner, self.repo = seg[:2]
 
             seg = seg[2:]
@@ -1581,20 +1750,25 @@ class GitLabURL(RepoTypeURL):
                 self.repo = self.repo[:-4]
 
             if seg:
-                if seg[0] in ['blob', 'commit', 'raw', 'tree']:
+                if seg[0] in ["blob", "commit", "raw", "tree"]:
                     self.ref = seg[1]
-                    self.path = '/'.join(seg[2:]).split('?')[0] or None
-                elif seg[0] == '-' and seg[1] == 'archive':
+                    self.path = "/".join(seg[2:]).split("?")[0] or None
+                elif seg[0] == "-" and seg[1] == "archive":
                     self.ref = seg[2]
-                elif seg[0] == 'merge_requests':
-                    self.ref = '/'.join('/'.join(seg[2:]).split('=')[1:]) or \
-                               '/'.join(seg[:2]) + "/head"
+                elif seg[0] == "merge_requests":
+                    self.ref = (
+                        "/".join("/".join(seg[2:]).split("=")[1:])
+                        or "/".join(seg[:2]) + "/head"
+                    )
 
-        if self.path and self.path.endswith('/'):
+        if self.path and self.path.endswith("/"):
             self.path = self.path[:-1]
 
-        logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
-            self.owner, self.repo, self.ref, self.path))
+        logger.debug(
+            "owner: {}, repo: {}, ref: {}, path: {}".format(
+                self.owner, self.repo, self.ref, self.path
+            )
+        )
 
 
 class BitbucketURL(RepoTypeURL):
@@ -1602,36 +1776,41 @@ class BitbucketURL(RepoTypeURL):
         """Compose Bitbucket URL for the repo's zipball."""
 
         return "https://bitbucket.org/{}/{}/get/{}.zip".format(
-            self.owner, self.repo, self.ref)
+            self.owner, self.repo, self.ref
+        )
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose Bitbuckt URL for the content of a file or a directory."""
 
         if api:
             return "https://api.bitbucket.org/2.0/repositories/{}/{}/src/{}/{}?format=meta".format(
-                self.owner, self.repo, self.ref, self.path or default)
+                self.owner, self.repo, self.ref, self.path or default
+            )
         else:
             return "https://bitbucket.org/{}/{}/raw/{}/{}".format(
-                self.owner, self.repo, self.ref, self.path or default)
+                self.owner, self.repo, self.ref, self.path or default
+            )
 
     def get_res_type(self):
         if self.path is None:
-            self.res_type = 'repo'
+            self.res_type = "repo"
             self.composed_url = self.compose_repo_zip_url()
         else:
-            self.res_type = 'file'
+            self.res_type = "file"
             self.composed_url = self.compose_content_url(api=True)
 
             try:
-                res = json.loads(urllib.request.urlopen(self.composed_url).read())
+                res = json.loads(
+                    urllib.request.urlopen(self.composed_url).read()
+                )
             except urllib.error.HTTPError:
                 raise ModelPkgDependencyFileNotFoundException(self.url)
 
-            if res['type'] == 'commit_file':
-                self.res_type = 'file'
+            if res["type"] == "commit_file":
+                self.res_type = "file"
                 self.composed_url = self.compose_content_url()
-            elif res['type'] == 'commit_directory':
-                self.res_type = 'dir'
+            elif res["type"] == "commit_directory":
+                self.res_type = "dir"
                 self.composed_url = self.compose_repo_zip_url()
 
         return self.res_type, self.composed_url
@@ -1656,14 +1835,19 @@ class BitbucketURL(RepoTypeURL):
 
         if not is_url(url):  # Reference
 
-            self.owner, self.repo, self.ref, self.path = RepoTypeURL.interpret_repo_ref(url)
+            (
+                self.owner,
+                self.repo,
+                self.ref,
+                self.path,
+            ) = RepoTypeURL.interpret_repo_ref(url)
 
-            if '#' in url:
+            if "#" in url:
                 self.ref = "pull-requests/" + self.ref + "/head"
 
         else:  # URL
 
-            seg = url.split('/')[3:]
+            seg = url.split("/")[3:]
             self.owner, self.repo = seg[:2]
 
             seg = seg[2:]
@@ -1672,19 +1856,22 @@ class BitbucketURL(RepoTypeURL):
                 self.repo = self.repo[:-4]
 
             if seg:
-                if seg[0] in ['branch', 'commits', 'raw', 'src']:
-                    self.ref = seg[1].split('?')[0]
-                    self.path = '/'.join(seg[2:]) or None
-                elif seg[0] == 'get':
+                if seg[0] in ["branch", "commits", "raw", "src"]:
+                    self.ref = seg[1].split("?")[0]
+                    self.path = "/".join(seg[2:]) or None
+                elif seg[0] == "get":
                     self.ref = drop_archive_ext(seg[1])
-                elif seg[0] == 'pull-requests':
-                    self.ref = '/'.join(seg[:2]) + "/head"
+                elif seg[0] == "pull-requests":
+                    self.ref = "/".join(seg[:2]) + "/head"
 
-            if self.path and self.path.endswith('/'):
+            if self.path and self.path.endswith("/"):
                 self.path = self.path[:-1]
 
-            logger.debug("owner: {}, repo: {}, ref: {}, path: {}".format(
-                self.owner, self.repo, self.ref, self.path))
+            logger.debug(
+                "owner: {}, repo: {}, ref: {}, path: {}".format(
+                    self.owner, self.repo, self.ref, self.path
+                )
+            )
 
 
 def read_repo_raw_file(name):
@@ -1704,6 +1891,7 @@ def read_repo_raw_file(name):
 # Model package developer utilities
 # ----------------------------------------------------------------------
 
+
 def get_init_dir():
     """Return the path of MLHUB system folder."""
 
@@ -1716,8 +1904,9 @@ def create_init():
     init = get_init_dir()
     return _create_dir(
         init,
-        'MLINIT creation failed: {}'.format(init),
-        MLInitCreateException(init))
+        "MLINIT creation failed: {}".format(init),
+        MLInitCreateException(init),
+    )
 
 
 def get_package_name():
@@ -1726,7 +1915,7 @@ def get_package_name():
     It is used by model pkg developer.
     """
 
-    return os.environ.get('_MLHUB_MODEL_NAME', '')
+    return os.environ.get("_MLHUB_MODEL_NAME", "")
 
 
 def get_cmd_cwd():
@@ -1740,13 +1929,15 @@ def get_cmd_cwd():
     mlhub.utils.dispatch() when invoke model pkg script.
     """
 
-    return os.environ.get('_MLHUB_CMD_CWD', '')
+    return os.environ.get("_MLHUB_CMD_CWD", "")
 
 
 def get_package_dir(model=None):
     """Return the dir where the model package should be installed."""
 
-    return os.path.join(get_init_dir(), get_package_name() if model is None else model)
+    return os.path.join(
+        get_init_dir(), get_package_name() if model is None else model
+    )
 
 
 def create_package_dir(model=None):
@@ -1757,15 +1948,18 @@ create it and return."""
 
     return _create_dir(
         path,
-        'Model package dir creation failed: {}'.format(path),
-        ModelPkgDirCreateException(path))
+        "Model package dir creation failed: {}".format(path),
+        ModelPkgDirCreateException(path),
+    )
 
 
 def get_package_cache_dir(model=None):
     """Return the dir where the model package stores cached files, such as
 pre-built model, data, image files, etc."""
 
-    return os.path.join(CACHE_DIR, get_package_name() if model is None else model)
+    return os.path.join(
+        CACHE_DIR, get_package_name() if model is None else model
+    )
 
 
 def create_package_cache_dir(model=None):
@@ -1776,15 +1970,18 @@ If not create it and return."""
 
     return _create_dir(
         path,
-        'Model package cache dir creation failed: {}'.format(path),
-        ModelPkgCacheDirCreateException(path))
+        "Model package cache dir creation failed: {}".format(path),
+        ModelPkgCacheDirCreateException(path),
+    )
 
 
 def get_package_archive_dir(model=None):
     """Return the dir where the model package stores cached archived
 files."""
 
-    return os.path.join(ARCHIVE_DIR, get_package_name() if model is None else model)
+    return os.path.join(
+        ARCHIVE_DIR, get_package_name() if model is None else model
+    )
 
 
 def create_package_archive_dir(model=None):
@@ -1795,14 +1992,17 @@ archived files, If not create it and return."""
 
     return _create_dir(
         path,
-        'Model package archive dir creation failed: {}'.format(path),
-        ModelPkgArchiveDirCreateException(path))
+        "Model package archive dir creation failed: {}".format(path),
+        ModelPkgArchiveDirCreateException(path),
+    )
 
 
 def get_package_config_dir(model=None):
     """Return the dir where config files for the model pkg are stored."""
 
-    return os.path.join(CONFIG_DIR, get_package_name() if model is None else model)
+    return os.path.join(
+        CONFIG_DIR, get_package_name() if model is None else model
+    )
 
 
 def create_package_config_dir(model=None):
@@ -1813,8 +2013,9 @@ stored, If not create it and return."""
 
     return _create_dir(
         path,
-        'Config dir creation failed: {}'.format(path),
-        ModelPkgConfigDirCreateException(path))
+        "Config dir creation failed: {}".format(path),
+        ModelPkgConfigDirCreateException(path),
+    )
 
 
 def get_package_config_file(model=None):
@@ -1824,7 +2025,9 @@ config file path."""
     return os.path.join(create_package_config_dir(model), CONFIG_FILE)
 
 
-def gen_packages_yaml(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'):
+def gen_packages_yaml(
+    mlmodelsyaml="MLMODELS.yaml", packagesyaml="Packages.yaml"
+):
     """Generate Packages.yaml, the curated list of model packages, by just
 concatenate all MLHUB.yaml.  By default, it will generate
 Packages.yaml in current working dir.
@@ -1839,7 +2042,7 @@ Packages.yaml in current working dir.
     model_list.sort()
     failed_models = []
 
-    with open(packagesyaml, 'w') as file:
+    with open(packagesyaml, "w") as file:
         for model in model_list:
 
             # Write yaml entry separator
@@ -1850,8 +2053,14 @@ Packages.yaml in current working dir.
 
             try:
                 location = entry[model]
-                mlhubyaml = RepoTypeURL.get_repo_obj(location).get_pkg_yaml_url()
-                print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
+                mlhubyaml = RepoTypeURL.get_repo_obj(
+                    location
+                ).get_pkg_yaml_url()
+                print(
+                    "Reading {}'s MLHUB.yaml file from {} ...".format(
+                        model, mlhubyaml
+                    )
+                )
                 content = read_repo_raw_file(mlhubyaml).decode()
             except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
                 failed_models.append(model)
@@ -1862,17 +2071,23 @@ Packages.yaml in current working dir.
                 # Remove yaml entry separator in model's MLHUB.yaml to
                 # avoid duplication
 
-                if line.startswith('---') or line.startswith('...'):
+                if line.startswith("---") or line.startswith("..."):
                     continue
 
                 file.write(line)
-                file.write('\n')
+                file.write("\n")
 
     if len(failed_models) != 0:
-        print("Failed to curate list for models:\n    {}".format(', '.join(failed_models)))
+        print(
+            "Failed to curate list for models:\n    {}".format(
+                ", ".join(failed_models)
+            )
+        )
 
 
-def gen_packages_yaml2(mlmodelsyaml='MLMODELS.yaml', packagesyaml='Packages.yaml'):
+def gen_packages_yaml2(
+    mlmodelsyaml="MLMODELS.yaml", packagesyaml="Packages.yaml"
+):
     """Generate Packages.yaml, the curated list of model packages, using
 yaml to ensure correct format.  By default, it will generate
 Packages.yaml in current working dir.
@@ -1895,8 +2110,14 @@ Packages.yaml in current working dir.
 
             try:
                 location = meta[model]
-                mlhubyaml = RepoTypeURL.get_repo_obj(location).get_pkg_yaml_url()
-                print("Reading {}'s MLHUB.yaml file from {} ...".format(model, mlhubyaml))
+                mlhubyaml = RepoTypeURL.get_repo_obj(
+                    location
+                ).get_pkg_yaml_url()
+                print(
+                    "Reading {}'s MLHUB.yaml file from {} ...".format(
+                        model, mlhubyaml
+                    )
+                )
                 content = read_repo_raw_file(mlhubyaml).decode()
             except (urllib.error.HTTPError, DescriptionYAMLNotFoundException):
                 failed_models.append(model)
@@ -1913,7 +2134,11 @@ Packages.yaml in current working dir.
         yaml.dump_all(entry_list, file)
 
     if len(failed_models) != 0:
-        print("Failed to curate list for models:\n    {}".format(', '.join(failed_models)))
+        print(
+            "Failed to curate list for models:\n    {}".format(
+                ", ".join(failed_models)
+            )
+        )
 
 
 def update_config(model, entry):
@@ -1922,12 +2147,12 @@ def update_config(model, entry):
     config_file = get_package_config_file(model)
 
     if os.path.exists(config_file):
-        with open(config_file, 'r') as file:
+        with open(config_file, "r") as file:
             old_entry = yaml.load(file, Loader=yaml.SafeLoader)
             old_entry.update(entry)
             entry = old_entry
 
-    with open(config_file, 'w') as file:
+    with open(config_file, "w") as file:
         yaml.dump(entry, file, default_flow_style=False)
 
 
@@ -1953,7 +2178,7 @@ def get_config(model, name):
 
     config_file = get_package_config_file(model)
     if os.path.exists(config_file):
-        with open(config_file, 'r') as file:
+        with open(config_file, "r") as file:
             entry = yaml.load(file, Loader=yaml.SafeLoader)
         if name in entry:
             return entry[name]
@@ -1963,7 +2188,7 @@ def get_config(model, name):
 
 def get_working_dir(model):
     working_dir = get_config(model, WORKING_DIR)
-    if working_dir == '':
+    if working_dir == "":
         working_dir = None
 
     return working_dir
@@ -1978,9 +2203,9 @@ def get_sys_python_pkg_usage(model):
 
 
 def get_py_pkg_path_env(model):
-    python_pkg_base = os.path.sep.join([get_package_dir(model), '.python'])
+    python_pkg_base = os.path.sep.join([get_package_dir(model), ".python"])
     python_pkg_path = python_pkg_base + site.USER_SITE
-    python_pkg_bin = python_pkg_base + site.USER_BASE + '/bin'
+    python_pkg_bin = python_pkg_base + site.USER_BASE + "/bin"
 
     # TODO: Make sure to document:
     #     $ sudo apt-get install -y python3-pip
@@ -1991,24 +2216,28 @@ def get_py_pkg_path_env(model):
 
     if sys.executable != SYS_PYTHON_CMD:
         python_pkg_path = python_pkg_base + site.getsitepackages()[0]
-        python_pkg_bin = python_pkg_base + site.PREFIXES[0] + '/bin'
+        python_pkg_bin = python_pkg_base + site.PREFIXES[0] + "/bin"
         if get_sys_python_pkg_usage(model):
             print_on_stderr(MSG_INCOMPATIBLE_PYTHON_ENV, model)
 
-    return "export PATH=\"{}:$PATH\"; export PYTHONPATH='{}'; ".format(python_pkg_bin, python_pkg_path)
+    return "export PATH=\"{}:$PATH\"; export PYTHONPATH='{}'; ".format(
+        python_pkg_bin, python_pkg_path
+    )
 
 
 # ----------------------------------------------------------------------
 # Bash completion helper
 # ----------------------------------------------------------------------
 
+
 def create_completion_dir():
     """Check if the init dir exists and if not then create it."""
 
     return _create_dir(
         COMPLETION_DIR,
-        'Bash completion dir creation failed: {}'.format(COMPLETION_DIR),
-        CompletionDirCreateException(COMPLETION_DIR))
+        "Bash completion dir creation failed: {}".format(COMPLETION_DIR),
+        CompletionDirCreateException(COMPLETION_DIR),
+    )
 
 
 def update_completion_list(completion_file, new_words):
@@ -2019,24 +2248,24 @@ def update_completion_list(completion_file, new_words):
     """
 
     logger = logging.getLogger(__name__)
-    logger.info('Update bash completion cache.')
-    logger.debug('Completion file: {}'.format(completion_file))
-    logger.debug('New completion words: {}'.format(new_words))
+    logger.info("Update bash completion cache.")
+    logger.debug("Completion file: {}".format(completion_file))
+    logger.debug("New completion words: {}".format(new_words))
 
     create_completion_dir()
 
     if os.path.exists(completion_file):
-        with open(completion_file, 'r') as file:
+        with open(completion_file, "r") as file:
             old_words = {line.strip() for line in file if line.strip()}
-            logger.debug('Old Completion words: {}'.format(old_words))
+            logger.debug("Old Completion words: {}".format(old_words))
 
         words = old_words | new_words
     else:
         words = new_words
 
-    logger.debug('All completion words: {}'.format(words))
-    with open(completion_file, 'w') as file:
-        file.write('\n'.join(words))
+    logger.debug("All completion words: {}".format(words))
+    with open(completion_file, "w") as file:
+        file.write("\n".join(words))
 
 
 def update_model_completion(new_words):
@@ -2080,10 +2309,13 @@ def get_model_completion_list():
 # Fuzzy match helper
 # -----------------------------------------------------------------------
 
+
 def find_best_match(misspelled, candidates):
     """Find the best matched word with <misspelled> in <candidates>."""
 
-    best_match = fuzzprocess.extract(misspelled, candidates, scorer=fuzz.ratio)[0]
+    best_match = fuzzprocess.extract(
+        misspelled, candidates, scorer=fuzz.ratio
+    )[0]
     matched = best_match[0]
     score = best_match[1]
 
@@ -2100,7 +2332,12 @@ def get_misspelled_command(command, available_commands):
 
     matched, score = find_best_match(command, available_commands)
     if is_misspelled(score):
-        yes = yes_or_no("The command '{}' is not supported.  Did you mean '{}'", command, matched, yes=True)
+        yes = yes_or_no(
+            "The command '{}' is not supported.  Did you mean '{}'",
+            command,
+            matched,
+            yes=True,
+        )
         if yes:
             print()
             return matched
@@ -2114,7 +2351,12 @@ def get_misspelled_pkg(model):
     if len(model_completion_list) != 0:
         matched, score = find_best_match(model, model_completion_list)
         if is_misspelled(score):
-            yes = yes_or_no("The model '{}' was not found.  Did you mean '{}'", model, matched, yes=True)
+            yes = yes_or_no(
+                "The model '{}' was not found.  Did you mean '{}'",
+                model,
+                matched,
+                yes=True,
+            )
             if yes:
                 print()
                 return matched
@@ -2125,6 +2367,7 @@ def get_misspelled_pkg(model):
 # -----------------------------------------------------------------------
 # Command line argument parse helper
 # -----------------------------------------------------------------------
+
 
 class SubCmdAdder(object):
     """Add the subcommands described in <commands> into <subparsers> with
@@ -2146,21 +2389,25 @@ corresponding functions defined in <module>."""
         """Add <subcommand> to subparsers."""
 
         cmd_meta = self.commands[subcommand]
-        self.logger.debug("Add command line positioanl argument: {} - {}".format(subcommand, cmd_meta))
+        self.logger.debug(
+            "Add command line positioanl argument: {} - {}".format(
+                subcommand, cmd_meta
+            )
+        )
 
         parser = self.subparsers.add_parser(
             subcommand,
-            aliases=cmd_meta.get('alias', ()),
-            description=cmd_meta['description'],
+            aliases=cmd_meta.get("alias", ()),
+            description=cmd_meta["description"],
         )
 
-        if 'argument' in cmd_meta:
-            args = cmd_meta['argument']
+        if "argument" in cmd_meta:
+            args = cmd_meta["argument"]
             for name in args:
                 parser.add_argument(name, **args[name])
 
-        if 'func' in cmd_meta:
-            parser.set_defaults(func=getattr(self.module, cmd_meta['func']))
+        if "func" in cmd_meta:
+            parser.set_defaults(func=getattr(self.module, cmd_meta["func"]))
 
     def add_allsubcmds(self):
         """Add all subcommands described in <self.commands> into
@@ -2180,11 +2427,17 @@ class OptionAdder(object):
 
     def add_option(self, option):
         opt = self.options[option]
-        opt_alias = [option, ]
-        if 'alias' in opt:
-            opt_alias += opt['alias']
-            del opt['alias']
-        self.logger.debug("Add command line optional argument: {} - {}".format(opt_alias, opt))
+        opt_alias = [
+            option,
+        ]
+        if "alias" in opt:
+            opt_alias += opt["alias"]
+            del opt["alias"]
+        self.logger.debug(
+            "Add command line optional argument: {} - {}".format(
+                opt_alias, opt
+            )
+        )
         self.parser.add_argument(*opt_alias, **opt)
 
     def add_alloptions(self):
@@ -2196,13 +2449,15 @@ class OptionAdder(object):
 # Debug Log and Error Printing
 # ----------------------------------------------------------------------
 
+
 def create_log_dir():
     """Check if the log dir exists and if not then create it."""
 
     return _create_dir(
         LOG_DIR,
-        'Log dir creation failed: {}'.format(LOG_DIR),
-        LogDirCreateException(LOG_DIR))
+        "Log dir creation failed: {}".format(LOG_DIR),
+        LogDirCreateException(LOG_DIR),
+    )
 
 
 def add_log_handler(logger, handler, level, fmt):
@@ -2244,6 +2499,7 @@ def print_error_exit(msg, *param, exitcode=1):
 # Misc
 # ----------------------------------------------------------------------
 
+
 def configure(path, script, quiet):
     """Run the provided configure scripts and handle errors and output."""
 
@@ -2251,7 +2507,7 @@ def configure(path, script, quiet):
 
     # For now only tested/working with Ubuntu
 
-    if distro.id() in ['debian', 'ubuntu']:
+    if distro.id() in ["debian", "ubuntu"]:
         conf = os.path.join(path, script)
         if os.path.exists(conf):
             interp = interpreter(script)
@@ -2259,10 +2515,13 @@ def configure(path, script, quiet):
                 msg = "\nConfiguring using '{}'...\n".format(conf)
                 print(msg)
             cmd = "export _MLHUB_CMD_CWD='{}'; export _MLHUB_MODEL_NAME='{}'; {} {}".format(
-                os.getcwd(), os.path.basename(path), interp, script)
+                os.getcwd(), os.path.basename(path), interp, script
+            )
             logger = logging.getLogger(__name__)
             logger.debug("(cd " + path + "; " + cmd + ")")
-            proc = subprocess.Popen(cmd, shell=True, cwd=path, stderr=subprocess.PIPE)
+            proc = subprocess.Popen(
+                cmd, shell=True, cwd=path, stderr=subprocess.PIPE
+            )
             output, errors = proc.communicate()
             if proc.returncode != 0:
                 raise ConfigureFailedException(errors.decode("utf-8"))
@@ -2296,15 +2555,15 @@ def yes_or_no(msg, *params, yes=True):
         yes (bool): Indicates whether the default answer is yes or no.
     """
 
-    print(msg.format(*params) + (' [Y/n]?' if yes else ' [y/N]?'), end=' ')
+    print(msg.format(*params) + (" [Y/n]?" if yes else " [y/N]?"), end=" ")
     choice = input().lower()
 
     answer = True if yes else False
 
-    if yes and choice == 'n':
+    if yes and choice == "n":
         answer = False
 
-    if not yes and choice == 'y':
+    if not yes and choice == "y":
         answer = True
 
     return answer
@@ -2313,6 +2572,7 @@ def yes_or_no(msg, *params, yes=True):
 # ----------------------------------------------------------------------
 # Custom Exceptions
 # ----------------------------------------------------------------------
+
 
 class ModelURLAccessException(Exception):
     pass
