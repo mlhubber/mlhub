@@ -39,10 +39,11 @@ The command line interface can be installed using
     $ pip3 install mlhub
 
 Once installed you will be able to run the sample \'rain\' model
-assuming that you have the free and open source [R statistical software
-package](https://cran.r-project.org) installed. The TL;DR version is
-below. Note that you type the command `ml ...` and that everything from
-the `#` to the end of the line is ignored (it\'s a comment):
+assuming that you have the free and open source [R statistical
+software package](https://cran.r-project.org) installed. The quick
+start version is below. Note that you type the command `ml ...` and
+that everything from the `#` to the end of the line is ignored (it\'s
+a comment):
 
     $ ml install   rain # Install the model named 'rain'.
     $ ml demo      rain # Run the demonstration of the model
