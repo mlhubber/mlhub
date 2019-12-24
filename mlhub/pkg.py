@@ -37,6 +37,7 @@ import tty
 import subprocess
 import re
 
+
 # ----------------------------------------------------------------------
 # Support Package Developers
 # ----------------------------------------------------------------------
@@ -67,6 +68,7 @@ def load_key(path):
     return key, endpoint
 
 # Either load key/endpoint from file or ask user and save to file.
+
 
 def azkey(key_file, service="Cognitive Services", verbose=True, baseurl=False):
     """The user is asked for an Azure subscription key and endpoint. The
@@ -108,7 +110,7 @@ That information has been saved into the file:
 """.format(key_file)
 
     # Obtain the key/endpoint.
-    
+
     if os.path.isfile(key_file) and os.path.getsize(key_file) > 0:
         if verbose: print(msg_found, file=sys.stderr)
         key, endpoint = load_key(key_file)
@@ -133,11 +135,12 @@ That information has been saved into the file:
 
     # Ensure endpoint ends in /
 
-    if endpoint[len(endpoint)-1] != "/": endpoint = endpoint + "/"
+    if endpoint[len(endpoint) - 1] != "/": endpoint = endpoint + "/"
         
     return key, endpoint
 
 # Simple input of password.
+
 
 def ask_password(prompt=None):
     """Echo '*' for every input character. Only implements the basic I/O
@@ -203,15 +206,18 @@ def azrequest(endpoint, url, subscription_key, request_data):
         print(response.status_code)
         raise Exception(response.text)
 
+
 def mlask(begin="", end=""):
     sys.stdout.write(begin + "Press Enter to continue: ")
     answer = input()
     sys.stdout.write(end)
 
+
 def mlcat(title="", text="", delim="=", begin="", end="\n"):
     sep = delim*len(title) + "\n" if len(title) > 0 else ""
     ttl_sep = "\n" if len(title) > 0 else ""
     print(begin + sep + title + ttl_sep + sep + ttl_sep + text, end=end)
+
 
 def mlpreview(fname,
               begin="\n",
@@ -221,6 +227,7 @@ def mlpreview(fname,
     subprocess.Popen([previewer, fname])
 
 # From Simon Zhao's azface package on github.
+
 
 def is_url(url):
     """Check if url is a valid URL."""
@@ -237,4 +244,3 @@ def is_url(url):
         return True
     else:
         return False
-
