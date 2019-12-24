@@ -38,11 +38,11 @@ The command line interface can be installed using
 
     $ pip3 install mlhub
 
-Once installed you will be able to run the sample \'rain\' model
+Once installed you will be able to run the sample 'rain' model
 assuming that you have the free and open source [R statistical
 software package](https://cran.r-project.org) installed. The quick
 start version is below. Note that you type the command `ml ...` and
-that everything from the `#` to the end of the line is ignored (it\'s
+that everything from the `#` to the end of the line is ignored (it's
 a comment):
 
     $ ml install   rain # Install the model named 'rain'.
@@ -152,19 +152,19 @@ Alternative Install
 
 A tar.gz containing the mlhub package and the command line interface is
 available as
-[mlhub_3.5.5.tar.gz](https://mlhub.ai/dist/mlhub_3.5.5.tar.gz) within
+[mlhub_3.5.6.tar.gz](https://mlhub.ai/dist/mlhub_3.5.6.tar.gz) within
 the [distribution folder](https://mlhub.ai/dist/) of the MLHub.
 
 To install from the tar.gz file:
 
-    $ wget https://mlhub.ai/dist/mlhub_3.5.5.tar.gz
-    $ pip install mlhub_3.5.5.tar.gz
+    $ wget https://mlhub.ai/dist/mlhub_3.5.6.tar.gz
+    $ pip install mlhub_3.5.6.tar.gz
     $ ml
 
 Or extract the above downloaded .tar.gz and install:
 
-    $ wget https://mlhub.ai/dist/mlhub_3.5.5.tar.gz
-    $ tar xvf mlhub_3.5.5.tar.gz
+    $ wget https://mlhub.ai/dist/mlhub_3.5.6.tar.gz
+    $ tar xvf mlhub_3.5.6.tar.gz
     $ cd mlhub
     $ python3 setup.py install --user
 
