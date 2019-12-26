@@ -11,13 +11,13 @@ APP=mlhub
 #   Minor update
 #   Bug fix
 
-VER=3.5.6
+VER=3.5.7
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
 
 SOURCE = setup.py			\
-	 README.md			\
+	 docs/README.md			\
 	 setup.cfg			\
 	 MANIFEST.in			\
 	 LICENSE			\
@@ -88,7 +88,7 @@ mlhub: version $(TAR_GZ) $(BASH_COMPLETION)
 version:
 	perl -pi -e "s|^    version='.*'|    version='$(VER)'|" setup.py 
 	perl -pi -e 's|^VERSION = ".*"|VERSION = "$(VER)"|' mlhub/constants.py
-	perl -pi -e 's|$(APP)_\d+.\d+.\d+|$(APP)_$(VER)|g' README.md
+	perl -pi -e 's|$(APP)_\d+.\d+.\d+|$(APP)_$(VER)|g' docs/README.md
 
 .PHONY: worthy
 worthy:
@@ -110,7 +110,7 @@ favicon.install: favicon.ico
 	ssh togaware.com chmod a+r webapps/mlhub2/$^
 
 .PHONY: pypi
-pypi: README.md version $(TAR_GZ)
+pypi: docs/README.md version $(TAR_GZ)
 	twine upload $(TAR_GZ)
 
 .PHONY: pypi.test
@@ -126,7 +126,7 @@ dl03: dist
 
 .PHONY: clean
 clean:
-	rm -f README.html
+	rm -f docs/README.html
 
 realclean:: clean
 	rm -f mlhub_*.tar.gz favicon.ico logo-mlhub.png
