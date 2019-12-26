@@ -1,5 +1,5 @@
 include mlhub/bash_completion.d/ml.bash
-include README.md
+include docs/README.md
 include LICENSE
 include mlhub/scripts/dep/python.sh
 include mlhub/scripts/dep/r.R
