@@ -427,6 +427,8 @@ def install_model(args):
                 )
 
             if not yes:
+                # Suggest next step before exiting, as if an install has just happened.
+                utils.print_next_step("install", model=model)
                 sys.exit(0)
             else:
                 print()
