@@ -536,7 +536,7 @@ def install_model(args):
 
             print(
                 "Found '{}' version {}.\n\nInstalled '{}' into '{}' ({:,} bytes).".format(
-                    model, version, model install_path, utils.dir_size(install_path)
+                    model, version, model, install_path, utils.dir_size(install_path)
                 )
             )
 
