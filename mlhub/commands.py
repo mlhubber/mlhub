@@ -533,8 +533,8 @@ def install_model(args):
             # Informative message about the size of the installed model.
 
             print(
-                "Installed '{}' into '{}' ({:,} bytes).".format(
-                    model, install_path, utils.dir_size(install_path)
+                "Installed '{}' version {} into '{}' ({:,} bytes).".format(
+                    model, version, install_path, utils.dir_size(install_path)
                 )
             )
 
