@@ -1132,6 +1132,14 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
     logger.info("Install file dependencies.")
     logger.debug("deps: {}".format(deps))
 
+    # Avoid 403 errors which result when the header identifies itself
+    # as python urllib and thus the web site assumes it is a robot. We
+    # are not a robot but a user downloading a file.
+    
+    opener = urllib.request.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+    urllib.request.install_opener(opener)
+
     if downloadir is None:
         print("\n*** Downloading required files ...")
 
