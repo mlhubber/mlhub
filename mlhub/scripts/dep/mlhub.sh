@@ -14,6 +14,7 @@ PREREQUISITES="
   eog
   atril
   git
+  python3-wxgtk4.0
 "
 
 R_DEVTOOLS_DEPS='
