@@ -11,7 +11,7 @@ PREREQUISITES="
   ${R_DEVTOOLS_SYS_PKG}
   libxml2-dev
   pandoc
-  eom
+  eog
   atril
   git
 "
