@@ -5,16 +5,18 @@ The Machine Learning Hub
 [![PyPi version](https://img.shields.io/pypi/v/mlhub.svg)](https://mlhub.ai)
 [![PyPi downloads](https://pypip.in/d/mlhub/badge.png)](https://mlhub.ai)
 
-A *Command Line* platform for presenting and utilising Machine
-Learning, Artificial Intelligence, and Data Science capabilities.
+A *Command Line* framework and platform for presenting and utilising
+Machine Learning, Artificial Intelligence, and Data Science
+capabilities.
 
 Introduction
 ------------
 
-The [machine learning hub](https://mlhub.ai) is an open source project
-hosted on [github](https://github.com/mlhubber/mlhub) aimed at easily
-sharing [pre-built machine learning
-models](https://github.com/mlhubber/mlmodels) that may be found on
+The [machine learning hub](https://mlhub.ai) is a free and open source
+project hosted on [github](https://github.com/mlhubber/mlhub) aimed at
+easily sharing [machine learning, artificial intelligence, and data
+science models and technologies](https://github.com/mlhubber/mlmodels). The
+source code for such models will be found on
 [github](https://github.com), [gitlab](https://gitlab.com), or
 [bitbucket](https://bitbucket.org). The models are installed and
 managed using the *ml* command from the *mlhub* package designed to
@@ -22,13 +24,15 @@ install the model and run a demonstration within 5 minutes, as well as
 providing a suite of useful command line tools based on the pre-built
 models. Each model has been tested on Ubuntu (GNU/Linux).
 
-A number of demonstration models have been packages and are listed in
+A number of demonstration models have been packaged and are listed in
 the [repository index](https://mlhub.ai/Packages.html) on
 [mlhub.ai](https://mlhub.ai/) where the models themselves can be
 browsed.
 
 In this blog post we first review how to get started with MLHub and
-then illustrate some of its functionality.
+then illustrate some of its functionality. See the growing
+documentation at the [GNU/Linux Survival
+Guide](https://togaware.com/linux/survivor/AI_Machine.html).
 
 Quick Start
 -----------
@@ -38,16 +42,14 @@ The command line interface can be installed using
 
     $ pip3 install mlhub
 
-Once installed you will be able to run the sample 'rain' model
-assuming that you have the free and open source [R statistical
-software package](https://cran.r-project.org) installed. The quick
+Once installed you will be able to run any curated or other model. The quick
 start version is below. Note that you type the command `ml ...` and
 that everything from the `#` to the end of the line is ignored (it's
 a comment):
 
-    $ ml install   rain # Install the model named 'rain'.
-    $ ml demo      rain # Run the demonstration of the model
-    $ ml display   rain # Graphical display of pre-built model.
+    $ ml install <model> # Install the named model.
+    $ ml demo    <model> # Run the demonstration of the model.
+    $ ml gui     <model> # Graphical display to utilise the mode.
 
 The following commands are available and below is a brief description of
 each command:
@@ -55,14 +57,13 @@ each command:
     $ ml                # Show a usage message.
     $ ml available      # List of pre-buld models on the MLHub.
     $ ml installed      # List of pre-built models installed locally
-    $ ml install   rain # Install the model named 'rain'.
-    $ ml readme    rain # View background information about the model.
-    $ ml configure rain # Install required dependencies.
-    $ ml commands  rain # List of commands supported by the model.
-    $ ml demo      rain # Run the demonstration of the model
-    $ ml print     rain # Textual summary of the model.
-    $ ml display   rain # Graphical display of pre-built model.
-    $ ml score     rain # Run model on your own data.
+    $ ml install   <model> # Install the model named 'rain'.
+    $ ml configure <model> # Install required dependencies.
+    $ ml readme    <model> # View background information about the model.
+    $ ml commands  <model> # List of commands supported by the model.
+    $ ml demo      <model> # Run the demonstration of the model
+    $ ml gui       <model> # Graphical display of pre-built model.
+    $ ml score     <model> # Run model on your own data.
 
 Different model packages will have different dependencies and these will
 be installed by the *configure* command.
