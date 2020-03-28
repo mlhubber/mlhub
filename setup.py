@@ -51,8 +51,7 @@ setup(
     entry_points={'console_scripts': ['ml=mlhub:main']},
     install_requires=[
         'distro',
-        'fuzzywuzzy',
-        'python-Levenshtein',
+        'rapidfuzz',
         'pyyaml',
         'requests',
         'yamlordereddictloader',
