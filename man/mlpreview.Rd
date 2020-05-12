@@ -4,8 +4,12 @@
 \alias{mlpreview}
 \title{Preview File}
 \usage{
-mlpreview(fname, msg = "Close the graphic window using Ctrl-w.\\n",
-  begin = "\\n", previewer = "atril --preview")
+mlpreview(
+  fname,
+  msg = "Close the graphic window using Ctrl-w.\\n",
+  begin = "\\n",
+  previewer = "atril --preview"
+)
 }
 \arguments{
 \item{fname}{File name to display}
