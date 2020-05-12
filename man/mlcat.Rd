@@ -7,7 +7,7 @@
 mlcat(title = "", text = "", delim = "=", begin = "", end = "\\n")
 }
 \arguments{
-\item{title}{The section title.}
+\item{title}{The section title after processing with glue.}
 
 \item{text}{The text to display after processing with glue.}
 
