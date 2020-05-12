@@ -1,12 +1,12 @@
 Package: mlhub
 Type: Package
 Title: Support for MLHub package developers
-Version: 3.4.9
+Version: 3.4.10
 Date: 2019-05-20
 Authors@R: c(person("Graham", "Williams", 
 	   	    role=c("aut", "cph", "cre"),
 	            email="Graham.Williams@togaware.com"))
-Depends: R (>= 2.13.0)
+Depends: R (>= 2.13.0), glue
 Description: MLHub is a project to provide open access to pre-built
   AI and machine learning models. This package provides various
   functions to support the developer of packages.
