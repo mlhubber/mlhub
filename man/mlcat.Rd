@@ -4,13 +4,12 @@
 \alias{mlcat}
 \title{Inform User}
 \usage{
-mlcat(title = "", text = "", delim = "=", begin = "",
-  end = "\\n")
+mlcat(title = "", text = "", delim = "=", begin = "", end = "\\n")
 }
 \arguments{
 \item{title}{The section title.}
 
-\item{text}{The text to display.}
+\item{text}{The text to display after processing with glue.}
 
 \item{delim}{Delimiter to highlight the title.}
 
