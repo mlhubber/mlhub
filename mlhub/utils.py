@@ -316,7 +316,9 @@ def get_available_pkgyaml(url):
         param = yaml_list[0]
         for x in yaml_list:
             try:
-                if urllib.request.urlopen(x).status == 200:
+                headers = {'User-Agent': 'Mozilla/5.0'}
+                req = urllib.request.Request(x, headers=headers)
+                if urllib.request.urlopen(req).status == 200:
                     logger.debug("YAML: {}".format(x))
                     return x
             except urllib.error.URLError:
@@ -1451,14 +1453,14 @@ class RepoTypeURL(ABC):
             if "/" in repo_type:
                 repo_type = "github"
 
+        result = None
         if repo_type == "github":
-            return GitHubURL(url, "github", "github.com")
+            result = GitHubURL(url, "github", "github.com")
         elif repo_type == "gitlab":
-            return GitLabURL(url, "gitlab", "gitlab.com")
+            result = GitLabURL(url, "gitlab", "gitlab.com")
         elif repo_type == "bitbucket":
-            return BitbucketURL(url, "bitbucket", "bitbucket.org")
-
-        return None
+            result = BitbucketURL(url, "bitbucket", "bitbucket.org")
+        return result
 
     @staticmethod
     def is_repo_url(url):
@@ -1718,7 +1720,9 @@ class GitLabURL(RepoTypeURL):
         return self.res_type, self.composed_url
 
     def read_raw_file(self):
-        return urllib.request.urlopen(self.url).read()
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        req = urllib.request.Request(self.url, headers=headers)
+        return urllib.request.urlopen(req).read()
 
     def interpret(self):
         """Interpret GitLab URL into user name, repo name, ref and path.  If a
