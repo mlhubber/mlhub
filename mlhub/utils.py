@@ -316,9 +316,7 @@ def get_available_pkgyaml(url):
         param = yaml_list[0]
         for x in yaml_list:
             try:
-                headers = {'User-Agent': 'Mozilla/5.0'}
-                req = urllib.request.Request(x, headers=headers)
-                if urllib.request.urlopen(req).status == 200:
+                if urllib.request.urlopen(x).status == 200:
                     logger.debug("YAML: {}".format(x))
                     return x
             except urllib.error.URLError:
@@ -1134,14 +1132,6 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
     logger.info("Install file dependencies.")
     logger.debug("deps: {}".format(deps))
 
-    # Avoid 403 errors which result when the header identifies itself
-    # as python urllib and thus the web site assumes it is a robot. We
-    # are not a robot but a user downloading a file.
-    
-    opener = urllib.request.build_opener()
-    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-    urllib.request.install_opener(opener)
-
     if downloadir is None:
         print("\n*** Downloading required files ...")
 
@@ -1720,9 +1710,7 @@ class GitLabURL(RepoTypeURL):
         return self.res_type, self.composed_url
 
     def read_raw_file(self):
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        req = urllib.request.Request(self.url, headers=headers)
-        return urllib.request.urlopen(req).read()
+        return urllib.request.urlopen(self.url).read()
 
     def interpret(self):
         """Interpret GitLab URL into user name, repo name, ref and path.  If a
