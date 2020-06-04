@@ -316,7 +316,9 @@ def get_available_pkgyaml(url):
         param = yaml_list[0]
         for x in yaml_list:
             try:
-                if urllib.request.urlopen(x).status == 200:
+                headers = {'User-Agent': 'Mozilla/5.0'}
+                req = urllib.request.Request(x, headers=headers)
+                if urllib.request.urlopen(req).status == 200:
                     logger.debug("YAML: {}".format(x))
                     return x
             except urllib.error.URLError:
@@ -1710,7 +1712,9 @@ class GitLabURL(RepoTypeURL):
         return self.res_type, self.composed_url
 
     def read_raw_file(self):
-        return urllib.request.urlopen(self.url).read()
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        req = urllib.request.Request(self.url, headers=headers)
+        return urllib.request.urlopen(req).read()
 
     def interpret(self):
         """Interpret GitLab URL into user name, repo name, ref and path.  If a
