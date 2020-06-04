@@ -210,6 +210,16 @@ def install_model(args):
     logger.info("Install a model.")
     logger.debug("args: {}".format(args))
 
+    # Avoid 403 errors which result when the header identifies itself
+    # as python urllib or is empty and thus the web site assumes it is
+    # a robot. We are not a robot but a user downloading a file. This
+    # will ensure gitlab is oaky with retrieving from a URL by adding
+    # a header rather than no header. TODO move to using Requests.
+    
+    opener = urllib.request.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+    urllib.request.install_opener(opener)
+
     model = args.model  # model pkg name
     location = args.model  # pkg file path or URL
     key = args.i  # SSH key
@@ -751,6 +761,16 @@ def configure_model(args):
     #
 
     YES = args.y | args.yes
+
+    # Avoid 403 errors which result when the header identifies itself
+    # as python urllib or is empty and thus the web site assumes it is
+    # a robot. We are not a robot but a user downloading a file. This
+    # will ensure gitlab is oaky with retrieving from a URL by adding
+    # a header rather than no header. TODO move to using Requests.
+    
+    opener = urllib.request.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+    urllib.request.install_opener(opener)
 
     if not args.model:
 
