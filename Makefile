@@ -11,7 +11,7 @@ APP=mlhub
 #   Minor update
 #   Bug fix
 
-VER=3.5.16
+VER=3.5.17
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
@@ -64,7 +64,7 @@ ifneq ("$(wildcard $(INC_R))","")
 endif
 
 define HELP
-MLHUB Makefile
+MLHub:
 
   Local targets:
 
