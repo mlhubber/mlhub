@@ -11,7 +11,7 @@ APP=mlhub
 #   Minor update
 #   Bug fix
 
-VER=3.5.17
+VER=3.5.18
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
@@ -68,10 +68,10 @@ MLHub:
 
   Local targets:
 
+  pypi 		Upload new package for pip install.
   dist		Build the .tar.gz for distribution or pip install.
   mlhub		Update mlhub.ai with index and .tar.gz
   version	Update the version number across appropriate files.
-  pypi 		Upload new package for pip install.
 
 endef
 export HELP
