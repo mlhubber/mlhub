@@ -36,7 +36,7 @@ import termios
 import tty
 import subprocess
 import re
-
+import textwrap
 
 # ----------------------------------------------------------------------
 # Support Package Developers
@@ -216,6 +216,13 @@ def mlask(begin="", end=""):
 def mlcat(title="", text="", delim="=", begin="", end="\n"):
     sep = delim*len(title) + "\n" if len(title) > 0 else ""
     ttl_sep = "\n" if len(title) > 0 else ""
+    # Retain any extra line in the original text since fill() will
+    # remove it.
+    if text[-1] == "\n": end = "\n" + end
+    # Split into paragraphs, fill each paragraph, convert back to a
+    # list of strings, and join them together as the text to be
+    # printed.
+    text = "\n\n".join(list(map(textwrap.fill, text.split("\n\n"))))
     print(begin + sep + title + ttl_sep + sep + ttl_sep + text, end=end)
 
 
