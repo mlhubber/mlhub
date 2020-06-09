@@ -218,7 +218,7 @@ def mlcat(title="", text="", delim="=", begin="", end="\n"):
     ttl_sep = "\n" if len(title) > 0 else ""
     # Retain any extra line in the original text since fill() will
     # remove it.
-    if text[-1] == "\n": end = "\n" + end
+    if len(text) and text[-1] == "\n": end = "\n" + end
     # Split into paragraphs, fill each paragraph, convert back to a
     # list of strings, and join them together as the text to be
     # printed.
