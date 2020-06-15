@@ -374,7 +374,14 @@ def get_url_filename(url):
     """Obtain the file name from URL or None if not available."""
 
     filename = os.path.basename(url).split("?")[0]
-    info = urllib.request.urlopen(url).getheader("Content-Disposition")
+
+    # Specify header to avoid a 403 from some sites.
+    headers = {'User-Agent':
+               'Mozilla/5.0 (X11; Linux x86_64) ' +
+               'AppleWebKit/537.36 (KHTML, like Gecko) ' +
+               'Chrome/81.0.4044.138 Safari/537.36'}
+    req = urllib.request.Request(url, headers=headers)
+    info = urllib.request.urlopen(req).getheader("Content-Disposition")
     if info:
         _, params = cgi.parse_header(info)
         if "filename" in params:
