@@ -64,14 +64,12 @@ ifneq ("$(wildcard $(INC_R))","")
 endif
 
 define HELP
-MLHub:
+local:
 
-  Local targets:
-
+  version	Update the version number across appropriate files.
   pypi 		Upload new package for pip install.
   dist		Build the .tar.gz for distribution or pip install.
   mlhub		Update mlhub.ai with index and .tar.gz
-  version	Update the version number across appropriate files.
 
 endef
 export HELP
