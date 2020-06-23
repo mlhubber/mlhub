@@ -42,9 +42,8 @@ import textwrap
 # Support Package Developers
 # ----------------------------------------------------------------------
 
-# Load subscription key and endpoint from file.
-
 def load_key(path):
+    """Load subscription key and endpoint from file."""
     key = None
     endpoint = None
     markchar = "'\" \t"
@@ -67,19 +66,26 @@ def load_key(path):
                     key = line
     return key, endpoint
 
-# Either load key/endpoint from file or ask user and save to file.
 
+def azkey(key_file, service="Cognitive Services", connect="endpoint",
+          verbose=True, baseurl=False):
+    """Load key and endpoint/location from file or ask user and save. 
 
-def azkey(key_file, service="Cognitive Services", verbose=True, baseurl=False):
-    """The user is asked for an Azure subscription key and endpoint. The
-    provided information is saved into a file for future use. The
-    contents of that file is the key and endpoint with the endpoint
-    identified as starting with http. Some endpoints may include the
-    full cognitive service path and so the baseurl option will strip
-    to just the base name of the URL.
+    The user is asked for an Azure subscription key and
+    endpoint/location. The provided information is saved into a file
+    for future use. The contents of that file is the key and
+    endpoint/location with the endpoint identified as starting with
+    http. Some endpoints may include the full cognitive service path
+    and so the baseurl option will strip to just the base name of the
+    URL.
 
-    a14d1234abcda4f2f6e9f565df34ef24
+    abcd1234abcda4f2f6e9f565df34ef24
     https://westus2.api.cognitive.microsoft.com
+
+    OR
+
+    abcd1234abcda4f2f6e9f565df34ef24
+    https://westus2
 
     """
 
@@ -87,21 +93,21 @@ def azkey(key_file, service="Cognitive Services", verbose=True, baseurl=False):
 
     # Set up messages.
     
-    prompt_key = "Please paste your {} subscription key: ".format(service)
-    prompt_endpoint = "Please paste your endpoint: "
+    prompt_key = f"Please paste your {service} subscription key: "
+    prompt_endpoint = f"Please paste your {connect}: "
 
-    msg_request = """\
+    msg_request = f"""\
 An Azure resource is required to access this service (and to run this command).
 See the README for details of a free subscription. If you have a subscription
-then please paste the key and the endpoint here.
+then please paste the key and the {connect} here.
 """
-    msg_found = """\
+    msg_found = f"""\
 The following file has been found and is assumed to contain an Azure 
-subscription key and endpoint for {}. We will load 
+subscription key and {connect} for {service}. We will load 
 the file and use this information.
 
-    {}
-""".format(service, key_file)
+    {key_file}
+"""
 
     msg_saved = """
 That information has been saved into the file:
@@ -109,7 +115,7 @@ That information has been saved into the file:
     {}
 """.format(key_file)
 
-    # Obtain the key/endpoint.
+    # Obtain the key/connect.
 
     if os.path.isfile(key_file) and os.path.getsize(key_file) > 0:
         if verbose: print(msg_found, file=sys.stderr)
@@ -135,7 +141,10 @@ That information has been saved into the file:
 
     # Ensure endpoint ends in /
 
-    if endpoint[len(endpoint) - 1] != "/": endpoint = endpoint + "/"
+    if endpoint[-1] == "/":
+        if connect == "location": endpoint = endpoint[:-1]
+    else:
+        if connect == "endpoint": endpoint = endpoint + "/"
         
     return key, endpoint
 
@@ -207,8 +216,8 @@ def azrequest(endpoint, url, subscription_key, request_data):
         raise Exception(response.text)
 
 
-def mlask(begin="", end=""):
-    sys.stdout.write(begin + "Press Enter to continue: ")
+def mlask(prompt="Press Enter to continue", begin="", end=""):
+    sys.stdout.write(begin + prompt + ": ")
     answer = input()
     sys.stdout.write(end)
 
