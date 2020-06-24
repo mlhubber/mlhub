@@ -237,7 +237,7 @@ def mlcat(title="", text="", delim="=", begin="", end="\n"):
 
 def mlpreview(fname,
               begin="\n",
-              msg="Close the graphic window using Ctrl-w.\n",
+              msg="Close the graphic window using Ctrl-W.\n",
               previewer="eog"):
     print(begin + msg)
     subprocess.Popen([previewer, fname])
