@@ -155,6 +155,7 @@ def main():
         if '--help' in extras or '-h' in extras:
             logger.debug("Help for command '{}' of '{}'".format(args.cmd, args.model))
             utils.print_model_cmd_help(utils.load_description(args.model), args.cmd)
+            print()
             return 0
 
         setattr(args, 'func', commands.dispatch)
