@@ -6,9 +6,9 @@
 \usage{
 mlpreview(
   fname,
-  msg = "Close the graphic window using Ctrl-w.\\n",
+  msg = "Close the graphic window using Ctrl-W.\\n",
   begin = "\\n",
-  previewer = "atril --preview"
+  previewer = "evince"
 )
 }
 \arguments{
