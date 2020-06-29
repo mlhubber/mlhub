@@ -87,6 +87,8 @@ version:
 	perl -pi -e "s|^    version='.*'|    version='$(VER)'|" setup.py 
 	perl -pi -e 's|^VERSION = ".*"|VERSION = "$(VER)"|' mlhub/constants.py
 	perl -pi -e 's|$(APP)_\d+.\d+.\d+|$(APP)_$(VER)|g' docs/README.md
+	perl -pi -e 's|^Version: .*|Version: $(VER)|' DESCRIPTION
+	perl -pi -e 's|^Date: .*|Date: $(shell date +%Y-%m-%d)|' DESCRIPTION
 
 .PHONY: worthy
 worthy:
