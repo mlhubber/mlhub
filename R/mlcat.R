@@ -14,7 +14,7 @@
 mlcat <- function(title="", text="", delim="=", begin="", end="\n")
 {
   title <- glue::glue(title)
-  text <- glue::glue(text, .trim=FALSE)
+  text <- paste(strwrap(glue::glue(text, .trim=FALSE)), collapse="\n")
   sep <- paste0(paste(rep(delim, nchar(title)), collapse=""),
                 ifelse(nchar(title) > 0, "\n", ""))
   ttl_sep <- ifelse(nchar(title) > 0, "\n", "")
