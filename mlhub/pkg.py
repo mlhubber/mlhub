@@ -216,7 +216,9 @@ def azrequest(endpoint, url, subscription_key, request_data):
         raise Exception(response.text)
 
 
-def mlask(prompt="Press Enter to continue", begin="", end=""):
+def mlask(begin="", end="", prompt="Press Enter to continue"):
+    begin = "\n" if begin else begin
+    end = "\n" if end else end
     sys.stdout.write(begin + prompt + ": ")
     answer = input()
     sys.stdout.write(end)
