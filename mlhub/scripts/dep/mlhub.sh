@@ -12,7 +12,7 @@ PREREQUISITES="
   libxml2-dev
   pandoc
   eog
-  atril
+  evince
   git
   python3-wxgtk4.0
 "
