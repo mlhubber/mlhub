@@ -85,7 +85,7 @@ CMD = "ml"  # The command line tool.
 EXT_MLM = ".mlm"  # Archive filename extension
 EXT_AIPK = ".aipk"  # Backward compatibility
 
-VERSION = "3.6.1"  # DO NOT MODIFY. Managed from ../Makefile.
+VERSION = "3.6.2"  # DO NOT MODIFY. Managed from ../Makefile.
 
 OPTIONS = {
     # Global command line options
@@ -222,6 +222,7 @@ COMMANDS = {
     },
     "remove": {
         "description": "remove a model or remove all models",
+        "alias": ["uninstall"],
         "argument": {"model": {"nargs": "?"}},
         "usage": "  remove    [<model>]  remove a model or remove all models",
         "func": "remove_model",
