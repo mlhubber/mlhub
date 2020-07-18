@@ -2218,6 +2218,18 @@ def get_py_pkg_path_env(model):
     python_pkg_path = python_pkg_base + site.USER_SITE
     python_pkg_bin = python_pkg_base + site.USER_BASE + "/bin"
 
+    # 20200719 pip3 20.1.1 on Ubuntu 20.04 installed as pip3 install
+    # uses site.getsitepackages()[0] as the path to its --root
+    # option. The default Ubuntu 20.04 python3-pip uses site.USER_SITE
+    # as the path. The former (/usr/local/lib/python3.8/dist-packages)
+    # seems a better choice (except for dist-packages) than the latter
+    # (/home/kayon/.local/lib/python3.8/site-packages). These paths
+    # get appended to the argument of --root as the root location of
+    # the installed packages.
+    
+    if not os.path.isdir(python_pkg_path):
+        python_pkg_path = python_pkg_base + site.getsitepackages()[0]
+
     # TODO: Make sure to document:
     #     $ sudo apt-get install -y python3-pip
     #     $ /usr/bin/pip3 install mlhub
@@ -2231,10 +2243,17 @@ def get_py_pkg_path_env(model):
         if get_sys_python_pkg_usage(model):
             print_on_stderr(MSG_INCOMPATIBLE_PYTHON_ENV, model)
 
-    return "export PATH=\"{}:$PATH\"; export PYTHONPATH='{}'; ".format(
-        python_pkg_bin, python_pkg_path
-    )
+    # 20200719 If we still do not have an existant path then perhaps
+    # resort back to the user default location, although this will be
+    # in the path anyhow.
+    
+    if not os.path.isdir(python_pkg_path):
+        python_pkg_path = site.USER_SITE
 
+    exports  = f'export PATH="{python_pkg_bin}:$PATH"; '
+    exports += f'export PYTHONPATH="{python_pkg_path}"; '
+    
+    return(exports)
 
 # ----------------------------------------------------------------------
 # Bash completion helper
