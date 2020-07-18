@@ -920,61 +920,59 @@ def install_r_deps(deps, model, source="cran", yes=False):
 
 
 def install_python_deps(deps, model, source="pip", yes=False):
-    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ""
+    logger = logging.getLogger(__name__)
+
+    env_var  = 'export _MLHUB_OPTION_YES="y"; ' if yes else ""
     env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
-    script = os.path.join(
-        os.path.dirname(__file__), "scripts", "dep", "python.sh"
-    )
+
+    script = os.path.join(os.path.dirname(__file__),
+                          "scripts", "dep", "python.sh")
     pkg_dir = get_package_dir(model)
 
-    # Check python environment
+    # Check the python environment.
 
     if source.startswith("pyt"):
         update_sys_python_pkg_usage(model, True)
 
-    # Handle conda environment
+    # Handle the conda environment.
 
     if source.startswith("con"):
 
-        # conda needs to deal with package list, environment name, and environment specification yaml file.
+        # Conda needs to deal with package list, environment name, and
+        # environment specification yaml file.
 
         first_dep = deps[0]
         if isinstance(deps, list) and not isinstance(first_dep, dict):
             category = "list"
-        elif (
-            list(first_dep)[0] == "file"
-        ):  # For environment specification file, read and store environment name
+        elif (list(first_dep)[0] == "file"):
+            # For environment specification file, read and store
+            # environment name.
             category = "file"
             deps = first_dep[list(first_dep)[0]]
             with open(os.path.join(pkg_dir, deps), "r") as file:
                 name = yaml.load(file, Loader=yaml.SafeLoader)["name"]
             update_conda_env_name(model, name)
-        elif (
-            list(first_dep)[0] == "name"
-        ):  # For environment name, store for later use
+        elif (list(first_dep)[0] == "name"):
+            # For environment name, store for later use.
             update_conda_env_name(model, first_dep[list(first_dep)[0]])
             return
 
-        command = '{}{} {} "{}" {} {} "{}"'.format(
-            env_var,
-            BASH_CMD,
-            script,
-            pkg_dir,
-            source,
-            category,
-            '" "'.join(deps) if isinstance(deps, list) else deps,
-        )
+        jd = '" "'.join(deps) if isinstance(deps, list) else deps
+        command  = f'{env_var}{BASH_CMD} {script} "{pkg_dir}" '
+        command += f'{source} {category} "{jd}"'
     else:
         if source.startswith("pip"):
             env_var += get_py_pkg_path_env(model)
 
-        command = '{}{} {} "{}" {} "{}"'.format(
-            env_var, BASH_CMD, script, pkg_dir, source, '" "'.join(deps)
-        )
+        jd = '" "'.join(deps)
+        command = f'{env_var}{BASH_CMD} {script} "{pkg_dir}" {source} "{jd}"'
 
-    proc = subprocess.Popen(
-        command, shell=True, cwd=get_package_dir(model), stderr=subprocess.PIPE
-    )
+    logger.debug(f"INSTALL command: {command}")
+
+    proc = subprocess.Popen(command,
+                            shell  = True,
+                            cwd    = get_package_dir(model),
+                            stderr = subprocess.PIPE)
     output, errors = proc.communicate()
     if proc.returncode != 0:
         errors = errors.decode("utf-8")
