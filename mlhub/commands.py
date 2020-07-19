@@ -67,7 +67,7 @@ def list_available(args):
 
     logger = logging.getLogger(__name__)
     logger.info("List available models.")
-    logger.debug("args: {}".format(args))
+    logger.debug(f"args: {args}")
 
     meta, repo = utils.get_repo_meta_data(args.mlhub)
     model_names = [entry["meta"]["name"] for entry in meta]
@@ -119,7 +119,7 @@ def list_installed(args):
 
     init = utils.get_init_dir()
     if os.path.exists(init):
-        msg = " in '{}'.".format(init)
+        msg = f" in '{init}'."
         models = [
             f
             for f in os.listdir(init)
@@ -129,7 +129,7 @@ def list_installed(args):
             and not f.startswith("_")
         ]
     else:
-        msg = ". '{}' does not exist.".format(init)
+        msg = f". '{init}' does not exist."
         models = []
 
     models.sort()
@@ -144,7 +144,7 @@ def list_installed(args):
 
     mcnt = len(models)
     plural = "s" if mcnt != 1 else ""
-    print("Found {} model{} installed{}".format(mcnt, plural, msg))
+    print(f"Found {mcnt} model{plural} installed{msg}")
 
     # Report on each of the installed models.
 
@@ -208,7 +208,7 @@ def install_model(args):
 
     logger = logging.getLogger(__name__)
     logger.info("Install a model.")
-    logger.debug("args: {}".format(args))
+    logger.debug(f"args: {args}")
 
     # Avoid 403 errors which result when the header identifies itself
     # as python urllib or is empty and thus the web site assumes it is
@@ -282,8 +282,8 @@ def install_model(args):
         try:
             mlhubyaml = repo_obj.get_pkg_yaml_url()
             location = repo_obj.compose_repo_zip_url()
-            logger.debug("location: {}".format(location))
-            logger.debug("mlhubyaml: {}".format(mlhubyaml))
+            logger.debug(f"location: {location}")
+            logger.debug(f"mlhubyaml: {mlhubyaml}")
         except utils.DescriptionYAMLNotFoundException:  # Maybe private repo
             maybe_private = True
             pass
@@ -544,8 +544,8 @@ def install_model(args):
 
             # Informative message about the size of the installed model.
 
-            msg  = "Found '{model}' version {version}.\n\nInstalled '{model}' "
-            msg += "into '{install_path}/' ({utils.dir_size(install_path):,} bytes)."
+            msg  = f"Found '{model}' version {version}.\n\nInstalled '{model}' "
+            msg += f"into '{install_path}/' ({utils.dir_size(install_path):,} bytes)."
             print(msg)
 
             # Suggest next step. README or DOWNLOAD
