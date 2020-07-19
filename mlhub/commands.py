@@ -544,11 +544,9 @@ def install_model(args):
 
             # Informative message about the size of the installed model.
 
-            print(
-                "Found '{}' version {}.\n\nInstalled '{}' into '{}' ({:,} bytes).".format(
-                    model, version, model, install_path, utils.dir_size(install_path)
-                )
-            )
+            msg  = "Found '{model}' version {version}.\n\nInstalled '{model}' "
+            msg += "into '{install_path}/' ({utils.dir_size(install_path):,} bytes)."
+            print(msg)
 
             # Suggest next step. README or DOWNLOAD
 
@@ -1122,7 +1120,7 @@ def donate(args):
 
 
 def remove_mlm(args):
-    """Remove downloaded {} files.""".format(EXT_MLM)
+    f"""Remove downloaded {EXT_MLM} files."""
 
     mlm = glob.glob(os.path.join(utils.get_init_dir(), "*.mlm"))
     mlm.sort()
@@ -1166,7 +1164,7 @@ def remove_model(args):
         path = utils.get_package_dir(model)
         if os.path.exists(utils.get_package_cache_dir(model)):
             cache = utils.get_package_cache_dir(model)
-        msg = "Remove '{}'"
+        msg = "Remove '{}/'"
 
         # Check that the model is installed.
 
@@ -1187,7 +1185,7 @@ def remove_model(args):
         # Ask if remove cached files
 
         if cache is not None and utils.yes_or_no(
-            "Remove cache '{}' as well", cache, yes=False
+            "Remove cache '{}/' as well", cache, yes=False
         ):
             shutil.rmtree(cache)
             archive = utils.get_package_archive_dir(model)
