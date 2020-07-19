@@ -128,7 +128,17 @@ def main():
         # specific which would be better to be checked after the model
         # pkg name is known.
 
-        matched_cmd = utils.get_misspelled_command(first_pos_arg, list(constants.COMMANDS))
+        # 20200719 Check for aliases here as a temporary hack since
+        # aliases are not currently dealt with in the call to
+        # get_misspelled_command().
+
+        if first_pos_arg == "avail":
+            matched_cmd = "available"
+        elif first_pos_arg == "uninstall":
+            matched_cmd = "remove"
+        else:
+            matched_cmd = utils.get_misspelled_command(first_pos_arg,
+                                                       list(constants.COMMANDS))
 
         if matched_cmd is not None:
             sys.argv[first_pos_arg_index + 1] = matched_cmd
