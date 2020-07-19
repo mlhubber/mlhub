@@ -160,7 +160,7 @@ def main():
         model_cmd_parser.add_argument('model')
         args, extras = model_cmd_parser.parse_known_args()
         logger.debug(f"args: {args}")
-        logger.debug(f"extra_args: {exrtas}")
+        logger.debug(f"extra_args: {extras}")
 
         # Simple help message for the model-specific command
 
