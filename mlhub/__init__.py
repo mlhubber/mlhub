@@ -124,10 +124,12 @@ def main():
 
     if first_pos_arg is not None:
 
-        # Only match basic commands since model pkg commands are more specific which would be
-        # better to be checked after the model pkg name is known.
+        # Only match basic commands since model pkg commands are more
+        # specific which would be better to be checked after the model
+        # pkg name is known.
 
         matched_cmd = utils.get_misspelled_command(first_pos_arg, list(constants.COMMANDS))
+
         if matched_cmd is not None:
             sys.argv[first_pos_arg_index + 1] = matched_cmd
             first_pos_arg = matched_cmd
