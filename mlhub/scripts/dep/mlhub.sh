@@ -29,7 +29,7 @@ COMPLETION_INSTALL_PATH=/etc/bash_completion.d
 # Upgrade pip if possible
 ######################################################################
 
-echo -e "\n*** Checking if pip is the latest version ..."
+# echo -e "\n*** Checking if pip is the latest version ..."
 
 # TODO: Need to find a fast way to figure out if pip is the newest
 # version.
@@ -149,7 +149,7 @@ COMMANDS=(
   "ml installed > /dev/null"
 )
 
-echo -e '\n*** Configuring bash completion - may require password for admin privileges ...\n'
+echo -e '\n*** Configuring bash completion - may require password for admin privileges ...'
 if [[ ${COMPLETION_SCRIPT} -nt ${COMPLETION_INSTALL_PATH}/${COMPLETION_SCRIPT##*/} ]]; then
   for cmd in "${COMMANDS[@]}"; do
     echo "Executing:" "${cmd}"
