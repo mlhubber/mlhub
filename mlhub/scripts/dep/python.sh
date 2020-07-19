@@ -54,7 +54,7 @@ elif [[ ${abbr} == 'pip' ]]; then  # pip install package
 
     msg="\nDo you want to pip install ${pkg}"
     if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
-      ${pip} install --root ${package_path}/.python ${pkg}
+      ${pip} install --user --root ${package_path}/.python ${pkg}
       _check_returncode
     fi
 
