@@ -90,13 +90,13 @@ def main():
             logging.DEBUG,
             constants.LOG_CONSOLE_FORMAT)
 
-    logger.debug('args: {}, extra_args: {}'.format(args, extras))
+    logger.debug(f'args: {args}, extra_args: {extras}')
 
     # Get the first positional argument.
 
     pos_args = [(i, arg) for i, arg in enumerate(sys.argv[1:]) if not arg.startswith('-')]
     first_pos_arg_index, first_pos_arg = pos_args[0] if len(pos_args) != 0 else (None, None)
-    logger.debug('First positional argument: {}'.format(first_pos_arg))
+    logger.debug(f'First positional argument: {first_pos_arg}')
 
     if args.version:
         logger.info('Query version.')
@@ -159,13 +159,13 @@ def main():
         model_cmd_parser.add_argument('cmd', metavar='command')
         model_cmd_parser.add_argument('model')
         args, extras = model_cmd_parser.parse_known_args()
-        logger.debug("args: {}".format(args))
-        logger.debug("extra_args: {}".format(extras))
+        logger.debug(f"args: {args}")
+        logger.debug(f"extra_args: {exrtas}")
 
         # Simple help message for the model-specific command
 
         if '--help' in extras or '-h' in extras:
-            logger.debug("Help for command '{}' of '{}'".format(args.cmd, args.model))
+            logger.debug(f"Help for command '{args.cmd}' of '{args.model}'")
             utils.print_model_cmd_help(utils.load_description(args.model), args.cmd)
             print()
             return 0
@@ -185,7 +185,7 @@ def main():
         subparsers = basic_cmd_parser.add_subparsers(title='subcommands', dest="cmd")
         utils.SubCmdAdder(subparsers, commands, constants.COMMANDS).add_allsubcmds()
         args = basic_cmd_parser.parse_args()
-        logger.debug("args: {}".format(args))
+        logger.debug(f"args: {args}")
 
     # Print usage for incorrect argument
 
@@ -251,7 +251,7 @@ def main():
         sys.exit(1)
 
     except utils.ModelDownloadHaltException as e:
-        msg = "URL - '{}' failed:\n  {}".format(e.args[0], e.args[1])
+        msg = f"URL - '{e.args[0]}' failed:\n  {e.args[1]}"
         utils.print_error_exit(msg)
 
     except utils.DescriptionYAMLNotFoundException as e:
