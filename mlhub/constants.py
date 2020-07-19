@@ -145,7 +145,6 @@ COMMANDS = {
                 "action": "store_true",
             },
         },
-        "alias": ["avail"],
         "usage": "  available            list the models available from the ML Hub repository",
         "func": "list_available",
         "next": ["install"],
@@ -220,11 +219,10 @@ COMMANDS = {
         "func": "configure_model",
         "next": ["readme"],
     },
-    "remove": {
-        "description": "remove a model or remove all models",
-        "alias": ["uninstall"],
+    "uninstall": {
+        "description": "uninstall a model or all models",
         "argument": {"model": {"nargs": "?"}},
-        "usage": "  remove    [<model>]  remove a model or remove all models",
+        "usage": "  uninstall    [<model>]  uninstall a model or all models",
         "func": "remove_model",
         "next": ["installed", "install"],
     },
