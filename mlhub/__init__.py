@@ -132,10 +132,8 @@ def main():
         # aliases are not currently dealt with in the call to
         # get_misspelled_command().
 
-        if first_pos_arg == "avail":
-            matched_cmd = "available"
-        elif first_pos_arg == "uninstall":
-            matched_cmd = "remove"
+        if first_pos_arg == "remove":
+            matched_cmd = "uninstall"
         else:
             matched_cmd = utils.get_misspelled_command(first_pos_arg,
                                                        list(constants.COMMANDS))
