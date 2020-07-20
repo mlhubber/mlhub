@@ -2224,9 +2224,12 @@ def get_py_pkg_path_env(model):
     # (/home/kayon/.local/lib/python3.8/site-packages). These paths
     # get appended to the argument of --root as the root location of
     # the installed packages.
+
+    # 20200720 This won't work since the folder will not have been
+    # created yet.
     
-    if not os.path.isdir(python_pkg_path):
-        python_pkg_path = python_pkg_base + site.getsitepackages()[0]
+    #if not os.path.isdir(python_pkg_path):
+    #    python_pkg_path = python_pkg_base + site.getsitepackages()[0]
 
     # TODO: Make sure to document:
     #     $ sudo apt-get install -y python3-pip
@@ -2245,8 +2248,8 @@ def get_py_pkg_path_env(model):
     # resort back to the user default location, although this will be
     # in the path anyhow.
     
-    if not os.path.isdir(python_pkg_path):
-        python_pkg_path = site.USER_SITE
+    #if not os.path.isdir(python_pkg_path):
+    #    python_pkg_path = site.USER_SITE
 
     exports  = f'export PATH="{python_pkg_bin}:$PATH"; '
     exports += f'export PYTHONPATH="{python_pkg_path}"; '
