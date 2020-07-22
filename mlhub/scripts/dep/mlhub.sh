@@ -29,33 +29,38 @@ COMPLETION_INSTALL_PATH=/etc/bash_completion.d
 # Upgrade pip if possible
 ######################################################################
 
-# echo -e "\n*** Checking if pip is the latest version ..."
+echo -e "\n*** Checking if pip is the latest version ..."
 
 # TODO: Need to find a fast way to figure out if pip is the newest
 # version.
 
 # 20200719 There can be issues upgrading pip3 from the os
-# python3-pip. For now, let's not check if we want to upgrade. For
-# Ubutnu 20.04, the default is pip3 20.0.2 whereas this will upgrade
-# to 20.1.1 and there appears some differences that cause issues where
-# --root goes and also tensorflow install results in a permissions
-# error, which we might want to solve with --user anyhow.
+# python3-pip. Originally thought to not check if we want to
+# upgrade. For Ubutnu 20.04, the default is pip3 20.0.2 whereas this
+# will upgrade to 20.1.1 and there appears some differences that cause
+# issues where --root goes and also tensorflow install results in a
+# permissions error, which we might want to solve with --user (or
+# --target) anyhow.
 
-# pip_version=$(${pip} list -o 2>/dev/null | grep -e "^pip")
+# 20200722 Decide to go the upgrade path, so go to pip3 20.1.1, and
+# move to using --target for the pip install so we know with more
+# certainty where the isntallation actually goes.
 
-# if [[ ! -z ${pip_version} ]]; then
-#   old_pip_version=$(echo ${pip_version} | awk '{ print $2 }')
-#   new_pip_version=$(echo ${pip_version} | awk '{ print $3 }')
-#   msg="\nDo you want to upgrade pip from ${old_pip_version} to ${new_pip_version}"
-#   if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
-#     echo "Upgrading pip ..."
-#     ${pip} install --upgrade pip
-#   else
-#     echo "Keep pip as it is."
-#   fi
-# else
-#   echo -e "\npip is already the newest."
-# fi
+pip_version=$(${pip} list -o 2>/dev/null | grep -e "^pip")
+
+if [[ ! -z ${pip_version} ]]; then
+  old_pip_version=$(echo ${pip_version} | awk '{ print $2 }')
+  new_pip_version=$(echo ${pip_version} | awk '{ print $3 }')
+  msg="\nDo you want to upgrade pip from ${old_pip_version} to ${new_pip_version}"
+  if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
+    echo "Upgrading pip ..."
+    ${pip} install --upgrade pip
+  else
+    echo "Keep pip as it is."
+  fi
+else
+  echo -e "\npip is already the newest."
+fi
 
 ######################################################################
 # Install system dependencies
