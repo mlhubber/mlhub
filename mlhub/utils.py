@@ -2212,24 +2212,28 @@ def get_sys_python_pkg_usage(model):
 
 
 def get_py_pkg_path_env(model):
-    python_pkg_base = os.path.sep.join([get_package_dir(model), ".python"])
-    python_pkg_path = python_pkg_base + site.USER_SITE
-    python_pkg_bin = python_pkg_base + site.USER_BASE + "/bin"
 
-    # 20200719 pip3 20.1.1 on Ubuntu 20.04 installed as pip3 install
-    # uses site.getsitepackages()[0] as the path to its --root
-    # option. The default Ubuntu 20.04 python3-pip uses site.USER_SITE
-    # as the path. The former (/usr/local/lib/python3.8/dist-packages)
-    # seems a better choice (except for dist-packages) than the latter
-    # (/home/kayon/.local/lib/python3.8/site-packages). These paths
-    # get appended to the argument of --root as the root location of
-    # the installed packages.
+    # 20200719 Version 20.1.1 of pip3 is installed on Ubuntu 20.04
+    # after `pip3 install --upgrade pip`. This uses
+    # site.getsitepackages()[0]
+    # (/usr/local/lib/python3.8/dist-packages) as the path to its
+    # --root option. The default Ubuntu 20.04 python3-pip is version
+    # 20.0.2 and uses site.USER_SITE
+    # (/home/kayon/.local/lib/python3.8/site-packages) as the path for
+    # --root. These paths get appended to the argument of --root in
+    # mlhub as the root location of the installed packages and so
+    # different pip version cause confusion.
 
-    # 20200720 This won't work since the folder will not have been
-    # created yet.
+    # 20200720 Tried to determin which to use here dynamically but
+    # getting complicated.
+
+    # 20200722 Now with `ml configure` resume upgrading to the latest
+    # pip3. Then use python_pkg_base as the `--target .python`
+    # location for pip3 to install the packages. Thus that is also on
+    # PYTHONPATH. The bin is also .python/bin.
     
-    #if not os.path.isdir(python_pkg_path):
-    #    python_pkg_path = python_pkg_base + site.getsitepackages()[0]
+    python_pkg_base = os.path.sep.join([get_package_dir(model), ".python"])
+    python_pkg_bin = python_pkg_base + "/bin"
 
     # TODO: Make sure to document:
     #     $ sudo apt-get install -y python3-pip
@@ -2238,21 +2242,16 @@ def get_py_pkg_path_env(model):
     #   use system's command, then the installation of MLHub itself should
     #   be completed via system's pip, otherwise, MLHub will not work.
 
+    # 20200722 Is this still needed? Under what scenario? Is this the
+    # check for a conda environment?
+    
     if sys.executable != SYS_PYTHON_CMD:
-        python_pkg_path = python_pkg_base + site.getsitepackages()[0]
         python_pkg_bin = python_pkg_base + site.PREFIXES[0] + "/bin"
         if get_sys_python_pkg_usage(model):
             print_on_stderr(MSG_INCOMPATIBLE_PYTHON_ENV, model)
 
-    # 20200719 If we still do not have an existant path then perhaps
-    # resort back to the user default location, although this will be
-    # in the path anyhow.
-    
-    #if not os.path.isdir(python_pkg_path):
-    #    python_pkg_path = site.USER_SITE
-
     exports  = f'export PATH="{python_pkg_bin}:$PATH"; '
-    exports += f'export PYTHONPATH="{python_pkg_path}"; '
+    exports += f'export PYTHONPATH="{python_pkg_base}"; '
     
     return(exports)
 
