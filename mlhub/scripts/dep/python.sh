@@ -54,8 +54,12 @@ elif [[ ${abbr} == 'pip' ]]; then  # pip install package
 
     msg="\nDo you want to pip install ${pkg}"
     if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
-      opts="--user --disable-pip-version-check --no-warn-script-location"
-      ${pip} install ${opts} --root ${package_path}/.python ${pkg}
+      # Install into .python within the mlhub package path using
+      # --target which is available in pip3 20.1.1 at least. This is
+      # coordinated with mlhub.utils.get_py_pkg_path_env() whcih needs
+      # to add .python to the PYTHON PATH and .python/bin to the PATH.
+      opts="--disable-pip-version-check --no-warn-script-location"
+      ${pip} install ${opts} --target ${package_path}/.python ${pkg}
       _check_returncode
     fi
 
