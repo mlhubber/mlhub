@@ -124,6 +124,19 @@ dist: version $(TAR_GZ)
 dl03: dist
 	rsync -avzh $(TAR_GZ) $@:
 
+.PHONY: test
+test:
+	@echo "-------------------------------------------------------"
+	ml install pyiris
+	@echo "-------------------------------------------------------"
+	ml configure pyiris
+	@echo "-------------------------------------------------------"
+	ml readme pyiris
+	@echo "-------------------------------------------------------"
+	ml demo pyiris
+	@echo "-------------------------------------------------------"
+	ml uninstall pyiris
+
 .PHONY: clean
 clean:
 	rm -f docs/README.html
