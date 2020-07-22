@@ -1837,7 +1837,7 @@ class BitbucketURL(RepoTypeURL):
         """
 
         logger = logging.getLogger(__name__)
-        logger.info("Interpret GitLab location.")
+        logger.info("Interpret Bitbucket location.")
         logger.debug("URL: {}".format(self.url))
 
         url = self.remove_prefix()
