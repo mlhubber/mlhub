@@ -2,19 +2,26 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
+# Time-stamp: <Sunday 2020-07-26 08:43:45 AEST Graham Williams>
+#
+# Copyright (c) Graham.Williams@togaware.com
+#
+# License: Creative Commons Attribution-ShareAlike 4.0 International.
+#
 ########################################################################
 
-APP=mlhub
-
-# Version numbers
+# App version numbers
 #   Major release
 #   Minor update
 #   Bug fix
 
+APP=mlhub
 VER=3.7.0
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
+
+BASH_COMPLETION = $(APP)/bash_completion.d/ml.bash
 
 SOURCE = setup.py			\
 	 docs/README.md			\
@@ -33,8 +40,6 @@ SOURCE = setup.py			\
 	 mlhub/scripts/dep/mlhub.sh \
 	 mlhub/scripts/convert_readme.sh \
 	 mlhub/scripts/dep/utils.sh
-
-BASH_COMPLETION = mlhub/bash_completion.d/ml.bash
 
 INC_BASE    = $(HOME)/.local/share/make
 INC_R       = $(INC_BASE)/r.mk
@@ -84,20 +89,17 @@ mlhub: version $(TAR_GZ) $(BASH_COMPLETION)
 
 .PHONY: version
 version:
-	perl -pi -e "s|^    version='.*'|    version='$(VER)'|" setup.py 
-	perl -pi -e 's|^VERSION = ".*"|VERSION = "$(VER)"|' mlhub/constants.py
-	perl -pi -e 's|$(APP)_\d+.\d+.\d+|$(APP)_$(VER)|g' docs/README.md
-	perl -pi -e 's|^Version: .*|Version: $(VER)|' DESCRIPTION
-	perl -pi -e 's|^Date: .*|Date: $(shell date +%Y-%m-%d)|' DESCRIPTION
+	sed -i -e "s|^    version='.*'|    version='$(VER)'|" setup.py 
+	sed -i -e 's|^VERSION = ".*"|VERSION = "$(VER)"|' mlhub/constants.py
+	sed -i -e 's|$(APP)_\d+.\d+.\d+|$(APP)_$(VER)|g' docs/README.md
+	sed -i -e 's|^Version: .*|Version: $(VER)|' DESCRIPTION
+	sed -i -e 's|^Date: .*|Date: $(shell date +%Y-%m-%d)|' DESCRIPTION
 
 .PHONY: worthy
 worthy:
 	@echo "-------------------------------------------------------"
 	git checkout worthy
 	@echo "-------------------------------------------------------"
-
-$(TAR_GZ): $(SOURCE)
-	python3 setup.py sdist
 
 logo-mlhub.png: logo-mlhub.svg
 	convert $^ -resize 256x256 -transparent white -negate -fuzz 40% -fill '#ff9966' -opaque white $@
@@ -109,8 +111,14 @@ favicon.install: favicon.ico
 	scp $^ togaware.com:webapps/mlhub2/
 	ssh togaware.com chmod a+r webapps/mlhub2/$^
 
+$(TAR_GZ): $(SOURCE)
+	python3 setup.py sdist
+
+.PHONY: tgz
+tgz: $(TAR_GZ)
+
 .PHONY: pypi
-pypi: docs/README.md version $(TAR_GZ)
+pypi: docs/README.md version tgz 
 	twine upload $(TAR_GZ)
 
 .PHONY: pypi.test
