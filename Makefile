@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Wednesday 2020-08-05 12:17:57 AEST Graham Williams>
+# Time-stamp: <Wednesday 2020-08-05 13:52:26 AEST Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -71,6 +71,7 @@ endif
 define HELP
 local:
 
+  install	Local install for dev testing cycle.
   version	Update the version number across appropriate files.
   pypi 		Upload new package for pip install.
   dist		Build the .tar.gz for distribution or pip install.
@@ -146,6 +147,14 @@ test:
 	  echo "-------------------------------------------------------"; \
 	  ml uninstall $$p; \
 	done
+
+DESTDIR ?= /home/$(USER)
+PREFIX ?= /.local
+
+LIBDIR = $(DESTDIR)$(PREFIX)/lib/python3.8/site-packages/$(APP)
+
+install: version
+	rsync -avzh $(APP)/  $(LIBDIR)/
 
 .PHONY: clean
 clean:
