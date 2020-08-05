@@ -50,7 +50,7 @@ elif [[ ${abbr} == 'pip' ]]; then  # pip install package
 
   for pkg in "${pkgstoinstall[@]}"; do
 
-    echo -e "\n*** Installing Python package ${pkg} by pip ..."
+    echo -e "\n*** Installing Python package ${pkg} by pip ...\n  ${package_path}/.python\n"
 
     msg="\nDo you want to pip install ${pkg}"
     if [[ ! -z ${_MLHUB_OPTION_YES} ]] || _is_yes "${msg}"; then
