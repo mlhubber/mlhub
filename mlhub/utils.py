@@ -381,7 +381,13 @@ def get_url_filename(url):
                'AppleWebKit/537.36 (KHTML, like Gecko) ' +
                'Chrome/81.0.4044.138 Safari/537.36'}
     req = urllib.request.Request(url, headers=headers)
-    info = urllib.request.urlopen(req).getheader("Content-Disposition")
+    try:
+        info = urllib.request.urlopen(req).getheader("Content-Disposition")
+    except urllib.error.HTTPError as err:
+        if err.code == 404:
+            print(f"\nmlhub: Missing url: {url}\n       please notify package author.")
+            return None
+        
     if info:
         _, params = cgi.parse_header(info)
         if "filename" in params:
@@ -1271,7 +1277,9 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                     try:
                         urllib.request.urlretrieve(location, archive)
                     except urllib.error.HTTPError:
-                        raise ModelPkgDependencyFileNotFoundException(location)
+                        print(f"\nmlhub: Failed to get file dependency: {location}" +
+                              "\n       Please notify package author.")
+                        continue
 
                 # Install: unzip if necessary and make symbolic links
 
