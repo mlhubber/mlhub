@@ -151,7 +151,7 @@ if (!snapshot)
     }
     else
     {
-      cat(sprintf("\n*** Installing the R package '%s' version '%s' into\n  '%s' ...\n\n", name, ver, lib))
+      cat(sprintf("\n*** Installing the R package '%s' version '%s' into\n  '%s'\n\n", name, ver, lib))
       try_install(devtools::install_version(name, version=ver, repos="https://cloud.r-project.org", lib=lib))
     }
   }
