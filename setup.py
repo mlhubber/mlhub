@@ -47,7 +47,7 @@ setup(
             'scripts/*.sh',
             'scripts/dep/*.sh',
             'scripts/dep/*.R'],
-    },
+    },  # See https://setuptools.readthedocs.io/en/latest/setuptools.html#including-data-files
     entry_points={'console_scripts': ['ml=mlhub:main']},
     install_requires=[
         'distro',
@@ -56,6 +56,5 @@ setup(
         'pyyaml',
         'requests',
         'yamlordereddictloader',
-    ],
-    include_package_data=True,
+    ]
 )
