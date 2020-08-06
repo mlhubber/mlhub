@@ -213,7 +213,7 @@ def install_model(args):
     # Avoid 403 errors which result when the header identifies itself
     # as python urllib or is empty and thus the web site assumes it is
     # a robot. We are not a robot but a user downloading a file. This
-    # will ensure gitlab is oaky with retrieving from a URL by adding
+    # will ensure gitlab is okay with retrieving from a URL by adding
     # a header rather than no header. TODO move to using Requests.
     
     opener = urllib.request.build_opener()
@@ -763,7 +763,7 @@ def configure_model(args):
     # Avoid 403 errors which result when the header identifies itself
     # as python urllib or is empty and thus the web site assumes it is
     # a robot. We are not a robot but a user downloading a file. This
-    # will ensure gitlab is oaky with retrieving from a URL by adding
+    # will ensure gitlab is okay with retrieving from a URL by adding
     # a header rather than no header. TODO move to using Requests.
     
     opener = urllib.request.build_opener()

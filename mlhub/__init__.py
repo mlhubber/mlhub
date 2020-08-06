@@ -148,7 +148,7 @@ def main():
 
         # Model specific commands, such as demo, display.
 
-        logger.info("Parse model specific dommands.")
+        logger.info("Parse model specific commands.")
         model_cmd_parser = argparse.ArgumentParser(
             prog=constants.CMD,
             parents=[global_option_parser],
