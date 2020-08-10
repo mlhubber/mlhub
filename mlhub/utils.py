@@ -1797,7 +1797,7 @@ class BitbucketURL(RepoTypeURL):
         )
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
-        """Compose Bitbuckt URL for the content of a file or a directory."""
+        """Compose Bitbucket URL for the content of a file or a directory."""
 
         if api:
             return "https://api.bitbucket.org/2.0/repositories/{}/{}/src/{}/{}?format=meta".format(
@@ -2232,7 +2232,7 @@ def get_py_pkg_path_env(model):
     # mlhub as the root location of the installed packages and so
     # different pip version cause confusion.
 
-    # 20200720 Tried to determin which to use here dynamically but
+    # 20200720 Tried to determine which to use here dynamically but
     # getting complicated.
 
     # 20200722 Now with `ml configure` resume upgrading to the latest
@@ -2428,7 +2428,7 @@ corresponding functions defined in <module>."""
 
         cmd_meta = self.commands[subcommand]
         self.logger.debug(
-            "Add command line positioanl argument: {} - {}".format(
+            "Add command line positional argument: {} - {}".format(
                 subcommand, cmd_meta
             )
         )

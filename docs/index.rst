@@ -56,7 +56,7 @@ each command:
 ::
 
     $ ml                # Show a usage message.
-    $ ml available      # List of pre-buld models on the MLHub.
+    $ ml available      # List of pre-build models on the MLHub.
     $ ml installed      # List of pre-built models installed locally
     $ ml install   rain # Install the model named 'rain'.
     $ ml readme    rain # View background information about the model.

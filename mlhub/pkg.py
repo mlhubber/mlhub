@@ -38,10 +38,10 @@ import subprocess
 import re
 import textwrap
 
+
 # ----------------------------------------------------------------------
 # Support Package Developers
 # ----------------------------------------------------------------------
-
 def load_key(path):
     """Load subscription key and endpoint from file."""
     key = None
@@ -199,7 +199,7 @@ def azrequest(endpoint, url, subscription_key, request_data):
 
     If the request is successful, the JSON response is returned.
 
-    Aim to generailse this to go into MLHUB to send request.
+    Aim to generalise this to go into MLHUB to send request.
     """
     
     headers = {'Content-Type': 'application/json',

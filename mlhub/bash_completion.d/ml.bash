@@ -149,7 +149,7 @@ _mlhub() {
 
     # Determines possible completions for the command (${firstword})
     case "${firstword}" in
-	# Commands do not reqire a model name
+	# Commands do not require a model name
 	available)
 	    complete_options="${available_options}"
             ;;
