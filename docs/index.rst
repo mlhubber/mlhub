@@ -1,8 +1,6 @@
 The Machine Learning Hub
 ========================
 
-|MLHub Status| |PyPi version| |PyPi downloads|
-
 A *Command Line* platform for presenting and utilising Machine Learning,
 Artificial Intelligence, and Data Science capabilities.
 

@@ -1,10 +1,6 @@
 The Machine Learning Hub
 ========================
 
-[![MLHub Status](http://badge.kloud51.com/pypi/s/mlhub.svg)](https://mlhub.ai)
-[![PyPi version](https://img.shields.io/pypi/v/mlhub.svg)](https://mlhub.ai)
-[![PyPi downloads](https://pypip.in/d/mlhub/badge.png)](https://mlhub.ai)
-
 A *Command Line* framework and platform for presenting and utilising
 Machine Learning, Artificial Intelligence, and Data Science
 capabilities.
