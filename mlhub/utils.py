@@ -51,8 +51,8 @@ import yamlordereddictloader
 import zipfile
 
 from abc import ABC, abstractmethod
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process as fuzzprocess
+from rapidfuzz import fuzz
+from rapidfuzz import process as fuzzprocess
 from mlhub.constants import (
     APP,
     APPX,
@@ -2351,9 +2351,9 @@ def get_model_completion_list():
 def find_best_match(misspelled, candidates):
     """Find the best matched word with <misspelled> in <candidates>."""
 
-    best_match = fuzzprocess.extract(
+    best_match = fuzzprocess.extractOne(
         misspelled, candidates, scorer=fuzz.ratio
-    )[0]
+    )
     matched = best_match[0]
     score = best_match[1]
 
