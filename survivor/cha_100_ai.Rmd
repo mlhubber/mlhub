@@ -1,0 +1,101 @@
+<!-- 
+
+Time-stamp: <Monday 2021-03-15 19:07:42 AEDT Graham Williams>
+
+Free and Open Source Software Survival Guide
+
+LICENSE
+
+Author: Graham.Williams@togaware.com
+License: Creative Commons Attribution License 4.0 International
+Reference: https://creativecommons.org/licenses/by/4.0/
+Copyright: (c) Graham.Williams@togaware.com
+
+You are free to Share (copy and redistribute the material in any
+medium or format) and Adapt (remix, transform, and build upon the
+material for any purpose, even commercially), under the following
+terms of Attribution (you must give appropriate credit, provide a
+link to the license, and indicate if changes were made and you may
+do so in any reasonable manner, but not in any way that suggests the
+licensor endorses you or your use) and No Additional Restrictions
+(You may not apply legal terms or technological measures that
+legally restrict others from doing anything the license permits.
+
+-->
+
+# (PART) Getting Started {-}
+
+# AI, Machine Learning, Data Science {#ai}
+
+`r CiteDate(20200223)` GNU/Linux is a very productive platform for
+learning about, utilising, developing and deploying Machine Learning
+algorithms, Artificial Intelligence models and Data Science services
+(MLAIDS). It has been the platform of choice for developers for nearly
+30 years.
+
+The goal of this chapter is to share the power of this suite of
+technology to the general computer user, making the latest
+developments accessible.. Often technology gets dumbed down to achieve
+widespread use but it leads to little or to no understanding. Our aim
+is to simplify access to technology whist educating users along the way.
+
+So what is Artificial Intelligence? Many definitions exist and have
+changed over time, often to incorporate some latest technology that
+needs a marketing boost! It's useful to go back to the origins from a
+`r Link("workshop in 1956 at Dartmouth College","https://en.wikipedia.org/wiki/Dartmouth_workshop")`
+in the USA funded by the Rockefeller Foundation. The workshop agreed
+on the term artificial intelligence and proposed that it encapsulated:
+
+```
+an attempt to find how to make machines use language, form
+abstractions and concepts, solve kinds of problems now reserved for
+humans, and improve themselves. …  For the present purpose the
+artificial intelligence problem is taken to be that of making a
+machine behave in ways that would be called intelligent if a human
+were so behaving.
+```
+
+That's quite broad but we note that machine learning is a key element,
+as is language, and alluding to knowledge representation as
+abstractions and concepts, with a purpose of problem solving.
+Learning of course is also core to the human experience of
+intelligence.
+
+Data Science, which as a term has gained currency since 2014, is a
+profession oriented endeavour of using both Machine Learning and AI
+technology (plus Statistics) to deliver new insights and knowledge
+from data.
+
+This chapter highlights this exciting area of technological
+development in the context of GNU/Linux as an enabling operating
+system. The `r Link("MLHub", "https://mlhub.ai")` will be utilised as the
+platform through which AI, machine learning and data science are
+explored. The MLHub, put simply, aims to share the latest algorithms
+and models within a framework that is easy for people to build the
+models to share and a platform that is easy for anyone to explore.
+
+## AI Generations
+
+**20201024**
+
+The later 2010's saw the emergence of the fourth AI revolution. We
+might characterise these eras of AI as follows:
+
+**Search** The 1950's saw reasoning as search. Natural language,
+micro worlds, and neural networks all featured during this time.
+
+**Knowledge Representation** The 1980's saw a surge in expert systems,
+knowledge representation, and back propagation.
+
+**Agents** The 1990's saw a focus on agents. Deep Blue,
+intelligent agents and the emergence of Data Mining.
+
+**Massive Data and Compute** The 2010's saw the emergence of data
+science and deep learning made possible by the coupling of accessible
+massive compute on the cloud and the centralised collection of massive
+amounts of personal data.
+
+The **Future** will see a resurgence of interest in causal
+reasoning, knowledge graphs (frames), accessible AI, and federated
+data privacy. 
+

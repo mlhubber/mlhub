@@ -1,0 +1,23 @@
+# animate --- Animate Graphics {#animate}
+
+`r CiteDate(20200220)` See <https://github.com/gjwgit/animate> for details.
+
+This package illustrates the effectiveness of animations in adding
+insight to any data analysis. Animations are shown to communicate
+quite effectively the story that the data is telling.
+
+A sports animation based on data from the International Association of
+Athletics Federations (IAAF) is used.
+
+```{bash eval=FALSE}
+$ ml install animate
+```
+
+```{bash eval=FALSE}
+$ ml configure animate
+```
+
+```{bash eval=FALSE}
+$ ml demo animate
+```
+

@@ -1,0 +1,88 @@
+# (PART) Developer {-}
+
+# Building Packages
+
+## Dependencies
+
+`r CiteDate(20200221)` Within the MLHUB.yaml file dependencies can be
+listed.
+
+To install a system dependency
+
+```{bash eval=FALSE}
+dependencies:
+  system:
+    - atril         # apt install atril
+```
+
+To install a system python package, for example python3-opencv:
+
+```{bash eval=FALSE}
+dependencies:
+  python3:
+    - opencv        # apt install python3-opencv
+```
+
+For a Python package installed from pipy:
+
+```{bash eval=FALSE}
+description:
+  pip3:
+    - pyfakewebcam  # pip3 install pyfakewebcam
+```
+
+For **R** package dependencies if a package needs to be installed
+then it will be installed into `~/.mlhub/pkg/R/`. In
+this way the installation of particular versions of a package will not
+interfere with any system or user installed versions of packages for
+other applications.
+
+```{bash eval=FALSE}
+dependencies: 
+  cran: 
+    - rpart         # install.packages("rpart")
+    - rattle=5.2.0  # devtools::install_version("rattle", version="5.2.0")
+```
+
+File dependencies in the simplest case install files from the git
+repository onto the local installation of the package base directory
+(`~/.mlhub/pkg/`):
+
+```{bash eval=FALSE}
+dependencies:
+  files:
+    - docs/README.md  # Install from github as README.md in base directory. 
+    - demo.R          # Install from github as demo.R in base directory.
+```
+
+Arbitrary files can be downlaoded from the Internet and renamed/saved
+locally:
+
+```{bash eval=FALSE}
+dependencies:
+  files:
+    - https://www.wayoutback.com.au/assets/Uploads/Uluru.jpg: cache/images/uluru.jpg
+    - https://www.wayoutback.com.au/assets/Uploads/Uluru.jpg: cache/images/
+```
+
+## Coding
+
+`r CiteDate(20200901)` The *mlhub.pkg.azkey()* function will
+request a key and location or endpoint required to access an Azure AI
+cloud service. The optional argument *verbose=* (*True*
+by default) will report whether the key has already been cached or if
+it is cached after being supplied.
+
+## Going Forward
+
+`r CiteDate(20201025)` The concept of mlhub as a generic toolkit may
+indicate the evolution of the command line interface to focus on the
+command and reduce the focus of the model itself, so that a command
+like **ocr** will use any model that has an **ocr**
+command, and if there are multiple, then have the concept of a
+preferred model overridden by a command line option:
+
+```{bash eval=FALSE}
+$ ml ocr myscript.png
+$ ml ocr --model=azcv myscript.png
+```

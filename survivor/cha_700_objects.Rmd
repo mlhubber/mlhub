@@ -1,0 +1,24 @@
+# objects --- Object Classification for Computer Vision {#objects}
+
+`r CiteDate(20200220)`
+
+```{bash eval=FALSE}
+$ ml install objects
+Package https://codeload.github.com/mlhubber/objects/zip/master
+
+Downloading 'objects-master.zip' ...
+
+Extracting 'objects-master.zip' ...
+
+Installed 'objects' into '/home/kayon/.mlhub/objects' (30,883 bytes).
+
+To configure the package:
+
+  $ ml configure objects
+```
+
+```{bash eval=FALSE}
+$ ml configure objects
+
+```
+

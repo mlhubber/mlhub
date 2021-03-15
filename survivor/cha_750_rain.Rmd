@@ -1,0 +1,24 @@
+# rain --- Predicting Rain Tomorrow {#rain}
+
+`r CiteDate(20200901)` Decision trees and the ensemble of decision trees
+within a random forest are two common approaches to building
+classification models in AI. The concept of an ensemble of decision
+trees was introduced in 1988 in the paper
+`r Link("Combining Decision Trees: Initial results from the MIL algorithm", "http://togaware.com/papers/milai87.pdf")` where the improved
+performance from multiple trees is demonstrated. The
+`r Link("rattle", "https://rattle.togaware.com")` package in R provides the
+weatherAUS dataset which is used to predict if it will rain tomorrow
+(or any other target variable of choice). This is the dataset used to
+build the model that is demonstrated in the
+`r Link("MLHub", "https://mlhub.ai")` package
+`r Link("rain", "https://github.com/gjwgit/rain")`.
+
+We install, configure and demonstrate the *rain* model, a
+decision tree model for predicting whether it will rain tomorrow:
+
+```{bash eval=FALSE}
+$ ml install rain
+$ ml configure rain
+$ ml demo rain
+```
+

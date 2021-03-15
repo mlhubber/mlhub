@@ -1,0 +1,496 @@
+# MLHub Command Line
+
+`r CiteDate(20200901)` The machine learning hub
+(`r Link("MLHub", "https://mlhub.ai")`) 
+is a framework and repository for accessible AI and Machine
+Learning. It is the platform through which the capabilities of AI,
+machine learning and data science are presented and accessible.  It is
+the platform to share pre-built Machine Learning and Artificial
+Intelligence models as well as Data Science best practices. Each
+package wraps its functionality into commands that are able to be
+readily deployed within traditional and powerful Unix/Linux command
+line pipelines.
+
+Each mlhub package typically provides a **demo** command to
+interactively demonstrate the capabilities of each package. A **gui**
+command provided by many packages presents a graphical user interface
+through which to use the particular capabilities of the package. But
+it is the command line oriented commands that empower the user with
+the capabilities of AI and ML.
+
+An important aim of mlhub is to empower anyone to be able to download
+and install technology and to run a demo within 5 minutes. Within 5
+minutes it needs to be able to demonstrate itself as a useful
+tool. The user can themselves determine whether the package is of
+interest to them, and quickly move one with minimal loss of time if it
+is not something they need or like.
+
+Keeping the ease of development at the forefront, MLHub turns a
+`r Link("git", "https://secure.wikimedia.org/wikipedia/en/wiki/git")` 
+based repository, where many researchers today publish
+their algorithms, into a collection of quickly accessible and ready to
+run, explore, rebuild, and even deploy, pre-built machine learning
+models and data science technology.  The models and technology are
+accessed and managed using the `r Command(ml)` command from the free
+(as in libre) and open source
+`r Link("mlhub", "https://github.com/mlhubber/mlhub")` software. The software
+is available for installation through
+`r Link("pypi", "https://pypi.org/project/mlhub/")`. A growing number of
+machine learning models and data science technology are available, as
+well as cloud based services.
+
+Getting started is simple for computers running Ubuntu LTS (including
+the Windows 10’s Subsystem for Linux and the Raspberry Pi).  The
+command line tool allows for the rapid exploration of data science
+capabilities including
+`r Link("visualisations", "https://github.com/gjwgit/ports")` and
+`r Link("animations", "https://github.com/gjwgit/animate")`, machine learning
+models for `r Link("rain prediction", "https://github.com/gjwgit/rain")` and
+`r Link("movie recommendation", "https://github.com/gjwgit/movies")`, and AI
+models to `r Link("colorize photos", "https://github.com/mlhubber/colorize")`, `r Link("identify objects", "https://github.com/mlhubber/objects")`, and to
+`r Link("detect faces", "https://github.com/simonzhaoms/facedetect")`.
+
+MLHub works best on Ubuntu LTS (18.04 and 20.04), ideally running on
+your installation of Ubuntu as the operating system on your own
+laptop. It is also easy to install on Windows 10 through the Windows
+Subsystem for Linux (WSL) or the Hyper-V gallery (enable Hyper-V and
+choose Ubuntu). For MacOS X use Parallels or Virtual Box to install
+from the Ubuntu iso. It also runs well on cloud Ubuntu servers.
+
+## Installation
+
+`r CiteDate(20200220)` The `r Link("machine learning hub", "https://mlhub.ai")`
+is a platform specifically built on Ubuntu. See
+Chapter&nbsp;\@ref(install) for getting started with Ubuntu on different
+platforms. This quick start is based on a fresh install of Ubuntu
+20.04 LTS.  Some of the steps may not be necessary if some software is
+already installed.
+
+To simplify using the Ubuntu system we will use the `r Command(wajig)`
+system administration suite. `r Package(wajig, "Wajig")` is available from
+the Debian and Ubuntu repositories with the latest updates available
+from `r Link("wajig", "https://pypi.org/project/wajig/")`. Installation of
+`r Package(wajig)` will usually take less than 5 minutes.
+
+```{bash eval=FALSE}
+$ sudo apt install wajig
+$ wajig update 
+$ wajig upgrade 
+$ wajig install python3-pip
+$ pip3 install wajig
+```
+
+Be sure to log out and log back in after the `r Command(pip3)` install
+so that the system will notice your local installation of
+`r Command(wajig)`.
+
+Now we are ready to install and configure MLHub:
+
+```{bash eval=FALSE}
+$ pip3 install mlhub
+$ ml configure
+```
+
+If you now find that the `r Command(ml)` command is not found then you
+may like to log out and back in again. This will refresh the PATH
+where commands are found. The default in Ubuntu 18.04 LTS is that the
+path will include `~/.local/bin` if it exists, which won't be the
+case for the first time. `r Command(pip3, "Pip3")` will install the
+`r Command(ml)` command there and this is checked at login. If all else
+fails then the following could be useful (but not usually required):
+
+```{bash eval=FALSE}
+$ echo 'PATH=~/.local/bin:$PATH' >> ~/.bashrc
+```
+
+MLHub exposes a github repository as a collection of quickly
+accessible and ready to run, explore, rebuild, and even deploy,
+pre-built machine learning models and data science technology.  The
+models and technology are accessed and managed using the ml command
+from the mlhub package available for quick installation from pypi. A
+growing number of machine learning models and data science technology
+are becoming available, as well as cloud based services.
+
+The **configure** of `r Command(ml)` as above will install quite a
+comprehensive collection of AI technology to have your computer
+AI-ready. This will include several hundred packages (mostly small)
+that are downloaded and installed. For each of the major packages you
+will be asked to confirm that it is okay to install it. This could
+take up to 5 minutes.
+
+This will install quite a collection of free and open source packages
+that begins to form a foundation for doing AI and ML and Data Science
+on Ubuntu. Included is the `r Link("R Statistical Software", "https://r-project.org")` package.
+
+As the instructions will suggest, run the following to immediately
+turn on tab expansion for mlhub commands and model names. This will be
+available anyhow on the next login.
+
+```{bash eval=FALSE}
+$ source /etc/bash_completion.d/ml.bash
+```
+
+## Available Models
+
+`r CiteDate(20200220)` The **available** command will list available
+curated models. These are models that the team behind MLHub review to
+ensure their integrity and functionality, particularly based on the
+latest Ubuntu LTS. There is though no limit to what models can be
+packaged for MLHub. MLHub is able to be pointed to any git repository
+and install a package based on the MLHUB.yaml file.
+
+```{bash eval=FALSE}
+$ ml available
+The repository 'https://mlhub.ai/' provides the following models:
+
+animate      2.1.4  Tell a data narative through animations                 
+audit        4.1.0  Classic financial audit predictive classification model.
+azanomaly    3.1.4  Azure Anomaly Detection.                                
+azcv         2.3.3  Azure Computer Vision.                                  
+azface       2.0.4  Azure Face API demo.                                    
+azlang       0.0.3  Azure language cognitive service on the cloud.          
+azspeech2txt 2.1.0  Azure Speech to Text cognitive services on the cloud.   
+aztext       2.4.1  Azure Text Analytics cognitive services on the cloud.   
+aztranslate  2.1.0  Azure Text Translation cognitive services on the cloud. 
+barchart     2.0.1  Demonstrate the concept of barcharts.                   
+beeswarm     2.0.1  Demonstrate the concept of bee swarm charts.            
+colorize     1.5.3  Demonstrate the concept of photo colorization.          
+cvbp         1.3.3  Computer vision best practices.                         
+facedetect   0.2.5  Simple face detection.                                  
+facematch    0.4.2  Simple face recognition.                                
+facets       1.0.1  Visualising data using faceted plots.                   
+iris         2.1.0  Classic iris plant species classifier.                  
+movies       2.0.3  Movie recommendation using the SAR algorthm.            
+nlpbp        0.0.2  Natural language processing best practices.             
+objects      1.5.6  Recognise objects in an image using resnet152.          
+opencv       1.0.2  OpenCV Computer Vision.                                 
+ports        2.0.0  Demostrate the concept of visualising data.             
+rain_dt      4.0.3  Predict rain tomorrow using a decision tree model.      
+rain_rf      2.0.2  Predict rain tomorrow using a random forest model.      
+rbm          1.0.6  Recommendations using restricted Boltzmann machine.     
+sar          1.1.6  Smart adaptive recommendations.                         
+scatter      2.0.0  Demonstrate the concept of scatter plots.               
+tapwater     0.0.3  Factor analysis for understanding customers             
+
+To install a named model, local model file or URL:
+
+  $ ml install <model>
+```
+
+## Hello World
+
+`r CiteDate(20200311)` The MLHub package supports any number of commands
+that are exposed through the individual model packages. MLHub itself
+implements the following commands. Note that in the below examples
+everything from the `#` to the end of the line is ignored (it’s a
+comment).
+
+```{bash eval=FALSE}
+$ ml                   # Summary of commands supported by ml.
+$ ml available         # List of currated models on the MLHub.
+$ ml installed         # List of models installed locally.
+$ ml install   <model> # Install the identified model.
+$ ml configure <model> # Install the model's required dependencies.
+$ ml readme    <model> # View the author's introduction of the model.
+$ ml commands  <model> # List commands supported by the model.
+$ ml uninstall <model> # Uninstall the model and (optionally) model cache.
+```
+
+Once MLHub is installed run the "*Hello World*" example which
+is the *iris* model commonly used in Statistics to demonstrate
+classification and prediction tasks. This uses the free and open
+source R statistical software package which will have been installed
+when you configured mlhub. Follow the commands here as a typical
+workflow for many MLHub packages:
+
+```{bash eval=FALSE}
+$ ml install   iris # Install the pre-built model named 'iris'.
+$ ml configure iris # Configure any dependencies for the model.
+$ ml readme    iris # View background information about the model.
+$ ml commands  iris # List of commands supported by the model.
+$ ml demo      iris # Run the demonstration of the pre-built model.
+$ ml gui       iris # Graphical display of pre-built model.
+$ ml score     iris # Interact with the model to predict iris.
+$ ml train     iris # Supply own data and re-fit a model.
+```
+
+Different pre-built model packages will have different system
+dependencies and these will be installed by the **configure**
+command. After configuration it is useful to review the packager's
+commentary in their **readme**. The list of commands supported by the
+package is provided by **commands**. The **demo** will then provide a
+quick (couple of minutes) demonstration of the capabilities of the
+package. If it looks interesting then the GUI will provide a quick
+interface to some of the functionality whilst the remaining commands
+provide specific functionality.
+
+Other packages recommended for new Data Scientists to explore include
+`r Link("beeswarm", "https://github.com/gjwgit/beeswarm")` and
+`r Link("animate", "https://github.com/gjwgit/animate")`. For the new to ML
+have a look at predicting whether it will rain tomorrow using the
+`r Link("rain", "https://github.com/gjwgit/rain")` package. For Computer
+Vision AI have a look at
+`r Link("objects", "https://github.com/mlhubber/objects")` and
+`r Link("azcv", "https://github.com/gjwgit/azcv")`.
+
+Most model packages will support the following commands:
+
+```{bash eval=FALSE}
+$ ml demo <model> # Run the demonstration of the model.
+$ ml gui  <model> # Graphical display to utilise the model.
+```
+
+And then individual models will support model specific commands. Some
+examples include:
+
+```{bash eval=FALSE}
+$ ml ocr azcv <file>
+$ ml identify objects <file>
+$ ml color colorize <file>
+$ ml listen azspeech2txt
+$ ml train rain <file>
+```
+
+## Install Packages
+
+`r CiteDate(20200221)` After installing MLHub
+(Section&nbsp;\@ref(mlhub_install)) we are ready to install
+`r Link("MLHub", "https://mlhub.ai")` packages. The simplest option is to
+install **curated** packages. Such packages are reviewed by the
+MLHub AI team and the specific details required to install a package
+are obtained from a MLHub maintained index.
+
+The list of curated packages is provided through the
+**available** command.
+
+```{bash eval=FALSE}
+$ ml available
+The repository 'https://mlhub.ai/' provides the following models:
+
+animate      2.1.4  Tell a data narative through animations.              
+audit        4.1.0  Classic financial audit predictive classification model.
+azanomaly    3.1.4  Azure Anomaly Detection.                                
+azcv         2.5.0  Azure Computer Vision.                                  
+azface       2.0.8  Azure Face API demo.                                    
+[...]
+```
+
+The simplest installation will then list one of the package names
+(from the left column of the above table). For example:
+
+```{bash eval=FALSE}
+$ ml install rain
+```
+
+The pacakge itself is retrieved from a git repository, and from github
+by default. The file MLHUB.yaml will be obtained from that repository
+which contains the metadata required to install the package for
+MLHub. We can explictly identify the GitHub path, thus skipping the
+curated package list:
+
+```{bash eval=FALSE}
+$ ml install gjwgit/rain
+```
+
+Specific branches and commits of a GitHub repository can also be
+identified. The example above accesses the master branch by
+default. The first example below accesses the latest dev branch. The
+second example accesses a specific commit.
+
+```{bash eval=FALSE}
+$ ml install gjwgit/rain@dev
+$ ml install gjwgit/rain@aace268
+```
+
+Specific MLHub yaml files within a github repository can also be identified:
+
+```{bash eval=FALSE}
+$ ml install gjwgit/rain:doc/MLHUB.yaml
+$ ml install https://github.com/gjwgit/rain/...
+```
+
+The default git repository is GitHub and so the above are the same as:
+
+```{bash eval=FALSE}
+$ ml install github:gjwgit/rain
+```
+
+The open source GitLab repository is also supported:
+
+```{bash eval=FALSE}
+$ ml install gitlab:gjwgit/rain@2fe89kh:doc/MLHUB.yaml
+$ ml install https://https://gitlab.com/gjwgit/rain/...
+```
+
+As is BitBucket:
+
+```{bash eval=FALSE}
+$ ml install bitbucket:gjwgit/rain
+$ ml install https://bitbucket.org/gjwgit/rain/...
+```
+
+% 20200301 FROM WED SITE TO INCLUDE HERE
+
+% <h4>Install Driect from GitHub</h4>
+
+% <!-- wp:paragraph -->
+% <p>We can also install a MLHub package direct from github. In this way a package developer simply adds <em>MLHUB.yaml</em> and the appropriate Python or R scripts to their github repository to turn their repo into a MLHub package. The example below will access <a href="https://github.com/gjwgit/rain">https://github.com/gjwgit/rain</a>. Currently only github is supported though contributions (pull requests) to <a href="https://github.com/mlhubber/mlhub">https://github.com/mlhubber/mlhub</a> are welcome to support bitbucket and gitlab and git repositories in general.</p>
+% <!-- /wp:paragraph -->
+
+% <!-- wp:preformatted -->
+% <pre class="wp-block-preformatted">$ ml install gjwgit/rain</pre>
+% <!-- /wp:preformatted -->
+
+% <!-- wp:paragraph -->
+% <p>A git repository may contain multiple MLHub packages, like the Microsoft Recommenders best practice repository at <a href="https://github.com/gjwgit/recommenders">https://github.com/gjwgit/recommenders</a>. In this case we point mlhub to the specific configuration files.</p>
+% <!-- /wp:paragraph -->
+
+% <!-- wp:preformatted -->
+% <pre class="wp-block-preformatted">$ ml install gjwgit/recommenders:mlhub/sar.yaml<br>$ ml readme sar<br>$ ...<br><br>$ ml install gjwgit/recommenders:mlhub/rbm.yaml<br>$ ml readme rbm<br>$ ...</pre>
+% <!-- /wp:preformatted -->
+
+## Unistall Packages
+
+`r CiteDate(20200310)` To uninstall a package and thus recover any disk
+space it might be using we can use the **uninstall** command. This
+will also prompt for the removal of the cache maintained for this
+package, which is often where the larger downloads are stored.
+
+```{bash eval=FALSE}
+$ ml uninstall rain
+Remove '/home/kayon/.mlhub/rain/' [Y/n]? 
+
+Remove cache '/home/kayon/.mlhub/.cache/rain/' as well [y/N]? y
+
+```
+
+## Pipelines
+
+
+`r CiteDate(20201024)` A general mlhub philosophy is that the output from
+a command should be, for example, a well defined text
+format. Typically this will use a **csv** (comma separated
+value) format and will be consistent so that follow-on processes
+within a pipeline can further process the results. These might even be
+other mlhub models. The mlhub commands focus on their specific task,
+not solving all problems, but implementing their specific task
+well. We can then leave extra processing to other specialist tools,
+like `r Command(sed)`, or `r Command(cut)`, and `r Command(awk)`.
+
+This example deploys an optical character recognition capability from
+the **ocr** command of the *azcv* model:
+
+```{bash eval=FALSE}
+$ ml ocr azcv ~/.mlhub/azcv/cache/images/mycat.png | head -2
+51.0 43.0 668.0 51.0 667.0 85.0 51.0 77.0,My cats name is freckles. She like's to climb up
+37.0 97.0 691.0 104.0 690.0 134.0 37.0 128.0,high. She is 2 years old. She likes to play a...
+
+$ ml ocr azcv ~/.mlhub/azcv/cache/images/mycat.png | head -2 | sed 's/,/\t/'
+51.0 43.0 668.0 51.0 667.0 85.0 51.0 77.0	My cats name is freckles. She like's to cl...
+37.0 97.0 691.0 104.0 690.0 134.0 37.0 128.0	high. She is 2 years old. She likes to pla...
+```
+
+If you do not care for the bounding boxes that is output by default
+from the **ocr** command then simply remove them using
+`r Command(cut)`:
+
+```{bash eval=FALSE}
+$ ml ocr azcv ~/.mlhub/azcv/cache/images/mycat.png | head -2 | cut -d, -f2-
+My cats name is freckles. She like's to climb up
+high. She is 2 years old. She likes to play a lot of games.
+```
+
+We can process every **jpg** image file in a directory where we may
+have several hundred files. We will save the text output into a
+**txt** file. The following pipeline utilises a for loop, an `r
+Command(ml)` model, and the `r Command(cut)` command:
+
+```{bash eval=FALSE}
+$ for f in images/*.jpg; 
+  do 
+    echo "=====> $f"; 
+    ml ocr azcv $f | 
+    cut -d, -f2- > $(dirname $f)/$(basename $f .jpg).txt; 
+  done
+```
+
+Change the two instances of **jpg** to **png** to
+process **png** image files, and similarly for
+**pdf** files.
+
+Here we transcribe spoken English into text and then translate that
+text into Persian (Farsi) using *azspeech2txt* and
+*aztranslate*:
+
+```{bash eval=FALSE}
+$ ml transcribe azspeech2txt friend.wav | ml translate aztranslate --to=fa
+en,1.0,fa,...
+,این یک آزمایش است تا ببینید که چگونه همه چیز به خوبی ضبط.
+```
+
+A compelling example of a pipeline is to transcribe our English
+utterances, translate to French and then synthesise into a female
+French voice using a combination of *azspeech* and
+*aztranslate*. Here it is:
+
+```{bash eval=FALSE}
+$ ml transcribe azspeech | 
+  ml translate aztranslate --to=fr | 
+  cut -d',' -f4- | 
+  ml synthesize azspeech --voice=fr-FR-HortenseRUS
+```
+
+## Tips
+
+`r CiteDate(20200221)` For R based models it is often useful to install
+some R packages through the operating system, or else locally by a
+user. For the latter case some useful packages to pre-install are
+identified below. This can be done at any time, but is useful before
+installing any of the R based MLHub packages. They will not then
+individually need to install the packages for themselves.
+
+```{bash eval=FALSE}
+$ R
+> install.packages(c("rpart", "tidyverse"))
+```
+
+Similarly for common Python dependencies. One particular example is
+tensorflow which does not have a Ubuntu package and thus is installed
+using pip3. This can be installed any time, and any mlhub package that
+requires tensorflow will not need to install it separately.
+
+```{bash eval=FALSE}
+$ pip3 install tensorflow
+```
+
+If a model has installed badly, got corrupted, or not working as
+expected, sometimes an uninstall followed by install will fix the
+problem. When uninstalling in these circumstances it is usually a good
+idea to remove the cache as well:
+
+```{bash eval=FALSE}
+$ ml uninstall objects
+Remove '/home/kayon/.mlhub/objects/' [Y/n]? y
+Remove cache '/home/kayon/.mlhub/.cache/objects/' as well [y/N]? y
+
+$ ml install objects
+```
+
+% CUT FROM WEB AND INCLUDED HERE INSTEAD - TODO
+
+% <!-- wp:heading -->
+% <h2>Commands Auto Completion</h2>
+% <!-- /wp:heading -->
+
+% <!-- wp:paragraph -->
+% <p>The bash shell on Linux supports command line auto-completion which is pretty handy. You can download <a href="https://mlhub.au/ml.bash"><strong>ml.bash</strong></a> from the MLHub and place the file into <em>/etc/bash_completion.d/</em> or for later versoins of bash, into <em>~/.local/share/bash-completion/completions/</em></p>
+% <!-- /wp:paragraph -->
+
+% <!-- wp:preformatted -->
+% <pre class="wp-block-preformatted">$ wget https://mlhub.ai/ml.bash<br>THEN<br>$ sudo install -m 0644 ml.bash /etc/bash_completion.d/<br>OR (for bash --version &gt; 4.3)<br>$ mkdir -p ~/.local/share/bash-completion/completions/<br>$ mv ml.bash ~/.local/share/bash-completion/completions/</pre>
+% <!-- /wp:preformatted -->
+
+% <!-- wp:paragraph -->
+% <p>Restart the shell for the auto-completion to take effect. Then type '<em>ml '</em>&nbsp; then the beginnings of a command, like <em>'a'</em>, and then TAB to auto-complete. Auto-completion also works for model names.<br></p>
+% <!-- /wp:paragraph -->
+

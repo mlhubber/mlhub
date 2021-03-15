@@ -1,0 +1,10 @@
+# webcam --- WebCam Image Manipulation {#webcam}
+
+`r CiteDate(20200405)` See <https://gitlab.com/kayontoga/webcam> for details.
+
+This package creates a new dummy webcam device through which video
+conferencing applications, such as Zoom, can source their video feeds
+that are broadcast to the video conference. Video processing of the
+video stream from an actual webcam can then be performed to provide
+various privacy options.
+

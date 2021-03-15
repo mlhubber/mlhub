@@ -1,0 +1,55 @@
+```{r include=FALSE}
+
+target <- ifelse(knitr::is_html_output(), '{ target="_blank" }', '')
+
+########################################################################
+# Register specific code blocks.
+
+knitr::knit_engines$set(php = function(options)
+{
+  code <- options$code
+  code
+})
+
+########################################################################
+# Macros to generate required markdown.
+
+# Support citation dates for each section for HTML and PDF.
+
+CiteDate <- function(date)
+{
+  if (knitr::is_html_output())
+    glue::glue("<font size=1><i>{date}</i></font>")
+  else
+    glue::glue("\\CiteDate{<date>}", .open="<", .close=">")
+}
+
+# Link a Linux command to online man page.
+
+Command <- function(cmd, txt=cmd)
+{
+  cmd <- as.character(substitute(cmd))
+  glue::glue('[<txt>](https://man.cx/<cmd>)<target>', .open="<", .close=">")
+# Wikipedia uses https://www.mankier.com/
+# glue::glue("[{txt}](https://manpages.ubuntu.com/cgi-bin/search.py?q={cmd})")
+}
+
+Link <- function(txt, url) # Set up an external URL link to open in new tab.
+{
+  glue::glue('[<txt>](<url>)<target>', .open="<", .close=">")
+}
+
+Package <- function(pkg, txt=pkg) # Link a Ubuntu package to online description.
+{
+  pkg <- as.character(substitute(pkg))
+  glue::glue('[<txt>](https://packages.ubuntu.com/<pkg>)<target>', .open="<", .close=">")
+}
+
+Wikipedia <- function(txt, title=txt) # Link to the Wikipedia entry.
+{
+  glue::glue('[<txt>](https://secure.wikimedia.org/wikipedia/en/wiki/<title>)<target>', .open="<", .close=">")
+}
+             
+
+``` 
+

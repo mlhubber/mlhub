@@ -1,0 +1,527 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Style File for One Pager Survival Guides
+
+% 20210311 ALREADY DEFINED \newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
+
+%-----------------------------------------------------------------------
+% TOCLOFT
+%
+% Control table of contents, figures, etc.
+
+\usepackage{tocloft}
+\renewcommand\cftchapnumwidth{2em}
+\renewcommand\cftsecindent{2em}
+\renewcommand\cftsecnumwidth{3.2em}
+\renewcommand\cftsubsecindent{5.2em}
+\renewcommand\cftsubsecnumwidth{4em}
+
+%-----------------------------------------------------------------------
+% BABEL
+%
+% Locale date format.
+
+\usepackage[british]{babel}
+
+\def\mydate{\leavevmode\hbox{\the\year\twodigits\month\twodigits\day}}
+\def\twodigits#1{\ifnum#1<10 0\fi\the#1}
+
+%\usepackage[dvipsnames]{xcolor}
+
+%-----------------------------------------------------------------------
+
+\usepackage{enumitem} % Support [resume] option in enumerate.
+
+%-----------------------------------------------------------------------
+% GEOMETRY
+%
+% Allow pages fit more text.
+% Any todo text is always on the right.
+
+\usepackage[a4paper,total={17cm,24cm},asymmetric=true]{geometry}
+
+%-----------------------------------------------------------------------
+
+% 20210301 option clash - comment out for now
+% \usepackage[
+% colorlinks=true,
+% linkcolor=ForestGreen,
+% urlcolor=blue,
+% pagebackref,
+% plainpages=false,
+% pdfpagelabels,
+% pdfauthor={Graham Williams},
+% pdftitle={GNU/Linux: Survival Guide},
+% pdfsubject={Linux Open Source},
+% pdfkeywords={linux,ubuntu,debian,open source,gnu/linux},
+% ]{hyperref}
+
+\usepackage{todonotes}
+\usepackage{verbatim} % Support \verbatiminput.
+% \usepackage[parfill]{parskip} % Non indent and leave space between paragraphs
+\usepackage[authoryear]{natbib}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{supertabular}
+\usepackage{array} % 20200204 Required for supertabular.
+\usepackage{longtable}
+\usepackage{wrapfig}
+%\usepackage{comment} % 20181229 gjw no longer required?
+\usepackage{listings}
+\usepackage {gensymb} % \degree
+
+\usepackage{ifthen}
+
+% \usepackage{nomencl} Cause rubber to fail with "[depend] while
+% making survivor.pdf: file contents does not seem to settle'
+
+%\usepackage{pdfdraftcopy}
+%\draftstring{Copyright \copyright{} 1995-2020 Graham Williams}
+%\draftfontsize{50}
+%\draftangle{0}
+
+%
+% DATE
+%
+\def\today{{\number\day} \ifcase\month\or
+  January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or December\fi
+  \space\number\year}
+
+%-----------------------------------------------------------------------
+% HEADER FOOTER
+
+\newcommand{\Series}{Linux Survival}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\pagestyle{fancy}
+
+\setlength\headheight{14.5pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{#1}}
+
+\fancyhead[OR]{\rightmark\ --- \thepage}
+\fancyhead[EL]{\thepage\ ---  \rightmark}
+\fancyfoot[EL,OR]{\small
+  Copyright \copyright{} 1995-2020 Graham.Williams@togaware.com}
+\fancyfoot[C]{}
+
+%------------------------------------------------------------------------
+% SECTIONS
+%
+% Start every section on a new page.
+
+\let\stdsection\section
+\renewcommand\section{\newpage\stdsection}
+
+\let\stdsubsection\subsection
+\renewcommand\subsection{\newpage\stdsubsection}
+
+%
+% GLOSSARY
+%
+%\makeglossary
+%\renewcommand{\nomname}{Glossary}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% LISTINGS
+%
+\definecolor{lightgray}{gray}{0.9}
+
+\lstset{language=sh,
+  showstringspaces=false,
+  backgroundcolor=\color{lightgray},
+  %keywordstyle=\bfseries,
+  %frame=single,
+  %framerule=0pt,
+  %frameround=tttt,
+  %basicstyle=\footnotesize,
+  basicstyle=\ttfamily\scriptsize,
+  %basicstyle=\scriptsize,
+  captionpos=b}
+
+\renewcommand{\lstlistlistingname}{List of Listings}
+
+%
+% INDENTATION
+%
+\setlength\parindent{0pt}
+\setlength\parskip{3mm plus 1pt}
+\columnsep 8mm
+
+%
+% MAKEINDEX
+%
+
+\makeindex
+%\proofmodetrue
+%\newindex{path}{pdx}{pnd}{Index of Paths}
+%\newindex{command}{cdx}{cnd}{Index of Commands}
+%\newindex{daemon}{ddx}{dnd}{Index of Daemons}
+%\newindex{package}{kdx}{knd}{Index of Packages}
+%\newindex{url}{udx}{und}{Index of URLs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% APPLICATIONS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\Debian}{\textsf{Debian}}
+\newcommand{\Ubuntu}{\textsf{Ubuntu}}
+\newcommand{\GLADE}{\Package[glade]{Glade}}
+\newcommand{\GNOME}[1][XnullX]{\ifthenelse{\equal{#1}{XnullX}}{GNOME}{\Package[gnome]{GNOME}}}
+\newcommand{\KDE}{\Package[kde]{KDE}}
+\newcommand{\Libglade}{\Package[libglade]{Libglade}}
+\newcommand{\Python}{\Package[python]{Python}}
+\newcommand{\RedHat}{\textsf{Red Hat}}
+
+\newcommand{\DebianPackages}{\textit{Debian Packages:}}
+
+\newcommand{\LevelUser}{\textbf{Expertise:} Home User} 
+\newcommand{\LevelAdmin}{\textbf{Expertise:} Administrator} 
+
+\newcommand{\Historic}{\textit{Note: With today's polished distributions of
+  GNU/Linux, including Debian and Ubuntu, (as of 2008) the description
+  here may be dated, but we retain this information for reference.}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% DOCUMENT ELEMENTS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\ConfigOption}[1]{\textbf{#1}}
+\newcommand{\Example}[1]{\texttt{#1}}
+
+%
+% I REALLY WANT THESE TO USE UP THE FULL WIDTH (INCLUDING MARGIN) BUT
+% DON''T KNOW HOW JUST YET.  OR MAYBE JUST HAVE A wideexample THAT
+% DOES THIS
+%
+
+\newenvironment{example}{\small\verbatim}{\endverbatim}
+\newenvironment{smallexample}{\footnotesize\verbatim}{\endverbatim}
+\newenvironment{fnexample}{\footnotesize\verbatim}{\endverbatim}
+\newenvironment{tinyexample}{\tiny\verbatim}{\endverbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% GRAPHICS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Some margin stuff
+%
+% A graphic file is to be displayed in the margin.  Default width is
+% the margin width but an optional argument is used to change this.
+%
+\newcommand{\MarginGraphic}[2][width=\marginparwidth]%
+  {\marginpar{\center\includegraphics[#1]{#2}}}
+\newcommand{\BookRef}[4]{%
+    {\textbf{#2} by \textit{#3}. #4}
+    \marginpar{\center\includegraphics[width=15mm]{#1}}
+    }
+\newcommand{\WebRef}[2]{%
+    {#2}
+    \marginpar{\center\includegraphics[width=\marginparwidth]{#1}}
+    }
+\newcommand{\Warning}%
+%  {}
+  {\marginpar{\centering \includegraphics[width=10mm]{admin}}}
+
+\newenvironment{admin}% MAYBE JUST SHADE THE BACKGROUND
+%  {}{}
+%  {\textcolor{red}}{}
+%  {\changebar\Warning}{\endchangebar}
+%  {\leavevmode\Warning}{}
+  {\Warning}{}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% INDEXING - NO LONGER DOING INDEXING 20210308
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% IndexMarkup Index Entry Category Text
+%
+% A general macro to optionally index plus emit the formatted text.
+%
+% Index is the index entry. If it is equal to the special marker
+% XnullX then no index entry will be generated. If it is blank then
+% Entry is used directly as the index entry.
+%
+% The general philosophy of the following collection of definitions
+% using IndexMarkup is that if something is to be indexed then
+% something extra has to be done by the user to make this happen.  By
+% itself things are not indexed. So, for example, if we define MyCmd
+% as:
+%
+% \newcommand{\MyCmd}[2][XnullX]{\IndexMarkup{#1}{#2}{mycmd}{\textbf{#2}}}
+%
+% then
+%
+% \MyCmd{file} will bold font file but not index file.
+% \MyCmd[]{file} will bold font file and index file (mycmd)
+% \MyCmd[file]{File} will bold font File and index file (mycmd)
+% \MyCmd[class!file]{File} will bold font File and index class!file (mycmd)
+
+\newcommand{\IndexMarkup}[4]{%
+  \ifthenelse{\equal{#1}{XnullX}}%
+  {}%
+  {\ifthenelse{\equal{#1}{}}%
+    {\ifthenelse{\equal{#3}{}}{\index{#2}}{\index{#2 (#3)}}}%
+    {\ifthenelse{\equal{#3}{}}{\index{#1}}{\index{#1 (#3)}}}}%
+  #4}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% 
+% APPLICATION is a named application that does not have any
+% hyperlinks.
+%  
+\newcommand{\Application}[2][XnullX]{\IndexMarkup{#1}{#2}{command}{\textsf{#2}}}
+%
+\newcommand{\Button}[2][XnullX]{\textsf{#2}} % Don't index buttons!
+\newcommand{\Checkbox}[2][XnullX]{\IndexMarkup{#1}{#2}{}{\textsf{#2}}}
+%
+% COMMAND
+%
+\newcommand{\Command}[2][XnullX]{%
+  \IndexMarkup{#1}{#2}{command}{%
+    \ifthenelse{\equal{#1}{XnullX}}%
+    {\href{https://manpages.ubuntu.com/cgi-bin/search.py?q=#2}}% \Xxxx{yyyy}
+    {\ifthenelse{\equal{#1}{}}% 
+      {\href{https://manpages.ubuntu.com/cgi-bin/search.py?q=#2}}% \Xxxx[]{yyyy}
+      {\href{https://manpages.ubuntu.com/cgi-bin/search.py?q=#1}}}}% \Xxxx[yyyy]{Yyyy}
+    {\textsf{#2}}}
+%
+% CONCEPT
+%
+\newcommand{\Concept}[2][XnullX]{\IndexMarkup{#1}{#2}{concept}{\textit{#2}}}
+\newcommand{\Configuration}[2][XnullX]{\IndexMarkup{configuration!#1}{#2}{}{\textbf{#2}}}
+\newcommand{\Daemon}[2][XnullX]{\IndexMarkup{#1}{#2}{daemon}{\textbf{#2}}}
+\newcommand{\Distribution}[2][XnullX]{\IndexMarkup{#1}{#2}{distribution}{\textit{#2}}}
+\newcommand{\Environment}[2][XnullX]{\IndexMarkup{#1}{#2}{environment variable}\texttt{#2}}
+%
+% EXTENSION is the file name extension, without the dot and in
+% lowercase.
+%
+\newcommand{\Extension}[2][XnullX]{\IndexMarkup{#1}{#2}{filename extension}{\textsf{#2}}}
+%
+\newcommand{\Field}[2][XnullX]{\IndexMarkup{#1}{#2}{}{\textsf{#2}}}
+%
+% FILE is a filename, without a path. For a path to a file use PATH.
+%
+\newcommand{\File}[2][XnullX]{\IndexMarkup{#1}{#2}{file}{\path{#2}}}
+%
+% FOLDER is a path to a directory. Don't identify it as the argument
+% should end in / to indicate it is a directory.
+%
+\newcommand{\Folder}[2][XnullX]{\IndexMarkup{#1}{#2}{}{\path{#2}}}
+%
+\newcommand{\Function}[2][XnullX]{\IndexMarkup{#1}{#2}{function}{\texttt{#2}}}
+%
+% GITCMD indexes the command as git!<command> if [] or [xyz] is given,
+% otherwise just format the command in the text. If [xyz] is given
+% then git!xyz is indexed rather than git!<command>.
+%
+\newcommand{\GitCmd}[2][XnullX]{\IndexMarkup{#1}{#2}{git command}{\textsf{#2}}}
+%
+%
+%
+\newcommand{\Group}[2][XnullX]{\IndexMarkup{#1}{#2}{group}{\textit{#2}}}
+\newcommand{\Highlight}[2][XnullX]{\IndexMarkup{#1}{#2}{}{\textbf{#2}}}
+\newcommand{\Host}[2][XnullX]{\IndexMarkup{#1}{#2}{host}%
+{\ifthenelse{\equal{#1}{XnullX}}%
+  {\textsf{#2}}%
+  {\textsf{#2} (Section~\ref{sec:#2})}}}
+\newcommand{\HostName}[2][XnullX]{\IndexMarkup{#1}{#2}{host}{\textsf{#2}}}
+\newcommand{\Index}[2][XnullX]{\IndexMarkup{#1}{#2}{}{#2}}
+\newcommand{\Label}[2][XnullX]{\textbf{#2}}
+%
+% LATEXPKG is indexed if [] provided. If [] is non-empty then that
+% becomes the index entry. It is always hyperlinked to
+% https://packages.ubuntu.com/X where X is either the contents of {}
+% or if [] is provided and is non-empty then that is used instead.
+%
+\newcommand{\LaTeXPkg}[2][XnullX]{\IndexMarkup{#1}{#2}{latex package}%
+{\ifthenelse{\equal{#1}{XnullX}}%
+  {\href{https://www.ctan.org/pkg/#2}}%
+  {\ifthenelse{\equal{#1}{}}%
+    {\href{https://www.ctan.org/pkg/#2}}%
+    {\href{https://www.ctan.org/pkg/#1}}}}%
+{#2}}
+\newcommand{\Menu}[2][XnullX]{\IndexMarkup{#1}{#2}{menu}{\textsf{#2}}}
+%
+% MLHUBCMD
+%
+\newcommand{\MLHubCmd}[2][XnullX]{\IndexMarkup{#1}{#2}{mlhub command}{\textbf{#2}}}
+%
+% MLHUBMODEL
+%
+\newcommand{\MLHubModel}[2][XnullX]{\IndexMarkup{#1}{#2}{mlhub model}{\textit{#2}}}
+%
+%
+%
+\newcommand{\Module}[2][XnullX]{\IndexMarkup{#1}{#2}{module}{\textbf{#2}}}
+\newcommand{\UL}[1]{\underline{#1}} % MENU shortcut - the undelined bit
+\newcommand{\RA}{$\rightarrow$} % MENU arrow to submenu
+\newcommand{\Option}[2][XnullX]{\textbf{#2}}
+%
+% PACKAGE is indexed if [] provided. If [] is non-empty then that
+% becomes the index entry. It is always hyperlinked to
+% https://packages.ubuntu.com/X where X is either the contents of {}
+% or if [] is provided and is non-empty then that is used instead.
+%
+\newcommand{\Package}[2][XnullX]{\IndexMarkup{#1}{#2}{package}%
+{\ifthenelse{\equal{#1}{XnullX}}%
+  {\href{https://packages.ubuntu.com/#2}}%
+  {\ifthenelse{\equal{#1}{}}%
+    {\href{https://packages.ubuntu.com/#2}}%
+    {\href{https://packages.ubuntu.com/#1}}}}%
+{#2}}
+%
+% PATH is a path to a file. Compared with FILE which is just a
+% filename, without a path. For indexing we don't include (file) for a
+% PATH as it is clear it is a file rather than a folder. Individual
+% files will have (file) as they are listed amongst the general index.
+%
+\newcommand{\Path}[2][XnullX]{\IndexMarkup{#1}{#2}{}{\path{#2}}}
+%
+\newcommand{\Release}[2][XnullX]{\IndexMarkup{#1}{#2}{release}{\textit{#2}}}
+\newcommand{\Tab}[2][XnullX]{\IndexMarkup{#1}{#2}{tab}{\textsf{#2}}}
+\newcommand{\UnixGroup}[2][XnullX]{\IndexMarkup{#1}{#2}{group}{\textit{#2}}}
+
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% ULINK         A link that addresses its target by means of a URL
+%
+%               Currently I don't know how to handle ~ in the second
+%               argument to IndexMarkup. I've tried \path and \url
+%               without success.
+%
+%               Also, I tried using \href instead of \url so I could
+%               handle underscores, but underscores are okay in arg1
+%               but not arg2 and \_ is okay in arg2 but not arg1!
+%
+%               For now use \url or \href in the source document, not
+%               macro. That is, don't use ULink for now, since I'm not
+%               even indexing them at present.
+%
+%
+%\newcommand{\ULink}[2][XnullX]{\IndexMarkup{XnullX}{#2}{}{\url{#2}}}
+
+\newcommand{\User}[2][XnullX]{\IndexMarkup{#1}{#2}{users}{\textit{#2}}}
+
+%
+%\newcommand{\Wajig}[2][XnullX]{\IndexMarkup{#1}{#2 (wajig command)}{Wajig Commands}{\textit{#2}}}
+\newcommand{\Wajig}[2][XnullX]{\index{#2 (wajig command)}\index{wajig commands!#2}{\textit{#2}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% WIDGET
+%
+\newcommand{\Widget}[2][XnullX]{\IndexMarkup{#1}{#2}{widgets}{\textsf{#2}}}
+%
+% WIKIPEDIA The entry is always indexed.
+%
+\newcommand{\Wikipedia}[2][XnullX]{%
+  \ifthenelse{\equal{#1}{XnullX}}%
+    {\href{http://en.wikipedia.org/wiki/#2}{#2}%
+      \index{#2}}
+    {\href{http://en.wikipedia.org/wiki/#1}{#2}%
+      \index{#2}}}
+
+\newcommand{\StackOverflow}[1]{See also \href{http://stackoverflow.com/questions/#1}{StackOverflow}.}
+
+\newcommand{\LinuxLinks}[2][XnullX]{%
+  \ifthenelse{\equal{#1}{XnullX}}%
+    {See also \href{http://www.linuxlinks.com/#2}{#2}%
+      \index{#2}.}
+    {See also \href{http://www.linuxlinks.com/#1}{#2}%
+      \index{#2}.}}
+
+%\newcommand{\CiteDate}[1]{\textit{[#1]}}
+%\newcommand{\CiteDate}[1]{\todo[color=green!40,noline]{#1}}
+\newcommand{\CiteDate}[1]{\todo[color=white,bordercolor=white,textcolor=gray,noline]{\footnotesize #1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% WINDOW TITLE
+%
+\newcommand{\Window}[2][XnullX]{\IndexMarkup{#1}{#2}{}{\textsf{#2}}}
+%
+\newcommand{\Keystroke}[2][XnullX]{%
+  \ifthenelse{\equal{#1}{XnullX}}%
+    {}%
+    {\ifthenelse{\equal{#1}{}}%
+      {\index{Shortcuts!#2}}%
+      {\index{Shortcuts!#1}}}%
+  \texttt{#2}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% SECTIONING
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\Include}[1]{%
+  \clearemptydoublepage
+  \rfoot[\textit{\today}]{\textit{#1.tex}}%
+  \lfoot[\textit{#1.tex}]{\textit{\today}}%
+  \include{#1}}
+\newcommand{\Input}[1]{%
+  \clearemptydoublepage
+  \rfoot[\textit{\today}]{\textit{#1.tex}}%
+  \lfoot[\textit{#1.tex}]{\textit{\today}}%
+  \input{#1}}
+\newcommand{\Part}[1]{%
+  \clearemptydoublepage
+  \rfoot[\textit{\today}]{\textit{debbook.tex}}%
+  \lfoot[\textit{debbook.tex}]{\textit{\today}}%
+  \part{#1}}
+\newcommand{\DebianFoot}[1]{%
+  \fancyfoot[ER,OL]{\small%
+    Copyright \copyright{} 1995-2020 Graham.Williams@togaware.com}
+  \fancyfoot[EL,OR]{\small\mydate}%
+  }
+
+\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
+
+
+\usepackage{eso-pic}
+\usepackage{type1cm}
+\newcommand{\watermark}[1]{%
+  \AddToShipoutPicture{%
+    \setlength{\@tempdimb}{.5\paperwidth}%
+    \setlength{\@tempdimc}{.97\paperheight}%
+    \setlength{\unitlength}{1pt}%
+    \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){%
+      \makebox(0,0){\rotatebox{0}{\textcolor[gray]{0.85}{%
+            \fontsize{5mm}{5mm}%
+            \selectfont{Personal Copy for #1.}}}}}
+    \setlength{\@tempdimb}{.5\paperwidth}%
+    \setlength{\@tempdimc}{.52\paperheight}%
+    \setlength{\unitlength}{1pt}%
+    \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){%
+      \makebox(0,0){\rotatebox{0}{\textcolor[gray]{0.97}{%
+            \fontsize{5mm}{5mm}%
+            \selectfont{Togaware Watermark For Debian GNU/Linux Survival.}}}}}
+    \setlength{\@tempdimb}{.5\paperwidth}%
+    \setlength{\@tempdimc}{.06\paperheight}%
+    \setlength{\unitlength}{1pt}%
+    \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){%
+      \makebox(0,0){\rotatebox{0}{\textcolor[gray]{0.85}{%
+            \fontsize{5mm}{5mm}%
+            \selectfont{Copyright \copyright{} 1995-2020 Graham Williams}}}}}
+}
+}
+
+\newcommand{\Acknowledgements}[1]{\textit{\small(Thanks to #1 for
+    contributions to this page.)}}
+

@@ -1,0 +1,15 @@
+# iris --- Plant Species Prediction {#iris}
+
+`r CiteDate(20200220)`
+
+```{bash eval=FALSE}
+$ ml install iris
+```
+
+```{bash eval=FALSE}
+$ ml configure iris
+```
+
+```{bash eval=FALSE}
+$ ml demo iris
+```
