@@ -2,7 +2,7 @@
 #
 # MLHub Book Makefile
 #
-# Time-stamp: <Monday 2021-03-15 19:31:02 AEDT Graham Williams>
+# Time-stamp: <Tuesday 2021-03-16 09:22:19 AEDT Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -106,4 +106,4 @@ clean::
 	rm -f *.tmp _main.Rmd _main.pdf _main.tex
 
 realclean::
-	rm -rf _book/
+	rm -rf _book/ _main_cache/ _main_files/
