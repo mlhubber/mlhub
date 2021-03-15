@@ -218,8 +218,6 @@ See [Landmarks and Tags](TAGS.md) for further details and examples.
 
 ![](https://raw.githubusercontent.com/gjwgit/azcv/master/docs/gala.png)
 
-https://raw.githubusercontent.com/gjwgit/azcv/master/docs/
-
 ```console
 $ wget https://g3n1u5.com/mlhub/gala.png -O img.png
 
