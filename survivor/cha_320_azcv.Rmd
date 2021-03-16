@@ -3,9 +3,9 @@
 `r CiteDate(20200806)` The [MLHub](https://mlhub.ai) package
 [azcv](https://github.com/gjwgit/azcv) utilises the [Azure Computer
 Vision](https://docs.microsoft.com/en-us/azure/cognitive-services/Computer-vision)
-cloud API to access closed source pre-built models. The package The package
+cloud API to access closed source pre-built models. The package
 provides a demonstration, a graphical user interface, and command line
-tools that utilise the pre-built models. 
+tools that utilise the pre-built models.
 
 Individual command line tools are packaged for common computer vision
 tasks including image analysis to extract descriptions of the images,
@@ -40,10 +40,55 @@ URLs we use are short URLs generated through
 ## azcv demo
 <!---------------------------------------------------------------------->
 
-To run a canned demonstration:
+To run a canned demonstration
 
 ```bash
 $ ml demo azcv
+```
+
+This begins with:
+
+```
+=========================
+Azure Computer Vision API
+=========================
+
+Welcome to a demo of pre-built models for Computer Vision available as
+Cognitive Services on Azure.  Azure supports various operations
+related to Computer Vision and this package demonstrates them and
+provides command line tools for specific tasks, including tag,
+describe, landmark, ocr, and thumbnail.
+
+[...]
+
+================
+Analyze an image
+================
+
+[...]
+
+Location: https://upload.wikimedia.org/ Path:
+wikipedia/commons/thumb/1/12/Broadway_and_Times_Square_by_night.jpg/
+Filename: 450px-Broadway_and_Times_Square_by_night.jpg
+
+Close the graphic window using Ctrl-W.
+
+Press Enter to continue: 
+
+============
+Tag Analysis
+============
+
+We list the tags for the image together with a measure of confidence.
+
+Confidence: 1.00 Tag: skyscraper
+Confidence: 0.99 Tag: building
+Confidence: 0.97 Tag: outdoor
+Confidence: 0.92 Tag: light
+Confidence: 0.88 Tag: street
+Confidence: 0.88 Tag: cityscape
+
+[...]
 ```
 
 <!---------------------------------------------------------------------->
@@ -55,6 +100,8 @@ To run a simple interactive GUI:
 ```bash
 $ ml gui azcv
 ```
+
+![](graphics/azcv_gui_screenshot.png)
 
 <!---------------------------------------------------------------------->
 ## azcv quick start
@@ -178,9 +225,17 @@ This first example of the Colosseum in Rome is categorised as a
 building, though only with a 32% certainty. Other categories are also
 identified, with even less certainty.
 
+:::: {style="display: flex;"}
+
+::: {}
+
 ```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
 include_graphics_url("https://bit.ly/3lfNVG6")
 ```
+
+::: 
+
+::: {}
 
 ```bash
 $ ml category azcv https://bit.ly/3lfNVG6
@@ -189,12 +244,24 @@ $ ml category azcv https://bit.ly/3lfNVG6
 0.04,outdoor_
 ```
 
+:::
+
+::::
+
 This photo of a dog, a sample provided by Microsoft, is categorised
 100% as animal_dog!
+
+:::: {style="display: flex;"}
+
+::: {}
 
 ```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
 include_graphics_url("https://bit.ly/30JcORa")
 ```
+
+:::
+
+::: {}
 
 <!--  https://docs.microsoft.com/en-us/azure/cognitive-services/Computer-vision/images/cute_dog.png -->
 
@@ -203,19 +270,41 @@ $ ml category azcv https://bit.ly/30JcORa
 1.00,animal_dog
 ```
 
+:::
+
+::::
+
 <!---------------------------------------------------------------------->
 ## azcv celebrities
 <!---------------------------------------------------------------------->
 
-```console
-$ ml celebrities azcv https://raw.githubusercontent.com/Azure-Samples/cognitive-services-sample-data-files/master/ComputerVision/Images/faces.jpg
-1.00,Bern Collaco
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="40%"}
+include_graphics_url("https://bit.ly/38GgwPP")
+```
 
-$ ml celebrities azcv https://btsdiary.files.wordpress.com/2018/05/5b2f1-32121566_1259390040861517_2564742387981090816_n.jpg
+```bash
+$ ml celebrities azcv https://bit.ly/38GgwPP
+1.00,Bern Collaco
+```
+
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="40%"}
+include_graphics_url("https://bit.ly/38JwUPC")
+```
+
+```bash
+$ ml celebrities azcv https://bit.ly/38JwUPC
 1.00,DJ Khaled
 0.85,Rap Monster
+```
 
-$ ml celebrities azcv https://res.cloudinary.com/uktv/image/upload/v1402498133/mztwkl0sze26zjpc0xdh.jpg
+<!-- https://btsdiary.files.wordpress.com/2018/05/5b2f1-32121566_1259390040861517_2564742387981090816_n.jpg -->
+
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="40%"}
+include_graphics_url("https://bit.ly/2OoC9xr")
+```
+
+```bash
+$ ml celebrities azcv https://bit.ly/2OoC9xr
 1.00,Bradley Cooper
 0.94,Ellen DeGeneres
 0.76,Brad Pitt
@@ -231,7 +320,7 @@ This first example of the Eiffel Tower is a little mislead with what
 looks like a clock in there somewhere, giving certainties close to
 70%.
 
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="30%"}
 include_graphics_url("https://bit.ly/3bMQX1E")
 ```
 
@@ -244,7 +333,7 @@ $ ml describe azcv https://bit.ly/3bMQX1E
 
 With similar confidences, Marina Bay Sands is also described:
 
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="30%"}
 include_graphics_url("https://bit.ly/3vnuG24")
 ```
 
@@ -257,61 +346,28 @@ $ ml describe azcv https://bit.ly/3vnuG24
 
 
 
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="30%"}
 include_graphics_url("https://bit.ly/3cqDonC")
 ```
-
 ```console
-$ ml tags azcv https://bit.ly/3cqDonC
-1.00,sky
-1.00,outdoor
-1.00,sunset
-0.99,grass
-0.99,mountain
-0.99,nature
-0.96,landscape
-0.94,cloud
-0.94,plant
-0.93,canyon
-0.88,valley
-0.86,desert
-0.82,setting
-0.75,clouds
-0.71,sunrise
-0.70,background
-0.49,tall
-0.35,overlooking
-0.23,painting
-
 $ ml describe azcv https://bit.ly/3cqDonC
 0.92,a canyon with a sunset in the background with Uluru in the background
 0.88,a view of a canyon with a sunset in the background with Uluru in the background
 0.86,a close up of a canyon with a sunset in the background with Uluru in the background
 ```
 
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
-include_graphics_url("https://access.togaware.com/landmark02.jpg")
-```
+<!--
+ ```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="30%"}
+ include_graphics_url("https://access.togaware.com/landmark02.jpg")
+ ```
 
-```console
-$ ml landmarks azcv https://access.togaware.com/landmark02.jpg
-0.98,Taipei 101
-
-$ ml tags azcv https://access.togaware.com/landmark02.jpg
-1.00,building
-0.99,outdoor
-0.99,sky
-0.85,city
-0.74,window
-0.57,skyscraper
-0.55,architecture
-0.51,tall
-
-$ ml describe azcv https://access.togaware.com/landmark02.jpg
-0.92,a large skyscraper in front of Taipei 101
-0.92,a large skyscraper in front of a tall building with Taipei 101 in the background
-0.92,a tall building with Taipei 101 in the background
-```
+ ```console
+ $ ml describe azcv https://access.togaware.com/landmark02.jpg
+ 0.92,a large skyscraper in front of Taipei 101
+ 0.92,a large skyscraper in front of a tall building with Taipei 101 in the background
+ 0.92,a tall building with Taipei 101 in the background
+ ```
+-->
 
 <!---------------------------------------------------------------------->
 ## azcv faces
@@ -322,7 +378,7 @@ include_graphics_url("https://raw.githubusercontent.com/gjwgit/azcv/master/docs/
 ```
 
 ```console
-$ ml faces azcv https://raw.githubusercontent.com/Azure-Samples/cognitive-services-sample-data-files/master/ComputerVision/Images/faces.jpg
+$ ml faces azcv https://bit.ly/38GgwPP
 Male,39,118,159,212,253
 Male,54,492,111,582,201
 Female,55,18,153,102,237
@@ -393,7 +449,7 @@ identification is also returned.
 Our first example is Marina Bay Sands in Singapore, identified as such
 with 95% confidence.
 
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="40%"}
 include_graphics_url("https://bit.ly/3vnuG24")
 ```
 
@@ -404,7 +460,7 @@ $ ml landmarks azcv https://bit.ly/3vnuG24
 
 A well known Australian landmark, Uluru, is identified with 100% confidence:
 
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="40%"}
 include_graphics_url("https://bit.ly/3cqDonC")
 ```
 
@@ -413,34 +469,38 @@ $ ml landmarks azcv https://bit.ly/3cqDonC
 1.0,Uluru
 ```
 
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
-include_graphics_url("https://images.pexels.com/photos/338515/pexels-photo-338515.jpeg")
+The Eiffel Tower is somewhat readily recognisable:
+
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="40%"}
+include_graphics_url("https://bit.ly/3bOEv1m")
 ```
 
 ```console
-$ ml landmarks azcv https://images.pexels.com/photos/338515/pexels-photo-338515.jpeg
+$ ml landmarks azcv https://bit.ly/3bOEv1m
 0.97,Eiffel Tower
 ```
+<!-- https://images.pexels.com/photos/338515/pexels-photo-338515.jpeg -->
 
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
-include_graphics_url("http://cdn1.thr.com/sites/default/files/2013/11/marina_bay_sands_singapore_a_l.jpg")
+<!---------------------------------------------------------------------->
+## azcv landmarks more
+<!---------------------------------------------------------------------->
+
+Taiwan's 101 tower in Taipei:
+
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="30%"}
+include_graphics_url("https://bit.ly/30Kv7FL")
 ```
 
 ```console
-$ ml landmarks azcv http://cdn1.thr.com/sites/default/files/2013/11/marina_bay_sands_singapore_a_l.jpg
-0.97,Marina Bay Sands
-```
-
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
-include_graphics_url("https://access.togaware.com/landmark02.jpg")
-```
-
-```console
-$ ml landmarks azcv https://access.togaware.com/landmark02.jpg
+$ ml landmarks azcv https://bit.ly/30Kv7FL
 0.98,Taipei 101
 ```
 
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+<!-- https://access.togaware.com/landmark02.jpg -->
+
+The ancient wonder of the world, Borobudur, in Central Java, Indonesia:
+
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="35%"}
 include_graphics_url("https://access.togaware.com/landmark01.jpg")
 ```
 
@@ -449,7 +509,9 @@ $ ml landmarks azcv https://access.togaware.com/landmark01.jpg
 1.0,Borobudur
 ```
 
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+The beautiful Ha Long Bay in Vietnam:
+
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="35%"}
 include_graphics_url("https://www.arrivalguides.com/s3/ag-images-eu/18/20870ca6f7bc086749ea747ec0c8c86d.jpg")
 ```
 
