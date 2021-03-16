@@ -3,7 +3,7 @@
 target <- ifelse(knitr::is_html_output(), '{ target="_blank" }', '')
 
 ########################################################################
-# Register specific code blocks.
+# CODE BLOCKS
 
 knitr::knit_engines$set(php = function(options)
 {
@@ -12,9 +12,11 @@ knitr::knit_engines$set(php = function(options)
 })
 
 ########################################################################
-# Macros to generate required markdown.
+# HELPERS
 
-# Support citation dates for each section for HTML and PDF.
+#-----------------------------------------------------------------------
+# Support citation dates for each section for HTML and LaTeX.
+#-----------------------------------------------------------------------
 
 CiteDate <- function(date)
 {
@@ -24,7 +26,20 @@ CiteDate <- function(date)
     glue::glue("\\CiteDate{<date>}", .open="<", .close=">")
 }
 
+include_graphics_url <- function(url)
+{
+  if (knitr::is_html_output())
+    knitr::include_graphics(url)
+  else
+    knitr::include_url(url)
+}
+
+########################################################################
+# LINKS
+
+#-----------------------------------------------------------------------
 # Link a Linux command to online man page.
+#-----------------------------------------------------------------------
 
 Command <- function(cmd, txt=cmd)
 {
@@ -34,22 +49,33 @@ Command <- function(cmd, txt=cmd)
 # glue::glue("[{txt}](https://manpages.ubuntu.com/cgi-bin/search.py?q={cmd})")
 }
 
-Link <- function(txt, url) # Set up an external URL link to open in new tab.
+#-----------------------------------------------------------------------
+# Set up an external URL link to open in new tab.
+#-----------------------------------------------------------------------
+
+Link <- function(txt, url)
 {
   glue::glue('[<txt>](<url>)<target>', .open="<", .close=">")
 }
 
-Package <- function(pkg, txt=pkg) # Link a Ubuntu package to online description.
+#-----------------------------------------------------------------------
+# Link a Ubuntu package to online description.
+#-----------------------------------------------------------------------
+
+Package <- function(pkg, txt=pkg)
 {
   pkg <- as.character(substitute(pkg))
   glue::glue('[<txt>](https://packages.ubuntu.com/<pkg>)<target>', .open="<", .close=">")
 }
 
-Wikipedia <- function(txt, title=txt) # Link to the Wikipedia entry.
+#-----------------------------------------------------------------------
+# Link to the Wikipedia entry.
+#-----------------------------------------------------------------------
+
+Wikipedia <- function(txt, title=txt)
 {
   glue::glue('[<txt>](https://secure.wikimedia.org/wikipedia/en/wiki/<title>)<target>', .open="<", .close=">")
 }
              
-
 ``` 
 
