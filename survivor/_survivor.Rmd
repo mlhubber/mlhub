@@ -1,9 +1,14 @@
 ```{r include=FALSE}
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+
+set.seed(42)
 
 target <- ifelse(knitr::is_html_output(), '{ target="_blank" }', '')
 
 ########################################################################
-# CODE BLOCKS
+# Register specific code blocks.
 
 knitr::knit_engines$set(php = function(options)
 {
@@ -12,7 +17,7 @@ knitr::knit_engines$set(php = function(options)
 })
 
 ########################################################################
-# HELPERS
+# Macros to generate required markdown.
 
 #-----------------------------------------------------------------------
 # Support citation dates for each section for HTML and LaTeX.
@@ -44,9 +49,21 @@ include_graphics_url <- function(url)
 Command <- function(cmd, txt=cmd)
 {
   cmd <- as.character(substitute(cmd))
+  target <- ifelse(knitr::is_html_output(), '{ target="_blank" }', '')
   glue::glue('[<txt>](https://man.cx/<cmd>)<target>', .open="<", .close=">")
 # Wikipedia uses https://www.mankier.com/
 # glue::glue("[{txt}](https://manpages.ubuntu.com/cgi-bin/search.py?q={cmd})")
+}
+
+#-----------------------------------------------------------------------
+# Link to a MLHub package command.
+#-----------------------------------------------------------------------
+
+ml_command <- function(pkg, cmd)
+{
+  pkg <- as.character(substitute(pkg))
+  cmd <- as.character(substitute(cmd))
+  glue::glue('[{cmd}](https://mlhub.ai/survivor/{pkg}-{cmd}.html){target}')
 }
 
 #-----------------------------------------------------------------------
@@ -55,6 +72,7 @@ Command <- function(cmd, txt=cmd)
 
 Link <- function(txt, url)
 {
+  target <- ifelse(knitr::is_html_output(), '{ target="_blank" }', '')
   glue::glue('[<txt>](<url>)<target>', .open="<", .close=">")
 }
 
@@ -65,6 +83,7 @@ Link <- function(txt, url)
 Package <- function(pkg, txt=pkg)
 {
   pkg <- as.character(substitute(pkg))
+  target <- ifelse(knitr::is_html_output(), '{ target="_blank" }', '')
   glue::glue('[<txt>](https://packages.ubuntu.com/<pkg>)<target>', .open="<", .close=">")
 }
 
@@ -74,8 +93,120 @@ Package <- function(pkg, txt=pkg)
 
 Wikipedia <- function(txt, title=txt)
 {
+  target <- ifelse(knitr::is_html_output(), '{ target="_blank" }', '')
   glue::glue('[<txt>](https://secure.wikimedia.org/wikipedia/en/wiki/<title>)<target>', .open="<", .close=">")
 }
              
+
+Rpackage.seen <- c()
+Rpackage <- function(pkg, cite=TRUE, add.seen=TRUE)
+{
+  pkg <- as.character(substitute(pkg))
+  first <- ! (pkg %in% Rpackage.seen)
+  target <- ifelse(knitr::is_html_output(), '{ target="_blank" }', '')
+  if (add.seen & cite) Rpackage.seen <<-  union(Rpackage.seen, pkg)
+
+  if (cite)
+    stringr::str_c("[", pkg, "](https://www.rdocumentation.org/packages/", pkg,
+               ")", target, " [@R-", pkg, "]")
+}
+
+
+# Do some processing for generating apropriate text for
+# Rfunction. 20210216 Incomplete rewrite from LaTeX to Rmd version.
+
+Rfunction.seen <- c()
+Rfunction <- function(fn, pkg=NULL, only.package=FALSE,
+                      index=FALSE, show.package=TRUE, 
+                      add.seen=TRUE, show.paren=TRUE,
+                      bf=FALSE, 
+                      DefnOp=FALSE, Defn=FALSE, 
+                      PkgOp=FALSE, Pkg=FALSE)
+{
+  if (Defn)   {show.package <- FALSE; bf <- TRUE}
+  if (DefnOp) {show.paren <- FALSE; show.package <- FALSE; bf <- TRUE}
+  if (PkgOp)  {show.paren=FALSE; only.package <- TRUE; bf <- TRUE}
+  if (Pkg)    {only.package <- TRUE; bf <- TRUE}
+  
+  lt <- Hmisc::latexTranslate
+  fn <- as.character(substitute(fn))
+  target <- ifelse(knitr::is_html_output(), '{ target="_blank" }', '')
+  
+  if (is.null(pkg))
+    pkg <- utils:::index.search(fn, find.package(loadedNamespaces())) %>%
+      stringr::str_replace("/[^/]+/[^/]+$", "") %>%
+      stringr::str_replace("^.*/", "") %>%
+      '['(1)
+  if (! length(pkg) || is.na(pkg)) stop("Function '", fn, "' not found in any package.")
+  first <- add.seen & ! (fn %in% Rfunction.seen)
+  if (add.seen) Rfunction.seen <<-  union(Rfunction.seen, fn)
+  stringr::str_c(if (index) stringr::str_c("\\index{", lt(fn), 
+                                           if (show.paren) "()",
+                                           " (", lt(pkg), ")",
+                                           if (bf) "|textbf",
+                                           "}"),
+                 if (index) stringr::str_c("\\index{", lt(pkg), 
+                                           " (package)!", lt(fn), 
+                                           if (show.paren) "()", 
+                                           if (bf) "|textbf",
+                                           "}"),
+                 
+                 if (only.package)
+                   pkg
+                 else
+                   stringr::str_c("[",
+                                  if (show.package) stringr::str_c(pkg, "::"),
+                                  # Add link to online documentation.
+                                  fn, if (show.paren) "()", "](",
+                                  "https://www.rdocumentation.org/packages/",
+                                  pkg, "/topics/", fn, ")", target
+                     ))
+}
+
+
+# Copied 150628 verbatim from Rfunction. 20210216 Converted to Rmd.
+
+Rdataset.seen <- c()
+Rdataset <- function(ds, pkg=NULL, only.package=FALSE,
+                      index=FALSE, show.package=TRUE, 
+                      add.seen=TRUE, show.paren=FALSE,
+                      bf=FALSE, 
+                      DefnOp=FALSE, Defn=FALSE, 
+                      PkgOp=FALSE, Pkg=FALSE)
+{
+  if (Defn)   {show.package <- FALSE; bf <- TRUE}
+  if (DefnOp) {show.paren <- FALSE; show.package <- FALSE; bf <- TRUE}
+  if (PkgOp)  {show.paren=FALSE; only.package <- TRUE; bf <- TRUE}
+  if (Pkg)    {only.package <- TRUE; bf <- TRUE}
+  
+  lt <- Hmisc::latexTranslate
+  ds <- as.character(substitute(ds))
+  if (is.null(pkg))
+    pkg <- utils:::index.search(ds, find.package(loadedNamespaces())) %>%
+      stringr::str_replace("/[^/]+/[^/]+$", "") %>%
+      stringr::str_replace("^.*/", "") %>%
+      '['(1)
+  if (! length(pkg) || is.na(pkg)) stop("Dataset '", ds, "' not found in any package.")
+  first <- add.seen & ! (ds %in% Rdataset.seen)
+  if (add.seen) Rdataset.seen <<-  union(Rdataset.seen, ds)
+
+  
+  stringr::str_c(if (index) stringr::str_c("\\index{", lt(ds), 
+                                           if (show.paren) "()",
+                                           " (", lt(pkg), ")",
+                                           if (bf) "|textbf",
+                                           "}"),
+                 if (index) stringr::str_c("\\index{", lt(pkg), 
+                                           " (package)!", lt(ds), 
+                                           if (show.paren) "()", 
+                                           if (bf) "|textbf",
+                                           "}"),
+                 
+                 if (only.package)
+                   pkg
+                 else
+                   stringr::str_c(if (show.package) stringr::str_c(pkg, "::"),
+                                  ds))
+}
 ``` 
 
