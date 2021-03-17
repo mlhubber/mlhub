@@ -31,12 +31,23 @@ CiteDate <- function(date)
     glue::glue("\\CiteDate{<date>}", .open="<", .close=">")
 }
 
-include_graphics_url <- function(url)
+copyright <- function()
+{
+  sym <- ifelse(knitr::is_html_output(),
+                "&copy;",
+                "\\copyright{}")
+  
+  glue::glue("Copyright {sym} Togaware Pty Ltd")
+}
+
+include_graphics_url <- function(url, pdf_url=NULL)
 {
   if (knitr::is_html_output())
     knitr::include_graphics(url)
-  else
+  else if (is.null(pdf_url))
     knitr::include_url(url)
+  else
+    knitr::include_url(pdf_url)    
 }
 
 ########################################################################
