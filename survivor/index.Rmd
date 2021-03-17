@@ -1,5 +1,5 @@
 --- 
-Time-stamp: <Thursday 2021-03-18 08:15:52 AEDT Graham Williams>
+Time-stamp: <Thursday 2021-03-18 08:29:16 AEDT Graham Williams>
 title: "MLHub Desktop Survival Guide"
 author: 
   name: Graham Williams
@@ -10,6 +10,10 @@ site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
 fontsize: 12pt
+biblio-style: apalike
+nocite: |
+  @williams:2011:rattle.book
+link-citations: yes
 github-repo: mlhubber/mlhub
 description: "A one pager resource for MLHub."
 header-includes:
@@ -31,11 +35,15 @@ header-includes:
 ***"The enjoyment of one's tools is an essential ingredient of
 successful work."*** *Donald E. Knuth*
 
+**This book is undergoing conversion from LaTeX to Bookdown. It is a
+work in progress and there remains numerous glitches. Please bare with
+us.**
+
 Welcome to the world of Accessible Artificial Intelligence, Machine
 Learning, and Data Science. MLHub is an innovative software framework
 that aims to provide ready access to AI, ML, and Data Science
 technology. It is an ecosystem to share experiences through the
-freedom of open source---the freedom to do as you want, with very few,
+freedom of open source---the freedom to do as you want with the software, with very few,
 and ideally no, restrictions, except the requirement to maintain our
 freedoms.
 
@@ -92,8 +100,8 @@ freely available from `r Link("Togaware", "https://mlhub.ai")`.
 
 **Production**
 
-This book is produced using bookdown. Emacs is used to edit the text
-documents. Many will be using RStudio to edit their bookdown
+This book is produced using bookdown. Emacs is used to edit the text.
+Many will be using RStudio to edit their bookdown
 documents, which is a generally more friendly environment and is the
 environment of choice for bookdown support. I've used Emacs since 1985
 and as a fully extensible "kitchen-sink" type of editor, it has served
@@ -167,7 +175,8 @@ provides a guide to building a package for MLHub.
 
 So sit back and enjoy the freedom and liberty that comes with free
 software. Also, please consider becoming an active part of the
-community that is making computers and the applications they run a
+community that is making computers and the applications they run 
+and the data they collect a
 benefit to society world wide, rather than a privilege of the few.
 
 <!------------------------------------------------------------------------>
