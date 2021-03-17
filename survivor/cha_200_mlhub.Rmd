@@ -59,12 +59,11 @@ from the Ubuntu iso. It also runs well on cloud Ubuntu servers.
 
 ## Installation
 
-`r CiteDate(20200220)` The `r Link("machine learning hub", "https://mlhub.ai")`
-is a platform specifically built on Ubuntu. See
-Chapter&nbsp;\@ref(install) for getting started with Ubuntu on different
-platforms. This quick start is based on a fresh install of Ubuntu
-20.04 LTS.  Some of the steps may not be necessary if some software is
-already installed.
+`r CiteDate(20200220)` The 
+`r Link("machine learning hub","https://mlhub.ai")` 
+is a platform specifically built on Ubuntu. This
+quick start is based on a fresh install of Ubuntu 20.04 LTS.  Some of
+the steps may not be necessary if some software is already installed.
 
 To simplify using the Ubuntu system we will use the `r Command(wajig)`
 system administration suite. `r Package(wajig, "Wajig")` is available from
