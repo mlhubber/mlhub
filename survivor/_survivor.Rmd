@@ -56,7 +56,16 @@ Command <- function(cmd, txt=cmd)
 }
 
 #-----------------------------------------------------------------------
-# Link to a MLHub package command.
+# Link to a chapter in the AI book: ai_chapter("computer vision", "computer-vision")
+#-----------------------------------------------------------------------
+
+ai_chapter <- function(txt, lnk)
+{
+  glue::glue('[{txt}](https://onepager.togaware.com/{lnk}.html){target}')
+}
+
+#-----------------------------------------------------------------------
+# Link to a MLHub package command: ml_command(azcv,faces)
 #-----------------------------------------------------------------------
 
 ml_command <- function(pkg, cmd)
