@@ -1,13 +1,16 @@
-# animate --- Animate Graphics {#animate}
+# animate Visualise Data through Animations {#animate}
 
-`r CiteDate(20200220)` See <https://github.com/gjwgit/animate> for details.
+`r CiteDate(20200220)` Animations can add considerable insight to any
+data analysis and can communicate quite effectively the story that the
+data is telling. The [MLHub](https://mlhub.ai){target="_blank"}
+package, [animate](https://github.com/gjwgit/animate){target="_blank"},
+illustrates animations.
 
-This package illustrates the effectiveness of animations in adding
-insight to any data analysis. Animations are shown to communicate
-quite effectively the story that the data is telling.
+The sports animation used here is based on example R code posted to
+Twitter by Victor Yu, in 2018. The data comes from the International
+Association of Athletics Federations (IAAF).
 
-A sports animation based on data from the International Association of
-Athletics Federations (IAAF) is used.
+To get started:
 
 ```{bash eval=FALSE}
 $ ml install animate
@@ -17,7 +20,41 @@ $ ml install animate
 $ ml configure animate
 ```
 
-```{bash eval=FALSE}
-$ ml demo animate
-```
+A demonstration of generating an animation is available through the 
+`r ml_command(animate, demo)` command. The 
+`r ml_command(animate, build)` command can be used
+to generate a similar animation from user supplied data.
+
+<!---------------------------------------------------------------------->
+## animate demo
+<!---------------------------------------------------------------------->
+
+`r CiteDate(20210318)` The **demo** command illustrates how effective
+an animation can be by engaging the viewer with insights that a single
+graphic can not so readily convey.  This can add significantly to the
+narrative that we are telling through the data and is a fundamental
+tool for the Data Scientist.
+
+![](https://github.com/gjwgit/animate/raw/master/animate_800.gif)
+
+<!---------------------------------------------------------------------->
+## animate build
+<!---------------------------------------------------------------------->
+
+`r CiteDate("TODO")` The **build** command will take a CSV file (e.g.,
+`mydata.csv`), either locally or a URL, and generate an animation
+based on the data in the file. The file needs to have three columns,
+one named *id* (such as an athlete's name), one named *event* (such as
+different sporting events), and one named *rank*. A plot similar to
+the animation generated for the IAAF data will be produced, saving it
+by default as `mydata.gif`.
+
+Options include:
+
+* `-O` or `--output=` to name the output file into which the image is
+  to be saved. The filename extension of the specified file will be
+  used to determine the format type;
+
+* `-t` or `--type=` to specifiy the image format output as *gif*
+  (default) or *png*.
 
