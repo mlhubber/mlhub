@@ -373,70 +373,27 @@ $ ml describe azcv https://bit.ly/3cqDonC
 ## azcv faces
 <!---------------------------------------------------------------------->
 
+`r CiteDate(20210317)` The **faces** command will run a model to
+identify faces in the photo, returning the bounding box, whether the
+face is male or female, and the age. One line of text is returned for
+each face identified.
+
 ```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
 include_graphics_url("https://raw.githubusercontent.com/gjwgit/azcv/master/docs/faces_bb.png")
 ```
 
 ```console
 $ ml faces azcv https://bit.ly/38GgwPP
-Male,39,118,159,212,253
-Male,54,492,111,582,201
-Female,55,18,153,102,237
-Female,33,386,166,467,247
-Female,18,235,158,311,234
-Female,8,323,163,391,231
+118 159 212 253,Male,39
+492 111 582 201,Male,54
+18 153 102 237,Female,55
+386 166 467 247,Female,33
+235 158 311 234,Female,18
+323 163 391 231,Female,8
 ```
 
-<!---------------------------------------------------------------------->
-## azcv faces pipeline
-<!---------------------------------------------------------------------->
-
-`r CiteDate(20210316)` A relatively simple pipeline can add the
-bounding boxes for the identified faces to the image.
-
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="60%"}
-include_graphics_url("https://raw.githubusercontent.com/gjwgit/azcv/master/docs/gala_bb_map.png")
-```
-
-We begin by downloading the image locally using `r Command(wget)`:
-
-```bash
-$ wget https://g3n1u5.com/mlhub/gala.png -O img.png
-```
-
-Now we analyse the image to get the bounding boxes and save it to file
-using `r Command(tee)`:
-
-```bash
-$ ml faces azcv img.png | tee img_bb.txt
-560 152 718 310,Male,53
-185 286 326 427,Female,28
-```
-
-`r CiteDate("TODO")`
-
-```
-$ cat img_bb.txt | cut -d',' -f1 
-560 152 718 310
-185 286 326 427
-
-$ cat img_bb.txt | cut -d',' -f1  | 
-  xargs printf '-draw "rectangle %s,%s %s,%s" '
--draw "rectangle 560,152 718,310" -draw "rectangle 185,286 326,427"
-
-$ cat img_bb.txt | 
-  cut -d',' -f1  | 
-  xargs printf '-draw "rectangle %s,%s %s,%s" ' | 
-  awk '{print "img.png -fill none -stroke red -strokewidth 5 " $0 "img_bb.png"}'
-img.png -fill none -stroke red -strokewidth 5 -draw "rectangle 560,152 718,310" -draw "rectangle 185,286 326,427" img_bb.png
-
-$ cat img_bb.txt |
-  cut -d',' -f1  | 
-  xargs printf '-draw "rectangle %s,%s %s,%s" ' | 
-  awk '{print "img.png -fill none -stroke red -strokewidth 5 " $0 "img_bb.png"}' |
-  xargs convert
-$ display img_bb.png
-```
+See Section \@ref(adding-bounding-boxes-to-a-photo) to draw
+bounding boxes on to a photo.
 
 <!---------------------------------------------------------------------->
 ## azcv landmarks
@@ -557,6 +514,9 @@ $ ml objects azcv https://raw.githubusercontent.com/Azure-Samples/cognitive-serv
 238 298 417 416
 116 60 419 386
 ```
+
+See Section \@ref(adding-bounding-boxes-to-a-photo) to draw
+bounding boxes on to a photo.
 
 <!---------------------------------------------------------------------->
 ## azcv ocr handwritting
