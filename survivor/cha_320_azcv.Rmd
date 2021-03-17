@@ -1,11 +1,12 @@
-# azcv --- Azure Computer Vision {#azcv}
+# azcv Azure Computer Vision {#azcv}
 
 `r CiteDate(20200806)` The [MLHub](https://mlhub.ai) package
 [azcv](https://github.com/gjwgit/azcv) utilises the [Azure Computer
 Vision](https://docs.microsoft.com/en-us/azure/cognitive-services/Computer-vision)
-cloud API to access closed source pre-built models. The package
-provides a demonstration, a graphical user interface, and command line
-tools that utilise the pre-built models.
+cloud API to access closed source pre-built models for 
+`r ai_chapter("computer vision", "computer-vision")`
+tasks. The package provides a demonstration, a graphical user
+interface, and command line tools that utilise the pre-built models.
 
 Individual command line tools are packaged for common computer vision
 tasks including image analysis to extract descriptions of the images,
@@ -35,6 +36,31 @@ URL or a path to a local file. For brevity through this chapter the
 URLs we use are short URLs generated through
 [bitly](https://bitly.com).
 
+To get started:
+
+```bash
+ml install azcv
+ml configure azcv
+```
+
+A demonstration of the capabilities of computer vision is available
+through the `r ml_command(azcv, demo)` command. A simple graphical
+user interface is provided through the `r ml_command(azcv, gui)`
+command.  The package supports many computer vision operations
+including 
+`r ml_command(azcv,adult)`,
+`r ml_command(azcv,brands)`,
+`r ml_command(azcv,category)`,
+`r ml_command(azcv,celebrities)`,
+`r ml_command(azcv,color)`,
+`r ml_command(azcv,describe)`,
+`r ml_command(azcv,faces)`,
+`r ml_command(azcv,landmarks)`,
+`r ml_command(azcv,objects)`,
+`r ml_command(azcv,ocr)`,
+`r ml_command(azcv,tags)`,
+`r ml_command(azcv,thumbnail)`, and
+`r ml_command(azcv,type)`.
 
 <!---------------------------------------------------------------------->
 ## azcv demo
