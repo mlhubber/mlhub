@@ -1,9 +1,9 @@
-# azspeech --- Azure Speech {#azspeech}
+# azspeech Azure Speech {#azspeech}
 
 `r CiteDate(20200806)` To transcribe speech from an audio file (**wav** only)
 into text:
 
-```{bash eval=FALSE}
+```bash
 $ ml transcribe azspeech --file=myspeech.wav
 ```
 

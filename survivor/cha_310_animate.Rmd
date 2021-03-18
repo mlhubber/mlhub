@@ -12,11 +12,8 @@ Association of Athletics Federations (IAAF).
 
 To get started:
 
-```{bash eval=FALSE}
+```bash
 $ ml install animate
-```
-
-```{bash eval=FALSE}
 $ ml configure animate
 ```
 
@@ -35,7 +32,10 @@ graphic can not so readily convey.  This can add significantly to the
 narrative that we are telling through the data and is a fundamental
 tool for the Data Scientist.
 
-![](https://github.com/gjwgit/animate/raw/master/animate_800.gif)
+```{r echo=FALSE, cache=TRUE, fig.align="left"}
+include_graphics_url("https://github.com/gjwgit/animate/raw/master/animate-800.gif",
+                     "https://github.com/gjwgit/animate/raw/master/animate.png")
+```
 
 <!---------------------------------------------------------------------->
 ## animate build

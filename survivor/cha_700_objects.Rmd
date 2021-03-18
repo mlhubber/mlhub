@@ -1,8 +1,8 @@
-# objects --- Object Classification for Computer Vision {#objects}
+# objects Computer Vision {#objects}
 
 `r CiteDate(20200220)`
 
-```{bash eval=FALSE}
+```bash
 $ ml install objects
 Package https://codeload.github.com/mlhubber/objects/zip/master
 
@@ -17,7 +17,7 @@ To configure the package:
   $ ml configure objects
 ```
 
-```{bash eval=FALSE}
+```bash
 $ ml configure objects
 
 ```

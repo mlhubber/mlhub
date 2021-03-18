@@ -1,4 +1,4 @@
-# rain --- Predicting Rain Tomorrow {#rain}
+# rain Prediction {#rain}
 
 `r CiteDate(20200901)` Decision trees and the ensemble of decision trees
 within a random forest are two common approaches to building
@@ -16,7 +16,7 @@ build the model that is demonstrated in the
 We install, configure and demonstrate the *rain* model, a
 decision tree model for predicting whether it will rain tomorrow:
 
-```{bash eval=FALSE}
+```bash
 $ ml install rain
 $ ml configure rain
 $ ml demo rain

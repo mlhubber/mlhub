@@ -9,7 +9,7 @@ listed.
 
 To install a system dependency
 
-```{bash eval=FALSE}
+```bash
 dependencies:
   system:
     - atril         # apt install atril
@@ -17,7 +17,7 @@ dependencies:
 
 To install a system python package, for example python3-opencv:
 
-```{bash eval=FALSE}
+```bash
 dependencies:
   python3:
     - opencv        # apt install python3-opencv
@@ -25,7 +25,7 @@ dependencies:
 
 For a Python package installed from pipy:
 
-```{bash eval=FALSE}
+```bash
 description:
   pip3:
     - pyfakewebcam  # pip3 install pyfakewebcam
@@ -37,7 +37,7 @@ this way the installation of particular versions of a package will not
 interfere with any system or user installed versions of packages for
 other applications.
 
-```{bash eval=FALSE}
+```bash
 dependencies: 
   cran: 
     - rpart         # install.packages("rpart")
@@ -48,7 +48,7 @@ File dependencies in the simplest case install files from the git
 repository onto the local installation of the package base directory
 (`~/.mlhub/pkg/`):
 
-```{bash eval=FALSE}
+```bash
 dependencies:
   files:
     - docs/README.md  # Install from github as README.md in base directory. 
@@ -58,7 +58,7 @@ dependencies:
 Arbitrary files can be downlaoded from the Internet and renamed/saved
 locally:
 
-```{bash eval=FALSE}
+```bash
 dependencies:
   files:
     - https://www.wayoutback.com.au/assets/Uploads/Uluru.jpg: cache/images/uluru.jpg
@@ -82,7 +82,7 @@ like **ocr** will use any model that has an **ocr**
 command, and if there are multiple, then have the concept of a
 preferred model overridden by a command line option:
 
-```{bash eval=FALSE}
+```bash
 $ ml ocr myscript.png
 $ ml ocr --model=azcv myscript.png
 ```

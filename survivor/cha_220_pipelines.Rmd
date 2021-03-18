@@ -13,7 +13,7 @@ like `r Command(sed)`, or `r Command(cut)`, and `r Command(awk)`.
 This example deploys an optical character recognition capability from
 the **ocr** command of the *azcv* model:
 
-```{bash eval=FALSE}
+```bash
 $ ml ocr azcv ~/.mlhub/azcv/cache/images/mycat.png | head -2
 51.0 43.0 668.0 51.0 667.0 85.0 51.0 77.0,My cats name is freckles. She like's to climb up
 37.0 97.0 691.0 104.0 690.0 134.0 37.0 128.0,high. She is 2 years old. She likes to play a...
@@ -27,7 +27,7 @@ If you do not care for the bounding boxes that is output by default
 from the **ocr** command then simply remove them using
 `r Command(cut)`:
 
-```{bash eval=FALSE}
+```bash
 $ ml ocr azcv ~/.mlhub/azcv/cache/images/mycat.png | head -2 | cut -d, -f2-
 My cats name is freckles. She like's to climb up
 high. She is 2 years old. She likes to play a lot of games.
@@ -38,7 +38,7 @@ have several hundred files. We will save the text output into a
 **txt** file. The following pipeline utilises a for loop, an `r
 Command(ml)` model, and the `r Command(cut)` command:
 
-```{bash eval=FALSE}
+```bash
 $ for f in images/*.jpg; 
   do 
     echo "=====> $f"; 
@@ -55,7 +55,7 @@ Here we transcribe spoken English into text and then translate that
 text into Persian (Farsi) using *azspeech2txt* and
 *aztranslate*:
 
-```{bash eval=FALSE}
+```bash
 $ ml transcribe azspeech2txt friend.wav | ml translate aztranslate --to=fa
 en,1.0,fa,...
 ,این یک آزمایش است تا ببینید که چگونه همه چیز به خوبی ضبط.
@@ -66,7 +66,7 @@ utterances, translate to French and then synthesise into a female
 French voice using a combination of *azspeech* and
 *aztranslate*. Here it is:
 
-```{bash eval=FALSE}
+```bash
 $ ml transcribe azspeech | 
   ml translate aztranslate --to=fr | 
   cut -d',' -f4- | 

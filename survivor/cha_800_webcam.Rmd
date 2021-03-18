@@ -1,4 +1,4 @@
-# webcam --- WebCam Image Manipulation {#webcam}
+# webcam Image Manipulation {#webcam}
 
 `r CiteDate(20200405)` See <https://gitlab.com/kayontoga/webcam> for details.
 
