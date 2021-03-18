@@ -1,5 +1,5 @@
 --- 
-Time-stamp: <Thursday 2021-03-18 08:29:16 AEDT Graham Williams>
+Time-stamp: <Thursday 2021-03-18 09:13:35 AEDT Graham Williams>
 title: "MLHub Desktop Survival Guide"
 author: 
   name: Graham Williams
@@ -213,7 +213,7 @@ The following are further acknowledged for their support of the book:
 <!------------------------------------------------------------------------>
 
 `r CiteDate(20210221)` Writing of this book began in 1995 in one form
-and another, and continues to be updated to this day.  It is copyright
+or another, and continues to be updated to this day.  It is copyright
 by [Togaware](https://togaware.com) and licensed under the [Creative
 Commons Attribution-ShareAlike
 4.0](https://creativecommons.org/licenses/by-sa/4.0/) license.  It is
@@ -232,7 +232,7 @@ presents a challenge. The publisher,
 representations, nor does it accept any liabilities with respect to
 the programs and applications.
 
-Copyright (c) Togaware Pty Ltd
+`r copyright()`
 
 ![](graphics/cc_by_sa.png)
 
