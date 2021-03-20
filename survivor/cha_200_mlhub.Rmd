@@ -51,18 +51,23 @@ Hyper-V gallery on Windows (enable Hyper-V and choose Ubuntu). For
 MacOS X use Parallels or Virtual Box to install from the Ubuntu
 **iso**. It also runs well on cloud Ubuntu servers.
 
-## Installation
+## Installing Ubuntu WSL
 
-`r CiteDate(20200220)` The 
-`r Link("machine learning hub","https://mlhub.ai")` 
-is a platform specifically built on Ubuntu. This
-quick start is based on a fresh install of Ubuntu 20.04 LTS.  Some of
-the steps may not be necessary if some software is already installed.
+## Installing Ubuntu Desktop
+
+## Installing Ubuntu VirtualBox
+
+## Installing MLHub
+
+`r CiteDate(20200220)` `r Link("MLHub","https://mlhub.ai")` is a
+platform specifically built on Ubuntu. We start with a fresh install
+of Ubuntu 20.04 LTS and note otherwise that some of the steps here may
+not be necessary.
 
 To simplify using the Ubuntu system we will use the `r Command(wajig)`
 system administration suite. `r Package(wajig, "Wajig")` is available from
 the Debian and Ubuntu repositories with the latest updates available
-from `r Link("wajig", "https://pypi.org/project/wajig/")`. Installation of
+from `r Link("PyPI", "https://pypi.org/project/wajig/")`. Installation of
 `r Package(wajig)` will usually take less than 5 minutes.
 
 ```bash
@@ -86,7 +91,7 @@ $ ml configure
 
 If you now find that the `r Command(ml)` command is not found then you
 may like to log out and back in again. This will refresh the PATH
-where commands are found. The default in Ubuntu 18.04 LTS is that the
+where commands are found. The default in Ubuntu 20.04 LTS is that the
 path will include `~/.local/bin` if it exists, which won't be the
 case for the first time. `r Command(pip3, "Pip3")` will install the
 `r Command(ml)` command there and this is checked at login. If all else
