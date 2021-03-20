@@ -1,5 +1,5 @@
 --- 
-Time-stamp: <Thursday 2021-03-18 09:13:35 AEDT Graham Williams>
+Time-stamp: <Saturday 2021-03-20 14:26:12 AEDT Graham Williams>
 title: "MLHub Desktop Survival Guide"
 author: 
   name: Graham Williams
@@ -30,7 +30,7 @@ header-includes:
 ```{r child="_survivor.Rmd", eval=TRUE, echo=FALSE}
 ``` 
 
-`r CiteDate(20210308)` 
+`r CiteDate(20210320)` 
 
 ***"The enjoyment of one's tools is an essential ingredient of
 successful work."*** *Donald E. Knuth*
@@ -39,88 +39,111 @@ successful work."*** *Donald E. Knuth*
 work in progress and there remains numerous glitches. Please bare with
 us.**
 
-Welcome to the world of Accessible Artificial Intelligence, Machine
-Learning, and Data Science. MLHub is an innovative software framework
-that aims to provide ready access to AI, ML, and Data Science
-technology. It is an ecosystem to share experiences through the
-freedom of open source---the freedom to do as you want with the software, with very few,
-and ideally no, restrictions, except the requirement to maintain our
-freedoms.
+Welcome to the world of Accessible Machine Learning algorithms,
+Artificial Intelligence knowledge structures and reasoning, and Data
+Science practises. [MLHub](https://mlhub.ai) is an innovative software
+framework that aims to provide ready access to ML, AI, and Data
+Science. It is an ecosystem to share experiences through the freedom
+of open source---the freedom to do as you want, when you want, and
+where you want, with the software from the ecosystem. There are very
+few, and ideally no, restrictions. Your obligation is to maintain our
+freedoms and as you extend and build on the software others have made
+available to you, please freely contribute back to the ecosystem.
 
 The aim of this book is to quickly get started with MLHub, and to
 deliver the excitement of a fun and productive environment for
-exploring the technology. MLHub is a complete and mature framework
-that strives to achieve the goal of making the technology accessible.
+exploring the state-of-the-art. MLHub is a complete and mature
+framework that strives to achieve the goal of making the technology
+accessible beyond technically most advanced. Our goal for each package
+is to demonstrate the specific technology within 5 minutes, for you to
+then decide if it is useful technology or not. If not, move on. If it
+is, then the package can be further explored and utilised.
 
-This book provides a guide to the many different packages available
-for MLHub. It aims to be comprehensive, beginning with basic
-introductions to AI, ML, and Data Science, followed by a guide to
-getting started with MLHub. We then showcase many MLHub packages.
+MLHub is implemented in Python on Ubuntu GNU/Linux. GNU/Linux is the
+most productive platform for learning about, utilising, developing and
+deploying Machine Learning, Artificial Intelligence and Data
+Science. It has been the platform of choice for developers for over 30
+years. The book begins with a guide to getting started with Ubuntu
+GNU/Linux on any platform, and installing MLHub. The [GNU/Linux
+Desktop Survival Guide](https://linux.togaware.com/survivor/) provides
+a comprehensive guide to using GNU/Linux.
 
-The basis of our ecosystem is freedom: the freedom to choose, the
-freedom to learn, the freedom to change, the freedom to share, the
-freedom to contribute, the freedom to live, the freedom to enjoy, and
-the freedom to communicate through the code and tools we write. Never
-let that freedom be taken from us.
+The second part of the book guides the reader through the many
+different Machine Learning, Artificial Intelligence, Data Science
+packages available through MLHub. The breadth of available packages is
+comprehensive, and the depth ranges from simple introductory
+technology to the current state-of-the-art algorithms. The focus is on
+utilising the technology. The [Data Science Desktop Survival
+Guide](https://onepager.togaware.com/) provides a
+comprehensive guide to Machine Learning, Artificial Intelligence and
+Data Science.
 
-On completing an install of MLHub it is ready to use with all of the
-packages that have been made available.  All of the major classes of
-AI, ML, and Data Science capabilities are covered in this book.
+The book concludes with a guide and in-depth look at the MLHub
+framework. If you plan to package your research outcomes as an MLHub
+package then this is for you.
 
 <!------------------------------------------------------------------------>
 ## About this Book {-}
 <!------------------------------------------------------------------------>
 
-`r CiteDate(20210223)` This book has been a work in progress since
-1995, and just as the world of Artificial Intelligence continues to
-develop and expand so does this book and indeed, so does MLHub. Every
-section (eventually) will begin with a date that indicates the
-currency of the section---when it was last reviewed and/or updated.
+`r CiteDate(20210223)` Since beginning the survival guide books in
+1995 they have grown in all kinds of directions. My original aim was
+to capture useful notes for the varied and many common tasks we find
+ourselves doing, utilising the tools and packages of GNU/Linux. I
+structured the book as one page nuggets of information, that is, each
+section within a chapter is limited to a single printed page, and is
+focused on a single task. 
 
-Since beginning the survival guide books in 1995 they have grown in
-all kinds of directions. My original aim was to capture useful notes
-for the varied and many common tasks we find ourselves doing,
-utilising the tools and packages of GNU/Linux. I structured the book
-as one page nuggets of information. That is, each section within a
-chapter targeted a single printed page, and focused on a single
-task. This was the origin of my OnePageR Desktop Survival Guides. It
-seems to have worked well over the years, from my personal use and
-your feedback. This material has also lead to the publication of two
-books.
+The concept of the OnePageR Desktop Survival Guide has worked well
+over the years, from my personal use and your feedback. Three Desktop
+Survival Guides exist, the [GNU/Linux Desktop Survival
+Guide](https://linux.togaware.com/survivor/), the [Data Science
+Desktop Survival Guide](https://onepager.togaware.com/), and the
+[MLHub Desktop Survival Guide](https://mlhub.ai/survivor/). The
+material from these freelyt available books has also lead to the
+commercial publication of two books (Data Mining with
+Rattle)[https://bit.ly/rattle_data_mining] and (Essentials of Data
+Science)[https://bit.ly/essentials_data_science].
 
 Readers are invited to send corrections, comments, suggestions, and
-updates to me at Graham.Williams@togaware.com. Your feedback is most
-welcome and will be acknowledged within the book.
+updates to survivor@togaware.com. Your feedback is most welcome and
+will be acknowledged within the book.
 
 A **pdf** version of this book is available for a small donation which
 goes towards supporting the development and availability of the
-book. Please visit `r Link("Togaware","https://mlhub.ai")` for
+book. Please visit `r Link("MLHub","https://mlhub.ai")` for
 details. The **html** version contains the same material and remains
-freely available from `r Link("Togaware", "https://mlhub.ai")`.
+freely available from `r Link("MLHub", "https://mlhub.ai")`.
 
-**Production**
+This book is produced using
+[bookdown](https://bookdown.org). [Emacs](https://emacs.org) is used
+to edit the text.  Many will be using [RStudio](https://rstudio.com)
+to edit their bookdown documents, which is a generally more friendly
+environment and is the environment of choice for bookdown
+support. I've used Emacs since 1985 and as a fully extensible
+"kitchen-sink" type of editor, it has served me well for over 35
+years, despite numerous flirtations with "better" editors over my
+career. RStudio and [Visual Studio
+Code](https://code.visualstudio.com/) come close.
 
-This book is produced using bookdown. Emacs is used to edit the text.
-Many will be using RStudio to edit their bookdown
-documents, which is a generally more friendly environment and is the
-environment of choice for bookdown support. I've used Emacs since 1985
-and as a fully extensible "kitchen-sink" type of editor, it has served
-me well for over 35 years, despite numerous flirtations with "better"
-editors over my career. RStudio and Visual Studio Code come close.
+Bookdown is an [rmarkdown](https://rmarkdown.rstudio.com/) based
+platform for intermixing text with executable code (like Python, R and
+Shell code blocks). Rmarkdown itself utilises the simple
+[markdown](https://www.markdownguide.org/) syntax to markup the
+sections of a document. After running
+[knitr](https://yihui.org/knitr/) over the rmarkdown material a
+markdown document is produced, including the output of an commands
+that were run.
 
-Bookdown is an rmarkdown based platform for intermixing text with
-executable code (like Python, R and Shell code blocks). Rmarkdown
-itself utilises the simple markdown syntax to markup the sections of a
-document. After running knitr over the rmarkdown material a markdown
-document is produced. 
-
-Pandoc is then utilised to produce **html** which is published on the
-Web. For the **pdf** output pandoc utilises LaTeX, converting the
-markdown into LaTeX markup, with xetex used to then convert that to
-**pdf**. 
+[Pandoc](https://pandoc.org/) is utilised to produce **html** from the
+markdown document. this can be publsihed to the world wide web. It can
+also produce **pdf** output utilising
+[LaTeX](https://www.latex-project.org/), converting the markdown into
+LaTeX markup, with [xetex](http://xetex.sourceforge.net/) used to then
+convert that to **pdf**.
 
 All these tools are open source software and available on multiple
-platforms.
+platforms, and all for free.
 
 Many books are today being written using bookdown. Examples include 
 `r Link("Data Science at the Command Line","https://www.datascienceatthecommandline.com/1e/")` 
@@ -128,7 +151,9 @@ Many books are today being written using bookdown. Examples include
 `r Link("Efficient R Programming","https://csgillespie.github.io/efficientR/index.html")`
 (`r Link("github", "https://github.com/csgillespie/efficientR")`).
 
-**What's In A Name**
+<!------------------------------------------------------------------------>
+## Terminology {-}
+<!------------------------------------------------------------------------>
 
 *GNU/Linux* refers to the GNU environment and the GNU and other
 applications running in that environment on top of the Linux operating
@@ -154,74 +179,53 @@ version 10 as the *last* release of this Microsoft operating system,
 which going forward has snapshot releases rather than new versions.
 
 <!------------------------------------------------------------------------>
-## Organisation of the Book {-}
-<!------------------------------------------------------------------------>
-
-`r CiteDate(20200218)` Individual chapters aim to be a standalone
-reference using a one-pager style whereby each individual page aims to
-be a standalone guide on a specific point or topic. This one-page
-concept comes from my `r Link("OnePageR", "https://onepager.togaware.com")`
-book for data science, artificial intelligence, and machine learning
-and has been quite successful there. 
-
-The introductory chapters introduce AI, ML, and Data Science. But for
-a more in-depth guide to doing AI, Machine Learning and Data Science,
-see the Data Science Desktop Survival Guide.
-
-The first part of the book covers AI in general. The second part
-introduces the MLHub framework for accessible AI. The third part then
-showcases many of the MLHub packages. The fourth part of the book
-provides a guide to building a package for MLHub.
-
-So sit back and enjoy the freedom and liberty that comes with free
-software. Also, please consider becoming an active part of the
-community that is making computers and the applications they run 
-and the data they collect a
-benefit to society world wide, rather than a privilege of the few.
-
-<!------------------------------------------------------------------------>
 ## Acknowledgements {-}
 <!------------------------------------------------------------------------>
 
-`r CiteDate(20210223)` There are many people to thank for sharing these tools,
-their knowledge, and their encouragement in many different
-ways. Indeed, the open source communities are characterised by their
-willingness to share for the good of us all, and many folk have also
-contributed directly and indirectly to this book through their
+`r CiteDate(20210223)` There are many people to thank for sharing
+these tools, their knowledge, and their encouragement in many
+different ways. Indeed, the open source communities are characterised
+by their willingness to share for the good of us all. Many folk have
+also contributed directly and indirectly to this book through their
 sharing. Their contributions are acknowledged throughout the book, but
 there are always gaps. To all who share openly, thank you. I have
 learned so much from this community over more than 30 years.
 
 Your support for maintenance of this book is always welcome. Financial
 support is used to contribute toward the costs of running the servers
-used to make this book available. Donations can be made through PayPal
-at <https://mlhub.ai/>
+used to make this book available. Donations can be made through the
+PayPal Donation button at [MLHub](https://mlhub.ai/)
 
 The following have contributed to the content of the book and MLHub
-with specific material in one way or another. XXXX sparked the idea of
-MLHub originally. Simon Zhao and Fang Zhou
-implemented some of the early version of the system. Anthony Nolan
-and many many others have provided insights and comments that have
-been incorporated somewhere in the software and/or book. Thanks.
+with specific material in one way or another. Wee Hyong Tok sparked
+the idea of MLHub originally with the idea of a repository of
+pre-built deep neural network models. Simon Zhao and Fang Zhou
+implemented some of the early prototypes of the system. Anthony Nolan
+and many others have provided insights and comments that have been
+incorporated somewhere in the software and/or book. Thanks.
 
 <!-- ACKNOWLEDGE -->
 
 The following are further acknowledged for their support of the book:
 
 <!------------------------------------------------------------------------>
-## Copyright and Waiver {-}
+## Freedom, Utility, and Copyright {-}
 <!------------------------------------------------------------------------>
 
-`r CiteDate(20210221)` Writing of this book began in 1995 in one form
-or another, and continues to be updated to this day.  It is copyright
-by [Togaware](https://togaware.com) and licensed under the [Creative
-Commons Attribution-ShareAlike
-4.0](https://creativecommons.org/licenses/by-sa/4.0/) license.  It is
-made freely available to serve as a useful resource for users of Free
-and Open Source Software in the hope that it serves as a useful
-resource.
+`r CiteDate(20210221)` The basis of the ecosystem we are creating is
+freedom: the freedom to choose, the freedom to learn, the freedom to
+change, the freedom to share, the freedom to contribute, the freedom
+to live, the freedom to enjoy, the freedom to communicate through the
+code and tools we write, and the freedom of and the right to
+privacy. Never let our freedom be taken from us. And through utilising
+the tools and technology that I make available to you, please give
+back freely. That may be through a [donation](https://mlhub.ai) to
+support the ongoing development, or contributions of code, bug fixes,
+extensions, and packages to MLHub.
 
-The procedures and applications presented in this book and through the
+Writing of this book began in 1995 in one form or another, and the
+material continues to be updated as the technology develops. The
+procedures and applications presented in this book and through the
 various MLHub packages have been included for their instructional
 value. They have been tested at various times over the years but are
 not guaranteed for any particular purpose.  We also note that
@@ -232,8 +236,14 @@ presents a challenge. The publisher,
 representations, nor does it accept any liabilities with respect to
 the programs and applications.
 
+This work is copyright by [Togaware](https://togaware.com) and
+licensed under the [Creative Commons Attribution-ShareAlike
+4.0](https://creativecommons.org/licenses/by-sa/4.0/) license.  It is
+made freely available to serve as a useful resource for users of Free
+and Open Source Software, in the hope that it serves as a useful
+resource, and that you might also consider contributing to our
+ecosystem of freedoms.
+
 `r copyright()`
 
 ![](graphics/cc_by_sa.png)
-
-*ISBN 0-9757109-1-5*
