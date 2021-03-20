@@ -69,7 +69,7 @@ including
 To run a canned demonstration
 
 ```bash
-$ ml demo azcv
+ml demo azcv
 ```
 
 This begins with:
@@ -124,21 +124,26 @@ Confidence: 0.88 Tag: cityscape
 To run a simple interactive GUI:
 
 ```bash
-$ ml gui azcv
+ml gui azcv
 ```
 
 ![](graphics/azcv_gui_screenshot.png)
+
+The sample hand writing used here to demonstrate the OCR button was
+supplied by Ryley Nolan and Grace Patterson (used and accredited with
+permission). The accuracy is excellent.
 
 <!---------------------------------------------------------------------->
 ## azcv quick start
 <!---------------------------------------------------------------------->
 
 Here we list command line examples for each of the commands available
-in the package. To get full value from the examples, install
+in the package. To run the examples yourself, install
 [MLHub](https://mlhub.ai) and then install
-[azcv](https://github.com/gjwgit/azcv), then run the command on the
-command line. The examples are expanded upon through the following
-sections.
+[azcv](https://github.com/gjwgit/azcv), obtain an Azure Cognitive
+Services API key (Chapter \@(azcv)), then copy the command to run it
+on your Ubuntu command line. The examples are expanded upon through the
+following sections.
 
 Identify the **category**s of a photo of the Colosseum:
 
