@@ -1,61 +1,55 @@
 # MLHub Command Line
 
-`r CiteDate(20200901)` The machine learning hub
-(`r Link("MLHub", "https://mlhub.ai")`) 
-is a framework and repository for accessible AI and Machine
-Learning. It is the platform through which the capabilities of AI,
-machine learning and data science are presented and accessible.  It is
-the platform to share pre-built Machine Learning and Artificial
-Intelligence models as well as Data Science best practices. Each
-package wraps its functionality into commands that are able to be
-readily deployed within traditional and powerful Unix/Linux command
-line pipelines.
+`r CiteDate(20200901)` The machine learning hub (`r Link("MLHub",
+"https://mlhub.ai")`) is a framework and repository, through which the
+capabilities of Machine Learning, Artificial Intelligence, and Data
+Science are presented and accessible.  Pre-built Machine Learning and
+Artificial Intelligence models as well as Data Science best practices
+are presented as packages. Each package wraps its functionality into
+commands that are able to be readily deployed within traditional and
+powerful Unix/Linux command line pipelines.
 
-Each mlhub package typically provides a **demo** command to
-interactively demonstrate the capabilities of each package. A **gui**
-command provided by many packages presents a graphical user interface
-through which to use the particular capabilities of the package. But
-it is the command line oriented commands that empower the user with
-the capabilities of AI and ML.
+Each MLHub package provides a **demo** command to interactively
+demonstrate the capabilities of the package. A **gui** command
+presents a graphical user interface through which to use the
+particular capabilities of the package.  The command line oriented
+commands then empower the user with the capabilities of AI and ML.
 
-An important aim of mlhub is to empower anyone to be able to download
-and install technology and to run a demo within 5 minutes. Within 5
-minutes it needs to be able to demonstrate itself as a useful
-tool. The user can themselves determine whether the package is of
-interest to them, and quickly move one with minimal loss of time if it
-is not something they need or like.
+Whilst the power of the command line is an important goal of MLHub,
+its usefulness must be able to be demonstrated within 5 minutes. You
+decide whether the package supports something useful for you, or move
+on having lost only 5 minutes of your time.
 
-Keeping the ease of development at the forefront, MLHub turns a
+A MLHub **yaml** file is all that is required to turn a
 `r Link("git", "https://secure.wikimedia.org/wikipedia/en/wiki/git")` 
-based repository, where many researchers today publish
-their algorithms, into a collection of quickly accessible and ready to
+based repository (where researchers today publish
+their algorithms) into quickly accessible and ready to
 run, explore, rebuild, and even deploy, pre-built machine learning
-models and data science technology.  The models and technology are
+models.  The models and technology are
 accessed and managed using the `r Command(ml)` command from the free
 (as in libre) and open source
 `r Link("mlhub", "https://github.com/mlhubber/mlhub")` software. The software
 is available for installation through
-`r Link("pypi", "https://pypi.org/project/mlhub/")`. A growing number of
-machine learning models and data science technology are available, as
-well as cloud based services.
+`r Link("pypi", "https://pypi.org/project/mlhub/")`.
 
-Getting started is simple for computers running Ubuntu LTS (including
-the Windows 10’s Subsystem for Linux and the Raspberry Pi).  The
-command line tool allows for the rapid exploration of data science
-capabilities including
+Getting started is simple for computers running Ubuntu LTS.  The
+command line tools support
 `r Link("visualisations", "https://github.com/gjwgit/ports")` and
 `r Link("animations", "https://github.com/gjwgit/animate")`, machine learning
 models for `r Link("rain prediction", "https://github.com/gjwgit/rain")` and
 `r Link("movie recommendation", "https://github.com/gjwgit/movies")`, and AI
-models to `r Link("colorize photos", "https://github.com/mlhubber/colorize")`, `r Link("identify objects", "https://github.com/mlhubber/objects")`, and to
+models to
+`r Link("colorize photos", "https://github.com/mlhubber/colorize")`, 
+`r Link("identify objects", "https://github.com/mlhubber/objects")`, and to
 `r Link("detect faces", "https://github.com/simonzhaoms/facedetect")`.
 
-MLHub works best on Ubuntu LTS (18.04 and 20.04), ideally running on
-your installation of Ubuntu as the operating system on your own
-laptop. It is also easy to install on Windows 10 through the Windows
-Subsystem for Linux (WSL) or the Hyper-V gallery (enable Hyper-V and
-choose Ubuntu). For MacOS X use Parallels or Virtual Box to install
-from the Ubuntu iso. It also runs well on cloud Ubuntu servers.
+MLHub runs on Ubuntu LTS (18.04 and 20.04). This might be installed on
+Windows 10 as the Windows Subsystem for Linux or native on the
+Raspberry Pi. Ubuntu can of course run native on your own desktop or
+laptop where it is easy to install. Also it is available from the
+Hyper-V gallery on Windows (enable Hyper-V and choose Ubuntu). For
+MacOS X use Parallels or Virtual Box to install from the Ubuntu
+**iso**. It also runs well on cloud Ubuntu servers.
 
 ## Installation
 
