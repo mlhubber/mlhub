@@ -1,6 +1,6 @@
 <!-- 
 
-Time-stamp: <Saturday 2021-03-20 15:00:54 AEDT Graham Williams>
+Time-stamp: <Saturday 2021-03-20 17:08:49 AEDT Graham Williams>
 
 Free and Open Source Software Survival Guide
 
@@ -27,12 +27,12 @@ legally restrict others from doing anything the license permits.
 
 # Artificial Intelligence {#ai}
 
-`r CiteDate(20200223)` The concept of Artificial Intelligence (AI) has been
-variously defined over time. It often incorporates some latest
-technology that needs a marketing boost! So it's useful to go back to
-the origins from a 
-`r Link("workshop in 1956 at Dartmouth College","https://en.wikipedia.org/wiki/Dartmouth_workshop")` 
-in the USA funded by the Rockefeller Foundation. The workshop agreed on the
+`r CiteDate(20200223)` Artificial Intelligence (AI) has been variously
+defined over time. It often incorporates some latest technology that
+needs a marketing boost! So it's useful to go back to the origins from
+a `r Link("workshop in 1956 at Dartmouth
+College","https://en.wikipedia.org/wiki/Dartmouth_workshop")` in the
+USA funded by the Rockefeller Foundation. The workshop agreed on the
 term artificial intelligence and proposed that it encapsulated:
 
 > an attempt to find how to make machines use language, form
@@ -54,13 +54,10 @@ Artificial Intelligence technology (plus Statistics) to deliver new
 insights and knowledge from data. It is the translational
 
 Since those early days of Artificial Intelligence we have seen four
-"revolutions" or surges in AI. The later 2010's saw the emergence of
-the fourth AI revolution. 
-
-We might characterise these eras of AI as follows: The 1950's saw
-reasoning as **search** with developments in natural language, micro
-worlds, and neural networks all featured during this time. The 1980's
-saw a surge in expert systems, **knowledge representation**, and back
+"revolutions" or surges in AI.  The 1950's saw reasoning as **search**
+with developments in natural language, micro worlds, and neural
+networks all featured during this time. The 1980's saw a surge in
+expert systems, **knowledge representation**, and back
 propagation. The 1990's saw a focus on **agents** with Deep Blue,
 intelligent agents and the emergence of Data Mining.  The 2010's saw
 the emergence of **massive data and compute**, with data science and
