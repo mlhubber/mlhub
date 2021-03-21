@@ -1,59 +1,69 @@
-# MLHub Command Line
+# Installation
 
-`r CiteDate(20200901)` The machine learning hub (`r Link("MLHub",
-"https://mlhub.ai")`) is a framework and repository, through which the
-capabilities of Machine Learning, Artificial Intelligence, and Data
-Science are presented and accessible.  Pre-built Machine Learning and
-Artificial Intelligence models as well as Data Science best practices
-are presented as packages. Each package wraps its functionality into
-commands that are able to be readily deployed within traditional and
-powerful Unix/Linux command line pipelines.
+MLHub runs on Ubuntu LTS (Long Term Supported). Ubuntu can be readily
+installed on Windows 10 within the Windows Subsystem for Linux. It is
+also available as the operating system of choice from the Raspberry Pi
+to any desktop or laptop where it is easy to install. It is also
+available as the operating system of a virtual machine, from the
+Hyper-V gallery on Windows, for example (enable Hyper-V and choose
+Ubuntu). For MacOS X one can use Parallels or Virtual Box to install
+Ubuntu. It is also probably the most widely deployed operating system
+on cloud servers.
 
-Each MLHub package provides a **demo** command to interactively
-demonstrate the capabilities of the package. A **gui** command
-presents a graphical user interface through which to use the
-particular capabilities of the package.  The command line oriented
-commands then empower the user with the capabilities of AI and ML.
+The various options for installing Ubuntu are covered in this chapter,
+finishing with the installation of MLHub itself in Section
+\@ref(installing-mlhub).
 
-Whilst the power of the command line is an important goal of MLHub,
-its usefulness must be able to be demonstrated within 5 minutes. You
-decide whether the package supports something useful for you, or move
-on having lost only 5 minutes of your time.
-
-A MLHub **yaml** file is all that is required to turn a
-`r Link("git", "https://secure.wikimedia.org/wikipedia/en/wiki/git")` 
-based repository (where researchers today publish
-their algorithms) into quickly accessible and ready to
-run, explore, rebuild, and even deploy, pre-built machine learning
-models.  The models and technology are
-accessed and managed using the `r Command(ml)` command from the free
-(as in libre) and open source
-`r Link("mlhub", "https://github.com/mlhubber/mlhub")` software. The software
-is available for installation through
-`r Link("pypi", "https://pypi.org/project/mlhub/")`.
-
-Getting started is simple for computers running Ubuntu LTS.  The
-command line tools support
-`r Link("visualisations", "https://github.com/gjwgit/ports")` and
-`r Link("animations", "https://github.com/gjwgit/animate")`, machine learning
-models for `r Link("rain prediction", "https://github.com/gjwgit/rain")` and
-`r Link("movie recommendation", "https://github.com/gjwgit/movies")`, and AI
-models to
-`r Link("colorize photos", "https://github.com/mlhubber/colorize")`, 
-`r Link("identify objects", "https://github.com/mlhubber/objects")`, and to
-`r Link("detect faces", "https://github.com/simonzhaoms/facedetect")`.
-
-MLHub runs on Ubuntu LTS (18.04 and 20.04). This might be installed on
-Windows 10 as the Windows Subsystem for Linux or native on the
-Raspberry Pi. Ubuntu can of course run native on your own desktop or
-laptop where it is easy to install. Also it is available from the
-Hyper-V gallery on Windows (enable Hyper-V and choose Ubuntu). For
-MacOS X use Parallels or Virtual Box to install from the Ubuntu
-**iso**. It also runs well on cloud Ubuntu servers.
+All of the curated models that are registered with MLHub are tested
+against Ubuntu LTS.
 
 ## Installing Ubuntu WSL
 
+The Windows Subsystem for Linux (WSL) is available as a feature on
+Windows 10. Out-of-the-box WSL supports Ubuntu running within
+Windows. This is the simplest option if you have Windows 10 (1709 or
+later) installed (see Settings -> System -> About). It also requires
+the installation of XMing or VcXsrv. Microsoft also released WSLv2 in
+May 2020 to incorporate the Linux kernel directly within Windows, so
+as to deliver significant performance gains and support more
+applications. However WSLv2 is not currently recommended due to its
+limited access to Windows file systems from Ubuntu.
+
+To get started
+
++ Install XMing on Windows (download, run, and choose the defaults for
+  the installation).
++ Go to "Turn Windows Features On or Off" (Control Panel -> Programs
+  -> Programs and Features), tick on the box ‘Windows Subsystem for
+  Linux’ to install WSL and reboot.
++ Go to Microsoft Store and search for the latest Ubuntu distribution
+  to install.
++ Launch Ubuntu from the Start menu or else type the command “ubuntu”
+  in the Powershell.
++ For GUI applications run the command $ export DISPLAY=:0 in the
+  Ubuntu terminal window.
+
 ## Installing Ubuntu Desktop
+
+Your best choice is to install the latest Ubuntu LTS on your own computer
+as the base operating system. Many people run Ubuntu rather than
+Windows so you will be in good company. 
+
+## Installing Ubuntu in the Cloud
+
+Most cloud providers support Ubuntu. It is possible to fire up a
+Ubuntu server in the cloud for just $5 per month. 
+
+You can get free credit ($200) from Microsoft to trial Azure.  After
+signing up, from the portal add a new Ubuntu 20.04 LTS server,
+creating a new resource group for it, providing a name for the virtual
+machine, a user name and a password, choosing a location (e.g.,
+westus2), opening network port 22 for ssh connectivity, and choosing a
+machine size to suit your needs. Once created go to the portal and
+provide a DNS name from the overview page’s, DNS link. Connect to the
+server using `r Command(ssh)` from a terminal to the DNS name, set the
+server up as in Section \@ref(installing-mlhub), then connect to the
+server using X2Go on your own desktop.
 
 ## Installing Ubuntu VirtualBox
 
@@ -71,16 +81,16 @@ from `r Link("PyPI", "https://pypi.org/project/wajig/")`. Installation of
 `r Package(wajig)` will usually take less than 5 minutes.
 
 ```bash
+$ sudo apt update
+$ sudo apt upgrade
 $ sudo apt install wajig
 $ wajig update 
 $ wajig upgrade 
 $ wajig install python3-pip
-$ pip3 install wajig
 ```
 
 Be sure to log out and log back in after the `r Command(pip3)` install
-so that the system will notice your local installation of
-`r Command(wajig)`.
+so that the system will notice your local installations.
 
 Now we are ready to install and configure MLHub:
 
