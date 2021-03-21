@@ -1,6 +1,6 @@
 <!-- 
 
-Time-stamp: <Saturday 2021-03-20 17:08:49 AEDT Graham Williams>
+Time-stamp: <Sunday 2021-03-21 15:39:09 AEDT Graham Williams>
 
 Free and Open Source Software Survival Guide
 
@@ -51,7 +51,9 @@ intelligence.
 Data Science, which as a term has gained currency since 2014, is a
 profession oriented endeavour of using both Machine Learning and
 Artificial Intelligence technology (plus Statistics) to deliver new
-insights and knowledge from data. It is the translational
+insights and knowledge from data. It is the translational endeavour of
+taking the fundamental research developments and making them available
+and applicable to the world.
 
 Since those early days of Artificial Intelligence we have seen four
 "revolutions" or surges in AI.  The 1950's saw reasoning as **search**
@@ -67,12 +69,12 @@ of personal data.  The **Future** will see a resurgence of interest in
 causal reasoning, knowledge graphs (frames), accessible AI, and
 federated data privacy.
 
-This era that we now find ourselves is setting the foundations for the
-technological developments toward artificial intelligence. The
-foundations are emerging from the researhc laboratories and through
-the `r Link("MLHub", "https://mlhub.ai")` we are able to utilise these
-developments. The MLHub, put simply, aims to share the latest
-algorithms and models within a framework that is easy for people to
-build the models to share and a platform that is easy for anyone to
-explore.
+The current era continues to set the foundations for computing
+machines that will one day demonstrate artificial intelligence, though
+that is still some way off. We see the foundations emerging from the
+research laboratories in universities and in industry. It is a goal of
+the `r Link("MLHub","https://mlhub.ai")` that we be able to share in
+the results of these developments, simply, within a framework that is
+easy for people to build the models to share and a platform that makes
+it easy for anyone to explore and utilise the technology.
 
