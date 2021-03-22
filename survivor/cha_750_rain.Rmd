@@ -393,7 +393,7 @@ include_graphics_url("https://github.com/gjwgit/rain/raw/master/docs/rain_dt_ris
 
 ## rain predict
 
-`r CiteDate(20210322) The *predict* command can be run after the model
+`r CiteDate(20210322)` The *predict* command can be run after the model
 has been built. The model is built as part of the *demo* command.
 
 
