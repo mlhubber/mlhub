@@ -1,7 +1,7 @@
 # MLHub Command Line
 
-`r CiteDate(20200901)` The machine learning hub (`r Link("MLHub",
-"https://mlhub.ai")`) is a framework and repository, through which the
+`r CiteDate(20200901)` The machine learning hub 
+(`r Link("MLHub","https://mlhub.ai")`) is a framework and repository, through which the
 capabilities of Machine Learning, Artificial Intelligence, and Data
 Science are presented and accessible.  Pre-built Machine Learning and
 Artificial Intelligence models as well as Data Science best practices
@@ -38,54 +38,65 @@ models to
 `r Link("identify objects", "https://github.com/mlhubber/objects")`, and to
 `r Link("detect faces", "https://github.com/simonzhaoms/facedetect")`.
 
-## Available Models
+<!---------------------------------------------------------------------->
+## ML Available
+<!---------------------------------------------------------------------->
 
-`r CiteDate(20200220)` The **available** command will list available
-curated models. These are models that the team behind MLHub review to
-ensure their integrity and functionality, particularly based on the
-latest Ubuntu LTS. There is though no limit to what models can be
-packaged for MLHub. MLHub is able to be pointed to any git repository
-and install a package based on the MLHUB.yaml file.
+`r CiteDate(20200221)` After installing MLHub
+(Section&nbsp;\@ref(installing-mlhub)) we are ready to install `r
+Link("MLHub", "https://mlhub.ai")` packages. The simplest option is to
+install *curated* packages. Such packages are reviewed by the MLHub
+team and the specific details required to install a package are
+obtained from a MLHub maintained index. The MLHub team review these
+packages to ensure their integrity and functionality. There is though
+no limit to what models can be packaged for MLHub. MLHub is able to be
+pointed to any git repository and install a package based on the
+MLHUB.yaml file found there.
+
+The **available** command will list available curated models:
 
 ```bash
 $ ml available
 The repository 'https://mlhub.ai/' provides the following models:
 
-animate      2.1.4  Tell a data narative through animations                 
-audit        4.1.0  Classic financial audit predictive classification model.
-azanomaly    3.1.4  Azure Anomaly Detection.                                
-azcv         2.3.3  Azure Computer Vision.                                  
-azface       2.0.4  Azure Face API demo.                                    
-azlang       0.0.3  Azure language cognitive service on the cloud.          
-azspeech2txt 2.1.0  Azure Speech to Text cognitive services on the cloud.   
-aztext       2.4.1  Azure Text Analytics cognitive services on the cloud.   
-aztranslate  2.1.0  Azure Text Translation cognitive services on the cloud. 
-barchart     2.0.1  Demonstrate the concept of barcharts.                   
-beeswarm     2.0.1  Demonstrate the concept of bee swarm charts.            
-colorize     1.5.3  Demonstrate the concept of photo colorization.          
-cvbp         1.3.3  Computer vision best practices.                         
-facedetect   0.2.5  Simple face detection.                                  
-facematch    0.4.2  Simple face recognition.                                
-facets       1.0.1  Visualising data using faceted plots.                   
-iris         2.1.0  Classic iris plant species classifier.                  
-movies       2.0.3  Movie recommendation using the SAR algorthm.            
-nlpbp        0.0.2  Natural language processing best practices.             
-objects      1.5.6  Recognise objects in an image using resnet152.          
-opencv       1.0.2  OpenCV Computer Vision.                                 
-ports        2.0.0  Demostrate the concept of visualising data.             
-rain_dt      4.0.3  Predict rain tomorrow using a decision tree model.      
-rain_rf      2.0.2  Predict rain tomorrow using a random forest model.      
-rbm          1.0.6  Recommendations using restricted Boltzmann machine.     
-sar          1.1.6  Smart adaptive recommendations.                         
-scatter      2.0.0  Demonstrate the concept of scatter plots.               
-tapwater     0.0.3  Factor analysis for understanding customers             
+animate      2.1.5  Tell a data narative through animations 
+audit        4.1.0  Classic financial audit predictive classification model. 
+azanomaly    3.1.4  Azure Anomaly Detection. 
+azcv         2.6.0  Azure Computer Vision. 
+azface       2.1.4  Azure Face API demo. 
+azlang       0.0.3  Azure language cognitive service on the cloud. 
+azspeech     4.1.1  Azure Speech cognitive services on the cloud. 
+aztext       2.4.7  Azure Text Analytics cognitive services on the cloud. 
+aztranslate  2.4.6  Azure Text Translation cognitive services on the cloud. 
+barchart     2.0.2  Demonstrate the concept of barcharts. 
+beeswarm     2.0.1  Demonstrate the concept of bee swarm charts. 
+cars         0.0.9  Identify car make and model from a photo. 
+colorize     1.5.8  Demonstrate the concept of photo colorization. 
+cvbp         2.2.0  Computer vision best practices. 
+easyocr      0.0.8  Extract text from images. 
+facedetect   0.2.5  Simple face detection. 
+facematch    0.4.2  Simple face recognition. 
+iris         2.1.3  Classic iris plant species classifier. 
+movies       2.0.3  Movie recommendation using the SAR algorthm. 
+objects      1.6.26 Recognise objects in an image using resnet152. 
+opencv       1.0.2  OpenCV Computer Vision. 
+ports        2.0.0  Demostrate the concept of visualising data. 
+pyiris       0.0.7  Classification models in Python using the iris dataset. 
+rain         5.1.3  Predict if it will rain tomorrow (decision tree and rand... 
+rbm          1.0.6  Recommendations using restricted Boltzmann machine. 
+sar          1.1.6  Smart adaptive recommendations. 
+scatter      2.0.1  Demonstrate the concept of scatter plots. 
+sgnc         0.1.0  Node classification for graphs using StellarGraph. 
+speech2txt   0.1.1  Convert audio speech to text across multiple services. 
 
 To install a named model, local model file or URL:
 
   $ ml install <model>
 ```
 
+<!---------------------------------------------------------------------->
 ## Hello World
+<!---------------------------------------------------------------------->
 
 `r CiteDate(20200311)` The MLHub package supports any number of commands
 that are exposed through the individual model packages. MLHub itself
@@ -93,15 +104,15 @@ implements the following commands. Note that in the below examples
 everything from the `#` to the end of the line is ignored (it’s a
 comment).
 
-```bash
-$ ml                   # Summary of commands supported by ml.
-$ ml available         # List of currated models on the MLHub.
-$ ml installed         # List of models installed locally.
-$ ml install   <model> # Install the identified model.
-$ ml configure <model> # Install the model's required dependencies.
-$ ml readme    <model> # View the author's introduction of the model.
-$ ml commands  <model> # List commands supported by the model.
-$ ml uninstall <model> # Uninstall the model and (optionally) model cache.
+```console
+$ ml                      # Summary of commands supported by ml.
+$ ml available            # List of currated models on the MLHub.
+$ ml installed            # List of models installed locally.
+$ ml install   <model>    # Install the identified model.
+$ ml configure <model>    # Install the model's required dependencies.
+$ ml readme    <model>    # View the author's introduction of the model.
+$ ml commands  <model>    # List commands supported by the model.
+$ ml uninstall <model>    # Uninstall the model and (optionally) model cache.
 ```
 
 Once MLHub is installed run the "*Hello World*" example which
@@ -111,16 +122,22 @@ source R statistical software package which will have been installed
 when you configured mlhub. Follow the commands here as a typical
 workflow for many MLHub packages:
 
-```bash
-$ ml install   iris # Install the pre-built model named 'iris'.
-$ ml configure iris # Configure any dependencies for the model.
-$ ml readme    iris # View background information about the model.
-$ ml commands  iris # List of commands supported by the model.
-$ ml demo      iris # Run the demonstration of the pre-built model.
+```console
+$ ml install   iris       # Install the pre-built model named 'iris'.
+$ ml configure iris       # Configure any dependencies for the model.
+$ ml readme    iris       # View background information about the model.
+$ ml commands  iris       # List of commands supported by the model.
+$ ml demo      iris       # Run the demonstration of the pre-built model.
+```
+
+<!--
+
+Not yet implemented 20210323
+
 $ ml gui       iris # Graphical display of pre-built model.
 $ ml score     iris # Interact with the model to predict iris.
 $ ml train     iris # Supply own data and re-fit a model.
-```
+-->
 
 Different pre-built model packages will have different system
 dependencies and these will be installed by the **configure**
@@ -144,8 +161,8 @@ Vision AI have a look at
 Most model packages will support the following commands:
 
 ```bash
-$ ml demo <model> # Run the demonstration of the model.
-$ ml gui  <model> # Graphical display to utilise the model.
+$ ml demo <model>         # Run the demonstration of the model.
+$ ml gui  <model>         # Graphical display to utilise the model.
 ```
 
 And then individual models will support model specific commands. Some
@@ -159,32 +176,13 @@ $ ml listen azspeech2txt
 $ ml train rain <file>
 ```
 
-## Install Packages
+<!---------------------------------------------------------------------->
+## ML Install
+<!---------------------------------------------------------------------->
 
-`r CiteDate(20200221)` After installing MLHub
-(Section&nbsp;\@ref(mlhub_install)) we are ready to install
-`r Link("MLHub", "https://mlhub.ai")` packages. The simplest option is to
-install **curated** packages. Such packages are reviewed by the
-MLHub AI team and the specific details required to install a package
-are obtained from a MLHub maintained index.
-
-The list of curated packages is provided through the
-**available** command.
-
-```bash
-$ ml available
-The repository 'https://mlhub.ai/' provides the following models:
-
-animate      2.1.4  Tell a data narative through animations.              
-audit        4.1.0  Classic financial audit predictive classification model.
-azanomaly    3.1.4  Azure Anomaly Detection.                                
-azcv         2.5.0  Azure Computer Vision.                                  
-azface       2.0.8  Azure Face API demo.                                    
-[...]
-```
-
-The simplest installation will then list one of the package names
-(from the left column of the above table). For example:
+The simplest installation will then identify the package name (from
+the left column of output of the `r ml_command(ml,available)`
+command). For example:
 
 ```bash
 $ ml install rain
@@ -237,25 +235,19 @@ $ ml install bitbucket:gjwgit/rain
 $ ml install https://bitbucket.org/gjwgit/rain/...
 ```
 
+<!--
 % 20200301 FROM WED SITE TO INCLUDE HERE
 
 % <h4>Install Driect from GitHub</h4>
 
-% <!-- wp:paragraph -->
 % <p>We can also install a MLHub package direct from github. In this way a package developer simply adds <em>MLHUB.yaml</em> and the appropriate Python or R scripts to their github repository to turn their repo into a MLHub package. The example below will access <a href="https://github.com/gjwgit/rain">https://github.com/gjwgit/rain</a>. Currently only github is supported though contributions (pull requests) to <a href="https://github.com/mlhubber/mlhub">https://github.com/mlhubber/mlhub</a> are welcome to support bitbucket and gitlab and git repositories in general.</p>
-% <!-- /wp:paragraph -->
 
-% <!-- wp:preformatted -->
 % <pre class="wp-block-preformatted">$ ml install gjwgit/rain</pre>
-% <!-- /wp:preformatted -->
 
-% <!-- wp:paragraph -->
 % <p>A git repository may contain multiple MLHub packages, like the Microsoft Recommenders best practice repository at <a href="https://github.com/gjwgit/recommenders">https://github.com/gjwgit/recommenders</a>. In this case we point mlhub to the specific configuration files.</p>
-% <!-- /wp:paragraph -->
 
-% <!-- wp:preformatted -->
 % <pre class="wp-block-preformatted">$ ml install gjwgit/recommenders:mlhub/sar.yaml<br>$ ml readme sar<br>$ ...<br><br>$ ml install gjwgit/recommenders:mlhub/rbm.yaml<br>$ ml readme rbm<br>$ ...</pre>
-% <!-- /wp:preformatted -->
+-->
 
 ## Unistall Packages
 
@@ -308,21 +300,15 @@ Remove cache '/home/kayon/.mlhub/.cache/objects/' as well [y/N]? y
 $ ml install objects
 ```
 
+<!--
 % CUT FROM WEB AND INCLUDED HERE INSTEAD - TODO
 
-% <!-- wp:heading -->
 % <h2>Commands Auto Completion</h2>
-% <!-- /wp:heading -->
 
-% <!-- wp:paragraph -->
 % <p>The bash shell on Linux supports command line auto-completion which is pretty handy. You can download <a href="https://mlhub.au/ml.bash"><strong>ml.bash</strong></a> from the MLHub and place the file into <em>/etc/bash_completion.d/</em> or for later versoins of bash, into <em>~/.local/share/bash-completion/completions/</em></p>
-% <!-- /wp:paragraph -->
 
-% <!-- wp:preformatted -->
 % <pre class="wp-block-preformatted">$ wget https://mlhub.ai/ml.bash<br>THEN<br>$ sudo install -m 0644 ml.bash /etc/bash_completion.d/<br>OR (for bash --version &gt; 4.3)<br>$ mkdir -p ~/.local/share/bash-completion/completions/<br>$ mv ml.bash ~/.local/share/bash-completion/completions/</pre>
-% <!-- /wp:preformatted -->
 
-% <!-- wp:paragraph -->
 % <p>Restart the shell for the auto-completion to take effect. Then type '<em>ml '</em>&nbsp; then the beginnings of a command, like <em>'a'</em>, and then TAB to auto-complete. Auto-completion also works for model names.<br></p>
-% <!-- /wp:paragraph -->
 
+-->
