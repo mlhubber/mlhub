@@ -2,6 +2,13 @@
 
 # Building Packages
 
+A MLHub **yaml** file is all that is required to turn a
+`r Link("git", "https://secure.wikimedia.org/wikipedia/en/wiki/git")` 
+based repository (where researchers today publish
+their algorithms) into quickly accessible and ready to
+run, explore, rebuild, and even deploy, pre-built machine learning
+models.
+
 ## Dependencies
 
 `r CiteDate(20200221)` Within the MLHUB.yaml file dependencies can be
