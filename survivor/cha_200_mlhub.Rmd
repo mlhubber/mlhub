@@ -20,20 +20,15 @@ its usefulness must be able to be demonstrated within 5 minutes. You
 decide whether the package supports something useful for you, or move
 on having lost only 5 minutes of your time.
 
-A MLHub **yaml** file is all that is required to turn a
-`r Link("git", "https://secure.wikimedia.org/wikipedia/en/wiki/git")` 
-based repository (where researchers today publish
-their algorithms) into quickly accessible and ready to
-run, explore, rebuild, and even deploy, pre-built machine learning
-models.  The models and technology are
+The models and technology are
 accessed and managed using the `r Command(ml)` command from the free
 (as in libre) and open source
 `r Link("mlhub", "https://github.com/mlhubber/mlhub")` software. The software
 is available for installation through
 `r Link("pypi", "https://pypi.org/project/mlhub/")`.
 
-Getting started is simple for computers running Ubuntu LTS.  The
-command line tools support
+Getting started is simple for computers running Ubuntu LTS with
+packages for
 `r Link("visualisations", "https://github.com/gjwgit/ports")` and
 `r Link("animations", "https://github.com/gjwgit/animate")`, machine learning
 models for `r Link("rain prediction", "https://github.com/gjwgit/rain")` and
@@ -42,91 +37,6 @@ models to
 `r Link("colorize photos", "https://github.com/mlhubber/colorize")`, 
 `r Link("identify objects", "https://github.com/mlhubber/objects")`, and to
 `r Link("detect faces", "https://github.com/simonzhaoms/facedetect")`.
-
-MLHub runs on Ubuntu LTS (18.04 and 20.04). This might be installed on
-Windows 10 as the Windows Subsystem for Linux or native on the
-Raspberry Pi. Ubuntu can of course run native on your own desktop or
-laptop where it is easy to install. Also it is available from the
-Hyper-V gallery on Windows (enable Hyper-V and choose Ubuntu). For
-MacOS X use Parallels or Virtual Box to install from the Ubuntu
-**iso**. It also runs well on cloud Ubuntu servers.
-
-## Installing Ubuntu WSL
-
-## Installing Ubuntu Desktop
-
-## Installing Ubuntu VirtualBox
-
-## Installing MLHub
-
-`r CiteDate(20200220)` `r Link("MLHub","https://mlhub.ai")` is a
-platform specifically built on Ubuntu. We start with a fresh install
-of Ubuntu 20.04 LTS and note otherwise that some of the steps here may
-not be necessary.
-
-To simplify using the Ubuntu system we will use the `r Command(wajig)`
-system administration suite. `r Package(wajig, "Wajig")` is available from
-the Debian and Ubuntu repositories with the latest updates available
-from `r Link("PyPI", "https://pypi.org/project/wajig/")`. Installation of
-`r Package(wajig)` will usually take less than 5 minutes.
-
-```bash
-$ sudo apt install wajig
-$ wajig update 
-$ wajig upgrade 
-$ wajig install python3-pip
-$ pip3 install wajig
-```
-
-Be sure to log out and log back in after the `r Command(pip3)` install
-so that the system will notice your local installation of
-`r Command(wajig)`.
-
-Now we are ready to install and configure MLHub:
-
-```bash
-$ pip3 install mlhub
-$ ml configure
-```
-
-If you now find that the `r Command(ml)` command is not found then you
-may like to log out and back in again. This will refresh the PATH
-where commands are found. The default in Ubuntu 20.04 LTS is that the
-path will include `~/.local/bin` if it exists, which won't be the
-case for the first time. `r Command(pip3, "Pip3")` will install the
-`r Command(ml)` command there and this is checked at login. If all else
-fails then the following could be useful (but not usually required):
-
-```bash
-$ echo 'PATH=~/.local/bin:$PATH' >> ~/.bashrc
-```
-
-MLHub exposes a github repository as a collection of quickly
-accessible and ready to run, explore, rebuild, and even deploy,
-pre-built machine learning models and data science technology.  The
-models and technology are accessed and managed using the ml command
-from the mlhub package available for quick installation from pypi. A
-growing number of machine learning models and data science technology
-are becoming available, as well as cloud based services.
-
-The **configure** of `r Command(ml)` as above will install quite a
-comprehensive collection of AI technology to have your computer
-AI-ready. This will include several hundred packages (mostly small)
-that are downloaded and installed. For each of the major packages you
-will be asked to confirm that it is okay to install it. This could
-take up to 5 minutes.
-
-This will install quite a collection of free and open source packages
-that begins to form a foundation for doing AI and ML and Data Science
-on Ubuntu. Included is the `r Link("R Statistical Software", "https://r-project.org")` package.
-
-As the instructions will suggest, run the following to immediately
-turn on tab expansion for mlhub commands and model names. This will be
-available anyhow on the next login.
-
-```bash
-$ source /etc/bash_completion.d/ml.bash
-```
 
 ## Available Models
 
