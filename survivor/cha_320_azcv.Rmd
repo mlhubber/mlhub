@@ -1,4 +1,4 @@
-# azcv Azure Computer Vision {#azcv}
+# Azure Computer Vision {#azcv}
 
 `r CiteDate(20200806)` The [MLHub](https://mlhub.ai) package
 [azcv](https://github.com/gjwgit/azcv) utilises the [Azure Computer
@@ -36,16 +36,18 @@ URL or a path to a local file. For brevity through this chapter the
 URLs we use are short URLs generated through
 [bitly](https://bitly.com).
 
-To get started:
+We install, configure and demonstrate the model with these three
+commands:
 
 ```bash
 ml install azcv
 ml configure azcv
+ml demo azcv
 ```
 
-A demonstration of the capabilities of computer vision is available
-through the `r ml_command(azcv, demo)` command. A simple graphical
-user interface is provided through the `r ml_command(azcv, gui)`
+In addition to the `r ml_command(azcv, demo)` command, a simple
+graphical user interface is provided through the 
+`r ml_command(azcv, gui)`
 command.  The package supports many computer vision operations
 including 
 `r ml_command(azcv,adult)`,
