@@ -68,11 +68,11 @@ Section \@ref(installing-mlhub), then connect to the server using X2Go
 on your own desktop.
 
 Connection to a remote server will often be using X2Go. This usually
-requires the MATE desktop to be installed on the cloud server. This
-can take 10 minutes or so.
+requires the MATE desktop and the X2Go server to be installed on the
+cloud server. This can take 15 minutes or so.
 
 ```bash
-$ wajig install ubuntu-mate-desktop
+$ wajig install ubuntu-mate-desktop x2goserver
 ```
 
 Whilst installing select the default option for any questions (e.g.,
