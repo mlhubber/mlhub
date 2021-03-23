@@ -62,8 +62,8 @@ for it, providing a name for the virtual machine, a user name and a
 password, choosing a location (e.g., westus2), opening network port 22
 for ssh connectivity, and choosing a machine size to suit your
 needs. Once created go to the portal and provide a DNS name from the
-overview page’s, DNS link. Connect to the server using `r
-Command(ssh)` from a terminal to the DNS name, set the server up as in
+overview page’s, DNS link. Connect to the server using 
+`r Command(ssh)` from a terminal to the DNS name, set the server up as in
 Section \@ref(installing-mlhub), then connect to the server using X2Go
 on your own desktop.
 
