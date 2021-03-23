@@ -123,7 +123,7 @@ Confidence: 0.88 Tag: cityscape
 ## azcv gui
 <!---------------------------------------------------------------------->
 
-To run a simple interactive GUI:
+To run a simple interactive graphical user interface (GUI):
 
 ```bash
 ml gui azcv
@@ -133,7 +133,13 @@ ml gui azcv
 
 The sample hand writing used here to demonstrate the OCR button was
 supplied by Ryley Nolan and Grace Patterson (used and accredited with
-permission). The accuracy is excellent.
+permission). The accuracy is pretty good!
+
+
+The GUI is basic but functional. You can enter a path to a local image
+file or a URL to an image in the text entry, or browse to a local
+image file. By default the Browse begins in a folder of sample images
+for you to try out.
 
 <!---------------------------------------------------------------------->
 ## azcv quick start
@@ -593,26 +599,29 @@ Patterson. (Used and accredited with permission.)
 If you are not interested in the bounding boxes:
 
 ``` console
-$ ml ocr azcv https://github.com/gjwgit/azcv/raw/master/images/mycat.png | cut -d, -f2-
+$ ml ocr azcv https://bit.ly/2Op1qYk | cut -d, -f2-
 
-My cats name is freckles . She like's to climb up
+My cats name is freckles. She like's to climb up
 high. She is 2 years old. She likes to play a lot of games.
-She likes to sleep on my bed sometimes, She wakes me
+She likes to sleep on my bed sometimes. She wakes me
 up in the morning for food. Our cat runs away from my
-little brother , I love my cat freckels,
-My Cats name is Mr Tiger!
+little brother I love my cat freckels .
+My Cats name is Mr Tiger !
 He is fluffy and is fun to play with
 My cat knows his way around our house
 My cat can be silly and really smart when he brings Rodents to our house .
-II love my cat and wouldn't change a thing about him !
+I love my cat and wouldn't change a thing about him!
 ```
 
 ```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
-include_graphics_url("https://raw.githubusercontent.com/gjwgit/azcv/master/docs/handwritting_malala.jpg")
+include_graphics_url("https://bit.ly/319WJUM")
 ```
 
+<!-- https://github.com/gjwgit/azcv/raw/master/docs/handwritting_malala.jpg -->
+<!-- http://www.handwrittenocr.com/images/Handwriting/16.jpg -->
+
 ``` console
-$ ml ocr azcv http://www.handwrittenocr.com/images/Handwriting/16.jpg
+$ ml ocr azcv https://bit.ly/319WJUM
 
 237.0 91.0 469.0 92.0 468.0 124.0 236.0 123.0,Education First
 188.0 157.0 287.0 158.0 286.0 184.0 187.0 183.0,always
