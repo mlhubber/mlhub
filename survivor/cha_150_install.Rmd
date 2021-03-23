@@ -10,9 +10,9 @@ Ubuntu). For MacOS X one can use Parallels or Virtual Box to install
 Ubuntu. It is also probably the most widely deployed operating system
 on cloud servers.
 
-The various options for installing Ubuntu are covered in this chapter,
-finishing with the installation of MLHub itself in Section
-\@ref(installing-mlhub).
+The various options for installing Ubuntu are covered in the following
+sections of this chapter, finishing with the installation of MLHub
+itself in Section \@ref(installing-mlhub).
 
 All of the curated models that are registered with MLHub are tested
 against Ubuntu LTS.
@@ -52,33 +52,50 @@ Windows so you will be in good company.
 ## Installing Ubuntu in the Cloud
 
 Most cloud providers support Ubuntu. It is possible to fire up a
-Ubuntu server in the cloud for just $5 per month. 
+Ubuntu server in the cloud for just $5 per month. Many cloud vendors
+will provide free credit (from $100 to $200) to get you started.
 
-You can get free credit ($200) from Microsoft to trial Azure.  After
-signing up, from the portal add a new Ubuntu 20.04 LTS server,
-creating a new resource group for it, providing a name for the virtual
-machine, a user name and a password, choosing a location (e.g.,
-westus2), opening network port 22 for ssh connectivity, and choosing a
-machine size to suit your needs. Once created go to the portal and
-provide a DNS name from the overview page’s, DNS link. Connect to the
-server using `r Command(ssh)` from a terminal to the DNS name, set the
-server up as in Section \@ref(installing-mlhub), then connect to the
-server using X2Go on your own desktop.
+For example, you can get free credit ($200) from Microsoft to trial
+Azure.  After signing up with Azure, the Azure portal will allow you
+to create a new Ubuntu 20.04 LTS server, creating a new resource group
+for it, providing a name for the virtual machine, a user name and a
+password, choosing a location (e.g., westus2), opening network port 22
+for ssh connectivity, and choosing a machine size to suit your
+needs. Once created go to the portal and provide a DNS name from the
+overview page’s, DNS link. Connect to the server using `r
+Command(ssh)` from a terminal to the DNS name, set the server up as in
+Section \@ref(installing-mlhub), then connect to the server using X2Go
+on your own desktop.
+
+Connection to a remote server will often be using X2Go. This usually
+requires the MATE desktop to be installed on the cloud server:
+
+```bash
+$ wajig install ubuntu-mate-desktop
+```
 
 ## Installing Ubuntu VirtualBox
 
 ## Installing MLHub
 
-`r CiteDate(20200220)` `r Link("MLHub","https://mlhub.ai")` is a
-platform specifically built on Ubuntu. We start with a fresh install
-of Ubuntu 20.04 LTS and note otherwise that some of the steps here may
-not be necessary.
+`r CiteDate(20200220)` `r Link("MLHub","https://mlhub.ai")` is
+specifically developed and built to run on Ubuntu, implemented in
+Python3. MLHub can be installed from the
+[PyPI](https://pypi.org/project/mlhub/) Python library repository. If
+your Ubuntu platform already has Python3 installed, including pip,
+then it is a single command to install mlhub:
 
+```bash
+$ pip3 install mlhub
+```
+
+If you have just set up a new Ubuntu server, or you have not
+previously had Python installed, the following steps will be useful.
 To simplify using the Ubuntu system we will use the `r Command(wajig)`
-system administration suite. `r Package(wajig, "Wajig")` is available from
-the Debian and Ubuntu repositories with the latest updates available
-from `r Link("PyPI", "https://pypi.org/project/wajig/")`. Installation of
-`r Package(wajig)` will usually take less than 5 minutes.
+system administration suite. `r Package(wajig, "Wajig")` is available
+from the Debian and Ubuntu repositories with the latest updates
+available from `r Link("PyPI","https://pypi.org/project/wajig/")`. 
+Installation of `r Package(wajig)` will usually take less than 5 minutes.
 
 ```bash
 $ sudo apt update
@@ -87,6 +104,7 @@ $ sudo apt install wajig
 $ wajig update 
 $ wajig upgrade 
 $ wajig install python3-pip
+$ pip3 install wajig
 ```
 
 Be sure to log out and log back in after the `r Command(pip3)` install
