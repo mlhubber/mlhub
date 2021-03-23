@@ -205,7 +205,7 @@ ml ocr azcv https://bit.ly/38F0FBj
 To generate a **thumbnail** of a photo of Australia's Uluru:
 
 ```bash
-ml thumbnail azcv https://www.wayoutback.com.au/assets/Uploads/Uluru.jpg
+ml thumbnail azcv https://bit.ly/3cqDonC
 ```
 
 <!-- https://www.wayoutback.com.au/assets/Uploads/Uluru.jpg -->
