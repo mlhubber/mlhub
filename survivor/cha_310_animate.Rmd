@@ -1,4 +1,4 @@
-# Animate Data {#animate}
+# Animations {#animate}
 
 `r CiteDate(20200220)` Animations can add considerable insight to any
 data analysis and can communicate quite effectively the story that the
