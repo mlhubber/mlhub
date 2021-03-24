@@ -582,7 +582,7 @@ year 4 students and users of mlhub: Ryley Nolan and Grace
 Patterson. (Used and accredited with permission.)
 
 ``` console
- ml ocr azcv https://github.com/gjwgit/azcv/raw/master/images/mycat.png
+ ml ocr azcv https://bit.ly/2Op1qYk
 
 51.0 43.0 666.0 51.0 665.0 84.0 51.0 76.0,My cats name is freckles . She like's to climb up
 39.0 94.0 691.0 104.0 690.0 137.0 38.0 127.0,high. She is 2 years old. She likes to play a lot of games.
