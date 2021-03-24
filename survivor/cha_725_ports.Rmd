@@ -1,0 +1,31 @@
+# Ports Data Visualisation {#ports}
+
+`r CiteDate(20210324)` Visualisations of or data is crucial to gaining
+insight into the data.
+
+The examples here come from chapter 5 of the Essentials of Data
+Science by Graham Williams <https://bit.ly/essentials_data_science>.
+The data used comes from <https://essentials.togaware.com/ports.xlsx>.
+
+[MLHub](https://mlhub.ai)'s [rain](https://github.com/gjwgit/ports)
+package uses the [Australian Sea
+Ports](https://essentials.togaware.com/ports.xlsx) which is provided
+as an Excel spreadsheet. 
+
+We install, configure and demonstrate the model with these three
+commands:
+
+```bash
+ml install ports
+ml configure ports
+ml demo ports
+```
+
+## ports demo
+
+`r CiteDate(20210322)` The demonstration aims to highlight the key
+concept of data visualisation.
+
+```console
+$ ml demo ports
+```
