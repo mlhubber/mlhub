@@ -9,6 +9,37 @@ their algorithms) into quickly accessible and ready to
 run, explore, rebuild, and even deploy, pre-built machine learning
 models.
 
+## Template
+
+`r DiteDate(20210325)` The heart of a MLHub package is the
+`MLHUB.yaml` configuration file.
+
+```yaml
+--- # This is a comment and otherwise ignored
+meta:
+  name         : example
+  title        : A simple example of the meta data for a MLHub pacakge.
+  keywords     : r, python, prediction, speech, visualisation, deep learning
+  version      : 1.2.3
+  languages    : R
+  display      : gui
+  license      : gpl3
+  author       : Graham.Williams@togaware.com
+  url          : https://github.com/gjwgit/example
+dependencies :
+  cran:
+    - ggplot2
+    - dplyr2==3.1.0
+  files:
+    - README.md
+    - demo.R
+    - gui.R
+	- https://example.com/freds/files/pic.png: fred.png
+commands:
+  demo : Demonstrate the model capabilities in one easy session.
+  gui  : A simple graphical user interface to utilise the commands. 
+```
+
 ## Dependencies
 
 `r CiteDate(20200221)` Within the MLHUB.yaml file dependencies can be
