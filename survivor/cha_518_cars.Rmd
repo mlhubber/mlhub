@@ -1,0 +1,8 @@
+# Cars {#cars}
+
+`r CiteDate(20200806)` Identify the make and model of a car from its
+photo.
+
+
+
+
