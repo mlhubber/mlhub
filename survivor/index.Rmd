@@ -1,5 +1,5 @@
 --- 
-Time-stamp: <Saturday 2021-03-20 14:26:12 AEDT Graham Williams>
+Time-stamp: <Friday 2021-03-26 08:41:49 AEDT Graham Williams>
 title: "MLHub Desktop Survival Guide"
 author: 
   name: Graham Williams
@@ -10,6 +10,7 @@ site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
 fontsize: 12pt
+bibliography: [extra.bib]
 biblio-style: apalike
 nocite: |
   @williams:2011:rattle.book
