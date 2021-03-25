@@ -1,8 +1,147 @@
-# Cars {#cars}
+# Cars Identification {#cars}
 
-`r CiteDate(20200806)` Identify the make and model of a car from its
-photo.
+`r CiteDate(20200806)` A practical computer vision task is to identify
+the make and model of a motor vehicle within a photo.  This
+[MLHub](https://mlhub.ai) package demonstrates the utility of
+[Computer Vision](https://onepager.togaware.com/computer_vision.html)
+for the identification of motor vehicles. We use the [Comprehensive
+Cars](http://mmlab.ie.cuhk.edu.hk/datasets/comp_cars/index.html)
+dataset available for research purposes
+[@linjie:2015:large.scale.car.dataset]. The pre-built model was
+trained by Jiajun Zha through the ANU's Software Innovation Institute.
+The build code is available from
+[github](https://github.com/Schwartz-Zha/CompCarDemo).
 
+Two models were built, one to identify the make (based on resnet34)
+and the other to identify the model (based on resnet50) of the vehicle
+in a supplied image. The training dataset contains over 136,000 tagged
+images, and 163 car makes with 1,716 car models, not all possible car
+makes and models are included. Thus, random images of cars may or may
+not be accurately identified. With a test set of some 2,000 cars the
+accuracy was found to be in the high 90%.
 
+Visit the gitlab repository for more details:
+<https://gitlab.com/kayontoga/cars>.
 
+We install, configure, and demonstrate the model:
 
+```bash
+ml install cars
+ml configure cars
+ml readme cars
+ml commands cars
+ml demo cars
+```
+
+*Note* that on the first *configure* a 188MB file is downloaded, which
+is the pre-built model. This can take some time. It is cached locally
+so any further configuration simply uses the cached copy.
+
+In addition to the `r ml_command(cars, demo)` command, the package
+supports a `r ml_command(cars,identify)` command to identify the
+object (motor vehicle) in an image and a `r ml_command(cars,train)`
+command through which a folder of tagged images of motor vehicles can
+be used to extend the current model with new motor vehicle makes and
+models.
+
+<!---------------------------------------------------------------------->
+## cars identify
+<!---------------------------------------------------------------------->
+
+After installing the package the `r ml_command(cars,identify)` command
+is available to quickly identify the make and model of cars using the
+pre-built model. The images found through the following URL short
+links include motor vehicles that are readily identified.
+
+<!-- https://s1.cdn.autoevolution.com/images/gallery/VOLKSWAGEN-Passat-R36-Variant-4177_14.jpg -->
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+include_graphics_url("https://bit.ly/2PseZ9e")
+```
+```console
+$ ml identify cars https://bit.ly/2PseZ9e
+Volkswagen,Volkswagen R36,https://bit.ly/2PseZ9e
+```
+
+<!-- http://s3.caradvice.com.au/wp-content/uploads/2017/05/2017-honda-civic-hatch-29.jpg -->
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+include_graphics_url("https://bit.ly/3vXd0L4")
+```
+```console
+$ ml identify cars  https://bit.ly/3vXd0L4
+Honda,New Focus hatchback,https://bit.ly/3vXd0L4
+```
+
+<!-- http://st.automobilemag.com/uploads/sites/10/2015/09/2014-BMW-6-series-gran-coupe-three-quarters-view-2.jpg -->
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+include_graphics_url("https://bit.ly/2PsveDv")
+```
+```console
+$ ml identify cars https://bit.ly/2PsveDv
+BWM,BWM 6 Series,https://bit.ly/2PsveDv
+```
+
+<!-- http://neo-drive.com/modules/images/files/images1280_/2011_mercedes-benz_e-class_sedan_e63-amg_fq_oem_2_500.jpg -->
+```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="50%"}
+include_graphics_url("https://bit.ly/3snvwKb")
+```
+```console
+$ ml identify cars https://bit.ly/3snvwKb
+Benz,Benz C Class AMG,https://bit.ly/3snvwKb
+```
+
+<!---------------------------------------------------------------------->
+## cars model details
+<!---------------------------------------------------------------------->
+
+This demo uses a residual convolution networks (ResNet).
+
+The car makes include: ABT, BAC, Conquest, DS, Dacia, Fisker, GMC,
+Gumpert, Hennessey, Icona, Jeep, KTM, MELKUS, MG, MINI, Mazzanti,
+Noble, PGO, SPIRRA, SSC, Scion, TESLA, TVR, Tramontana, Zenvo, smart,
+Yiqi, Mitsubishi, Shangqidatong, Spyker N.V., Dongnan, Dongfeng,
+Dongfengxiaokang, Dongfengfengdu, Dongfengfengshen, Dongfengfengxing,
+Zxauto, Zhonghua, Toyota, Zinoro, Jiulong, Isuzu, Wuling, AC Chnitzer,
+Zoyte, Iveco, Bufori, Porsche, Mitsuoka, Chrysler, Lamorghini ,
+Kombat, Cadillac, Buck, Lifan, Lorinser, Rolls-Royce, BAW, Baihc,
+Beiqiweiwang, Beiqihuansu, Beiqi New Energy, Huapu, Huatai, Huaqi,
+Carlsson, Shuanghuan, Shuanglong, Geely, Venucia, Haval, Hafei,
+Volkswagen, Daihatsu, Chrey, Besturn, Benz, Audi, Wisemann, Wealeak,
+BWM, Baojun, Bentley, Brabus, Bugatti, Pagani, Guangqichuanqi, GAC,
+Karry, Ciimo, CHTC, Jaguar, Morgan, Subaru, Skoda, Xinkai, Nissan,
+Changhe, RANZ, Honda, Lincoln, Peugeot, Opel, Oley, BYD, Jonway,
+Huizhong, Jianghuai, Jiangling, Vauxhall, Volvo, Ferrari, Haige,
+Haima, Haima(Zhengzhou), Cheetah, Maserati, Hyundai , Everus, Ruiqi,
+Fuqiqiteng, Ford, Futian, Fudi, Koenigsegg, HongQi, Luxgen, SAAB,
+Denza, Yingzhi, Infiniti, Roewe, Lotus, FIAT, Saab, Lancia, Seat,
+Qoros, Acura, KIA, Lotus, LAND-ROVER, McLaren, Maybach, Dodge,
+Mustang, Jinlv, Jinbei, Suzuki, GreatWall, Changan Business, Changan,
+Alfa Romeo, Aston Martin, Lufeng, Shanqitongjia, Chevy, Citroen,
+Lexus, Renault, Shouwang, MAZDA, and Huanghai.
+
+A GPU with more than 8GB of video memory is recommended for training
+the model on your own collections of labelled images. See this [guide
+to building a deep learning
+workstation](https://github.com/Schwartz-Zha/VIRS_report/blob/master/hardware%20%26%26%20software/GuideToBuildADLWorkstation.md)
+to build your own machine, perhaps using an Asus NVidia GForce RTX
+2080 Ti GPU with 64GB RAM.
+
+Training a model is an iterative process and depends on
+experience. Each iteration (experiment) might take a few hours of
+compute time on a GPU, training with 10 epochs. Tuning will occur so
+as to find the optimal model.
+
+Further resources include:
+
+- [Python Training Code](https://github.com/Schwartz-Zha/CompCarDemo)
+
+- [pre-built model
+  cp6_10_epoch.tar](https://drive.google.com/file/d/1c7sWyEGhO_YtuRUuZBDEkcs-WPsZV-7e/view?usp=sharing)
+  (188MB)
+
+- [model and make
+  names](https://github.com/Schwartz-Zha/CompCarDemo/blob/master/Dataset/data/misc/make_model_name.mat)
+  as a Matlab file.
+
+- [training data](http://mmlab.ie.cuhk.edu.hk/datasets/comp_cars/index.html)
+
+- [training data instructions](http://mmlab.ie.cuhk.edu.hk/datasets/comp_cars/instruction.txt)
