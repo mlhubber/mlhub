@@ -36,12 +36,16 @@ URL or a path to a local file. For brevity through this chapter the
 URLs we use are short URLs generated through
 [bitly](https://bitly.com).
 
-We install, configure and demonstrate the model with these three
-commands:
+Visit the github repository for more details:
+<https://github.com/gjwgit/azcv>.
+
+We install, configure, and demonstrate the model:
 
 ```bash
 ml install azcv
 ml configure azcv
+ml readme azcv
+ml commands azcv
 ml demo azcv
 ```
 
@@ -65,93 +69,14 @@ including
 `r ml_command(azcv,type)`.
 
 <!---------------------------------------------------------------------->
-## azcv demo
-<!---------------------------------------------------------------------->
-
-To run a canned demonstration
-
-```bash
-ml demo azcv
-```
-
-This begins with:
-
-```
-=========================
-Azure Computer Vision API
-=========================
-
-Welcome to a demo of pre-built models for Computer Vision available as
-Cognitive Services on Azure.  Azure supports various operations
-related to Computer Vision and this package demonstrates them and
-provides command line tools for specific tasks, including tag,
-describe, landmark, ocr, and thumbnail.
-
-[...]
-
-================
-Analyze an image
-================
-
-[...]
-
-Location: https://upload.wikimedia.org/ Path:
-wikipedia/commons/thumb/1/12/Broadway_and_Times_Square_by_night.jpg/
-Filename: 450px-Broadway_and_Times_Square_by_night.jpg
-
-Close the graphic window using Ctrl-W.
-
-Press Enter to continue: 
-
-============
-Tag Analysis
-============
-
-We list the tags for the image together with a measure of confidence.
-
-Confidence: 1.00 Tag: skyscraper
-Confidence: 0.99 Tag: building
-Confidence: 0.97 Tag: outdoor
-Confidence: 0.92 Tag: light
-Confidence: 0.88 Tag: street
-Confidence: 0.88 Tag: cityscape
-
-[...]
-```
-
-<!---------------------------------------------------------------------->
-## azcv gui
-<!---------------------------------------------------------------------->
-
-To run a simple interactive graphical user interface (GUI):
-
-```bash
-ml gui azcv
-```
-
-![](graphics/azcv_gui_screenshot.png)
-
-The sample hand writing used here to demonstrate the OCR button was
-supplied by Ryley Nolan and Grace Patterson (used and accredited with
-permission). The accuracy is pretty good!
-
-
-The GUI is basic but functional. You can enter a path to a local image
-file or a URL to an image in the text entry, or browse to a local
-image file. By default the Browse begins in a folder of sample images
-for you to try out.
-
-<!---------------------------------------------------------------------->
 ## azcv quick start
 <!---------------------------------------------------------------------->
 
-Here we list command line examples for each of the commands available
-in the package. To run the examples yourself, install
-[MLHub](https://mlhub.ai) and then install
-[azcv](https://github.com/gjwgit/azcv), obtain an Azure Cognitive
-Services API key (Chapter \@(azcv)), then copy the command to run it
-on your Ubuntu command line. The examples are expanded upon through the
-following sections.
+Here are a collection of sample commands available in the package. Do
+note that you need to obtain an Azure Cognitive Services API key
+(Chapter \@(azcv)), then copy an example command from below to paste
+and then run it on your Ubuntu command line. The examples are expanded
+upon through the following sections.
 
 Identify the **category**s of a photo of the Colosseum:
 
@@ -248,6 +173,84 @@ ml type azcv https://bit.ly/3bNGSBv
 
 <!-- https://docs.microsoft.com/en-us/azure/cognitive-services/Computer-vision/images/cheese_clipart.png -->
 
+
+<!---------------------------------------------------------------------->
+## azcv demo
+<!---------------------------------------------------------------------->
+
+The pre-built demonstration will illustrate the capabilities of this
+computer vision resource.
+
+```bash
+ml demo azcv
+```
+
+This begins with:
+
+```
+=========================
+Azure Computer Vision API
+=========================
+
+Welcome to a demo of pre-built models for Computer Vision available as
+Cognitive Services on Azure.  Azure supports various operations
+related to Computer Vision and this package demonstrates them and
+provides command line tools for specific tasks, including tag,
+describe, landmark, ocr, and thumbnail.
+
+[...]
+
+================
+Analyze an image
+================
+
+[...]
+
+Location: https://upload.wikimedia.org/ Path:
+wikipedia/commons/thumb/1/12/Broadway_and_Times_Square_by_night.jpg/
+Filename: 450px-Broadway_and_Times_Square_by_night.jpg
+
+Close the graphic window using Ctrl-W.
+
+Press Enter to continue: 
+
+============
+Tag Analysis
+============
+
+We list the tags for the image together with a measure of confidence.
+
+Confidence: 1.00 Tag: skyscraper
+Confidence: 0.99 Tag: building
+Confidence: 0.97 Tag: outdoor
+Confidence: 0.92 Tag: light
+Confidence: 0.88 Tag: street
+Confidence: 0.88 Tag: cityscape
+
+[...]
+```
+
+<!---------------------------------------------------------------------->
+## azcv gui
+<!---------------------------------------------------------------------->
+
+To run a simple interactive graphical user interface (GUI):
+
+```bash
+ml gui azcv
+```
+
+![](graphics/azcv_gui_screenshot.png)
+
+The sample hand writing used here to demonstrate the OCR button was
+supplied by Ryley Nolan and Grace Patterson (used and accredited with
+permission). The accuracy is pretty good!
+
+
+The GUI is basic but functional. You can enter a path to a local image
+file or a URL to an image in the text entry, or browse to a local
+image file. By default the Browse begins in a folder of sample images
+for you to try out.
 
 <!---------------------------------------------------------------------->
 ## azcv category
