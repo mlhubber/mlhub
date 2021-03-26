@@ -36,10 +36,7 @@ URL or a path to a local file. For brevity through this chapter the
 URLs we use are short URLs generated through
 [bitly](https://bitly.com).
 
-Visit the github repository for more details:
-<https://github.com/gjwgit/azcv>.
-
-We install, configure, and demonstrate the model:
+To install, configure, and demonstrate the package:
 
 ```bash
 ml install azcv
@@ -47,13 +44,12 @@ ml configure azcv
 ml readme azcv
 ml commands azcv
 ml demo azcv
+ml gui azcv
 ```
 
-In addition to the `r ml_command(azcv, demo)` command, a simple
-graphical user interface is provided through the 
-`r ml_command(azcv, gui)`
-command.  The package supports many computer vision operations
-including 
+In addition to the `r ml_command(azcv, demo)` and
+`r ml_command(azcv, gui)` commands the package supports many 
+computer vision operations including 
 `r ml_command(azcv,adult)`,
 `r ml_command(azcv,brands)`,
 `r ml_command(azcv,category)`,
@@ -67,6 +63,9 @@ including
 `r ml_command(azcv,tags)`,
 `r ml_command(azcv,thumbnail)`, and
 `r ml_command(azcv,type)`.
+
+The source code for this MLHub package is available from github:
+<https://github.com/gjwgit/azcv>.
 
 <!---------------------------------------------------------------------->
 ## azcv quick start
@@ -178,8 +177,8 @@ ml type azcv https://bit.ly/3bNGSBv
 ## azcv demo
 <!---------------------------------------------------------------------->
 
-The pre-built demonstration will illustrate the capabilities of this
-computer vision resource.
+The pre-built demonstration highlights the capabilities of this
+package.
 
 ```bash
 ml demo azcv
