@@ -12,3 +12,5 @@ can no longer assure privacy. Intuitively, the more perturbation, the
 larger is the privacy budget, and so the more queries that can be
 supported before the budget is spent.
 
+The source code for this MLHub package is available from github:
+<https://github.com/gjwgit/relm>.
