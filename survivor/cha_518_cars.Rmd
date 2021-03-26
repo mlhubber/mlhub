@@ -13,7 +13,7 @@ trained by Jiajun Zha through the Australian National University's
 pre-built model build code is available from
 [github](https://github.com/Schwartz-Zha/CompCarDemo).
 
-Visit the gitlab repository for this MLHub package for more details:
+The source code for this MLHub package is available from gitlab:
 <https://gitlab.com/kayontoga/cars>.
 
 To install and configure the package:
