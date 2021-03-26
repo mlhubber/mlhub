@@ -1,8 +1,9 @@
 # Cars Identification {#cars}
 
 `r CiteDate(20200806)` A practical computer vision task is to identify
-the make and model of a motor vehicle within a photo.  This
-[MLHub](https://mlhub.ai) package demonstrates the utility of
+the make and model of a motor vehicle within a photo.  The
+[MLHub](https://mlhub.ai) package
+[cars](https://gitlab.com/kayontoga/cars) demonstrates the utility of
 [Computer Vision](https://onepager.togaware.com/computer_vision.html)
 for the identification of motor vehicles. We use the [Comprehensive
 Cars](http://mmlab.ie.cuhk.edu.hk/datasets/comp_cars/index.html)
@@ -12,9 +13,6 @@ trained by Jiajun Zha through the Australian National University's
 [Software Innovation Institute](https://sii.anu.edu.au).  The
 pre-built model build code is available from
 [github](https://github.com/Schwartz-Zha/CompCarDemo).
-
-The source code for this MLHub package is available from gitlab:
-<https://gitlab.com/kayontoga/cars>.
 
 To install and configure the package:
 
@@ -35,8 +33,11 @@ identify the object (motor vehicle) in an image.  The
 folder of tagged to extend the pre-built model with new motor vehicle
 makes and models.
 
+The source code for this MLHub package is available from gitlab:
+<https://gitlab.com/kayontoga/cars>.
+
 <!---------------------------------------------------------------------->
-## cars pre-built model overview
+## cars overview
 <!---------------------------------------------------------------------->
 
 Two pre-built models are provided, one to identify the make (based on
