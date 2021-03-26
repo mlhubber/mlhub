@@ -25,6 +25,7 @@ knitr::knit_engines$set(php = function(options)
 
 CiteDate <- function(date)
 {
+  date <- as.character(substitute(date))
   if (knitr::is_html_output())
     glue::glue("<font size=1><i>{date}</i></font>")
   else
@@ -117,7 +118,6 @@ Wikipedia <- function(txt, title=txt)
   glue::glue('[<txt>](https://secure.wikimedia.org/wikipedia/en/wiki/<title>)<target>', .open="<", .close=">")
 }
              
-
 Rpackage.seen <- c()
 Rpackage <- function(pkg, cite=TRUE, add.seen=TRUE)
 {
@@ -131,6 +131,12 @@ Rpackage <- function(pkg, cite=TRUE, add.seen=TRUE)
                ")", target, " [@R-", pkg, "]")
 }
 
+
+#-----------------------------------------------------------------------
+# Link to an Rfunction
+#-----------------------------------------------------------------------
+
+## TODO Simplify since we don't do indexing anymore.
 
 # Do some processing for generating apropriate text for
 # Rfunction. 20210216 Incomplete rewrite from LaTeX to Rmd version.
@@ -228,5 +234,6 @@ Rdataset <- function(ds, pkg=NULL, only.package=FALSE,
                    stringr::str_c(if (show.package) stringr::str_c(pkg, "::"),
                                   ds))
 }
+
 ``` 
 
