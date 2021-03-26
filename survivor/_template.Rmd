@@ -1,0 +1,55 @@
+# Pkg Chapter Title {#pkg}
+
+`r CiteDate(20210327)` The  [MLHub](https://mlhub.ai) package
+[pkg](https://github.com/mlhubber/pkg) ...
+
+To install, configure, and demonstrate the package:
+
+```bash
+ml install pkg
+ml configure pkg
+ml readme pkg
+ml commands pkg
+ml demo pkg
+ml gui pkg
+```
+
+In addition to the `r ml_command(pkg, demo)` command and the
+graphical `r ml_command(pkg, gui)` commands the package also supports
+commands like 
+`r ml_command(pkg,adult)`,
+`r ml_command(pkg,brands)`,
+`r ml_command(pkg,build)`,
+`r ml_command(pkg,category)`,
+`r ml_command(pkg,celebrities)`,
+`r ml_command(pkg,color)`,
+`r ml_command(pkg,describe)`,
+`r ml_command(pkg,faces)`,
+`r ml_command(pkg,identify)`,
+`r ml_command(pkg,landmarks)`,
+`r ml_command(pkg,objects)`,
+`r ml_command(pkg,ocr)`,
+`r ml_command(pkg,predict)`.
+`r ml_command(pkg,tags)`,
+`r ml_command(pkg,thumbnail)`, and
+`r ml_command(pkg,type)`.
+
+The source code for this MLHub package is available from github:
+<https://github.com/mlhubber/pkg>.
+
+<!---------------------------------------------------------------------->
+## pkg quick start
+<!---------------------------------------------------------------------->
+
+
+<!---------------------------------------------------------------------->
+## azcv demo
+<!---------------------------------------------------------------------->
+
+The pre-built demonstration highlights the capabilities of this
+package.
+
+```bash
+ml demo pkg
+```
+
