@@ -1,11 +1,11 @@
 # OpenCV {#opencv}
 
-`r CiteDate(20210327)` The  [MLHub](https://mlhub.ai) package
-[pkg](https://github.com/gjwgit/opencv) provides an introduction
-to the functionalities of the Open Computer Vision toolkit.
+`r CiteDate(20210327)` The [MLHub](https://mlhub.ai) package
+[opencv](https://github.com/gjwgit/opencv) exposes the functionalities
+of the Open Computer Vision toolkit.
 
-Currently it only demonstrates the measuring of blurriness of images
-through the **blurry** command.
+Currently only blurriness of images is implemented through the
+**blurry** command.
 
 To install, configure, and demonstrate the package:
 
@@ -38,27 +38,10 @@ The source code for this MLHub package is available from github:
 
 The variance of the Laplacian approach to calculating a measure of
 blurriness convolves the input image with the Laplacian operator and
-computes the variance :smile:. The default threshold for blurriness is
-100 so that any image with a measure less than 100 is regarded as
-blurry.  The larger the measure the sharper the image.
-
-For reference see https://github.com/indyka/blur-detection.
-
-Assess the blurriness of a folder of images:
-```console
-$ for f in *.{png,jpg}; do echo -n "$f "; ml blurry opencv $f; done
-street_img1.png Okay 610
-street_img2.png Okay 481
-street_img3.jpg Blurry 64
-street_img4.jpg Okay 903
-street_img5.jpg Blurry 91
-street_img6.jpg Blurry 71
-street_img7.jpg Blurry 75
-street_img8.jpg Blurry 60
-street_img9.jpg Blurry 93
-```
-
-Some specific examples:
+computes the variance! A variance (blurriness) of 100 or less is
+regarded as blurry.  The larger the measure the sharper the
+image. Below are a few examples. For reference see
+https://github.com/indyka/blur-detection.
 
 ![](https://digital-photography-school.com/wp-content/uploads/2014/10/DSC_3913_4_5_6_7_tonemapped-Edit.jpg)
 ```console
@@ -110,3 +93,22 @@ $ ml blurry opencv https://photos1.blogger.com/blogger/4886/2467/1600/23%20-%20B
 Okay 119
 ```
 
+<!---------------------------------------------------------------------->
+## opencv blurry pipeline
+<!---------------------------------------------------------------------->
+
+A common task is to assess the blurriness of a folder of
+images. Here's a short script that will do that for us:
+
+```console
+$ for f in *.{png,jpg}; do echo -n "$f "; ml blurry opencv $f; done
+street_img1.png Okay 610
+street_img2.png Okay 481
+street_img3.jpg Blurry 64
+street_img4.jpg Okay 903
+street_img5.jpg Blurry 91
+street_img6.jpg Blurry 71
+street_img7.jpg Blurry 75
+street_img8.jpg Blurry 60
+street_img9.jpg Blurry 93
+```
