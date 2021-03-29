@@ -1,0 +1,41 @@
+# OpenCV {#opencv}
+
+`r CiteDate(20210327)` The  [MLHub](https://mlhub.ai) package
+[pkg](https://github.com/gjwgit/opencv) ...
+
+To install, configure, and demonstrate the package:
+
+```bash
+ml install opencv
+ml configure opencv
+ml readme opencv
+ml commands opencv
+```
+
+Rhe package supports the command
+`r ml_command(opencv,blurry)`.
+
+The source code for this MLHub package is available from github:
+<https://github.com/mlhubber/pkg>.
+
+<!---------------------------------------------------------------------->
+## pkg overview
+<!---------------------------------------------------------------------->
+
+
+<!---------------------------------------------------------------------->
+## pkg quick start
+<!---------------------------------------------------------------------->
+
+
+<!---------------------------------------------------------------------->
+## azcv demo
+<!---------------------------------------------------------------------->
+
+The pre-built demonstration highlights the capabilities of this
+package.
+
+```bash
+ml demo pkg
+```
+
