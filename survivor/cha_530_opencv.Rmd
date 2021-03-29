@@ -16,7 +16,7 @@ ml readme opencv
 ml commands opencv
 ```
 
-Rhe package supports the command
+The package supports the command
 `r ml_command(opencv,blurry)`.
 
 The source code for this MLHub package is available from github:
