@@ -87,9 +87,13 @@ ml category azcv https://bit.ly/3lfNVG6
 To identify **landmarks** within a photo of Singapore's Marina Bay Sands:
 
 ```bash
-ml landmarks azcv https://bit.ly/3vnuG24
+ml landmarks azcv https://bit.ly/3u3nwhW
 ```
 
+<!-- https://images.all-free-download.com/images/graphiclarge/marina_bay_sands_singapore_559899.jpg -->
+
+<!-- ml landscape azcv https://bit.ly/3vnuG24 FAILS -->
+<!-- https://bit.ly/3vnuG24 -->
 <!-- http://cdn1.thr.com/sites/default/files/2013/11/marina_bay_sands_singapore_a_l.jpg -->
 
 To generate **tags** suitable for a photo of Australia's Uluru:
@@ -372,20 +376,7 @@ $ ml describe azcv https://bit.ly/3bMQX1E
 0.66,the tower of the city with Eiffel Tower in the background
 ```
 
-With similar confidences, Marina Bay Sands is also described:
-
-```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="30%"}
-include_graphics_url("https://bit.ly/3vnuG24")
-```
-
-```console
-$ ml describe azcv https://bit.ly/3vnuG24
-0.65,a boat is docked next to a body of water with Marina Bay Sands in the background
-0.65,a large body of water with Marina Bay Sands in the background
-0.65,a boat docked next to a body of water with Marina Bay Sands in the background
-```
-
-
+With even more confidences, Uluru is also described:
 
 ```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="30%"}
 include_graphics_url("https://bit.ly/3cqDonC")
@@ -445,15 +436,15 @@ landmarks contained within the image. The confidence of the
 identification is also returned.
 
 Our first example is Marina Bay Sands in Singapore, identified as such
-with 95% confidence.
+with 97% confidence.
 
 ```{r echo=FALSE, cache=TRUE, fig.align="left", out.width="40%"}
-include_graphics_url("https://bit.ly/3vnuG24")
+include_graphics_url("https://bit.ly/3u3nwhW")
 ```
 
 ```bash
-$ ml landmarks azcv https://bit.ly/3vnuG24
-0.95,Marina Bay Sands
+$ ml landmarks azcv https://bit.ly/3u3nwhW
+0.97,Marina Bay Sands
 ```
 
 A well known Australian landmark, Uluru, is identified with 100% confidence:
