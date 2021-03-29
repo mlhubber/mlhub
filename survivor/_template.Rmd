@@ -15,8 +15,7 @@ ml gui pkg
 ```
 
 In addition to the `r ml_command(pkg, demo)` command and the
-graphical `r ml_command(pkg, gui)` commands the package also supports
-commands like 
+graphical `r ml_command(pkg, gui)` commands the package also supports 
 `r ml_command(pkg,adult)`,
 `r ml_command(pkg,brands)`,
 `r ml_command(pkg,build)`,
