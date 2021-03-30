@@ -96,18 +96,18 @@ the same text was used and could be heard through the system speakers.
 ## azspeech synthesize
 <!---------------------------------------------------------------------->
 
-The **synthesize* command will generate spoken word audio from
-supplied text and play the audio on the system's default audio
-output. With `-o` or `--output` a *wav* file can be specified as the
-output rather than having the audio played through the speakers.
+The **synthesize** command will generate spoken word audio, spoken by
+a human sounding voice, from supplied text, and will play the audio on
+the system's default audio output. With `-o` or `--output` a *wav*
+file can be specified as the output rather than having the audio
+played through the speakers.
 
 ```console
-$ ml synthesize azspeech 		  \
-     [(--file|-f) <txt file>] 	  \
-	 [(--lang|-l) <lang>]		  \
-	 [(--voice|-v) <voice>]       \
-	 [(--output|-o) <output.wav>] \
-	 [sentence]
+$ ml synthesize azspeech [sentence]
+     -f <file>     --file=<file> 	    Text to be spoken.
+     -l <lang>     --lang=<lang>
+     -o <file.wav> --output=<file.wav>  Save synthesized audio to file.
+     -v <voice>    --voice=<voice>
 ```
 
 Examples
@@ -119,7 +119,7 @@ $ ml synthesize azspeech --lang=fr-FR It's alright, we know where you've been.
 
 $ ml synthesize azspeech --voice=en-AU-NatashaNeural You brought a guitar to punish your ma.
 
-$ echo It's alright, we told you what to dream | ml synthesize azspeech
+$ echo "It's alright, we told you what to dream" | ml synthesize azspeech
 
 $ ml synthesize azspeech --file=short.txt
 
@@ -128,17 +128,21 @@ $ ml synthesize azspeech --lang=de-DE --file=short.txt
 $ ml synthesize azspeech --voice=fr-FR-DeniseNeural --file=short.txt
 ```
 
+The supported languages and their locale codes (BCP-47) are listed at [Azure
+Docs](https://docs.microsoft.com/en-gb/azure/cognitive-services/speech-service/language-support).
+
 <!---------------------------------------------------------------------->
 ## azspeech transcribe
 <!---------------------------------------------------------------------->
 
-The **transcribe* command will listen for an utterance from the
-computer microphone for up to 15 seconds and then transcribe it to
-standard output. The command can also be used to transcribe speech
-from an audio file (*wav* only) into text.
+The **transcribe** command will listen for an utterance from the
+computer microphone for up to 15 seconds and then transcribe it
+(convert to text) to standard output. The command can also be used to
+transcribe speech from an audio file (*wav* only).
 
 ```console
-$ ml transcribe azspeech [(--file|-f) <wav file>]
+$ ml transcribe azspeech 
+     -f <file.wav>   --file=<file.wav>
 ```
 
 By default the audio input is from the computer's microphone:
@@ -200,7 +204,3 @@ $ ml transcribe azspeech |
   
 * [Python code for Speech Synthesizer:
   Text2Speech](https://github.com/Azure-Samples/cognitive-services-speech-sdk/blob/master/quickstart/python/text-to-speech)
-  
- 
-![](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)  
-[This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/)
