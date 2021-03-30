@@ -24,16 +24,12 @@ Pricing](https://azure.microsoft.com/en-gb/pricing/details/cognitive-services/co
 subscribing visit <https://portal.azure.com> and Create a resource
 under AI and Machine Learning called Cognitive Services. Once created
 you can access the web API subscription key and endpoint from the
-portal. This will be prompted for when running a command, and then
+portal. These will be prompted for when running a command, and then
 saved to file to reduce the need for repeated authentication requests.
 
-*These Azure models, unlike the MLHub models in general, use **closed
-source services** which have no guarantee of ongoing availability and
-do not come with the freedom to modify and share.*
-
-Most of the other commands take an image as a parameter which may be a
-URL or a path to a local file. For brevity through this chapter the
-URLs we use are short URLs generated through
+Most of the commands provided by the package take an image as a
+parameter which may be a URL or a path to a local file. For brevity
+through this chapter the URLs we use are short URLs generated through
 [bitly](https://bitly.com).
 
 To install, configure, and demonstrate the package:
@@ -66,6 +62,11 @@ computer vision operations including
 
 The source code for this MLHub package is available from github:
 <https://github.com/gjwgit/azcv>.
+
+*Azure-based models, unlike the MLHub models in general, use **closed
+source services** which have no guarantee of ongoing availability and
+do not come with the freedom to modify and share. This cloud based
+service also sends your image files to Azure for analysis.*
 
 <!---------------------------------------------------------------------->
 ## azcv quick start
