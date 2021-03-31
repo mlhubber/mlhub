@@ -20,7 +20,4 @@ mlcat(title = "", text = "", delim = "=", begin = "", end = "\\n")
 \description{
 Display an informative message.
 }
-\examples{
-mlcat()
-}
 \keyword{informative}

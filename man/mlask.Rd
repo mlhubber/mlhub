@@ -10,7 +10,7 @@ mlask(msg = "Press Enter to continue: ", begin = "\\n", end = "\\n")
 \item{msg}{A message to display.}
 }
 \description{
-Prompt for the user to press Enter to continue.
+Propmt for the user to press Enter to continue.
 }
 \examples{
 mlask()
