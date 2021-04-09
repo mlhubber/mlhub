@@ -49,6 +49,7 @@ import uuid
 import yaml
 import yamlordereddictloader
 import zipfile
+import subprocess
 
 from abc import ABC, abstractmethod
 from rapidfuzz import fuzz
@@ -1494,7 +1495,7 @@ class RepoTypeURL(ABC):
 
         # TODO: Add regexp to validate the url.
 
-        ref = "master"  # Use master by default.
+        # ref = "master"  # Use master by default.
         path = None  # Path to a specific file, if not, the repo.
 
         if ":" in url:  # Get path
@@ -1506,6 +1507,14 @@ class RepoTypeURL(ABC):
             repo, ref = repo.split("@")
         elif "#" in repo:  # Pull request: mlhub#15
             repo, ref = repo.split("#")
+
+        check_url = "https://api.github.com/repos/{}/{}".format(
+            owner, repo
+        )
+
+        branch = subprocess.getoutput('curl -s -H "Accept: application/vnd.github.v3+json" ' + check_url + ' | jq .default_branch')
+
+        ref = branch.replace('"', '')
 
         return owner, repo, ref, path
 
