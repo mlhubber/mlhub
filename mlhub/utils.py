@@ -427,6 +427,24 @@ def download_model_pkg(url, local, pkgfile, quiet):
     except urllib.error.URLError as error:
         raise ModelDownloadHaltException(url, error.reason.lower())
 
+# ----------------------------------------------------------------------
+# Check repo default branch
+# ----------------------------------------------------------------------
+
+def check_default_branch(owner, repo):
+    check_url = "https://api.github.com/repos/{}/{}".format(
+        owner, repo
+    )
+
+    branch = subprocess.getoutput(
+        'curl -s -H "Accept: application/vnd.github.v3+json" ' + check_url + ' | jq .default_branch')
+
+    ref = branch.replace('"', '')
+    if ref is None:
+        return "master"
+
+    return ref
+
 
 # ----------------------------------------------------------------------
 # Folder and file manipulation
@@ -1508,13 +1526,7 @@ class RepoTypeURL(ABC):
         elif "#" in repo:  # Pull request: mlhub#15
             repo, ref = repo.split("#")
 
-        check_url = "https://api.github.com/repos/{}/{}".format(
-            owner, repo
-        )
-
-        branch = subprocess.getoutput('curl -s -H "Accept: application/vnd.github.v3+json" ' + check_url + ' | jq .default_branch')
-
-        ref = branch.replace('"', '')
+        ref = check_default_branch(owner, repo)
 
         return owner, repo, ref, path
 
@@ -1559,12 +1571,16 @@ class GitHubURL(RepoTypeURL):
         #   return "https://api.github.com/repos/{}/{}/zipball/{}".format(
         #       self.owner, self.repo, self.ref)
 
+        self.ref = check_default_branch(self.owner, self.repo)
+
         return "https://codeload.github.com/{}/{}/zip/{}".format(
             self.owner, self.repo, self.ref
         )
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose GitHub URL for the content of a file or a directory."""
+
+        self.ref = check_default_branch(self.owner, self.repo)
 
         if api or self.ref.startswith("pull/"):
             return "https://api.github.com/repos/{}/{}/contents/{}?ref={}".format(
