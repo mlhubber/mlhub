@@ -378,9 +378,9 @@ def get_url_filename(url):
 
     # Specify header to avoid a 403 from some sites.
     headers = {'User-Agent':
-               'Mozilla/5.0 (X11; Linux x86_64) ' +
-               'AppleWebKit/537.36 (KHTML, like Gecko) ' +
-               'Chrome/81.0.4044.138 Safari/537.36'}
+                   'Mozilla/5.0 (X11; Linux x86_64) ' +
+                   'AppleWebKit/537.36 (KHTML, like Gecko) ' +
+                   'Chrome/81.0.4044.138 Safari/537.36'}
     req = urllib.request.Request(url, headers=headers)
     try:
         info = urllib.request.urlopen(req).getheader("Content-Disposition")
@@ -388,7 +388,7 @@ def get_url_filename(url):
         if err.code == 404:
             print(f"\nmlhub: Missing url: {url}\n       please notify package author.")
             return None
-        
+
     if info:
         _, params = cgi.parse_header(info)
         if "filename" in params:
@@ -427,21 +427,45 @@ def download_model_pkg(url, local, pkgfile, quiet):
     except urllib.error.URLError as error:
         raise ModelDownloadHaltException(url, error.reason.lower())
 
+
 # ----------------------------------------------------------------------
 # Check repo default branch
 # ----------------------------------------------------------------------
 
 def check_default_branch(owner, repo):
-    check_url = "https://api.github.com/repos/{}/{}".format(
+    """Check repository default branch."""
+
+    check_github_url = "https://api.github.com/repos/{}/{}".format(
         owner, repo
     )
+    check_gitlab_url = "https://gitlab.com/api/v4/projects/{}%2F{}".format(
+        owner, repo
+    )
+    check_bitbucket_url = "https://api.bitbucket.org/2.0/repositories/{}/{}".format(
+        owner, repo
+    )
+    # For GitHub
+    github_branch = subprocess.getoutput(
+        'curl -s ' + check_github_url + ' | jq .default_branch')
 
-    branch = subprocess.getoutput(
-        'curl -s -H "Accept: application/vnd.github.v3+json" ' + check_url + ' | jq .default_branch')
+    # For GitLab
+    gitlab_branch = subprocess.getoutput(
+        'curl -s ' + check_gitlab_url + ' | jq .default_branch')
+
+    # For bitbucket
+    bitbucket_branch = subprocess.getoutput(
+        'curl -s ' + check_bitbucket_url + ' | jq .mainbranch.name')
+
+    if github_branch != 'null':
+        branch = github_branch
+    elif gitlab_branch != 'null':
+        branch = gitlab_branch
+    elif bitbucket_branch != 'null':
+        branch = bitbucket_branch
+    else:
+        branch = "master"
 
     ref = branch.replace('"', '')
-    if ref is None:
-        return "master"
 
     return ref
 
@@ -513,8 +537,8 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
         file_list = getattr(pkg_file, lister_name)()
         first_segs = [x.split(os.path.sep)[0] for x in file_list]
         if (len(file_list) == 1 and os.path.sep in file_list[0]) or (
-            len(file_list) != 1
-            and all([x == first_segs[0] for x in first_segs])
+                len(file_list) != 1
+                and all([x == first_segs[0] for x in first_segs])
         ):
             promote, top_dir = True, file_list[0].split(os.path.sep)[0]
         else:
@@ -549,7 +573,7 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
                     # existing files except they have the same name.
 
                     with opener(
-                        os.path.join(tmpdir2, "tmpball"), "w"
+                            os.path.join(tmpdir2, "tmpball"), "w"
                     ) as new_pkg_file:
                         appender = getattr(new_pkg_file, appender_name)
                         dir_path = os.path.join(tmpdir, top_dir)
@@ -561,7 +585,7 @@ def unpack_with_promote(file, dest, valid_name=None, remove_dst=True):
                                 appender(file_path, arc_path)
 
                     with opener(
-                        os.path.join(tmpdir2, "tmpball")
+                            os.path.join(tmpdir2, "tmpball")
                     ) as new_pkg_file:
                         new_pkg_file.extractall(dest)
 
@@ -629,7 +653,7 @@ def is_tar(name):
     """Check if name is a Tarball."""
 
     return (
-        name.endswith(".tar") or name.endswith(".gz") or name.endswith(".bz2")
+            name.endswith(".tar") or name.endswith(".gz") or name.endswith(".bz2")
     )
 
 
@@ -643,9 +667,9 @@ def is_description_file(name):
     """Check if name ends with DESCRIPTION.yaml or DESCRIPTION.yml"""
 
     return (
-        name.endswith(DESC_YAML)
-        or name.endswith(DESC_YML)
-        or name.endswith(MLHUB_YAML)
+            name.endswith(DESC_YAML)
+            or name.endswith(DESC_YML)
+            or name.endswith(MLHUB_YAML)
     )
 
 
@@ -718,7 +742,7 @@ def get_command_suggestion(cmd, description=None, model=""):
         msg = meta.get(
             "suggestion",
             "\nTo " + dropdot(lower_first_letter(meta["description"])) + ":"
-            "\n\n  $ {} {} {}",
+                                                                         "\n\n  $ {} {} {}",
         )
         msg = msg.format(CMD, cmd, model)
         return msg
@@ -947,7 +971,7 @@ def install_r_deps(deps, model, source="cran", yes=False):
 def install_python_deps(deps, model, source="pip", yes=False):
     logger = logging.getLogger(__name__)
 
-    env_var  = 'export _MLHUB_OPTION_YES="y"; ' if yes else ""
+    env_var = 'export _MLHUB_OPTION_YES="y"; ' if yes else ""
     env_var += 'export _MLHUB_PYTHON_EXE="{}"; '.format(sys.executable)
 
     script = os.path.join(os.path.dirname(__file__),
@@ -983,7 +1007,7 @@ def install_python_deps(deps, model, source="pip", yes=False):
             return
 
         jd = '" "'.join(deps) if isinstance(deps, list) else deps
-        command  = f'{env_var}{BASH_CMD} {script} "{pkg_dir}" '
+        command = f'{env_var}{BASH_CMD} {script} "{pkg_dir}" '
         command += f'{source} {category} "{jd}"'
     else:
         if source.startswith("pip"):
@@ -995,9 +1019,9 @@ def install_python_deps(deps, model, source="pip", yes=False):
     logger.debug(f"INSTALL command: {command}")
 
     proc = subprocess.Popen(command,
-                            shell  = True,
-                            cwd    = get_package_dir(model),
-                            stderr = subprocess.PIPE)
+                            shell=True,
+                            cwd=get_package_dir(model),
+                            stderr=subprocess.PIPE)
     output, errors = proc.communicate()
     if proc.returncode != 0:
         errors = errors.decode("utf-8")
@@ -1177,7 +1201,7 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
         # configure`.
 
         if downloadir is None and (
-            is_url(location) or RepoTypeURL.is_repo_ref(location)
+                is_url(location) or RepoTypeURL.is_repo_ref(location)
         ):
 
             # URL for non-package files
@@ -1209,7 +1233,6 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                 )  # The name of the file to be downloaded
 
                 if filename is None:
-
                     # TODO: The file name cannot be determined from URL.
                     #       How to deal with this scenario?  Current
                     #       solution: We give it a random name.  This
@@ -1235,12 +1258,12 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                 else:
                     if filetype == "file":
                         if (
-                            target.endswith(os.path.sep) and not is_archive
+                                target.endswith(os.path.sep) and not is_archive
                         ):  # Download into a specified folder
                             target = os.path.join(target, filename)
                     else:
                         if target.endswith(
-                            os.path.sep
+                                os.path.sep
                         ):  # Unzip repo/dir into a folder with the same name
                             target = os.path.join(target, foldername, "")
                         else:  # Unzip repo/dir into a folder with a different name
@@ -1248,7 +1271,7 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
 
                 if target.endswith(os.path.sep):  # Expand path
                     target = (
-                        os.path.relpath(target) + os.path.sep
+                            os.path.relpath(target) + os.path.sep
                     )  # Ensure folder end with '/'
                 else:
                     target = os.path.relpath(target)
@@ -1277,7 +1300,6 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                 download_msg = "      downloading into {} ..."
 
                 if os.path.exists(archive):
-
                     # 20190327 gjw for now cache management is behind
                     # scenes and do not need to ask for each one. If
                     # already in cache then don't download. If user wants
@@ -1333,9 +1355,9 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                     make_symlink(origin, goal)
 
         if (
-            downloadir is not None
-            and not (is_url(location) or RepoTypeURL.is_repo_ref(location))
-            or maybe_private
+                downloadir is not None
+                and not (is_url(location) or RepoTypeURL.is_repo_ref(location))
+                or maybe_private
         ):
 
             # Path for package files or private Git repo
@@ -1345,7 +1367,7 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
             try:
                 goal = os.path.join(pkg_dir, "" if target is None else target)
                 if location.endswith(
-                    "*"
+                        "*"
                 ):  # Move all files under <location> to package's root dir
                     origin = os.path.join(downloadir, location[:-2])
                     merge_folder(origin, goal)
@@ -1381,7 +1403,7 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                         else:
                             origin = os.path.join(downloadir, location)
                         if os.path.isdir(origin) and not goal.endswith(
-                            os.path.sep
+                                os.path.sep
                         ):
                             merge_folder(origin, goal)
                         else:
@@ -1397,11 +1419,10 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
 
 
 class RepoTypeURL(ABC):
-
     REPO_DOMAINS = {
-        "github": ["github.com", "githubusercontent.com",],
-        "gitlab": ["gitlab.com",],
-        "bitbucket": ["bitbucket.org",],
+        "github": ["github.com", "githubusercontent.com", ],
+        "gitlab": ["gitlab.com", ],
+        "bitbucket": ["bitbucket.org", ],
     }
 
     def __init__(self, url, prefix, ssh_host):
@@ -1431,14 +1452,14 @@ class RepoTypeURL(ABC):
         url = self.url
         prefix_len = len(self.prefix)
         if url.lower().startswith(
-            self.prefix
+                self.prefix
         ):  # Remove prefix 'prefix[@xxx]:'
             if url[prefix_len] in "@":
                 colon_index = url.index(":")
-                self.ssh_host = url[prefix_len + 1 : colon_index]
-                url = url[colon_index + 1 :].strip()
+                self.ssh_host = url[prefix_len + 1: colon_index]
+                url = url[colon_index + 1:].strip()
             elif url[prefix_len] in ":":
-                url = url[prefix_len + 1 :].strip()
+                url = url[prefix_len + 1:].strip()
         return url
 
     @staticmethod
@@ -1641,7 +1662,7 @@ class GitHubURL(RepoTypeURL):
         url = self.remove_prefix()
 
         if not is_url(
-            url
+                url
         ):  # Reference such as mlhubber/mlhub@dev:doc/MLHUB.yaml
 
             (
@@ -1799,8 +1820,8 @@ class GitLabURL(RepoTypeURL):
                     self.ref = seg[2]
                 elif seg[0] == "merge_requests":
                     self.ref = (
-                        "/".join("/".join(seg[2:]).split("=")[1:])
-                        or "/".join(seg[:2]) + "/head"
+                            "/".join("/".join(seg[2:]).split("=")[1:])
+                            or "/".join(seg[:2]) + "/head"
                     )
 
         if self.path and self.path.endswith("/"):
@@ -2068,7 +2089,7 @@ config file path."""
 
 
 def gen_packages_yaml(
-    mlmodelsyaml="MLMODELS.yaml", packagesyaml="Packages.yaml"
+        mlmodelsyaml="MLMODELS.yaml", packagesyaml="Packages.yaml"
 ):
     """Generate Packages.yaml, the curated list of model packages, by just
 concatenate all MLHUB.yaml.  By default, it will generate
@@ -2128,7 +2149,7 @@ Packages.yaml in current working dir.
 
 
 def gen_packages_yaml2(
-    mlmodelsyaml="MLMODELS.yaml", packagesyaml="Packages.yaml"
+        mlmodelsyaml="MLMODELS.yaml", packagesyaml="Packages.yaml"
 ):
     """Generate Packages.yaml, the curated list of model packages, using
 yaml to ensure correct format.  By default, it will generate
@@ -2211,7 +2232,6 @@ def update_working_dir(model, folder):
 
 
 def update_sys_python_pkg_usage(model, usage=True):
-
     update_config(model, {SYS_PYTHON_PKG_USAGE: usage})
 
 
@@ -2245,7 +2265,6 @@ def get_sys_python_pkg_usage(model):
 
 
 def get_py_pkg_path_env(model):
-
     # 20200719 Version 20.1.1 of pip3 is installed on Ubuntu 20.04
     # after `pip3 install --upgrade pip`. This uses
     # site.getsitepackages()[0]
@@ -2264,7 +2283,7 @@ def get_py_pkg_path_env(model):
     # pip3. Then use python_pkg_base as the `--target .python`
     # location for pip3 to install the packages. Thus that is also on
     # PYTHONPATH. The bin is also .python/bin.
-    
+
     python_pkg_base = os.path.sep.join([get_package_dir(model), ".python"])
     python_pkg_bin = python_pkg_base + "/bin"
 
@@ -2277,16 +2296,17 @@ def get_py_pkg_path_env(model):
 
     # 20200722 Is this still needed? Under what scenario? Is this the
     # check for a conda environment?
-    
+
     if sys.executable != SYS_PYTHON_CMD:
         python_pkg_bin = python_pkg_base + site.PREFIXES[0] + "/bin"
         if get_sys_python_pkg_usage(model):
             print_on_stderr(MSG_INCOMPATIBLE_PYTHON_ENV, model)
 
-    exports  = f'export PATH="{python_pkg_bin}:$PATH"; '
+    exports = f'export PATH="{python_pkg_bin}:$PATH"; '
     exports += f'export PYTHONPATH="{python_pkg_base}"; '
-    
-    return(exports)
+
+    return (exports)
+
 
 # ----------------------------------------------------------------------
 # Bash completion helper
@@ -2392,7 +2412,6 @@ def is_misspelled(score):
 
 
 def get_misspelled_command(command, available_commands):
-
     matched, score = find_best_match(command, available_commands)
     if is_misspelled(score):
         yes = yes_or_no(
@@ -2409,7 +2428,6 @@ def get_misspelled_command(command, available_commands):
 
 
 def get_misspelled_pkg(model):
-
     model_completion_list = get_model_completion_list()
     if len(model_completion_list) != 0:
         matched, score = find_best_match(model, model_completion_list)
