@@ -38,7 +38,7 @@ import os
 import re
 import shutil
 import site
-import subprocess
+import requests
 import sys
 import tarfile
 import tempfile
@@ -50,6 +50,7 @@ import yaml
 import yamlordereddictloader
 import zipfile
 import subprocess
+
 
 from abc import ABC, abstractmethod
 from rapidfuzz import fuzz
@@ -438,37 +439,31 @@ def check_default_branch(owner, repo):
     check_github_url = "https://api.github.com/repos/{}/{}".format(
         owner, repo
     )
+
     check_gitlab_url = "https://gitlab.com/api/v4/projects/{}%2F{}".format(
         owner, repo
     )
     check_bitbucket_url = "https://api.bitbucket.org/2.0/repositories/{}/{}".format(
         owner, repo
     )
-    # For GitHub
-    github_branch = subprocess.getoutput(
-        'curl -s ' + check_github_url + ' | jq .default_branch')
 
-    # For GitLab
-    gitlab_branch = subprocess.getoutput(
-        'curl -s ' + check_gitlab_url + ' | jq .default_branch')
+    check_url = [check_github_url, check_gitlab_url, check_bitbucket_url]
 
-    # For bitbucket
-    bitbucket_branch = subprocess.getoutput(
-        'curl -s ' + check_bitbucket_url + ' | jq .mainbranch.name')
+    for i in range(len(check_url)):
+        if requests.get(check_url[i]).status_code == 200 and i == 0:
+            # For GitHub
+            ref = requests.get(check_url[i]).json()['default_branch']
+            return ref
 
-    if github_branch != 'null':
-        branch = github_branch
-    elif gitlab_branch != 'null':
-        branch = gitlab_branch
-    elif bitbucket_branch != 'null':
-        branch = bitbucket_branch
-    else:
-        branch = "master"
+        elif requests.get(check_url[i]).status_code == 200 and i == 1:
+            # For GitLab
+            ref = requests.get(check_url[i]).json()['default_branch']
+            return ref
 
-    ref = branch.replace('"', '')
-
-    return ref
-
+        elif requests.get(check_url[i]).status_code == 200 and i == 2:
+            # For bitbucket
+            ref = requests.get(check_url[i]).json()['mainbranch']['name']
+            return ref
 
 # ----------------------------------------------------------------------
 # Folder and file manipulation
@@ -1713,12 +1708,16 @@ class GitLabURL(RepoTypeURL):
     def compose_repo_zip_url(self):
         """Compose GitLab URL for the repo's zipball."""
 
+        self.ref = check_default_branch(self.owner, self.repo)
+
         return "https://gitlab.com/{owner}/{repo}/-/archive/{ref}/{repo}-{ref}.zip".format(
             owner=self.owner, repo=self.repo, ref=self.ref
         )
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose GitLab URL for the content of a file or a directory."""
+
+        self.ref = check_default_branch(self.owner, self.repo)
 
         if api:
             if not tree:
@@ -1838,12 +1837,16 @@ class BitbucketURL(RepoTypeURL):
     def compose_repo_zip_url(self):
         """Compose Bitbucket URL for the repo's zipball."""
 
+        self.ref = check_default_branch(self.owner, self.repo)
+
         return "https://bitbucket.org/{}/{}/get/{}.zip".format(
             self.owner, self.repo, self.ref
         )
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose Bitbucket URL for the content of a file or a directory."""
+
+        self.ref = check_default_branch(self.owner, self.repo)
 
         if api:
             return "https://api.bitbucket.org/2.0/repositories/{}/{}/src/{}/{}?format=meta".format(
