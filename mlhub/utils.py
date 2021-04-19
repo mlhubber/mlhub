@@ -313,7 +313,6 @@ def get_available_pkgyaml(url):
     logger = logging.getLogger(__name__)
     logger.info("Finding MLHUB.yaml ...")
     logger.debug("Possible locations: {}".format(yaml_list))
-
     if is_url(url):
         param = yaml_list[0]
         for x in yaml_list:
@@ -1436,7 +1435,7 @@ class RepoTypeURL(ABC):
         self.url = url  # URL or ref
         self.owner = None
         self.repo = None
-        self.ref = "master"  # Use master by default.
+        self.ref = None  # Use master by default.
         self.path = None
         self.res_type = None
         self.composed_url = None
@@ -1550,13 +1549,14 @@ class RepoTypeURL(ABC):
 
         owner, repo = url.split("/")
 
-        ref = check_default_branch(owner, repo, repo_type)
+        # ref = check_default_branch(owner, repo, repo_type)
 
         if "@" in repo:  # Branch or commit: mlhub@dev
             repo, ref = repo.split("@")
         elif "#" in repo:  # Pull request: mlhub#15
             repo, ref = repo.split("#")
-
+        else:
+            ref = check_default_branch(owner, repo, repo_type)
         return owner, repo, ref, path
 
     @abstractmethod
@@ -1600,7 +1600,8 @@ class GitHubURL(RepoTypeURL):
         #   return "https://api.github.com/repos/{}/{}/zipball/{}".format(
         #       self.owner, self.repo, self.ref)
 
-        self.ref = check_default_branch(self.owner, self.repo, "github")
+        if self.ref is None:
+            self.ref = check_default_branch(self.owner, self.repo, "github")
 
         return "https://codeload.github.com/{}/{}/zip/{}".format(
             self.owner, self.repo, self.ref
@@ -1609,7 +1610,9 @@ class GitHubURL(RepoTypeURL):
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose GitHub URL for the content of a file or a directory."""
 
-        self.ref = check_default_branch(self.owner, self.repo, "github")
+        # self.ref = check_default_branch(self.owner, self.repo, "github")
+        if self.ref is None:
+            self.ref = check_default_branch(self.owner, self.repo, "github")
 
         if api or self.ref.startswith("pull/"):
             return "https://api.github.com/repos/{}/{}/contents/{}?ref={}".format(
@@ -1720,8 +1723,9 @@ class GitHubURL(RepoTypeURL):
 class GitLabURL(RepoTypeURL):
     def compose_repo_zip_url(self):
         """Compose GitLab URL for the repo's zipball."""
+        if self.ref is None:
+            self.ref = check_default_branch(self.owner, self.repo, "gitlab")
 
-        self.ref = check_default_branch(self.owner, self.repo, "gitlab")
 
         return "https://gitlab.com/{owner}/{repo}/-/archive/{ref}/{repo}-{ref}.zip".format(
             owner=self.owner, repo=self.repo, ref=self.ref
@@ -1729,8 +1733,8 @@ class GitLabURL(RepoTypeURL):
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose GitLab URL for the content of a file or a directory."""
-
-        self.ref = check_default_branch(self.owner, self.repo, "gitlab")
+        if self.ref is None:
+            self.ref = check_default_branch(self.owner, self.repo, "gitlab")
 
         if api:
             if not tree:
@@ -1849,8 +1853,8 @@ class GitLabURL(RepoTypeURL):
 class BitbucketURL(RepoTypeURL):
     def compose_repo_zip_url(self):
         """Compose Bitbucket URL for the repo's zipball."""
-
-        self.ref = check_default_branch(self.owner, self.repo, "bitbucket")
+        if self.ref is None:
+            self.ref = check_default_branch(self.owner, self.repo, "bitbucket")
 
         return "https://bitbucket.org/{}/{}/get/{}.zip".format(
             self.owner, self.repo, self.ref
@@ -1858,8 +1862,8 @@ class BitbucketURL(RepoTypeURL):
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose Bitbucket URL for the content of a file or a directory."""
-
-        self.ref = check_default_branch(self.owner, self.repo, "bitbucket")
+        if self.ref is None:
+            self.ref = check_default_branch(self.owner, self.repo, "bitbucket")
 
         if api:
             return "https://api.bitbucket.org/2.0/repositories/{}/{}/src/{}/{}?format=meta".format(
