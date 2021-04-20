@@ -288,9 +288,7 @@ def install_model(args):
         except utils.DescriptionYAMLNotFoundException:  # Maybe private repo
             maybe_private = True
             pass
-
     # Determine the path of downloaded/existing model package file
-
     pkgfile = None
     if maybe_private:  # Maybe private repo
         pkgfile = repo_obj.repo
@@ -385,9 +383,15 @@ def install_model(args):
                 if repo_obj.path:
                     mlhubyaml = os.path.join(uncompressdir, repo_obj.path)
                 else:
-                    mlhubyaml = utils.get_available_pkgyaml(
-                        uncompressdir
-                    )  # Path to MLHUB.yaml
+                    try:
+                        mlhubyaml = utils.get_available_pkgyaml(
+                            uncompressdir
+                        )  # Path to MLHUB.yaml
+                    except utils.DescriptionYAMLNotFoundException as d:
+                        print("The repo doesn't include yaml file. Please make sure you have the yaml file in the "
+                              "repo. ")
+                        sys.exit(1)
+
 
             if mlhubyaml is not None:  # Get version number from MLHUB.yaml
                 entry = utils.read_mlhubyaml(mlhubyaml)
