@@ -427,54 +427,35 @@ def download_model_pkg(url, local, pkgfile, quiet):
     except urllib.error.URLError as error:
         raise ModelDownloadHaltException(url, error.reason.lower())
 
-
 # ----------------------------------------------------------------------
-# Check repo default branch
+# Get repo default branch
 # ----------------------------------------------------------------------
 
-def check_default_branch(owner, repo, repo_type):
-    """Check repository default branch."""
 
-    check_github_url = "https://api.github.com/repos/{}/{}".format(
-        owner, repo
-    )
+def get_default_branch(owner, repo, repo_type):
+    """Get the repository default branch."""
 
-    check_gitlab_url = "https://gitlab.com/api/v4/projects/{}%2F{}".format(
-        owner, repo
-    )
+    rep = f"{owner}/{repo}"
 
-    check_bitbucket_url = "https://api.bitbucket.org/2.0/repositories/{}/{}".format(
-        owner, repo
-    )
-    # For github
     if repo_type == "github":
-        try:
-            ref = requests.get(check_github_url).json()['default_branch']
-            return ref
-        except Exception as e:
-            print(f"Error: {e}\nThe project doesn't exist. ")
-            sys.exit(1)
-
-    # For gitlab
+        git_url = f"https://api.github.com/repos/{rep}"
     elif repo_type == "gitlab":
-        try:
-            ref = requests.get(check_gitlab_url).json()['default_branch']
-            return ref
-        except Exception as e:
-            print(f"Error: {e}\nThe project doesn't exist. ")
-            sys.exit(1)
-
-    # For bitbucket
+        git_url = f"https://gitlab.com/api/v4/projects/{owner}%2F{repo}"
     elif repo_type == "bitbucket":
-        try:
-            ref = requests.get(check_bitbucket_url).json()['mainbranch']['name']
-            return ref
-        except Exception as e:
-            print(f"Error: {e}\nThe project doesn't exist. ")
-            sys.exit(1)
+        git_url = f"https://api.bitbucket.org/2.0/repositories/{rep}"
 
+    try:
+        ref = requests.get(git_url).json()
+        if repo_type in ["github", "gitlab"]:
+            default_branch = ref['default_branch']
+        elif repo_type in ["bitbucket"]:
+            default_branch = ref['mainbranch']['name']
+    except Exception as e:
+        print(f"Error: The repository '{rep}' was not found on {repo_type}:",
+              f"{e}")
+        sys.exit(1)
 
-
+    return default_branch
 
 # ----------------------------------------------------------------------
 # Folder and file manipulation
@@ -1435,7 +1416,7 @@ class RepoTypeURL(ABC):
         self.url = url  # URL or ref
         self.owner = None
         self.repo = None
-        self.ref = None  # Use master by default.
+        self.ref = None
         self.path = None
         self.res_type = None
         self.composed_url = None
@@ -1549,14 +1530,14 @@ class RepoTypeURL(ABC):
 
         owner, repo = url.split("/")
 
-        # ref = check_default_branch(owner, repo, repo_type)
+        #ref = get_default_branch(owner, repo, repo_type)
 
         if "@" in repo:  # Branch or commit: mlhub@dev
             repo, ref = repo.split("@")
         elif "#" in repo:  # Pull request: mlhub#15
             repo, ref = repo.split("#")
         else:
-            ref = check_default_branch(owner, repo, repo_type)
+            ref = get_default_branch(owner, repo, repo_type)
         return owner, repo, ref, path
 
     @abstractmethod
@@ -1601,7 +1582,7 @@ class GitHubURL(RepoTypeURL):
         #       self.owner, self.repo, self.ref)
 
         if self.ref is None:
-            self.ref = check_default_branch(self.owner, self.repo, "github")
+            self.ref = get_default_branch(self.owner, self.repo, "github")
 
         return "https://codeload.github.com/{}/{}/zip/{}".format(
             self.owner, self.repo, self.ref
@@ -1610,9 +1591,8 @@ class GitHubURL(RepoTypeURL):
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose GitHub URL for the content of a file or a directory."""
 
-        # self.ref = check_default_branch(self.owner, self.repo, "github")
         if self.ref is None:
-            self.ref = check_default_branch(self.owner, self.repo, "github")
+            self.ref = get_default_branch(self.owner, self.repo, "github")
 
         if api or self.ref.startswith("pull/"):
             return "https://api.github.com/repos/{}/{}/contents/{}?ref={}".format(
@@ -1724,8 +1704,7 @@ class GitLabURL(RepoTypeURL):
     def compose_repo_zip_url(self):
         """Compose GitLab URL for the repo's zipball."""
         if self.ref is None:
-            self.ref = check_default_branch(self.owner, self.repo, "gitlab")
-
+            self.ref = get_default_branch(self.owner, self.repo, "gitlab")
 
         return "https://gitlab.com/{owner}/{repo}/-/archive/{ref}/{repo}-{ref}.zip".format(
             owner=self.owner, repo=self.repo, ref=self.ref
@@ -1733,8 +1712,9 @@ class GitLabURL(RepoTypeURL):
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose GitLab URL for the content of a file or a directory."""
+
         if self.ref is None:
-            self.ref = check_default_branch(self.owner, self.repo, "gitlab")
+            self.ref = get_default_branch(self.owner, self.repo, "gitlab")
 
         if api:
             if not tree:
@@ -1853,8 +1833,9 @@ class GitLabURL(RepoTypeURL):
 class BitbucketURL(RepoTypeURL):
     def compose_repo_zip_url(self):
         """Compose Bitbucket URL for the repo's zipball."""
+
         if self.ref is None:
-            self.ref = check_default_branch(self.owner, self.repo, "bitbucket")
+            self.ref = get_default_branch(self.owner, self.repo, "bitbucket")
 
         return "https://bitbucket.org/{}/{}/get/{}.zip".format(
             self.owner, self.repo, self.ref
@@ -1862,8 +1843,9 @@ class BitbucketURL(RepoTypeURL):
 
     def compose_content_url(self, api=False, tree=False, default="{}"):
         """Compose Bitbucket URL for the content of a file or a directory."""
+
         if self.ref is None:
-            self.ref = check_default_branch(self.owner, self.repo, "bitbucket")
+            self.ref = get_default_branch(self.owner, self.repo, "bitbucket")
 
         if api:
             return "https://api.bitbucket.org/2.0/repositories/{}/{}/src/{}/{}?format=meta".format(
