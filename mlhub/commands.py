@@ -383,14 +383,11 @@ def install_model(args):
                 if repo_obj.path:
                     mlhubyaml = os.path.join(uncompressdir, repo_obj.path)
                 else:
-                    try:
-                        mlhubyaml = utils.get_available_pkgyaml(
+                    mlhubyaml = utils.get_available_pkgyaml(
                             uncompressdir
-                        )  # Path to MLHUB.yaml
-                    except utils.DescriptionYAMLNotFoundException as d:
-                        print("The repo doesn't include yaml file. Please make sure you have the yaml file in the "
-                              "repo. ")
-                        sys.exit(1)
+                    )  # Path to MLHUB.yaml
+
+
 
 
             if mlhubyaml is not None:  # Get version number from MLHUB.yaml
@@ -597,10 +594,8 @@ def readme(args):
 
     if matched_model is not None:
         model = matched_model
-
     else:
-        print("This package doesn't include a readme file. ")
-        sys.exit(1)
+        raise utils.ModelReadmeNotFoundException(model, matched_model)
 
     # Setup.
 

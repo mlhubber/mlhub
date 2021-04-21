@@ -259,13 +259,13 @@ def main():
         if not utils.is_url(location):
             msg += "\n  The model package may be broken!"
             utils.print_error(msg, location)
-            if not args.quiet:  # Suggest remove broken package or install new model
-                utils.print_commands_suggestions_on_stderr('remove', 'install')
+            # if not args.quiet:  # Suggest remove broken package or install new model
+            #     utils.print_commands_suggestions_on_stderr('remove', 'install')
         else:
             msg += "\n  The given location may be wrong!"
             utils.print_error(msg, location)
 
-        sys.exit(1)
+            sys.exit(1)
 
     except utils.ModelNotInstalledException as e:
         msg = "model '{}' is not installed ({})."
@@ -277,9 +277,9 @@ def main():
     except utils.ModelReadmeNotFoundException as e:
         msg = "The '{}' model does not have a '{}' file:\n  {}\n"
         utils.print_error(msg, e.args[0], constants.README, e.args[1])
-        if not args.quiet:  # Suggest remove broken package or install new model
-            utils.print_commands_suggestions_on_stderr('remove', 'install')
-        sys.exit(1)
+        # if not args.quiet:  # Suggest remove broken package or install new model
+        #     utils.print_commands_suggestions_on_stderr('remove', 'install')
+        # sys.exit(1)
 
     except utils.UnsupportedScriptExtensionException as e:
         msg = "Could not determine an interpreter for extension '{}'"
