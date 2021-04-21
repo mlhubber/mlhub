@@ -594,8 +594,13 @@ def readme(args):
     # Correct model name if possible.
 
     matched_model = utils.get_misspelled_pkg(model)
+
     if matched_model is not None:
         model = matched_model
+
+    else:
+        print("This package doesn't include a readme file. ")
+        sys.exit(1)
 
     # Setup.
 
