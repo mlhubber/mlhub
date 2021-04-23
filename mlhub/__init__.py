@@ -275,11 +275,9 @@ def main():
         sys.exit(1)
 
     except utils.ModelReadmeNotFoundException as e:
-        msg = "The '{}' model does not have a '{}' file:\n  {}\n"
+        msg = "The '{}' model does not have a '{}' file.\n"
         utils.print_error(msg, e.args[0], constants.README, e.args[1])
-        # if not args.quiet:  # Suggest remove broken package or install new model
-        #     utils.print_commands_suggestions_on_stderr('remove', 'install')
-        # sys.exit(1)
+        sys.exit(1)
 
     except utils.UnsupportedScriptExtensionException as e:
         msg = "Could not determine an interpreter for extension '{}'"
