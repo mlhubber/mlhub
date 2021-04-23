@@ -288,9 +288,7 @@ def install_model(args):
         except utils.DescriptionYAMLNotFoundException:  # Maybe private repo
             maybe_private = True
             pass
-
     # Determine the path of downloaded/existing model package file
-
     pkgfile = None
     if maybe_private:  # Maybe private repo
         pkgfile = repo_obj.repo
@@ -386,8 +384,11 @@ def install_model(args):
                     mlhubyaml = os.path.join(uncompressdir, repo_obj.path)
                 else:
                     mlhubyaml = utils.get_available_pkgyaml(
-                        uncompressdir
+                            uncompressdir
                     )  # Path to MLHUB.yaml
+
+
+
 
             if mlhubyaml is not None:  # Get version number from MLHUB.yaml
                 entry = utils.read_mlhubyaml(mlhubyaml)
@@ -590,8 +591,11 @@ def readme(args):
     # Correct model name if possible.
 
     matched_model = utils.get_misspelled_pkg(model)
+
     if matched_model is not None:
         model = matched_model
+    else:
+        raise utils.ModelReadmeNotFoundException(model, "No readme file path.")
 
     # Setup.
 
