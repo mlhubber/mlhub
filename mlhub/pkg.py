@@ -201,12 +201,14 @@ That information has been saved into the file:
             key = ask_password(prompt_key)
             sys.stderr.write(prompt_endpoint)
             endpoint = input()
+            data = {}
+            data["key"] = key
+            data[connect] = endpoint
 
             if len(key) > 0 and len(endpoint) > 0:
-                ofname = open(key_file, "w")
-                # Use the explicit format in case endpoint has no http prefix.
-                ofname.write("key={}\nendpoint={}\n".format(key, endpoint))
-                ofname.close()
+                with open(key_file, "w") as outfile:
+                    json.dump(data, outfile)
+                outfile.close()
                 print(msg_saved, file=sys.stderr)
 
     else:
@@ -216,12 +218,14 @@ That information has been saved into the file:
         key = ask_password(prompt_key)
         sys.stderr.write(prompt_endpoint)
         endpoint = input()
+        data = {}
+        data["key"] = key
+        data[connect] = endpoint
 
         if len(key) > 0 and len(endpoint) > 0:
-            ofname = open(key_file, "w")
-            # Use the explicit format in case endpoint has no http prefix.
-            ofname.write("key={}\nendpoint={}\n".format(key, endpoint))
-            ofname.close()
+            with open(key_file, "w") as outfile:
+                json.dump(data, outfile)
+            outfile.close()
             print(msg_saved, file=sys.stderr)
 
     if baseurl:
