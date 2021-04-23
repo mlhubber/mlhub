@@ -37,6 +37,7 @@ import tty
 import subprocess
 import re
 import textwrap
+from mlhub.utils import yes_or_no
 
 
 # ----------------------------------------------------------------------
@@ -67,6 +68,77 @@ def load_key(path):
     return key, endpoint
 
 
+def generalkey(key_file, service="", verbose=True):
+    """Load key from file or ask user and save.
+
+    The user is asked for an general key.
+     The provided information is saved into a file
+    for future use. The contents of that file is the key.
+
+    key:abcd1234abcda4f2f6e9f565df34ef24
+
+    """
+
+    key = None
+
+    # Set up messages.
+
+    prompt_key = f"Please paste your {service} key: "
+
+    msg_request = f"""\
+A key is required to access this service (and to run this command).
+See the README for details of a free key. If you have a key
+then please paste the key here.
+"""
+    msg_found = f"""\
+The following file has been found and is assumed to contain a key 
+for {service}. We will load the file and use this information.
+
+    {key_file}
+"""
+
+    msg_saved = """
+That information has been saved into the file:
+
+    {}
+""".format(key_file)
+
+    # Obtain the key/connect.
+
+    if os.path.isfile(key_file) and os.path.getsize(key_file) > 0:
+        if verbose:
+            print(msg_found, file=sys.stderr)
+        yes = yes_or_no("Do you want to update your key", yes=True)
+
+        if yes:
+            print("\n" + msg_request, file=sys.stderr)
+
+            key = ask_password(prompt_key)
+
+            if len(key) > 0:
+                data = {}
+                data["key"] = key
+                with open(key_file, "w") as outfile:
+                    json.dump(data, outfile)
+                outfile.close()
+                print(os.path.join(os.getcwd(), key_file))
+                print(msg_saved, file=sys.stderr)
+
+    else:
+        print(msg_request, file=sys.stderr)
+
+        key = ask_password(prompt_key)
+
+        if len(key) > 0:
+            data = {}
+            data["key"] = key
+            with open(key_file, "w") as outfile:
+                json.dump(data, outfile)
+            outfile.close()
+            print(os.path.join(os.getcwd(), key_file))
+            print(msg_saved, file=sys.stderr)
+
+
 def azkey(key_file, service="Cognitive Services", connect="endpoint",
           verbose=True, baseurl=False):
     """Load key and endpoint/location from file or ask user and save. 
@@ -92,7 +164,7 @@ def azkey(key_file, service="Cognitive Services", connect="endpoint",
     key = None
 
     # Set up messages.
-    
+
     prompt_key = f"Please paste your {service} subscription key: "
     prompt_endpoint = f"Please paste your {connect}: "
 
@@ -118,12 +190,30 @@ That information has been saved into the file:
     # Obtain the key/connect.
 
     if os.path.isfile(key_file) and os.path.getsize(key_file) > 0:
-        if verbose: print(msg_found, file=sys.stderr)
-        key, endpoint = load_key(key_file)
+        if verbose:
+            print(msg_found, file=sys.stderr)
+
+        yes = yes_or_no(f"Do you want to update your key and {connect}", yes=True)
+
+        if yes:
+            print("\n"+msg_request, file=sys.stderr)
+
+            key = ask_password(prompt_key)
+            sys.stderr.write(prompt_endpoint)
+            endpoint = input()
+
+            if len(key) > 0 and len(endpoint) > 0:
+                ofname = open(key_file, "w")
+                # Use the explicit format in case endpoint has no http prefix.
+                ofname.write("key={}\nendpoint={}\n".format(key, endpoint))
+                ofname.close()
+                print(msg_saved, file=sys.stderr)
+
     else:
+
         print(msg_request, file=sys.stderr)
-        
-        key      = ask_password(prompt_key)
+
+        key = ask_password(prompt_key)
         sys.stderr.write(prompt_endpoint)
         endpoint = input()
 
@@ -145,8 +235,9 @@ That information has been saved into the file:
         if connect == "location": endpoint = endpoint[:-1]
     else:
         if connect == "endpoint": endpoint = endpoint + "/"
-        
-    return key, endpoint
+
+    # return key, endpoint
+
 
 # Simple input of password.
 
@@ -191,6 +282,7 @@ def ask_password(prompt=None):
 
     return ''.join(chars)
 
+
 # Send a request.
 
 
@@ -201,14 +293,14 @@ def azrequest(endpoint, url, subscription_key, request_data):
 
     Aim to generalise this to go into MLHUB to send request.
     """
-    
+
     headers = {'Content-Type': 'application/json',
                'Ocp-Apim-Subscription-Key': subscription_key}
-    
+
     response = requests.post(os.path.join(endpoint, url),
                              data=json.dumps(request_data),
                              headers=headers)
-    
+
     if response.status_code == 200:
         return json.loads(response.content.decode("utf-8"))
     else:
@@ -225,7 +317,7 @@ def mlask(begin="", end="", prompt="Press Enter to continue"):
 
 
 def mlcat(title="", text="", delim="=", begin="", end="\n"):
-    sep = delim*len(title) + "\n" if len(title) > 0 else ""
+    sep = delim * len(title) + "\n" if len(title) > 0 else ""
     ttl_sep = "\n" if len(title) > 0 else ""
     # Retain any extra line in the original text since fill() will
     # remove it.
@@ -243,6 +335,7 @@ def mlpreview(fname,
               previewer="eog"):
     print(begin + msg)
     subprocess.Popen([previewer, fname])
+
 
 # From Simon Zhao's azface package on github.
 
