@@ -594,8 +594,6 @@ def readme(args):
 
     if matched_model is not None:
         model = matched_model
-    else:
-        raise utils.ModelReadmeNotFoundException(model, "No readme file available.")
 
     # Setup.
 
