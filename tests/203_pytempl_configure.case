@@ -1,0 +1,29 @@
+[setup]
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ configure pytempl
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+
+*** The following required pip packages are already installed:
+  wget
+
+*** Downloading required files ...
+
+    * https://farm4.staticflickr.com/3883/15144849957_f326e03f75_b.jpg
+      downloading into /home/gjw/.mlhub/pytempl/cache/images/streetscape.jpg ...
+
+To view the model's README:
+
+  $ ml readme pytempl
+
+EOF
+
+stderr is-empty
