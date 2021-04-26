@@ -1,0 +1,23 @@
+[setup]
+
+stdin = n
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ install gitlab:kayontoga/pytempl
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+Replace 'pytempl' version '0.0.1' with version '0.0.1' [Y/n]? 
+To configure the package:
+
+  $ ml configure pytempl
+
+EOF
+
+stderr is-empty
