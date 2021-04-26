@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Monday 2021-04-26 19:51:58 AEST Graham Williams>
+# Time-stamp: <Monday 2021-04-26 22:12:19 AEST Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -143,11 +143,11 @@ test:
 
 test%: TEST=$(wildcard tests/$*_*.case)
 test%: $(TEST)
-	exactly $(TEST)
+	PYTHONPATH=$(PWD) exactly $(TEST)
 
 act%: TEST=$(wildcard tests/$*_*.case)
 act%: $(TEST)
-	exactly $(TEST) --act
+	PYTHONPATH=$(PWD) exactly $(TEST) --act
 
 DESTDIR ?= /home/$(USER)
 PREFIX ?= /.local
