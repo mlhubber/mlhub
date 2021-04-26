@@ -1,0 +1,33 @@
+[setup]
+
+stdin = y
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ install gitlab:kayontoga/pytempl
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+Replace 'pytempl' version '0.0.1' with version '0.0.1' [Y/n]? 
+Package https://gitlab.com/kayontoga/pytempl/-/archive/master/pytempl-master.zip
+
+Downloading 'pytempl-master.zip' ...
+
+Extracting 'pytempl-master.zip' ...
+
+Found 'pytempl' version 0.0.1.
+
+Installed 'pytempl' into '/home/gjw/.mlhub/pytempl/' (2,240 bytes).
+
+To configure the package:
+
+  $ ml configure pytempl
+
+EOF
+
+stderr is-empty

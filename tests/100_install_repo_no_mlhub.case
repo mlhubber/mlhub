@@ -1,0 +1,17 @@
+[setup]
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ install github:gjwgit/wajig
+
+[assert]
+
+exit-code == 1
+
+stdout is-empty
+
+stderr equals <<EOF
+mlhub: No MLHUB.yaml description file found.
+EOF

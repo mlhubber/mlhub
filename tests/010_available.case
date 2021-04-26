@@ -1,0 +1,61 @@
+[setup]
+
+stdin = n
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ available
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+The repository 'https://mlhub.ai/' provides the following models:
+
+animate      2.1.5  Tell a data narative through animations                 
+audit        4.1.0  Classic financial audit predictive classification model.
+azanomaly    3.1.4  Azure Anomaly Detection.                                
+azcv         2.6.4  Azure Computer Vision.                                  
+azface       2.1.4  Azure Face API demo.                                    
+azlang       0.0.3  Azure language cognitive service on the cloud.          
+azspeech     4.2.1  Azure Speech cognitive services on the cloud.           
+aztext       2.4.7  Azure Text Analytics cognitive services on the cloud.   
+aztranslate  2.4.6  Azure Text Translation cognitive services on the cloud. 
+barchart     2.0.2  Demonstrate the concept of barcharts.                   
+beeswarm     2.0.1  Demonstrate the concept of bee swarm charts.            
+bing         0.0.1  Bing Map                                                
+cars         1.0.0  Identify car make and model from a photo.               
+colorize     1.5.8  Demonstrate the concept of photo colorization.          
+cvbp         2.2.0  Computer vision best practices.                         
+deepspeech   0.0.3  Deepspeech                                              
+easyocr      0.0.8  Extract text from images.                               
+facedetect   0.2.5  Simple face detection.                                  
+facematch    0.4.2  Simple face recognition.                                
+iris         2.1.3  Classic iris plant species classifier.                  
+movies       2.0.4  Movie recommendation using the SAR algorthm.            
+objects      1.6.27 Recognise objects in an image using resnet152.          
+ocsvm        0.0.5  Introducing one-class support vector machine.           
+opencv       1.0.3  OpenCV Computer Vision.                                 
+patientpaths 0.0.8  Report patient paths for specific scenarios.            
+ports        2.0.1  Demostrate the concept of visualising data.             
+pyiris       0.0.7  Classification models in Python using the iris dataset. 
+rain         5.1.4  Predict if it will rain tomorrow (decision tree and rand...
+rbm          1.0.6  Recommendations using restricted Boltzmann machine.     
+sar          1.1.6  Smart adaptive recommendations.                         
+scatter      2.0.1  Demonstrate the concept of scatter plots.               
+sgnc         0.1.1  Node classification for graphs using StellarGraph.      
+speech2txt   0.1.3  Convert audio speech to text across multiple services.  
+tapwater     0.0.3  Factor analysis for understanding customers             
+webcam       0.2.21 Capture video, process, feed dummy device for Zoom.     
+zynlp        0.0.8  Tweets sentiment analysis.                              
+
+To install a named model, local model file or URL:
+
+  $ ml install <model>
+
+EOF
+
+stderr is-empty

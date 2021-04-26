@@ -1,0 +1,10 @@
+[setup]
+
+def string ML = mlhub/__init__.py
+
+[conf]
+
+actor = file % python3
+
+act-home = ../
+

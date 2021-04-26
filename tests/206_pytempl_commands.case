@@ -1,0 +1,26 @@
+[setup]
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ commands pytempl
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+The 'pytempl' model (MLHub Template and Testing for Pythan) supports the
+following commands:
+
+  $ ml demo pytempl
+    Run the template demo script.
+
+To run the template demo script:
+
+  $ ml demo pytempl
+
+EOF
+
+stderr is-empty

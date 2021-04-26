@@ -1,0 +1,36 @@
+[setup]
+
+stdin = <<EOF
+y
+y
+EOF
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ configure animate
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+
+*** The following required system packages are already installed:
+  eom cargo
+
+*** The following R packages are already at their latest versions: 
+  progress png tidyverse RColorBrewer gifski farver tweenr gganimate 
+
+*** ellisp's R package 'ggflags' is already installed.
+
+*** Downloading required files ...
+
+To view the model's README:
+
+  $ ml readme animate
+
+EOF
+
+stderr is-empty

@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Tuesday 2021-04-20 08:25:09 AEST Graham Williams>
+# Time-stamp: <Tuesday 2021-04-27 08:29:28 AEST Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -16,7 +16,7 @@
 #   Bug fix
 
 APP=mlhub
-VER=3.7.8
+VER=3.7.10
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
@@ -69,13 +69,17 @@ ifneq ("$(wildcard $(INC_R))","")
 endif
 
 define HELP
-local:
+mlhub:
 
   install	Local install for dev testing cycle.
   version	Update the version number across appropriate files.
   pypi 		Upload new package for pip install.
   dist		Build the .tar.gz for distribution or pip install.
   mlhub		Update mlhub.ai with index and .tar.gz
+
+  test		Run series of tests using exactly.
+  testNNN	Run an individual test by number.
+  actNNN	Run an individual with act but not assert.
 
 endef
 export HELP
@@ -135,18 +139,19 @@ dl03: dist
 
 .PHONY: test
 test:
-	@for p in pytempl rtempl; do \
-	  echo "==========> $$p <=========="; \
-	  ml install gitlab:kayontoga/$$p; \
-	  echo "-------------------------------------------------------"; \
-	  ml configure $$p; \
-	  echo "-------------------------------------------------------"; \
-	  ml readme $$p; \
-	  echo "-------------------------------------------------------"; \
-	  ml demo $$p; \
-	  echo "-------------------------------------------------------"; \
-	  ml uninstall $$p; \
-	done
+	PYTHONPATH=$(PWD) exactly suite tests
+
+.PHONY: testc
+testc:
+	PYTHONPATH=$(PWD) exactly suite tests/curated.suite
+
+test%: TEST=$(wildcard tests/$*_*.case)
+test%: $(TEST)
+	PYTHONPATH=$(PWD) exactly $(TEST)
+
+act%: TEST=$(wildcard tests/$*_*.case)
+act%: $(TEST)
+	PYTHONPATH=$(PWD) exactly $(TEST) --act
 
 DESTDIR ?= /home/$(USER)
 PREFIX ?= /.local
@@ -158,7 +163,7 @@ install: version
 
 .PHONY: clean
 clean:
-	rm -f docs/README.html
+	rm -f docs/README.html tests/*~
 
 realclean:: clean
-	rm -f mlhub_*.tar.gz favicon.ico logo-mlhub.png
+	rm -f mlhub_*.tar.gz favicon.ico logo-mlhub.png 

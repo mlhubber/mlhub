@@ -1,0 +1,21 @@
+[setup]
+
+stdin = <<EOF
+ANY INTERACTIVE INPUT GOES HERE
+EOF
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ COMMAND PACKAGE
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+EXPECTED OUTPUT GOES HERE, EXACTLY.
+EOF
+
+stderr is-empty
