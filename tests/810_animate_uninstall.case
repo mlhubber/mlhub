@@ -1,0 +1,15 @@
+[setup]
+
+stdin = <<EOF
+y
+y
+EOF
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ uninstall animate
+
+[assert]
+

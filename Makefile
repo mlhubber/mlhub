@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Monday 2021-04-26 22:15:21 AEST Graham Williams>
+# Time-stamp: <Tuesday 2021-04-27 08:29:28 AEST Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -140,6 +140,10 @@ dl03: dist
 .PHONY: test
 test:
 	PYTHONPATH=$(PWD) exactly suite tests
+
+.PHONY: testc
+testc:
+	PYTHONPATH=$(PWD) exactly suite tests/curated.suite
 
 test%: TEST=$(wildcard tests/$*_*.case)
 test%: $(TEST)

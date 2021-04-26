@@ -1,0 +1,30 @@
+[setup]
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ install animate
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+Package https://codeload.github.com/gjwgit/animate/zip/master
+
+Downloading 'animate-master.zip' (43,851,865 bytes) ...
+
+Extracting 'animate-master.zip' ...
+
+Found 'animate' version 2.1.5.
+
+Installed 'animate' into '/home/gjw/.mlhub/animate/' (38,850,573 bytes).
+
+To configure the package:
+
+  $ ml configure animate
+
+EOF
+
+stderr is-empty
