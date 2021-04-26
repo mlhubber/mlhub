@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Monday 2021-04-26 16:51:53 AEST Graham Williams>
+# Time-stamp: <Monday 2021-04-26 17:12:55 AEST Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -78,6 +78,7 @@ mlhub:
   mlhub		Update mlhub.ai with index and .tar.gz
 
   test		Run series of tests using exactly.
+  testNNN	Run an individual test by number.
 
 endef
 export HELP
@@ -139,6 +140,10 @@ dl03: dist
 test:
 	exactly suite tests
 
+test%: TEST=$(wildcard tests/$*_*.case)
+test%: $(TEST)
+	exactly $(TEST)
+
 DESTDIR ?= /home/$(USER)
 PREFIX ?= /.local
 
@@ -149,7 +154,7 @@ install: version
 
 .PHONY: clean
 clean:
-	rm -f docs/README.html
+	rm -f docs/README.html tests/*~
 
 realclean:: clean
-	rm -f mlhub_*.tar.gz favicon.ico logo-mlhub.png
+	rm -f mlhub_*.tar.gz favicon.ico logo-mlhub.png 
