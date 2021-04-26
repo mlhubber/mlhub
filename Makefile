@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Monday 2021-04-26 08:04:16 AEST Graham Williams>
+# Time-stamp: <Monday 2021-04-26 16:51:53 AEST Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -69,13 +69,15 @@ ifneq ("$(wildcard $(INC_R))","")
 endif
 
 define HELP
-local:
+mlhub:
 
   install	Local install for dev testing cycle.
   version	Update the version number across appropriate files.
   pypi 		Upload new package for pip install.
   dist		Build the .tar.gz for distribution or pip install.
   mlhub		Update mlhub.ai with index and .tar.gz
+
+  test		Run series of tests using exactly.
 
 endef
 export HELP
@@ -135,18 +137,7 @@ dl03: dist
 
 .PHONY: test
 test:
-	@for p in pytempl rtempl; do \
-	  echo "==========> $$p <=========="; \
-	  ml install gitlab:kayontoga/$$p; \
-	  echo "-------------------------------------------------------"; \
-	  ml configure $$p; \
-	  echo "-------------------------------------------------------"; \
-	  ml readme $$p; \
-	  echo "-------------------------------------------------------"; \
-	  ml demo $$p; \
-	  echo "-------------------------------------------------------"; \
-	  ml uninstall $$p; \
-	done
+	exactly suite tests
 
 DESTDIR ?= /home/$(USER)
 PREFIX ?= /.local
