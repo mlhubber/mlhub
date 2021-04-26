@@ -1,0 +1,42 @@
+[setup]
+
+including _common_setup.xly
+
+stdin = <<EOF
+
+
+EOF
+
+[act]
+
+@[ML]@ demo pytempl
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+===========
+Hello World
+===========
+
+Use this as a template and test of mlhub.ai for Python based tools.
+
+Introduce the package and technology here with some introductory text
+for the  user to read whilst libraries get loaded.
+
+Press Enter to continue: 
+========================
+Now Get Into the Details
+========================
+
+Start explaining what is happening.
+
+In this simple example here we print the version of a dependency.
+
+Package wget is version 3.2.
+
+Press Enter to continue:
+EOF
+
+stderr is-empty

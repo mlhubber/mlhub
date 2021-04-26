@@ -1,0 +1,55 @@
+[setup]
+
+stdin = n
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+Usage: ml [<options>] <command> [<command options>] [<model>]
+
+Access machine learning models from the ML Hub.
+
+Global commands:
+
+  available            list the models available from the ML Hub repository
+  installed            list the locally installed models
+  clean                remove downloaded model package files
+
+  install    <model>   install a named model, local model file or URL
+  readme     <model>   view the model's README
+  commands   <model>   list the commands supported by the model package
+  configure [<model>]  configure the package
+  uninstall [<model>]  uninstall a model or all models
+
+The ML Hub repository is 'https://mlhub.ai/'.
+
+Models are installed into '/home/gjw/.mlhub/'.
+
+This is version 3.7.9 of mlhub.
+
+Support, feedback, comments are welcome: support@mlhub.ai
+
+To ensure the pre-requisites are installed and for a better experience
+with tab completion the sys admin can run the command:
+
+  $ ml configure
+
+The user can then run the following for tab completion:
+
+  $ source /etc/bash_completion.d/ml.bash
+
+List the available models from the repository with:
+
+  $ ml available
+
+EOF
+
+stderr is-empty
