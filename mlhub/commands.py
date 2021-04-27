@@ -375,7 +375,7 @@ def install_model(args):
                     repo_obj.ref,
                 )
                 proc = subprocess.Popen(
-                    command, shell=True, stderr=subprocess.PIPE
+                    command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE
                 )
                 output, errors = proc.communicate()
                 if proc.returncode != 0:

@@ -253,7 +253,7 @@ def main():
         utils.print_error_exit(msg)
 
     except utils.DescriptionYAMLNotFoundException:
-        msg = "No MLHUB.yaml description file found."
+        msg = "No MLHUB.yaml description file found.\n"
         utils.print_error(msg)
         sys.exit(1)
 
