@@ -121,7 +121,6 @@ That information has been saved into the file:
                 with open(key_file, "w") as outfile:
                     json.dump(data, outfile)
                 outfile.close()
-                print(os.path.join(os.getcwd(), key_file))
                 print(msg_saved, file=sys.stderr)
 
     else:
@@ -135,7 +134,6 @@ That information has been saved into the file:
             with open(key_file, "w") as outfile:
                 json.dump(data, outfile)
             outfile.close()
-            print(os.path.join(os.getcwd(), key_file))
             print(msg_saved, file=sys.stderr)
 
 
