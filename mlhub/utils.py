@@ -666,7 +666,6 @@ def is_description_file(name):
 
 
 def print_usage():
-    print(CMD)
     print(USAGE.format(CMD, MLHUB, get_init_dir(), VERSION, APP))
 
 
