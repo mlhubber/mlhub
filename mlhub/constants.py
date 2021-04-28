@@ -172,7 +172,15 @@ COMMANDS = {
     },
     "install": {
         "description": "install a named model, local model file or URL",
-        "argument": {"model": {}, "-i": {"help": "SSH key path"}},
+        "argument": {
+            "model": {},
+            "-i": {"help": "SSH key path"},
+            "--yes": {
+                "action": "store_true",
+                "help": 'assume "yes" as answer to all prompts',
+            },
+            "-y": {"action": "store_true", "help": 'the same as "--yes"'},
+        },
         "usage": "  install    <model>   install a named model, local model file or URL",
         "func": "install_model",
         "next": ["configure"],
