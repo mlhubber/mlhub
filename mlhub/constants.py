@@ -229,7 +229,13 @@ COMMANDS = {
     },
     "uninstall": {
         "description": "uninstall a model or all models",
-        "argument": {"model": {"nargs": "?"}},
+        "argument": {
+            "model": {"nargs": "?"},
+            "--yes_cache_no": {
+                "action": "store_true",
+                "help": 'assume "yes" to answer the first question and "no" for the second.',
+            },
+        },
         "usage": "  uninstall    [<model>]  uninstall a model or all models",
         "func": "remove_model",
         "next": ["installed", "install"],

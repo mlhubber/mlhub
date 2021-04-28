@@ -1154,6 +1154,7 @@ def remove_model(args):
     # TODO: Remove .archive and .config for the model.
 
     model = args.model
+    YES = args.yes_cache_no
 
     # Determine if remove all model pkgs or a certain model pkg.
 
@@ -1184,27 +1185,39 @@ def remove_model(args):
 
         utils.check_model_installed(model)
 
-    if utils.yes_or_no(msg, path, yes=True):
+    if YES:
 
         # Remove package installation dir
-
         shutil.rmtree(path)
 
         # Remove package config dir as well without ask
-
         path = utils.get_package_config_dir(model)
         if os.path.exists(path):
             shutil.rmtree(path)
 
-        # Ask if remove cached files
-
-        if cache is not None and utils.yes_or_no(
-                "Remove cache '{}/' as well", cache, yes=False
-        ):
-            shutil.rmtree(cache)
-            archive = utils.get_package_archive_dir(model)
-            if os.path.exists(archive):
-                shutil.rmtree(archive)
     else:
-        if model is None and not args.quiet:
-            utils.print_next_step("remove")
+
+        if utils.yes_or_no(msg, path, yes=True):
+
+            # Remove package installation dir
+
+            shutil.rmtree(path)
+
+            # Remove package config dir as well without ask
+
+            path = utils.get_package_config_dir(model)
+            if os.path.exists(path):
+                shutil.rmtree(path)
+
+            # Ask if remove cached files
+
+            if cache is not None and utils.yes_or_no(
+                    "Remove cache '{}/' as well", cache, yes=False
+            ):
+                shutil.rmtree(cache)
+                archive = utils.get_package_archive_dir(model)
+                if os.path.exists(archive):
+                    shutil.rmtree(archive)
+        else:
+            if model is None and not args.quiet:
+                utils.print_next_step("remove")
