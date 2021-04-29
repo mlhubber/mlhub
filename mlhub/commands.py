@@ -43,7 +43,7 @@ import tempfile
 import textwrap
 import urllib.request
 import yaml
-from mlhub.pkg import generalkey, azkey
+from mlhub.pkg import generalkey
 
 from distutils.version import StrictVersion
 from mlhub.constants import (
@@ -818,13 +818,8 @@ def configure_model(args):
     if "private" in entry["meta"]:
         private = entry["meta"]["private"]
         require_info = [x.strip() for x in private.split(',')]
-
-        if len(require_info) == 2:
-            private_json_path = os.path.join(pkg_dir, "private.json")
-            generalkey(private_json_path, require_info[0], verbose=True)
-        elif len(require_info) == 3:
-            private_json_path = os.path.join(pkg_dir, "private.json")
-            azkey(private_json_path, require_info[0], require_info[2], verbose=True)
+        private_json_path = os.path.join(pkg_dir, "private.json")
+        generalkey(private_json_path, require_info[0], require_info[1:], verbose=True)
 
     depspec = None
     if "dependencies" in entry:

@@ -68,14 +68,14 @@ def load_key(path):
     return key, endpoint
 
 
-def generalkey(key_file, service="", verbose=True):
-    """Load key from file or ask user and save.
+def generalkey(key_file, service, require_info, verbose=True):
+    """Load key, location, etc from file or ask user and save.
 
-    The user is asked for an general key.
+    The user is asked for an general key, location, etc.
      The provided information is saved into a file
     for future use. The contents of that file is the key.
 
-    key:abcd1234abcda4f2f6e9f565df34ef24
+    {"key":"abcd1234abcda4f2f6e9f565df34ef24","location":"eastaustralia"}
 
     """
 
@@ -83,16 +83,15 @@ def generalkey(key_file, service="", verbose=True):
 
     # Set up messages.
 
-    prompt_key = f"Please paste your {service} key: "
+
 
     msg_request = f"""\
-A key is required to access this service (and to run this command).
-See the README for details of a free key. If you have a key
-then please paste the key here.
+A set of private information is required to access this service (and to 
+run this command).See the README for more details. 
 """
     msg_found = f"""\
-The following file has been found and is assumed to contain a key 
-for {service}. We will load the file and use this information.
+The following file has been found and is assumed to contain the private
+information for {service}. We will load the file and use this information.
 
     {key_file}
 """
@@ -100,148 +99,61 @@ for {service}. We will load the file and use this information.
     msg_saved = """
 That information has been saved into the file:
 
-    {}
-""".format(key_file)
+    {}""".format(key_file)
 
-    # Obtain the key/connect.
+    # Obtain the key/location/etc.
 
     if os.path.isfile(key_file) and os.path.getsize(key_file) > 0:
         if verbose:
             print(msg_found, file=sys.stderr)
-        yes = yes_or_no("Do you want to update your key", yes=True)
+        yes = yes_or_no("Do you want to update your private information", yes=False)
 
         if yes:
             print("\n" + msg_request, file=sys.stderr)
-
-            key = ask_password(prompt_key)
-
-            if len(key) > 0:
-                data = {}
-                data["key"] = key
-                with open(key_file, "w") as outfile:
-                    json.dump(data, outfile)
-                outfile.close()
-                print(msg_saved, file=sys.stderr)
-
-    else:
-        print(msg_request, file=sys.stderr)
-
-        key = ask_password(prompt_key)
-
-        if len(key) > 0:
             data = {}
-            data["key"] = key
+            for item in require_info:
+
+                if "*" in item:
+                    message_key = item.replace("*", "")
+                    key = ask_password(f"Please paste your {service} {message_key}: ")
+                    if len(key) > 0:
+                        js_key = message_key.replace(" ", "_")
+                        data[js_key] = key
+                else:
+                    js_key = item.replace(" ", "_")
+                    sys.stderr.write(f"Please paste your {item}: ")
+                    other = input()
+                    data[js_key] = other
+
+            # Write data into json file
             with open(key_file, "w") as outfile:
                 json.dump(data, outfile)
             outfile.close()
             print(msg_saved, file=sys.stderr)
 
-
-def azkey(key_file, service="Cognitive Services", connect="endpoint",
-          verbose=True, baseurl=False):
-    """Load key and endpoint/location from file or ask user and save. 
-
-    The user is asked for an Azure subscription key and
-    endpoint/location. The provided information is saved into a file
-    for future use. The contents of that file is the key and
-    endpoint/location with the endpoint identified as starting with
-    http. Some endpoints may include the full cognitive service path
-    and so the baseurl option will strip to just the base name of the
-    URL.
-
-    abcd1234abcda4f2f6e9f565df34ef24
-    https://westus2.api.cognitive.microsoft.com
-
-    OR
-
-    abcd1234abcda4f2f6e9f565df34ef24
-    https://westus2
-
-    """
-
-    key = None
-
-    # Set up messages.
-
-    prompt_key = f"Please paste your {service} subscription key: "
-    prompt_endpoint = f"Please paste your {connect}: "
-
-    msg_request = f"""\
-An Azure resource is required to access this service (and to run this command).
-See the README for details of a free subscription. If you have a subscription
-then please paste the key and the {connect} here.
-"""
-    msg_found = f"""\
-The following file has been found and is assumed to contain an Azure 
-subscription key and {connect} for {service}. We will load 
-the file and use this information.
-
-    {key_file}
-"""
-
-    msg_saved = """
-That information has been saved into the file:
-
-    {}
-""".format(key_file)
-
-    # Obtain the key/connect.
-
-    if os.path.isfile(key_file) and os.path.getsize(key_file) > 0:
-        if verbose:
-            print(msg_found, file=sys.stderr)
-
-        yes = yes_or_no(f"Do you want to update your key and {connect}", yes=True)
-
-        if yes:
-            print("\n"+msg_request, file=sys.stderr)
-
-            key = ask_password(prompt_key)
-            sys.stderr.write(prompt_endpoint)
-            endpoint = input()
-            data = {}
-            data["key"] = key
-            data[connect] = endpoint
-
-            if len(key) > 0 and len(endpoint) > 0:
-                with open(key_file, "w") as outfile:
-                    json.dump(data, outfile)
-                outfile.close()
-                print(msg_saved, file=sys.stderr)
-
     else:
-
         print(msg_request, file=sys.stderr)
 
-        key = ask_password(prompt_key)
-        sys.stderr.write(prompt_endpoint)
-        endpoint = input()
         data = {}
-        data["key"] = key
-        data[connect] = endpoint
+        for item in require_info:
 
-        if len(key) > 0 and len(endpoint) > 0:
-            with open(key_file, "w") as outfile:
-                json.dump(data, outfile)
-            outfile.close()
-            print(msg_saved, file=sys.stderr)
+            if "*" in item:
+                message_key = item.replace("*", "")
+                key = ask_password(f"Please paste your {service} {message_key}: ")
+                if len(key) > 0:
+                    js_key = message_key.replace(" ", "_")
+                    data[js_key] = key
+            else:
+                js_key = item.replace(" ", "_")
+                sys.stderr.write(f"Please paste your {item}: ")
+                other = input()
+                data[js_key] = other
 
-    if baseurl:
-        from urllib.parse import urlsplit
-        splurl = urlsplit(endpoint)
-        endpoint = splurl.scheme + "://" + splurl.netloc
-
-    # Ensure endpoint ends in /
-
-    if endpoint[-1] == "/":
-        if connect == "location": endpoint = endpoint[:-1]
-    else:
-        if connect == "endpoint": endpoint = endpoint + "/"
-
-    # return key, endpoint
-
-
-# Simple input of password.
+        # Write data into json file
+        with open(key_file, "w") as outfile:
+            json.dump(data, outfile)
+        outfile.close()
+        print(msg_saved, file=sys.stderr)
 
 
 def ask_password(prompt=None):
