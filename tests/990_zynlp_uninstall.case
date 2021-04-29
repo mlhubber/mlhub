@@ -1,0 +1,15 @@
+[setup]
+
+stdin = <<EOF
+y
+n
+EOF
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ uninstall zynlp
+
+[assert]
+

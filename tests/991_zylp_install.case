@@ -1,0 +1,30 @@
+[setup]
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ install gjwgit/zynlp
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+Package https://codeload.github.com/gjwgit/zynlp/zip/main
+
+Downloading 'zynlp-main.zip' (2,959,166 bytes) ...
+
+Extracting 'zynlp-main.zip' ...
+
+Found 'zynlp' version 0.0.8.
+
+Installed 'zynlp' into '/home/gjw/.mlhub/zynlp/' (12,108 bytes).
+
+To configure the package:
+
+  $ ml configure zynlp
+
+EOF
+
+stderr is-empty

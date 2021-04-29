@@ -1,0 +1,34 @@
+[setup]
+
+stdin = <<EOF
+y
+y
+EOF
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ configure azspeech
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+
+*** The following required pip packages are already installed:
+  azure-cognitiveservices-speech pandas --no-build-isolation
+
+*** Downloading required files ...
+
+    * https://mlhub.ai/empty.txt
+      downloading into /home/gjw/.mlhub/azspeech/private.txt ...
+
+To view the model's README:
+
+  $ ml readme azspeech
+
+EOF
+
+stderr is-empty

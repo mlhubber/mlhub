@@ -1,0 +1,29 @@
+[setup]
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ configure --yes zynlp
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+
+*** The following required pip packages are already installed:
+  azure-cognitiveservices-speech pandas --no-build-isolation
+
+*** Downloading required files ...
+
+    * https://mlhub.ai/empty.txt
+      downloading into /home/gjw/.mlhub/zynlp/private.txt ...
+
+To view the model's README:
+
+  $ ml readme zynlp
+
+EOF
+
+stderr is-empty

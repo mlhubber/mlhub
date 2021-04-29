@@ -1,0 +1,30 @@
+[setup]
+
+including _common_setup.xly
+
+[act]
+
+@[ML]@ install azspeech
+
+[assert]
+
+exit-code == 0
+
+stdout equals <<EOF
+Package https://codeload.github.com/gjwgit/azspeech/zip/master
+
+Downloading 'azspeech-master.zip' (424,439 bytes) ...
+
+Extracting 'azspeech-master.zip' ...
+
+Found 'azspeech' version 4.2.3.
+
+Installed 'azspeech' into '/home/gjw/.mlhub/azspeech/' (586,746 bytes).
+
+To configure the package:
+
+  $ ml configure azspeech
+
+EOF
+
+stderr is-empty
