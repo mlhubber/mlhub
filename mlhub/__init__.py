@@ -96,7 +96,9 @@ def main():
 
     # Get the first positional argument.
 
-    pos_args = [(i, arg) for i, arg in enumerate(sys.argv[1:]) if not arg.startswith('-')]
+    pos_args = [(i, arg)
+                for i, arg in enumerate(sys.argv[1:])
+                if not arg.startswith('-')]
     first_pos_arg_index, first_pos_arg = pos_args[0] if len(pos_args) != 0 else (None, None)
     logger.debug(f'First positional argument: {first_pos_arg}')
 
