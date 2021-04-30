@@ -2567,7 +2567,7 @@ def print_on_stderr_exit(msg, *param, exitcode=1):
 def print_error(msg, *param):
     """Print error msg with APPX prefix on stderr."""
 
-    print_on_stderr("\n" + APPX + msg.format(*param))
+    print_on_stderr(APPX + msg.format(*param))
 
 
 def print_error_exit(msg, *param, exitcode=1):
