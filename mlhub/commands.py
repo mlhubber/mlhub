@@ -43,6 +43,7 @@ import tempfile
 import textwrap
 import urllib.request
 import yaml
+from mlhub.pkg import generalkey
 
 from distutils.version import StrictVersion
 from mlhub.constants import (
@@ -51,6 +52,7 @@ from mlhub.constants import (
     MLHUB_YAML,
     README,
 )
+
 
 # The commands are implemented here in a logical order with each
 # command providing a suggesting of the following command.
@@ -125,9 +127,9 @@ def list_installed(args):
             f
             for f in os.listdir(init)
             if os.path.isdir(os.path.join(init, f))
-            and f != "R"
-            and not f.startswith(".")
-            and not f.startswith("_")
+               and f != "R"
+               and not f.startswith(".")
+               and not f.startswith("_")
         ]
     else:
         msg = f". '{init}' does not exist."
@@ -158,9 +160,9 @@ def list_installed(args):
             entry = utils.load_description(p)
             utils.print_meta_line(entry)
         except (
-            utils.DescriptionYAMLNotFoundException,
-            utils.MalformedYAMLException,
-            KeyError,
+                utils.DescriptionYAMLNotFoundException,
+                utils.MalformedYAMLException,
+                KeyError,
         ):
             mcnt -= 1
             invalid_models.append(p)
@@ -199,7 +201,6 @@ def list_installed(args):
 
 def install_model(args):
     """Install a model.
-
     Args:
         args: Command line args parsed by argparse.
         args.model (str): mlm/zip path, mlm/zip url, model name, GitHub repo,
@@ -216,7 +217,7 @@ def install_model(args):
     # a robot. We are not a robot but a user downloading a file. This
     # will ensure gitlab is okay with retrieving from a URL by adding
     # a header rather than no header. TODO move to using Requests.
-    
+
     opener = urllib.request.build_opener()
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     urllib.request.install_opener(opener)
@@ -229,12 +230,14 @@ def install_model(args):
     repo_obj = None  # RepoTypeURL object for related URL interpretation
     maybe_private = False  # Maybe private repo
 
+    YES = args.y | args.yes
+
     # Obtain the model URL if not a local file.
 
     if (
-        not utils.is_archive_file(model)
-        and not utils.is_url(model)
-        and "/" not in model
+            not utils.is_archive_file(model)
+            and not utils.is_url(model)
+            and "/" not in model
     ):
 
         # Model package name, which can be found in mlhub repo.
@@ -312,8 +315,8 @@ def install_model(args):
         uncompressdir = pkgfile
     else:
         uncompressdir = pkgfile[
-            : pkgfile.rfind(".")
-        ]  # Dir Where pkg file is extracted
+                        : pkgfile.rfind(".")
+                        ]  # Dir Where pkg file is extracted
 
     # Installation.
 
@@ -335,7 +338,7 @@ def install_model(args):
 
         if version is None:
             if utils.ends_with_mlm(
-                pkgfile
+                    pkgfile
             ):  # Get version number from MLM file name.
 
                 model, version = utils.interpret_mlm_name(pkgfile)
@@ -345,7 +348,7 @@ def install_model(args):
                 # Get MLHUB.yaml inside the archive file.
 
                 if utils.is_url(
-                    location
+                        location
                 ):  # Download the package file because it is not from GitHub.
                     utils.download_model_pkg(
                         location, local, pkgfile, args.quiet
@@ -374,7 +377,7 @@ def install_model(args):
                     repo_obj.ref,
                 )
                 proc = subprocess.Popen(
-                    command, shell=True, stderr=subprocess.PIPE
+                    command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE
                 )
                 output, errors = proc.communicate()
                 if proc.returncode != 0:
@@ -384,11 +387,8 @@ def install_model(args):
                     mlhubyaml = os.path.join(uncompressdir, repo_obj.path)
                 else:
                     mlhubyaml = utils.get_available_pkgyaml(
-                            uncompressdir
+                        uncompressdir
                     )  # Path to MLHUB.yaml
-
-
-
 
             if mlhubyaml is not None:  # Get version number from MLHUB.yaml
                 entry = utils.read_mlhubyaml(mlhubyaml)
@@ -412,45 +412,45 @@ def install_model(args):
 
             installed_version = str(installed_version)
             version = str(version)
+            if not YES:
+                if StrictVersion(installed_version) > StrictVersion(version):
+                    yes = utils.yes_or_no(
+                        "Downgrade '{}' from version '{}' to version '{}'",
+                        model,
+                        installed_version,
+                        version,
+                        yes=True,
+                    )
+                elif StrictVersion(installed_version) == StrictVersion(version):
+                    yes = utils.yes_or_no(
+                        "Replace '{}' version '{}' with version '{}'",
+                        model,
+                        installed_version,
+                        version,
+                        yes=True,
+                    )
+                else:
+                    yes = utils.yes_or_no(
+                        "Upgrade '{}' from version '{}' to version '{}'",
+                        model,
+                        installed_version,
+                        version,
+                        yes=True,
+                    )
 
-            if StrictVersion(installed_version) > StrictVersion(version):
-                yes = utils.yes_or_no(
-                    "Downgrade '{}' from version '{}' to version '{}'",
-                    model,
-                    installed_version,
-                    version,
-                    yes=True,
-                )
-            elif StrictVersion(installed_version) == StrictVersion(version):
-                yes = utils.yes_or_no(
-                    "Replace '{}' version '{}' with version '{}'",
-                    model,
-                    installed_version,
-                    version,
-                    yes=True,
-                )
-            else:
-                yes = utils.yes_or_no(
-                    "Upgrade '{}' from version '{}' to version '{}'",
-                    model,
-                    installed_version,
-                    version,
-                    yes=True,
-                )
-
-            if not yes:
-                # Suggest next step before exiting, as if an install has just happened.
-                utils.print_next_step("install", model=model)
-                sys.exit(0)
-            else:
-                print()
+                if not yes:
+                    # Suggest next step before exiting, as if an install has just happened.
+                    utils.print_next_step("install", model=model)
+                    sys.exit(0)
+                else:
+                    print()
 
             shutil.rmtree(install_path)
 
         # Uncompress package file.
 
         if not os.path.exists(
-            uncompressdir
+                uncompressdir
         ):  # Model pkg mlm or GitHub pkg has not unzipped yet.
             if utils.is_url(location):  # Download the package file if needed.
                 utils.download_model_pkg(location, local, pkgfile, args.quiet)
@@ -469,7 +469,7 @@ def install_model(args):
         # Find if any files specified in MLHUB.yaml
 
         if (
-            mlhubyaml is None
+                mlhubyaml is None
         ):  # MLM file which can obtain version number from it name.
             mlhubyaml = utils.get_available_pkgyaml(uncompressdir)
             entry = utils.read_mlhubyaml(mlhubyaml)
@@ -487,14 +487,14 @@ def install_model(args):
             file_spec = {"files": entry["files"]}
 
         if (
-            file_spec is not None
+                file_spec is not None
         ):  # install package files if they are specified in MLHUB.yaml
 
             # MLHUB.yaml should always be at the package root.
 
             os.mkdir(install_path)
             if utils.is_url(
-                mlhubyaml
+                    mlhubyaml
             ):  # We currently only support MLHUB.yaml specified on GitHub.
                 if mlhubyaml.startswith("https://api"):
                     urllib.request.urlretrieve(
@@ -543,10 +543,9 @@ def install_model(args):
             utils.update_working_dir(model, args.working_dir)
 
         if not args.quiet:
-
             # Informative message about the size of the installed model.
 
-            msg  = f"Found '{model}' version {version}.\n\nInstalled '{model}' "
+            msg = f"Found '{model}' version {version}.\n\nInstalled '{model}' "
             msg += f"into '{install_path}/' ({utils.dir_size(install_path):,} bytes)."
             print(msg)
 
@@ -610,7 +609,7 @@ def readme(args):
     # Display the README.
 
     if not os.path.exists(
-        readme_file
+            readme_file
     ):  # Try to generate README from README.md
         readme_raw = readme_file[: readme_file.rfind(".")] + ".md"
         if not os.path.exists(readme_raw):
@@ -768,7 +767,7 @@ def configure_model(args):
     # a robot. We are not a robot but a user downloading a file. This
     # will ensure gitlab is okay with retrieving from a URL by adding
     # a header rather than no header. TODO move to using Requests.
-    
+
     opener = urllib.request.build_opener()
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     urllib.request.install_opener(opener)
@@ -811,9 +810,17 @@ def configure_model(args):
 
     utils.check_model_installed(model)
 
-    # Install dependencies specified in MLHUB.yaml
+    # Install key and dependencies specified in MLHUB.yaml
 
     entry = utils.load_description(model)
+
+    private = None
+    if "private" in entry["meta"]:
+        private = entry["meta"]["private"]
+        require_info = [x.strip() for x in private.split(',')]
+        private_json_path = os.path.join(pkg_dir, "private.json")
+        generalkey(private_json_path, require_info[0], require_info[1:], verbose=True)
+
     depspec = None
     if "dependencies" in entry:
         depspec = entry["dependencies"]
@@ -875,18 +882,18 @@ def configure_model(args):
                 utils.install_r_deps(deplist, model, source="cran", yes=YES)
 
             elif (
-                category == "cran"
-                or category == "github"
-                or category.startswith("cran-")
+                    category == "cran"
+                    or category == "github"
+                    or category.startswith("cran-")
             ):
                 utils.install_r_deps(deplist, model, source=category, yes=YES)
 
             # ----- Python deps -----
 
             elif (
-                category.startswith("python")
-                or category.startswith("pip")
-                or category == "conda"
+                    category.startswith("python")
+                    or category.startswith("pip")
+                    or category == "conda"
             ):
                 utils.install_python_deps(
                     deplist, model, source=category, yes=YES
@@ -971,9 +978,9 @@ def dispatch(args):
 
     meta = entry["meta"]
     if (
-        "display" in meta
-        and cmd in meta["display"]
-        and os.environ.get("DISPLAY", "") == ""
+            "display" in meta
+            and cmd in meta["display"]
+            and os.environ.get("DISPLAY", "") == ""
     ):
         msg = "Graphic display is required but not available for command '{}'. Continue"
         yes = utils.yes_or_no(msg, cmd, yes=False)
@@ -981,7 +988,6 @@ def dispatch(args):
             msg = """
 To enable DISPLAY be sure to connect to the server using 'ssh -X'
 or else connect to the server's desktop using a local X server like X2Go.
-
 """
             sys.stdout.write(msg)
             sys.exit(1)
@@ -1006,7 +1012,7 @@ or else connect to the server's desktop using a local X server like X2Go.
     logger.debug("Execute the script: " + os.path.join(path, script))
 
     if cmd not in list(entry["commands"]) or not os.path.exists(
-        os.path.join(path, script)
+            os.path.join(path, script)
     ):
         raise utils.CommandNotFoundException(cmd, model)
 
@@ -1038,7 +1044,7 @@ or else connect to the server's desktop using a local X server like X2Go.
         else ""
     )
     if not conda_env_name and script.endswith(
-        "py"
+            "py"
     ):  # Handle python environment
         env_var += utils.get_py_pkg_path_env(model)
 
@@ -1143,6 +1149,7 @@ def remove_model(args):
     # TODO: Remove .archive and .config for the model.
 
     model = args.model
+    YES = args.yes_cache_no
 
     # Determine if remove all model pkgs or a certain model pkg.
 
@@ -1173,27 +1180,39 @@ def remove_model(args):
 
         utils.check_model_installed(model)
 
-    if utils.yes_or_no(msg, path, yes=True):
+    if YES:
 
         # Remove package installation dir
-
         shutil.rmtree(path)
 
         # Remove package config dir as well without ask
-
         path = utils.get_package_config_dir(model)
         if os.path.exists(path):
             shutil.rmtree(path)
 
-        # Ask if remove cached files
-
-        if cache is not None and utils.yes_or_no(
-            "Remove cache '{}/' as well", cache, yes=False
-        ):
-            shutil.rmtree(cache)
-            archive = utils.get_package_archive_dir(model)
-            if os.path.exists(archive):
-                shutil.rmtree(archive)
     else:
-        if model is None and not args.quiet:
-            utils.print_next_step("remove")
+
+        if utils.yes_or_no(msg, path, yes=True):
+
+            # Remove package installation dir
+
+            shutil.rmtree(path)
+
+            # Remove package config dir as well without ask
+
+            path = utils.get_package_config_dir(model)
+            if os.path.exists(path):
+                shutil.rmtree(path)
+
+            # Ask if remove cached files
+
+            if cache is not None and utils.yes_or_no(
+                    "Remove cache '{}/' as well", cache, yes=False
+            ):
+                shutil.rmtree(cache)
+                archive = utils.get_package_archive_dir(model)
+                if os.path.exists(archive):
+                    shutil.rmtree(archive)
+        else:
+            if model is None and not args.quiet:
+                utils.print_next_step("remove")

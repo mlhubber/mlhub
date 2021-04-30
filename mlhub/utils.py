@@ -666,7 +666,6 @@ def is_description_file(name):
 
 
 def print_usage():
-    print(CMD)
     print(USAGE.format(CMD, MLHUB, get_init_dir(), VERSION, APP))
 
 
@@ -2568,7 +2567,7 @@ def print_on_stderr_exit(msg, *param, exitcode=1):
 def print_error(msg, *param):
     """Print error msg with APPX prefix on stderr."""
 
-    print_on_stderr("\n" + APPX + msg.format(*param))
+    print_on_stderr(APPX + msg.format(*param))
 
 
 def print_error_exit(msg, *param, exitcode=1):
@@ -2651,6 +2650,15 @@ def yes_or_no(msg, *params, yes=True):
 
     return answer
 
+def get_private(file_path, model):
+    if os.path.exists(file_path):
+        with open(file_path) as f:
+            private_info = json.load(f)
+    else:
+        print(f"Please run ml configure {model} to paste your private information.", file=sys.stderr)
+        sys.exit(1)
+
+    return private_info
 
 # ----------------------------------------------------------------------
 # Custom Exceptions
