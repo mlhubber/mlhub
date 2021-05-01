@@ -87,8 +87,7 @@ def generalkey(key_file, service, require_info, verbose=True, ask=True):
 
     msg_request = """\
 Private information is required to access this service.
-See the README for more details.
-"""
+See the README for more details."""
 
     msg_found = f"""\
 The following file has been found and is assumed to
@@ -119,7 +118,7 @@ That information has been saved into the file:
 
                 if "*" in item:
                     message_key = item.replace("*", "")
-                    key = ask_password(f"Please paste your {service} {message_key}: ")
+                    key = ask_password(f"\nPlease paste your {service} {message_key}: ")
                     if len(key) > 0:
                         js_key = message_key.replace(" ", "_")
                         data[js_key] = key
@@ -136,15 +135,15 @@ That information has been saved into the file:
             print(msg_saved, file=sys.stderr)
 
     else:
-        if ask:
-            print(msg_request, file=sys.stderr)
+        print(msg_request, file=sys.stderr)
 
+        if ask:
             data = {}
             for item in require_info:
 
                 if "*" in item:
                     message_key = item.replace("*", "")
-                    key = ask_password(f"Please paste your {service} {message_key}: ")
+                    key = ask_password(f"\nPlease paste your {service} {message_key}: ")
                     if len(key) > 0:
                         js_key = message_key.replace(" ", "_")
                         data[js_key] = key
