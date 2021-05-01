@@ -93,7 +93,6 @@ See the README for more details.
     msg_found = f"""\
 The following file has been found and is assumed to
 contain the private information for {service}.
-We will load the file and use this information.
 
     {key_file}"""
 
@@ -109,12 +108,11 @@ That information has been saved into the file:
             print(msg_found, file=sys.stderr)
 
         if ask:
-            yes = yes_or_no("\nDo you want to update your private information",
-                            yes=False)
+            yes = yes_or_no("\nLoad this private information (or type 'n' to update it)")
         else:
-            yes = False
+            yes = True
 
-        if yes:
+        if not yes:
             print("\n" + msg_request, file=sys.stderr)
             data = {}
             for item in require_info:
