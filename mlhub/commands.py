@@ -820,7 +820,7 @@ def configure_model(args):
         require_info = [x.strip() for x in private.split(',')]
         private_json_path = os.path.join(pkg_dir, "private.json")
         generalkey(private_json_path, require_info[0], require_info[1:],
-                   verbose=True, ask=!YES)
+                   verbose=True, ask=not YES)
 
     depspec = None
     if "dependencies" in entry:
