@@ -91,8 +91,9 @@ See the README for more details.
 """
 
     msg_found = f"""\
-The following file has been found and is assumed to contain the private
-information for {service}. We will load the file and use this information.
+The following file has been found and is assumed to
+contain the private information for {service}.
+We will load the file and use this information.
 
     {key_file}"""
 
