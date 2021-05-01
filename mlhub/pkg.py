@@ -68,7 +68,7 @@ def load_key(path):
     return key, endpoint
 
 
-def generalkey(key_file, service, require_info, verbose=True):
+def generalkey(key_file, service, require_info, verbose=True, ask=True):
     """Load key, location, etc from file or ask user and save.
 
     The user is asked for an general key, location, etc.
@@ -106,7 +106,11 @@ That information has been saved into the file:
     if os.path.isfile(key_file) and os.path.getsize(key_file) > 0:
         if verbose:
             print(msg_found, file=sys.stderr)
-        yes = yes_or_no("Do you want to update your private information", yes=False)
+        if ask:
+            yes = yes_or_no("Do you want to update your private information",
+                            yes=False)
+        else:
+            yes = False
 
         if yes:
             print("\n" + msg_request, file=sys.stderr)
@@ -132,28 +136,29 @@ That information has been saved into the file:
             print(msg_saved, file=sys.stderr)
 
     else:
-        print(msg_request, file=sys.stderr)
+        if ask:
+            print(msg_request, file=sys.stderr)
 
-        data = {}
-        for item in require_info:
+            data = {}
+            for item in require_info:
 
-            if "*" in item:
-                message_key = item.replace("*", "")
-                key = ask_password(f"Please paste your {service} {message_key}: ")
-                if len(key) > 0:
-                    js_key = message_key.replace(" ", "_")
-                    data[js_key] = key
-            else:
-                js_key = item.replace(" ", "_")
-                sys.stderr.write(f"Please paste your {item}: ")
-                other = input()
-                data[js_key] = other
+                if "*" in item:
+                    message_key = item.replace("*", "")
+                    key = ask_password(f"Please paste your {service} {message_key}: ")
+                    if len(key) > 0:
+                        js_key = message_key.replace(" ", "_")
+                        data[js_key] = key
+                else:
+                    js_key = item.replace(" ", "_")
+                    sys.stderr.write(f"Please paste your {item}: ")
+                    other = input()
+                    data[js_key] = other
 
-        # Write data into json file
-        with open(key_file, "w") as outfile:
-            json.dump(data, outfile)
-        outfile.close()
-        print(msg_saved, file=sys.stderr)
+            # Write data into json file
+            with open(key_file, "w") as outfile:
+                json.dump(data, outfile)
+            outfile.close()
+            print(msg_saved, file=sys.stderr)
 
 
 def ask_password(prompt=None):
