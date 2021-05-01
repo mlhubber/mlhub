@@ -89,12 +89,12 @@ def generalkey(key_file, service, require_info, verbose=True, ask=True):
 Private information is required to access this service.
 See the README for more details.
 """
+
     msg_found = f"""\
 The following file has been found and is assumed to contain the private
 information for {service}. We will load the file and use this information.
 
-    {key_file}
-"""
+    {key_file}"""
 
     msg_saved = """
 That information has been saved into the file:
@@ -106,8 +106,9 @@ That information has been saved into the file:
     if os.path.isfile(key_file) and os.path.getsize(key_file) > 0:
         if verbose:
             print(msg_found, file=sys.stderr)
+
         if ask:
-            yes = yes_or_no("Do you want to update your private information",
+            yes = yes_or_no("\nDo you want to update your private information",
                             yes=False)
         else:
             yes = False
