@@ -85,9 +85,9 @@ def generalkey(key_file, service, require_info, verbose=True):
 
 
 
-    msg_request = f"""\
-A set of private information is required to access this service (and to 
-run this command).See the README for more details. 
+    msg_request = """\
+Private information is required to access this service.
+See the README for more details.
 """
     msg_found = f"""\
 The following file has been found and is assumed to contain the private
@@ -121,7 +121,7 @@ That information has been saved into the file:
                         data[js_key] = key
                 else:
                     js_key = item.replace(" ", "_")
-                    sys.stderr.write(f"Please paste your {item}: ")
+                    sys.stderr.write(f"Please paste your {service} {item}: ")
                     other = input()
                     data[js_key] = other
 
