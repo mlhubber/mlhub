@@ -13,13 +13,13 @@ exit-code == 0
 stdout equals <<EOF
 Package https://codeload.github.com/gjwgit/azspeech/zip/master
 
-Downloading 'azspeech-master.zip' (424,439 bytes) ...
+Downloading 'azspeech-master.zip' (424,530 bytes) ...
 
 Extracting 'azspeech-master.zip' ...
 
-Found 'azspeech' version 4.2.3.
+Found 'azspeech' version 4.2.4.
 
-Installed 'azspeech' into '/home/gjw/.mlhub/azspeech/' (586,746 bytes).
+Installed 'azspeech' into '/home/gjw/.mlhub/azspeech/' (587,234 bytes).
 
 To configure the package:
 

@@ -23,7 +23,7 @@ Hello World
 Use this as a template and test of mlhub.ai for Python based tools.
 
 Introduce the package and technology here with some introductory text
-for the  user to read whilst libraries get loaded.
+for the user to read whilst libraries get loaded.
 
 Press Enter to continue: 
 ========================
@@ -36,7 +36,7 @@ In this simple example here we print the version of a dependency.
 
 Package wget is version 3.2.
 
-Press Enter to continue:
+Press Enter to continue: 
 EOF
 
 stderr is-empty

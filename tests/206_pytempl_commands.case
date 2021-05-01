@@ -11,13 +11,13 @@ including _common_setup.xly
 exit-code == 0
 
 stdout equals <<EOF
-The 'pytempl' model (MLHub Template and Testing for Pythan) supports the
-following commands:
+The 'pytempl' model (python template and testing) supports the following
+commands:
 
   $ ml demo pytempl
-    Run the template demo script.
+    Template demo script.
 
-To run the template demo script:
+To template demo script:
 
   $ ml demo pytempl
 

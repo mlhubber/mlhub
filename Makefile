@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Friday 2021-04-30 17:43:40 AEST Graham Williams>
+# Time-stamp: <Saturday 2021-05-01 09:15:43 AEST Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -80,6 +80,9 @@ mlhub:
   test		Run series of tests using exactly.
   testNNN	Run an individual test by number.
   actNNN	Run an individual with act but not assert.
+  diffNNN	Compare expected and actual.
+
+  testc		Run tests over curated models.
 
 endef
 export HELP
@@ -151,7 +154,17 @@ test%: $(TEST)
 
 act%: TEST=$(wildcard tests/$*_*.case)
 act%: $(TEST)
-	PYTHONPATH=$(PWD) exactly $(TEST) --act
+	@PYTHONPATH=$(PWD) exactly $(TEST) --act
+
+out%: TEST=$(wildcard tests/$*_*.case)
+out%: $(TEST)
+	@sed -n '/^stdout equals <<EOF/,/^EOF/{p;/^EOF/q}' $(TEST) | tail +2 | head -n -1
+
+diff%:
+	@make out$* > EXPECT.tmp
+	@make act$* > ACTUAL.tmp
+	@meld EXPECT.tmp ACTUAL.tmp
+	@rm -f EXPECT.tmp ACTUAL.tmp
 
 DESTDIR ?= /home/$(USER)
 PREFIX ?= /.local

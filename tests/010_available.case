@@ -21,7 +21,8 @@ azanomaly    3.1.4  Azure Anomaly Detection.
 azcv         2.6.4  Azure Computer Vision.                                  
 azface       2.1.4  Azure Face API demo.                                    
 azlang       0.0.3  Azure language cognitive service on the cloud.          
-azspeech     4.2.1  Azure Speech cognitive services on the cloud.           
+azluis       0.0.1  Azure Speech cognitive services on the cloud.           
+azspeech     4.2.4  Azure Speech cognitive services on the cloud.           
 aztext       2.4.7  Azure Text Analytics cognitive services on the cloud.   
 aztranslate  2.4.6  Azure Text Translation cognitive services on the cloud. 
 barchart     2.0.2  Demonstrate the concept of barcharts.                   
@@ -50,7 +51,7 @@ sgnc         0.1.1  Node classification for graphs using StellarGraph.
 speech2txt   0.1.3  Convert audio speech to text across multiple services.  
 tapwater     0.0.3  Factor analysis for understanding customers             
 webcam       0.2.21 Capture video, process, feed dummy device for Zoom.     
-zynlp        0.0.8  Tweets sentiment analysis.                              
+zynlp        0.0.11 Tweets sentiment analysis.                              
 
 To install a named model, local model file or URL:
 
