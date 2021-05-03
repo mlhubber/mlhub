@@ -107,7 +107,7 @@ That information has been saved into the file:
             print(msg_found, file=sys.stderr)
 
         if ask:
-            yes = yes_or_no("\nLoad this private information (or type 'n' to update it)")
+            yes = yes_or_no("\nUse this private information (type 'n' to update)")
         else:
             yes = True
 
