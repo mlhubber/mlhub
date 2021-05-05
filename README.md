@@ -1,13 +1,23 @@
 MLHub Package
 =============
 
-Provides the ml command.
+Visit the new MLHub Book at https://survivor.togaware.com/mlhub/
 
-Also the Python mlhub pacakge and R mlhub package.
+MLHub packages represent the latest state of the art in AI, Machine
+Learning and Data Science. Each package provides demonstrations and
+utilities to make AI accessible to you.
 
-The python mlhub package is installed to pypi.
+The MLHub package provides the ml command line tool to manage MLHub
+packages: install, configure, demo, run.
 
-The R mlhub package is installed from github:
+The MLHub also provides the Python and R mlhub packages to support
+package developers.
 
-	sudo Rscript -e 'devtools::install_github("mlhubber/mlhub", quiet=TRUE)'
+The python mlhub package is installed from PyPI:
+
+	$ pip3 install mlhub
+
+The R mlhub package can be installed from github:
+
+	$ sudo Rscript -e 'devtools::install_github("mlhubber/mlhub", quiet=TRUE)'
 
