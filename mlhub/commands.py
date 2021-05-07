@@ -1119,9 +1119,8 @@ or else connect to the server's desktop using a local X server like X2Go.
 def donate(args):
     """Consider a donation to the author."""
 
-    print(
-        "Please assist by implementing this command: support donations to the author."
-    )
+    print("Please assist by implementing this command:",
+          "support donations to the author.")
 
 
 # ------------------------------------------------------------------------
@@ -1159,6 +1158,10 @@ def remove_model(args):
         path = utils.get_init_dir()
         if os.path.exists(path):
             msg = "*Completely* remove all installed models in '{}'"
+            if YES:
+                print("MLHub does not allow automatic uninstall",
+                      "without questioning it!")
+            YES = False
         else:
             msg = "The local model folder '{}' does not exist. Nothing to do."
             msg = msg.format(path)
