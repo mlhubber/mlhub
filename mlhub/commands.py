@@ -1193,7 +1193,7 @@ def remove_model(args):
 
     else:
 
-        if utils.yes_or_no(msg, path, yes=True):
+        if utils.yes_or_no(msg, path, yes=False, certain=True):
 
             # Remove package installation dir
 
@@ -1216,4 +1216,5 @@ def remove_model(args):
                     shutil.rmtree(archive)
         else:
             if model is None and not args.quiet:
-                utils.print_next_step("remove")
+                print("MLHub has not been removed.")
+                utils.print_next_step("uninstall")
