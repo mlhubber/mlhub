@@ -2629,7 +2629,7 @@ def interpreter(script):
     return intrprt
 
 
-def yes_or_no(msg, *params, yes=True):
+def yes_or_no(msg, *params, yes=True, certain=False):
     """Query yes or no with message.
 
     Args:
@@ -2637,7 +2637,9 @@ def yes_or_no(msg, *params, yes=True):
         yes (bool): Indicates whether the default answer is yes or no.
     """
 
-    print(msg.format(*params) + (" [Y/n]?" if yes else " [y/N]?"), end=" ")
+    choices = " [Y/n]?" if yes else " [yes/N]" if certain else " [y/N]?"
+    
+    print(msg.format(*params) + choices, end=" ")
     choice = input().lower()
 
     answer = True if yes else False
@@ -2645,7 +2647,10 @@ def yes_or_no(msg, *params, yes=True):
     if yes and choice == "n":
         answer = False
 
-    if not yes and choice == "y":
+    if not yes and not certain and choice == "y":
+        answer = True
+
+    if not yes and certain and choice == "yes":
         answer = True
 
     return answer
