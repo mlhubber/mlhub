@@ -1160,7 +1160,7 @@ def remove_model(args):
             msg = "*Completely* remove all installed models in '{}'"
             if YES:
                 print("MLHub does not allow automatic uninstall",
-                      "without questioning it!")
+                      "without questioning it!\n")
             YES = False
         else:
             msg = "The local model folder '{}' does not exist. Nothing to do."
@@ -1219,5 +1219,5 @@ def remove_model(args):
                     shutil.rmtree(archive)
         else:
             if model is None and not args.quiet:
-                print("MLHub has not been removed.")
+                print("\nMLHub has not been removed.")
                 utils.print_next_step("uninstall")
