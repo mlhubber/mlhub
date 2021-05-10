@@ -121,9 +121,11 @@ That information has been saved into the file:
                     key = ask_password(f"\nPlease paste your {service} {message_key}: ")
                     if len(key) > 0:
                         js_key = message_key.replace(" ", "_")
+                        js_key = js_key.lower()
                         data[js_key] = key
                 else:
                     js_key = item.replace(" ", "_")
+                    js_key = js_key.lower()
                     sys.stderr.write(f"Please paste your {service} {item}: ")
                     other = input()
                     data[js_key] = other
@@ -146,9 +148,11 @@ That information has been saved into the file:
                     key = ask_password(f"\nPlease paste your {service} {message_key}: ")
                     if len(key) > 0:
                         js_key = message_key.replace(" ", "_")
+                        js_key = js_key.lower()
                         data[js_key] = key
                 else:
                     js_key = item.replace(" ", "_")
+                    js_key = js_key.lower()
                     sys.stderr.write(f"Please paste your {item}: ")
                     other = input()
                     data[js_key] = other
