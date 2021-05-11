@@ -815,11 +815,18 @@ def configure_model(args):
     entry = utils.load_description(model)
 
     private = None
+
     if "private" in entry["meta"]:
-        private = entry["meta"]["private"]
-        require_info = [x.strip() for x in private.split(',')]
+        require_info = entry["meta"]["private"]
+
+        private_out = []
+
+        for item in require_info.items():
+            elements = [x.strip() for x in item[1].split(',')]
+            private_out.append([item[0], elements])
+
         private_json_path = os.path.join(pkg_dir, "private.json")
-        generalkey(private_json_path, require_info[0], require_info[1:],
+        generalkey(private_json_path, private_out,
                    verbose=True, ask=not YES)
 
     depspec = None
