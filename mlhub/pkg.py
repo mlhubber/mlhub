@@ -68,7 +68,7 @@ def load_key(path):
     return key, endpoint
 
 
-def generalkey(key_file, service, require_info, verbose=True, ask=True):
+def generalkey(key_file, priv_info, verbose=True, ask=True):
     """Load key, location, etc from file or ask user and save.
 
     The user is asked for an general key, location, etc.
@@ -91,7 +91,7 @@ See the README for more details."""
 
     msg_found = f"""\
 The following file has been found and is assumed to
-contain the private information for {service}.
+contain the private information.
 
     {key_file}"""
 
@@ -114,19 +114,27 @@ That information has been saved into the file:
         if not yes:
             print("\n" + msg_request, file=sys.stderr)
             data = {}
-            for item in require_info:
+            for item in priv_info:
+                service = item[0]
+                nested_dic = {}
 
-                if "*" in item:
-                    message_key = item.replace("*", "")
-                    key = ask_password(f"\nPlease paste your {service} {message_key}: ")
-                    if len(key) > 0:
-                        js_key = message_key.replace(" ", "_")
-                        data[js_key] = key
-                else:
-                    js_key = item.replace(" ", "_")
-                    sys.stderr.write(f"Please paste your {service} {item}: ")
-                    other = input()
-                    data[js_key] = other
+                for elem in item[1]:
+
+                    if "*" in elem:
+                        message_key = elem.replace("*", "")
+                        key = ask_password(f"\nPlease paste your {service} {message_key}: ")
+                        if len(key) > 0:
+                            js_key = message_key.replace(" ", "_")
+                            js_key = js_key.lower()
+                            nested_dic[js_key] = key
+                    else:
+                        js_key = elem.replace(" ", "_")
+                        js_key = js_key.lower()
+                        sys.stderr.write(f"Please paste your {service} {elem}: ")
+                        other = input()
+                        nested_dic[js_key] = other
+
+                data[service] = nested_dic
 
             # Write data into json file
             with open(key_file, "w") as outfile:
@@ -139,19 +147,28 @@ That information has been saved into the file:
 
         if ask:
             data = {}
-            for item in require_info:
+            for item in priv_info:
 
-                if "*" in item:
-                    message_key = item.replace("*", "")
-                    key = ask_password(f"\nPlease paste your {service} {message_key}: ")
-                    if len(key) > 0:
-                        js_key = message_key.replace(" ", "_")
-                        data[js_key] = key
-                else:
-                    js_key = item.replace(" ", "_")
-                    sys.stderr.write(f"Please paste your {item}: ")
-                    other = input()
-                    data[js_key] = other
+                service = item[0]
+                nested_dic = {}
+
+                for elem in item[1]:
+
+                    if "*" in elem:
+                        message_key = elem.replace("*", "")
+                        key = ask_password(f"\nPlease paste your {service} {message_key}: ")
+                        if len(key) > 0:
+                            js_key = message_key.replace(" ", "_")
+                            js_key = js_key.lower()
+                            nested_dic[js_key] = key
+                    else:
+                        js_key = elem.replace(" ", "_")
+                        js_key = js_key.lower()
+                        sys.stderr.write(f"Please paste your {service} {elem}: ")
+                        other = input()
+                        nested_dic[js_key] = other
+
+                data[service] = nested_dic
 
             # Write data into json file
             with open(key_file, "w") as outfile:
