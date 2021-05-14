@@ -123,10 +123,9 @@ That information has been saved into the file:
                     if "*" in elem:
                         message_key = elem.replace("*", "")
                         key = ask_password(f"\nPlease paste your {service} {message_key}: ")
-                        if len(key) > 0:
-                            js_key = message_key.replace(" ", "_")
-                            js_key = js_key.lower()
-                            nested_dic[js_key] = key
+                        js_key = message_key.replace(" ", "_")
+                        js_key = js_key.lower()
+                        nested_dic[js_key] = key
                     else:
                         js_key = elem.replace(" ", "_")
                         js_key = js_key.lower()
@@ -157,10 +156,9 @@ That information has been saved into the file:
                     if "*" in elem:
                         message_key = elem.replace("*", "")
                         key = ask_password(f"\nPlease paste your {service} {message_key}: ")
-                        if len(key) > 0:
-                            js_key = message_key.replace(" ", "_")
-                            js_key = js_key.lower()
-                            nested_dic[js_key] = key
+                        js_key = message_key.replace(" ", "_")
+                        js_key = js_key.lower()
+                        nested_dic[js_key] = key
                     else:
                         js_key = elem.replace(" ", "_")
                         js_key = js_key.lower()
