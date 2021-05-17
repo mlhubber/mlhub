@@ -1982,20 +1982,6 @@ def get_package_name():
     return os.environ.get("_MLHUB_MODEL_NAME", "")
 
 
-def get_cmd_cwd():
-    """Return the dir where model pkg command is invoked.
-
-    For example, if `cd /temp; ml demo xxx`, then get_cmd_cwd()
-    returns `/temp`.  It is used by model pkg developer, and is
-    different from where the model pkg script is located.
-
-    `CMD_CWD` is a environment variable passed by
-    mlhub.utils.dispatch() when invoke model pkg script.
-    """
-
-    return os.environ.get("_MLHUB_CMD_CWD", "")
-
-
 def get_package_dir(model=None):
     """Return the dir where the model package should be installed."""
 
@@ -2654,23 +2640,6 @@ def yes_or_no(msg, *params, yes=True, certain=False):
         answer = True
 
     return answer
-
-def get_private(file_path, model):
-    if os.path.exists(file_path):
-        with open(file_path) as f:
-            private_info = json.load(f)
-            values = list(private_info.values())
-            for item in values:
-                for i in list(item.values()):
-                    if i is "":
-                        print(f"Your private information is blank. "
-                              f"Please run ml configure {model} to paste your private information.", file=sys.stderr)
-                        sys.exit(1)
-    else:
-        print(f"Please run ml configure {model} to paste your private information.", file=sys.stderr)
-        sys.exit(1)
-
-    return private_info
 
 # ----------------------------------------------------------------------
 # Custom Exceptions
