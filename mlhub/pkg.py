@@ -313,7 +313,6 @@ def get_private(file_path, model):
                         sys.exit(f"Your private information is blank. "
                                  f"Please run ml configure {model} to paste your private information.")
     else:
-        print(f"Please run ml configure {model} to paste your private information.", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(f"Please run ml configure {model} to paste your private information.")
 
     return private_info
