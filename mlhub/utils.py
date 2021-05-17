@@ -2659,6 +2659,13 @@ def get_private(file_path, model):
     if os.path.exists(file_path):
         with open(file_path) as f:
             private_info = json.load(f)
+            values = list(private_info.values())
+            for item in values:
+                for i in list(item.values()):
+                    if i is "":
+                        print(f"Your private information is blank. "
+                              f"Please run ml configure {model} to paste your private information.", file=sys.stderr)
+                        sys.exit(1)
     else:
         print(f"Please run ml configure {model} to paste your private information.", file=sys.stderr)
         sys.exit(1)
