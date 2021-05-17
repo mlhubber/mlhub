@@ -83,8 +83,6 @@ def generalkey(key_file, priv_info, verbose=True, ask=True):
 
     # Set up messages.
 
-
-
     msg_request = """\
 Private information is required to access this service.
 See the README for more details."""
@@ -123,10 +121,9 @@ That information has been saved into the file:
                     if "*" in elem:
                         message_key = elem.replace("*", "")
                         key = ask_password(f"\nPlease paste your {service} {message_key}: ")
-                        if len(key) > 0:
-                            js_key = message_key.replace(" ", "_")
-                            js_key = js_key.lower()
-                            nested_dic[js_key] = key
+                        js_key = message_key.replace(" ", "_")
+                        js_key = js_key.lower()
+                        nested_dic[js_key] = key
                     else:
                         js_key = elem.replace(" ", "_")
                         js_key = js_key.lower()
@@ -157,10 +154,9 @@ That information has been saved into the file:
                     if "*" in elem:
                         message_key = elem.replace("*", "")
                         key = ask_password(f"\nPlease paste your {service} {message_key}: ")
-                        if len(key) > 0:
-                            js_key = message_key.replace(" ", "_")
-                            js_key = js_key.lower()
-                            nested_dic[js_key] = key
+                        js_key = message_key.replace(" ", "_")
+                        js_key = js_key.lower()
+                        nested_dic[js_key] = key
                     else:
                         js_key = elem.replace(" ", "_")
                         js_key = js_key.lower()
@@ -290,3 +286,33 @@ def is_url(url):
         return True
     else:
         return False
+
+
+def get_cmd_cwd():
+    """Return the dir where model pkg command is invoked.
+
+    For example, if `cd /temp; ml demo xxx`, then get_cmd_cwd()
+    returns `/temp`.  It is used by model pkg developer, and is
+    different from where the model pkg script is located.
+
+    `CMD_CWD` is a environment variable passed by
+    mlhub.utils.dispatch() when invoke model pkg script.
+    """
+
+    return os.environ.get("_MLHUB_CMD_CWD", "")
+
+
+def get_private(file_path, model):
+    if os.path.exists(file_path):
+        with open(file_path) as f:
+            private_info = json.load(f)
+            values = list(private_info.values())
+            for item in values:
+                for i in list(item.values()):
+                    if i is "":
+                        sys.exit(f"Your private information is blank. "
+                                 f"Please run ml configure {model} to paste your private information.")
+    else:
+        sys.exit(f"Please run ml configure {model} to paste your private information.")
+
+    return private_info
