@@ -85,7 +85,8 @@ def generalkey(key_file, priv_info, verbose=True, ask=True):
 
     msg_request = """\
 Private information is required to access this service.
-See the README for more details."""
+See the README for more details.
+"""
 
     msg_found = f"""\
 The following file has been found and is assumed to
@@ -120,7 +121,7 @@ That information has been saved into the file:
 
                     if "*" in elem:
                         message_key = elem.replace("*", "")
-                        key = ask_password(f"\nPlease paste your {service} {message_key}: ")
+                        key = ask_password(f"Please paste your {service} {message_key}: ")
                         js_key = message_key.replace(" ", "_")
                         js_key = js_key.lower()
                         nested_dic[js_key] = key
@@ -153,7 +154,7 @@ That information has been saved into the file:
 
                     if "*" in elem:
                         message_key = elem.replace("*", "")
-                        key = ask_password(f"\nPlease paste your {service} {message_key}: ")
+                        key = ask_password(f"Please paste your {service} {message_key}: ")
                         js_key = message_key.replace(" ", "_")
                         js_key = js_key.lower()
                         nested_dic[js_key] = key
