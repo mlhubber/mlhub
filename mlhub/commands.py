@@ -825,15 +825,18 @@ def configure_model(args):
             elements = [x.strip() for x in item[1].split(',')]
             private_out.append([item[0], elements])
 
-        # Create empty json file
         private_json_path = os.path.join(pkg_dir, "private.json")
-        data = {}
-        with open(private_json_path, "w") as outfile:
-            json.dump(data, outfile)
-        outfile.close()
 
         cache_dir = utils.create_package_cache_dir(model)
+
         cache = os.path.join(cache_dir, "private.json")
+
+        # First run ml install, Create empty json file in cache
+        if not os.path.exists(cache):
+            data = {}
+            with open(cache, "w") as outfile:
+                json.dump(data, outfile)
+            outfile.close()
 
         utils.make_symlink(cache, private_json_path)
 
