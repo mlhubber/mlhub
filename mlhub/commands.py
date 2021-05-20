@@ -831,17 +831,15 @@ def configure_model(args):
 
         cache = os.path.join(cache_dir, "private.json")
 
-        # First run ml configure, Create empty json file in cache
+        # First run ml configure, Create private.json in cache
         if not os.path.exists(cache):
-            data = {}
-            with open(cache, "w") as outfile:
-                json.dump(data, outfile)
-            outfile.close()
-
-        utils.make_symlink(cache, private_json_path)
-
-        generalkey(private_json_path, private_out,
-                   verbose=True, ask=not YES)
+            generalkey(cache, private_out,
+                       verbose=True, ask=not YES)
+            utils.make_symlink(cache, private_json_path)
+        else:
+            utils.make_symlink(cache, private_json_path)
+            generalkey(private_json_path, private_out,
+                       verbose=True, ask=not YES)
 
     depspec = None
     if "dependencies" in entry:
