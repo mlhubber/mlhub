@@ -831,7 +831,7 @@ def configure_model(args):
 
         cache = os.path.join(cache_dir, "private.json")
 
-        # First run ml install, Create empty json file in cache
+        # First run ml configure, Create empty json file in cache
         if not os.path.exists(cache):
             data = {}
             with open(cache, "w") as outfile:
