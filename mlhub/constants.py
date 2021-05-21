@@ -93,6 +93,7 @@ OPTIONS = {
     # All the keys in dict correspond to the keyword arguments of
     # 'argparse.ArgumentParser.add_argument()'.
     "--version": {
+        "alias": ["-v"],
         "help": "display version information of ml or a package and exit.",
         "action": "store_true",
     },
