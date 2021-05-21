@@ -239,6 +239,14 @@ COMMANDS = {
         "func": "remove_model",
         "next": ["installed", "install"],
     },
+    "version": {
+        "description": "display version information of ml or a package and exit.",
+        "argument": {
+            "model": {"nargs": "?"},
+        },
+        "usage": "  version     <model>   display version information",
+        "func": "check_version",
+    },
     # 'demo': {
     #     'description': "run the model's demonstration",
     #     'alias': ['print', 'display', 'score', 'rebuild'],
