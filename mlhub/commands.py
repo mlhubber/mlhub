@@ -775,7 +775,7 @@ def configure_model(args):
 
     if not args.model:
 
-        # Configure MLHUB per se.
+        # Configure MLHUB itself.
         # Includes bash completion and system pre-requisites
 
         if distro.id() in ["debian", "ubuntu"]:
