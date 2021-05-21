@@ -44,6 +44,7 @@ import textwrap
 import urllib.request
 import yaml
 from mlhub.pkg import generalkey
+import mlhub.constants as constants
 
 from distutils.version import StrictVersion
 from mlhub.constants import (
@@ -1240,3 +1241,16 @@ def remove_model(args):
             if model is None and not args.quiet:
                 print("\nMLHub has not been removed.")
                 utils.print_next_step("uninstall")
+
+
+# ------------------------------------------------------------------------
+# Version
+# ------------------------------------------------------------------------
+
+
+def check_version(args):
+    model = args.model
+    if model:
+        print(model, "version", utils.get_version(model))
+    else:
+        print(constants.APP, "version", utils.get_version())

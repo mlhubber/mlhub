@@ -93,7 +93,6 @@ OPTIONS = {
     # All the keys in dict correspond to the keyword arguments of
     # 'argparse.ArgumentParser.add_argument()'.
     "--version": {
-        "alias": ["-v"],
         "help": "display version information of ml or a package and exit.",
         "action": "store_true",
     },
@@ -239,6 +238,14 @@ COMMANDS = {
         "usage": "  uninstall    [<model>]  uninstall a model or all models",
         "func": "remove_model",
         "next": ["installed", "install"],
+    },
+    "version": {
+        "description": "display version information of ml or a package and exit.",
+        "argument": {
+            "model": {"nargs": "?"},
+        },
+        "usage": "  version     <model>   display version information",
+        "func": "check_version",
     },
     # 'demo': {
     #     'description': "run the model's demonstration",
