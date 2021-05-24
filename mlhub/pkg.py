@@ -303,7 +303,16 @@ def get_cmd_cwd():
     return os.environ.get("_MLHUB_CMD_CWD", "")
 
 
-def get_private(file_path, model):
+def get_private(file_path, model, server):
+    """Return a list of private information under one server
+
+    For example if the server is Azure Speech, then
+    get_private("./.mlhub/azspeech/private.json", "azspeech", "Azure Speech")
+    returns ["asdfghjkl", "westus"]. The first element is key,and the second
+    is location. The order in the list is the same as the order in private
+    row in MLHUB.yaml.
+
+    """
     if os.path.exists(file_path):
         with open(file_path) as f:
             private_info = json.load(f)
@@ -316,4 +325,6 @@ def get_private(file_path, model):
     else:
         sys.exit(f"Please run ml configure {model} to paste your private information.")
 
-    return private_info
+    values = list(private_info[server].values())
+
+    return values
