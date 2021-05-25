@@ -347,8 +347,8 @@ def get_private(file_path="private.json", server=None):
                 for item in values:
                     for i in list(item.values()):
                         if i is "":
-                            sys.exit(f"Your private information is blank. "
-                                     f"Please run ml configure <model> to paste your private information.")
+                            sys.exit("Your private information is blank. "
+                                     "Please run ml configure <model> to paste your private information.")
                 if server is None:
                     return list(values[0].values())
                 else:
@@ -364,9 +364,9 @@ def get_private(file_path="private.json", server=None):
             else:
                 for item in values:
                     if item is "":
-                        sys.exit(f"Your private information is blank. "
-                                 f"Please run ml configure <model> to paste your private information.")
+                        sys.exit("Your private information is blank. "
+                                 "Please run ml configure <model> to paste your private information.")
                 return values
 
     else:
-        sys.exit(f"Please run ml configure <model> to paste your private information.")
+        sys.exit("Please run ml configure <model> to paste your private information.")
