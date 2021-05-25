@@ -113,26 +113,31 @@ That information has been saved into the file:
         if not yes:
             print("\n" + msg_request, file=sys.stderr)
             data = {}
-            for item in priv_info:
-                service = item[0]
-                nested_dic = {}
 
-                for elem in item[1]:
+            if any(isinstance(el, list) for el in priv_info):
 
-                    if "*" in elem:
-                        message_key = elem.replace("*", "")
-                        key = ask_password(f"Please paste your {service} {message_key}: ")
-                        js_key = message_key.replace(" ", "_")
-                        js_key = js_key.lower()
-                        nested_dic[js_key] = key
-                    else:
-                        js_key = elem.replace(" ", "_")
-                        js_key = js_key.lower()
-                        sys.stderr.write(f"Please paste your {service} {elem}: ")
-                        other = input()
-                        nested_dic[js_key] = other
+                # private:
+                #   Azure speech:key*, location
+                # In this case, the priv_info = [[Azure speech, [key, location]]]
 
-                data[service] = nested_dic
+                for item in priv_info:
+                    service = item[0]
+                    nested_dic = {}
+
+                    for elem in item[1]:
+                        key_or_other = ask_info(elem, service)
+                        nested_dic[elem] = key_or_other
+
+                    data[service] = nested_dic
+
+            # private:
+            #   Azure speech:key*, location
+            # In this case, the priv_info = [key, location]
+
+            else:
+                for item in priv_info:
+                    key_or_other = ask_info(item,"")
+                    data[item] = key_or_other
 
             # Write data into json file
             with open(key_file, "w") as outfile:
@@ -145,33 +150,47 @@ That information has been saved into the file:
 
         if ask:
             data = {}
-            for item in priv_info:
 
-                service = item[0]
-                nested_dic = {}
+            if any(isinstance(el, list) for el in priv_info):
 
-                for elem in item[1]:
+                # private:
+                #   Azure speech:key*, location
+                # In this case, the priv_info = [[Azure speech, [key, location]]]
 
-                    if "*" in elem:
-                        message_key = elem.replace("*", "")
-                        key = ask_password(f"Please paste your {service} {message_key}: ")
-                        js_key = message_key.replace(" ", "_")
-                        js_key = js_key.lower()
-                        nested_dic[js_key] = key
-                    else:
-                        js_key = elem.replace(" ", "_")
-                        js_key = js_key.lower()
-                        sys.stderr.write(f"Please paste your {service} {elem}: ")
-                        other = input()
-                        nested_dic[js_key] = other
+                for item in priv_info:
+                    service = item[0]
+                    nested_dic = {}
 
-                data[service] = nested_dic
+                    for elem in item[1]:
+                        key_or_other = ask_info(elem, service)
+                        nested_dic[elem] = key_or_other
+
+                    data[service] = nested_dic
+
+            # private:
+            #   Azure speech:key*, location
+            # In this case, the priv_info = [key, location]
+
+            else:
+                for item in priv_info:
+                    key_or_other = ask_info(item, "")
+                    data[item] = key_or_other
 
             # Write data into json file
             with open(key_file, "w") as outfile:
                 json.dump(data, outfile)
             outfile.close()
             print(msg_saved, file=sys.stderr)
+
+
+def ask_info(item, service):
+    if "*" in item:
+        item = item.replace("*", "")
+        key_or_other = ask_password(f"Please paste your {service} {item}: ")
+    else:
+        sys.stderr.write(f"Please paste your {item}: ")
+        key_or_other = input()
+    return key_or_other
 
 
 def ask_password(prompt=None):
@@ -303,28 +322,51 @@ def get_cmd_cwd():
     return os.environ.get("_MLHUB_CMD_CWD", "")
 
 
-def get_private(file_path, model, server):
-    """Return a list of private information under one server
+def get_private(file_path="private.json", server=None):
+    """Return a list of private information
 
-    For example if the server is Azure Speech, then
-    get_private("./.mlhub/azspeech/private.json", "azspeech", "Azure Speech")
+    For example when call get_private()
     returns ["asdfghjkl", "westus"]. The first element is key,and the second
     is location. The order in the list is the same as the order in private
     row in MLHUB.yaml.
+    If server is None, this function will return the first private information,
+    otherwise it will return the specific one.
 
     """
-    if os.path.exists(file_path):
-        with open(file_path) as f:
+    path = os.path.join(os.getcwd(), file_path)
+    if os.path.exists(path):
+        with open(path) as f:
             private_info = json.load(f)
             values = list(private_info.values())
-            for item in values:
-                for i in list(item.values()):
-                    if i is "":
+
+            # private:
+            #   Azure speech:key*, location
+            # In this case, the values = [[Azure speech, asdfghj(key), australia(location)]]
+
+            if any(isinstance(el, dict) for el in values):
+                for item in values:
+                    for i in list(item.values()):
+                        if i is "":
+                            sys.exit(f"Your private information is blank. "
+                                     f"Please run ml configure <model> to paste your private information.")
+                if server is None:
+                    return list(values[0].values())
+                else:
+                    if server in list(private_info.keys()):
+                        return list(private_info[server].values())
+                    else:
+                        sys.exit("The server's name doesn't exist.\n"
+                                 "Please make sure you have the correct name.")
+
+            # private:key*, location
+            # In this case, the values = [asdfghj(key), australia(location)]
+
+            else:
+                for item in values:
+                    if item is "":
                         sys.exit(f"Your private information is blank. "
-                                 f"Please run ml configure {model} to paste your private information.")
+                                 f"Please run ml configure <model> to paste your private information.")
+                return values
+
     else:
-        sys.exit(f"Please run ml configure {model} to paste your private information.")
-
-    values = list(private_info[server].values())
-
-    return values
+        sys.exit(f"Please run ml configure <model> to paste your private information.")

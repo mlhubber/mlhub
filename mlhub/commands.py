@@ -822,9 +822,20 @@ def configure_model(args):
 
         private_out = []
 
-        for item in require_info.items():
-            elements = [x.strip() for x in item[1].split(',')]
-            private_out.append([item[0], elements])
+        # if the private entry is :
+        # private: key*, location
+
+        if isinstance(require_info, str):
+            private_out = [x.strip() for x in require_info.split(',')]
+
+        # if the private entry is :
+        # private:
+        #   Azure Speech: key*, location
+
+        else:
+            for item in require_info.items():
+                elements = [x.strip() for x in item[1].split(',')]
+                private_out.append([item[0], elements])
 
         private_json_path = os.path.join(pkg_dir, "private.json")
 
