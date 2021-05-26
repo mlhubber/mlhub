@@ -2615,8 +2615,8 @@ def interpreter(script):
     return intrprt
 
 
-def yes_or_no(msg, *params, yes=True, certain=False):
-    """Query yes or no with message.
+def yes_or_no(msg, *params, yes=True, certain=False, third_choice=False):
+    """Query yes, no or display with message.
 
     Args:
         msg (str): Message to be printed out.
@@ -2624,6 +2624,9 @@ def yes_or_no(msg, *params, yes=True, certain=False):
     """
 
     choices = " [Y/n]?" if yes else " [yes/N]" if certain else " [y/N]?"
+
+    if third_choice == True:
+        choices  = " [Y/d/n]?" if yes else " [yes/d/N]" if certain else " [y/d/N]?"
     
     print(msg.format(*params) + choices, end=" ")
     choice = input().lower()
@@ -2638,6 +2641,9 @@ def yes_or_no(msg, *params, yes=True, certain=False):
 
     if not yes and certain and choice == "yes":
         answer = True
+
+    if choice == "d":
+        answer = "d"
 
     return answer
 

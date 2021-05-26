@@ -106,9 +106,16 @@ That information has been saved into the file:
             print(msg_found, file=sys.stderr)
 
         if ask:
-            yes = yes_or_no("\nUse this private information (type 'n' to update)")
+            yes = yes_or_no("\nUse this private information (type 'd' to "
+                            "display, type 'n' to update)", third_choice=True)
         else:
             yes = True
+
+        if yes == "d":
+            with open(key_file, 'r') as handle:
+                parsed = json.load(handle)
+            print(json.dumps(parsed, indent=4))
+            yes = yes_or_no("\nUse this private information (type 'n' to update)")
 
         if not yes:
             print("\n" + msg_request, file=sys.stderr)
@@ -144,6 +151,7 @@ That information has been saved into the file:
                 json.dump(data, outfile)
             outfile.close()
             print(msg_saved, file=sys.stderr)
+
 
     else:
         print(msg_request, file=sys.stderr)
