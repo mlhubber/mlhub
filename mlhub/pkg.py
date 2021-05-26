@@ -105,15 +105,15 @@ That information has been saved into the file:
             print(msg_found, file=sys.stderr)
 
         if ask:
-            yes = yes_or_no("\nUse this private information (type 'd' to "
-                            "display, type 'n' to update)", third_choice=True)
+            yes = yes_or_no("\nUse this private information ('d' to "
+                            "display, 'n' to update)", third_choice=True)
         else:
             yes = True
 
         if yes == "d":
             with open(key_file, 'r') as handle:
                 parsed = json.load(handle)
-            print(json.dumps(parsed, indent=4))
+            print(f"\n{json.dumps(parsed, indent=2)}")
             yes = yes_or_no("\nUse this private information (type 'n' to update)")
 
         if not yes:
@@ -318,7 +318,7 @@ def get_private(file_path="private.json", server=None):
             if any(isinstance(el, dict) for el in values):
                 for item in values:
                     for i in list(item.values()):
-                        if i is "":
+                        if i == "":
                             sys.exit("Your private information is blank. "
                                      "Please run ml configure <model> to paste your private information.")
                 if server is None:
@@ -335,7 +335,7 @@ def get_private(file_path="private.json", server=None):
 
             else:
                 for item in values:
-                    if item is "":
+                    if item == "":
                         sys.exit("Your private information is blank. "
                                  "Please run ml configure <model> to paste your private information.")
                 return values
