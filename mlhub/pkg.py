@@ -114,7 +114,7 @@ That information has been saved into the file:
         if yes == "d":
             with open(key_file, 'r') as handle:
                 parsed = json.load(handle)
-            print(json.dumps(parsed, indent=4, sort_keys=True))
+            print(json.dumps(parsed, indent=4))
             yes = yes_or_no("\nUse this private information (type 'n' to update)")
 
         if not yes:
