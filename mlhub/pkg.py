@@ -311,9 +311,10 @@ def get_private(file_path="private.json", server=None):
             private_info = json.load(f)
             values = list(private_info.values())
 
+            # The MLHub yaml includes
+            #
             # private:
-            #   Azure speech:key*, location
-            # In this case, the values = [[Azure speech, asdfghj(key), australia(location)]]
+            #   Azure Speech: key*, location
 
             if any(isinstance(el, dict) for el in values):
                 for item in values:
@@ -321,6 +322,7 @@ def get_private(file_path="private.json", server=None):
                         if i == "":
                             sys.exit("Your private information is blank. "
                                      "Please run ml configure <model> to paste your private information.")
+                print(server)
                 if server is None:
                     return list(values[0].values())
                 else:
