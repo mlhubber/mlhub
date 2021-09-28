@@ -4,36 +4,35 @@
 #
 # A command line tool for managing machine learning models.
 #
-# Copyright 2018-2019 (c) Graham.Williams@togaware.com All rights reserved. 
+# Copyright 2018-2019 (c) Graham.Williams@togaware.com All rights reserved.
 #
 # This file is part of mlhub.
 #
 # MIT License
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy 
-# of this software and associated documentation files (the ""Software""), to deal 
-# in the Software without restriction, including without limitation the rights 
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-# copies of the Software, and to permit persons to whom the Software is 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the ""Software""), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in 
+# The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
 import json
 import os
 import sys
 import requests
-import termios
-import tty
+import getpass
 import subprocess
 import re
 import textwrap
@@ -202,51 +201,16 @@ def ask_info(item, service):
 
 
 def ask_password(prompt=None):
-    """Echo '*' for every input character. Only implements the basic I/O
-    functionality and so only Backspace is supported.  No support for
-    Delete, Left key, Right key and any other line editing.
-
-    Reference: https://mail.python.org/pipermail/python-list/2011-December/615955.html
-    """
-
-    symbol = "`~!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?"
-    if prompt:
-        sys.stderr.write(prompt)
-        sys.stderr.flush()
-
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    chars = []
-    try:
-        tty.setraw(sys.stdin.fileno())
-        while True:
-            c = sys.stdin.read(1)
-            if c in '\n\r':  # Enter.
-                break
-            if c == '\003':
-                raise KeyboardInterrupt
-            if c == '\x7f':  # Backspace.
-                if chars:
-                    sys.stderr.write('\b \b')
-                    sys.stderr.flush()
-                    del chars[-1]
-                continue
-            if c.isalnum() or c in symbol:
-                sys.stderr.write('*')
-                sys.stderr.flush()
-                chars.append(c)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        sys.stderr.write('\n')
-
-    return ''.join(chars)
+    if prompt is None:
+        prompt = "Password: "
+    return getpass.getpass(prompt=prompt)
 
 
 # Send a request.
 
 
 def azrequest(endpoint, url, subscription_key, request_data):
-    """Send anomaly detection request to the Anomaly Detector API. 
+    """Send anomaly detection request to the Anomaly Detector API.
 
     If the request is successful, the JSON response is returned.
 
