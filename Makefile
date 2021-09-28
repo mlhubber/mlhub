@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Wednesday 2021-05-26 22:10:03 AEST Graham Williams>
+# Time-stamp: <Tuesday 2021-09-28 17:49:03 AEST Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -16,7 +16,7 @@
 #   Trivial change or bug fix
 
 APP=mlhub
-VER=3.9.4
+VER=3.9.5
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
@@ -169,7 +169,9 @@ diff%:
 DESTDIR ?= /home/$(USER)
 PREFIX ?= /.local
 
-LIBDIR = $(DESTDIR)$(PREFIX)/lib/python3.8/site-packages/$(APP)
+# Must be a way to determine the 3.9 here - it changes occasionally.
+
+LIBDIR = $(DESTDIR)$(PREFIX)/lib/python3.9/site-packages/$(APP)
 
 install: version
 	rsync -avzh $(APP)/  $(LIBDIR)/
