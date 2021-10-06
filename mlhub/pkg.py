@@ -36,6 +36,7 @@ import getpass
 import subprocess
 import re
 import textwrap
+import platform
 from mlhub.utils import yes_or_no
 
 
@@ -255,10 +256,24 @@ def mlcat(title="", text="", delim="=", begin="", end="\n"):
 def mlpreview(fname,
               begin="\n",
               msg="Close the graphic window using Ctrl-W.\n",
-              previewer="eog"):
+              previewer=None):
     print(begin + msg)
-    subprocess.Popen([previewer, fname])
+    if is_linux():
+        if previewer is None:
+            previewer = "xdg-open" # will call linux desktop defalt application for the file
+        subprocess.Popen([previewer, fname])
+    elif is_windows():
+        os.startfile(fname) # Windows environment will automatically use defalt program based on file extension
+    else:
+        if previewer is None:
+            previewer = "open" # not having suitable platform to test available
+        subprocess.Popen([previewer, fname])
 
+def is_linux():
+    return platform.system() == "Linux"
+
+def is_windows():
+    return platform.system() == "Windows"
 
 # From Simon Zhao's azface package on github.
 
