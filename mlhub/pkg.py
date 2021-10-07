@@ -264,7 +264,7 @@ def mlpreview(fname,
             previewer = "xdg-open" # will call linux desktop defalt application for the file
         subprocess.Popen([previewer, fname])
     elif is_windows():
-        os.startfile(fname) # Windows environment will automatically use defalt program based on file extension
+        subprocess.Popen(["start",fname], shell=True) # Windows environment will automatically use defalt program based on file extension
     else:
         if previewer is None:
             previewer = "open" # not having suitable platform to test available
