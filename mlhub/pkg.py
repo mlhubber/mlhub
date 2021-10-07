@@ -238,6 +238,7 @@ def mlask(begin="", end="", prompt="Press Enter to continue"):
     sys.stdout.write(begin + prompt + ": ")
     answer = input()
     sys.stdout.write(end)
+    return answer
 
 
 def mlcat(title="", text="", delim="=", begin="", end="\n"):
