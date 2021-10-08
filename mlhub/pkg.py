@@ -232,11 +232,38 @@ def azrequest(endpoint, url, subscription_key, request_data):
         raise Exception(response.text)
 
 
+def getChar():
+    # from https://stackoverflow.com/questions/510357/how-to-read-a-single-character-from-the-user
+    # try to bypass python input()
+    if is_windows():
+        # for Windows-based systems
+        import msvcrt # If successful, we are on Windows
+        return msvcrt.getch()
+    else:
+        # for POSIX-based systems (with termios & tty support)
+        import tty, sys, termios  # raises ImportError if unsupported
+
+        fd = sys.stdin.fileno()
+        oldSettings = termios.tcgetattr(fd)
+
+        try:
+            tty.setcbreak(fd)
+            answer = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, oldSettings)
+
+        return answer
+
 def mlask(begin="", end="", prompt="Press Enter to continue"):
     begin = "\n" if begin else begin
     end = "\n" if end else end
     sys.stdout.write(begin + prompt + ": ")
-    answer = input()
+    print("") # do not combine this print into the previous stdout, otherwise the stdout might show after the input
+    #answer = input()
+    answer = getChar()
+    while answer != b'\r' and answer != b'\n':
+        answer = getChar()
+    print("")
     sys.stdout.write(end)
     return answer
 
