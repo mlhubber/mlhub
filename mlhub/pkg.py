@@ -262,7 +262,7 @@ def mlask(begin="", end="", prompt="Press Enter to continue"):
     answer = getChar()
     while answer != b'\r' and answer != '\n':
         answer = getChar()
-    print(" ",end="")
+    print(" ")
     sys.stdout.write(end)
     return answer
 
