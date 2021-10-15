@@ -255,15 +255,16 @@ def getChar():
         return answer
 
 def mlask(begin="", end="", prompt="Press Enter to continue"):
-    begin = "\n" if len(begin) == 0 else begin
-    end = "\n" if len(end)==0 else end
-    sys.stdout.write(begin + prompt + ": ")
-    print("") # do not combine this print into the previous stdout, otherwise the stdout might show after the input
+    begin = "\n" if begin else begin
+    end = "\n" if end else end
+    #sys.stdout.write(begin + prompt + ": ")
+    print(begin + prompt + ": ",end="") # do not combine this print into the previous stdout, otherwise the stdout might show after the input
     answer = getChar()
     while answer != b'\r' and answer != '\n':
         answer = getChar()
-    print(" ")
-    sys.stdout.write(end)
+    print("")
+    print(end,end="")
+    # sys.stdout.write(end)
     return answer
 
 
