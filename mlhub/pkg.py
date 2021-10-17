@@ -112,7 +112,7 @@ That information has been saved into the file:
             with open(key_file, 'r') as handle:
                 parsed = json.load(handle)
             print(f"\n{json.dumps(parsed, indent=2)}")
-            yes = yes_or_no("\nUse this private information ",
+            yes = yes_or_no("\nUse this private information "
                             "(type 'n' to update)")
 
         if not yes:
