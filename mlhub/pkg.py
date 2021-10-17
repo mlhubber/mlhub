@@ -11,7 +11,7 @@
 # MIT License
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the ""Software""), to deal
+# of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
@@ -78,8 +78,6 @@ def generalkey(key_file, priv_info, verbose=True, ask=True):
 
     """
 
-    key = None
-
     # Set up messages.
 
     msg_request = """\
@@ -114,7 +112,8 @@ That information has been saved into the file:
             with open(key_file, 'r') as handle:
                 parsed = json.load(handle)
             print(f"\n{json.dumps(parsed, indent=2)}")
-            yes = yes_or_no("\nUse this private information (type 'n' to update)")
+            yes = yes_or_no("\nUse this private information ",
+                            "(type 'n' to update)")
 
         if not yes:
             print("\n" + msg_request, file=sys.stderr)
@@ -123,8 +122,9 @@ That information has been saved into the file:
             if any(isinstance(el, list) for el in priv_info):
 
                 # private:
-                #   Azure speech:key*, location
-                # In this case, the priv_info = [[Azure speech, [key, location]]]
+                #   Azure speech: key*, location
+                #
+                # In this case, priv_info = [[Azure speech, [key, location]]]
 
                 for item in priv_info:
                     service = item[0]
@@ -142,7 +142,7 @@ That information has been saved into the file:
 
             else:
                 for item in priv_info:
-                    key_or_other = ask_info(item,"")
+                    key_or_other = ask_info(item, "")
                     data[item] = key_or_other
 
             # Write data into json file
@@ -150,8 +150,6 @@ That information has been saved into the file:
                 json.dump(data, outfile)
             outfile.close()
             print(msg_saved, file=sys.stderr)
-
-
     else:
         print(msg_request, file=sys.stderr)
 
@@ -162,7 +160,8 @@ That information has been saved into the file:
 
                 # private:
                 #   Azure speech:key*, location
-                # In this case, the priv_info = [[Azure speech, [key, location]]]
+                #
+                # In this case, priv_info = [[Azure speech, [key, location]]]
 
                 for item in priv_info:
                     service = item[0]
@@ -231,11 +230,11 @@ def azrequest(endpoint, url, subscription_key, request_data):
         raise Exception(response.text)
 
 
-def mlask(begin="", end="", prompt="Press Enter to continue"):
+def mlask(prompt="Press Enter to continue", begin="", end=""):
     begin = "\n" if begin else begin
     end = "\n" if end else end
     sys.stdout.write(begin + prompt + ": ")
-    answer = input()
+    input()
     sys.stdout.write(end)
 
 
@@ -244,7 +243,8 @@ def mlcat(title="", text="", delim="=", begin="", end="\n"):
     ttl_sep = "\n" if len(title) > 0 else ""
     # Retain any extra line in the original text since fill() will
     # remove it.
-    if len(text) and text[-1] == "\n": end = "\n" + end
+    if len(text) and text[-1] == "\n":
+        end = "\n" + end
     # Split into paragraphs, fill each paragraph, convert back to a
     # list of strings, and join them together as the text to be
     # printed.
@@ -268,7 +268,8 @@ def is_url(url):
 
     urlregex = re.compile(
         r'^(?:http|ftp)s?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+
+        r'(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
         r'localhost|'  # localhost...
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
         r'(?::\d+)?'  # optional port
@@ -321,8 +322,8 @@ def get_private(file_path="private.json", server=None):
                     for i in list(item.values()):
                         if i == "":
                             sys.exit("Your private information is blank. "
-                                     "Please run ml configure <model> to paste your private information.")
-                print(server)
+                                     "Please run ml configure <model> to "
+                                     "paste your private information.")
                 if server is None:
                     return list(values[0].values())
                 else:
@@ -339,8 +340,10 @@ def get_private(file_path="private.json", server=None):
                 for item in values:
                     if item == "":
                         sys.exit("Your private information is blank. "
-                                 "Please run ml configure <model> to paste your private information.")
+                                 "Please run ml configure <model> to "
+                                 "paste your private information.")
                 return values
 
     else:
-        sys.exit("Please run ml configure <model> to paste your private information.")
+        sys.exit("Please run ml configure <model> to "
+                 "paste your private information.")
