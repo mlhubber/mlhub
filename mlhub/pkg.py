@@ -233,6 +233,15 @@ def azrequest(endpoint, url, subscription_key, request_data):
 def mlask(prompt="Press Enter to continue", begin="", end=""):
     begin = "\n" if isinstance(begin, bool) and begin else begin
     end = "\n" if isinstance(end, bool) and end else end
+
+    if isinstance(prompt, bool):
+        sys.stderr.write("\n**Warning**\n"
+                         "mlhub.pkg.mlask() parameter order updated.\n"
+                         "Ignoring begin setting for now.\n"
+                         "The source mlhub package needs to be updated."
+                         "\n")
+        prompt = "Press Enter to continue"
+
     sys.stdout.write(begin + prompt + ": ")
     input()
     sys.stdout.write(end)
