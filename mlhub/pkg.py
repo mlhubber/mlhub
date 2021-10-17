@@ -231,8 +231,8 @@ def azrequest(endpoint, url, subscription_key, request_data):
 
 
 def mlask(prompt="Press Enter to continue", begin="", end=""):
-    begin = "\n" if begin else begin
-    end = "\n" if end else end
+    begin = "\n" if isinstance(begin, bool) and begin else begin
+    end = "\n" if isinstance(end, bool) and end else end
     sys.stdout.write(begin + prompt + ": ")
     input()
     sys.stdout.write(end)
@@ -268,7 +268,7 @@ def is_url(url):
 
     urlregex = re.compile(
         r'^(?:http|ftp)s?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'
         r'(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
         r'localhost|'  # localhost...
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
