@@ -36,6 +36,7 @@ import getpass
 import subprocess
 import re
 import textwrap
+import platform
 from mlhub.utils import yes_or_no
 
 
@@ -230,6 +231,32 @@ def azrequest(endpoint, url, subscription_key, request_data):
         raise Exception(response.text)
 
 
+def get_char():
+    # From https://stackoverflow.com/questions/510357/
+    # how-to-read-a-single-character-from-the-user
+    # try to bypass python input()
+    if is_windows():
+        # For Windows-based systems
+        import msvcrt  # If successful, we are on Windows
+        return msvcrt.getch()
+    else:
+        # For POSIX-based systems (with termios & tty support)
+        import tty
+        import sys
+        import termios  # Raises ImportError if unsupported.
+
+        fd = sys.stdin.fileno()
+        oldSettings = termios.tcgetattr(fd)
+
+        try:
+            tty.setcbreak(fd)
+            answer = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, oldSettings)
+
+        return answer
+
+
 def mlask(prompt="Press Enter to continue", begin="", end=""):
     begin = "\n" if isinstance(begin, bool) and begin else begin
     end = "\n" if isinstance(end, bool) and end else end
@@ -243,8 +270,9 @@ def mlask(prompt="Press Enter to continue", begin="", end=""):
         prompt = "Press Enter to continue"
 
     sys.stdout.write(begin + prompt + ": ")
-    input()
-    sys.stdout.write(end)
+    sys.stdout.flush()
+    get_char()
+    sys.stdout.write(end + "\n")
 
 
 def mlcat(title="", text="", delim="=", begin="", end="\n"):
@@ -264,10 +292,28 @@ def mlcat(title="", text="", delim="=", begin="", end="\n"):
 def mlpreview(fname,
               begin="\n",
               msg="Close the graphic window using Ctrl-W.\n",
-              previewer="eog"):
+              previewer=None):
     print(begin + msg)
-    subprocess.Popen([previewer, fname])
+    if is_linux():
+        if previewer is None:
+            # Linux desktop default application for the file.
+            previewer = "xdg-open"
+        subprocess.Popen([previewer, fname])
+    elif is_windows():
+        # Windows automatically uses default program based on file extension.
+        subprocess.Popen(["start", fname], shell=True)
+    else:
+        if previewer is None:
+            previewer = "open"  # Perhaps a Mac?
+        subprocess.Popen([previewer, fname])
 
+        
+def is_linux():
+    return platform.system() == "Linux"
+
+
+def is_windows():
+    return platform.system() == "Windows"
 
 # From Simon Zhao's azface package on github.
 
