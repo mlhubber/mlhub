@@ -285,7 +285,8 @@ def mlcat(title="", text="", delim="=", begin="", end="\n"):
     # Split into paragraphs, fill each paragraph, convert back to a
     # list of strings, and join them together as the text to be
     # printed.
-    text = "\n\n".join(list(map(textwrap.fill, text.split("\n\n"))))
+    text = [l.strip() for l in list(map(textwrap.fill, text.split("\n\n")))]
+    text = "\n\n".join(text)
     print(begin + sep + title + ttl_sep + sep + ttl_sep + text, end=end)
 
 
