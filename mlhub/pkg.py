@@ -4,7 +4,9 @@
 #
 # A command line tool for managing machine learning models.
 #
-# Copyright 2018-2019 (c) Graham.Williams@togaware.com All rights reserved.
+# Support for a MLHub package developer.
+#
+# Copyright 2018-2021 (c) Graham.Williams@togaware.com All rights reserved.
 #
 # This file is part of mlhub.
 #
@@ -43,6 +45,7 @@ from mlhub.utils import yes_or_no
 # ----------------------------------------------------------------------
 # Support Package Developers
 # ----------------------------------------------------------------------
+
 def load_key(path):
     """Load subscription key and endpoint from file."""
     key = None
@@ -290,11 +293,32 @@ def mlcat(title="", text="", delim="=", begin="", end="\n"):
     print(begin + sep + title + ttl_sep + sep + ttl_sep + text, end=end)
 
 
+def is_linux():
+    return platform.system() == "Linux"
+
+
+def is_windows():
+    return platform.system() == "Windows"
+
+
+def is_mac():
+    return platform.system() == "Darwin"
+
+
+if is_linux():
+    CTRLW = "using Ctrl-W"
+elif is_mac():
+    CTRLW = "using Cmd-W"
+else:
+    CTRLW = "when ready"
+
+
 def mlpreview(fname,
               begin="\n",
-              msg="Close the graphic window using Ctrl-W.\n",
+              msg=f"Close the graphic window {CTRLW}.\n",
               previewer=None):
-    print(begin + msg)
+    if begin != "" or msg != "":
+        print(begin + msg)
     if is_linux():
         if previewer is None:
             # Linux desktop default application for the file.
@@ -308,16 +332,8 @@ def mlpreview(fname,
             previewer = "open"  # Perhaps a Mac?
         subprocess.Popen([previewer, fname])
 
-        
-def is_linux():
-    return platform.system() == "Linux"
-
-
-def is_windows():
-    return platform.system() == "Windows"
 
 # From Simon Zhao's azface package on github.
-
 
 def is_url(url):
     """Check if url is a valid URL."""
