@@ -37,6 +37,13 @@ import mlhub.utils as utils
 import os
 import sys
 
+# Expose exported functions.
+
+from .pkg import get_cmd_cwd
+from .pkg import get_private
+from .pkg import mlask
+from .pkg import mlpreview
+
 # ----------------------------------------------------------------------
 # Set up log.
 # ----------------------------------------------------------------------
