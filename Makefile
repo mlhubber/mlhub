@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Friday 2021-11-19 20:17:35 AEDT Graham Williams>
+# Time-stamp: <Sunday 2021-11-21 20:41:33 AEDT Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -177,7 +177,7 @@ install: version
 	rsync -avzh $(APP)/  $(LIBDIR)/
 
 .PHONY: clean
-clean:
+clean::
 	rm -f docs/README.html tests/*~
 
 realclean:: clean
