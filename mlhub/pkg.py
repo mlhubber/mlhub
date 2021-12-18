@@ -364,7 +364,10 @@ def get_cmd_cwd():
     mlhub.utils.dispatch() when invoke model pkg script.
     """
 
-    return os.environ.get("_MLHUB_CMD_CWD", "")
+    cmd_cwd = os.environ.get("_MLHUB_CMD_CWD", "")
+    if cmd_cwd == "":
+        cmd_cwd = os.getcwd()
+    return cmd_cwd
 
 
 def get_private(file_path="private.json", server=None):
