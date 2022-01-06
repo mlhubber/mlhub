@@ -2688,6 +2688,10 @@ class ModelNotInstalledException(Exception):
     pass
 
 
+class ModelInstalledException(Exception):
+    pass
+
+
 class ModelReadmeNotFoundException(Exception):
     pass
 

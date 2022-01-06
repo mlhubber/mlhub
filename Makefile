@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Saturday 2021-12-18 17:11:54 AEDT Graham Williams>
+# Time-stamp: <Friday 2022-01-07 08:06:21 +1100 Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -173,8 +173,12 @@ PREFIX ?= /.local
 
 LIBDIR = $(DESTDIR)$(PREFIX)/lib/python3.9/site-packages/$(APP)
 
+# 20220107 Old approach to local install
+# install: version
+#	rsync -avzh $(APP)/  $(LIBDIR)/
+
 install: version
-	rsync -avzh $(APP)/  $(LIBDIR)/
+	pip install --user --no-use-pep517 -e .
 
 .PHONY: clean
 clean::

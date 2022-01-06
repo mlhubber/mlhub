@@ -271,8 +271,19 @@ def main():
     except utils.ModelNotInstalledException as e:
         msg = "model '{}' is not installed ({})."
         utils.print_error(msg, e.args[0], utils.get_init_dir())
-        if not args.quiet:  # Suggest install model package or check if any available
-            utils.print_commands_suggestions_on_stderr('installed', 'available', 'install')
+        if not args.quiet:
+            utils.print_commands_suggestions_on_stderr('installed',
+                                                       'available',
+                                                       'install')
+        sys.exit(1)
+
+    except utils.ModelInstalledException as e:
+        msg = f"a model named '{e}' already exists."
+        utils.print_error(msg)
+        if not args.quiet:
+            utils.print_commands_suggestions_on_stderr('installed',
+                                                       'available',
+                                                       'uninstall')
         sys.exit(1)
 
     except utils.ModelReadmeNotFoundException as e:

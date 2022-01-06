@@ -1255,6 +1255,39 @@ def remove_model(args):
 
 
 # ------------------------------------------------------------------------
+# RENAME
+# ------------------------------------------------------------------------
+
+
+def rename_model(args):
+    """Rename an installed model."""
+
+    old = args.old
+    new = args.new
+
+    utils.check_model_installed(old)
+
+    oldp = utils.get_package_dir(old)
+    newp = utils.get_package_dir(new)
+
+    if os.path.exists(newp):
+        raise utils.ModelInstalledException(new)
+
+    os.rename(oldp, newp)
+
+    yfile = f"{newp}/{constants.MLHUB_YAML}"
+
+    with open(yfile) as file:
+        ydata = yaml.load(file, Loader=yaml.FullLoader)
+        ydata["meta"]["name"] = new
+        with open(yfile, "w") as file:
+            yaml.dump(ydata, file, sort_keys=False)
+
+    if not args.quiet:
+        msg = f"Renamed '{old}' as '{new}' (now '{newp}')."
+        print(msg)
+
+# ------------------------------------------------------------------------
 # Version
 # ------------------------------------------------------------------------
 

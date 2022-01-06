@@ -226,6 +226,15 @@ COMMANDS = {
         "func": "configure_model",
         "next": ["readme"],
     },
+    "rename": {
+        "description": "rename a model",
+        "argument": {
+            "old": {},
+            "new": {},
+        },
+        "usage": "  rename <old> <new>  rename an installed model",
+        "func": "rename_model",
+    },
     "uninstall": {
         "description": "uninstall a model or all models",
         "argument": {
