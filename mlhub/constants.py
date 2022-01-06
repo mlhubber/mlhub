@@ -170,17 +170,19 @@ COMMANDS = {
         "func": "remove_mlm",
     },
     "install": {
-        "description": "install a named model, local model file or URL",
+        "description": "Install a named model, local model file or URL",
         "argument": {
             "model": {},
-            "-i": {"help": "SSH key path"},
+            "-i": {"help": "Path to SSH key."},
             "--yes": {
                 "action": "store_true",
-                "help": 'assume "yes" as answer to all prompts',
+                "help": 'Assume "yes" as answer to all prompts',
             },
-            "-y": {"action": "store_true", "help": 'the same as "--yes"'},
+            "-y": {"action": "store_true"},
+            # 20220107 Not yet - is it really needed? Use RENAME.
+            # "--name": {"help": "Local name of model."},
         },
-        "usage": "  install    <model>   install a named model, local model file or URL",
+        "usage": "  Install    <model>   Install a named model, local model file or URL.",
         "func": "install_model",
         "next": ["configure"],
     },

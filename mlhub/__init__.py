@@ -184,7 +184,8 @@ def main():
 
     else:
 
-        # Basic commands, such as install, readme.  See mlhub.constants.COMMANDS
+        # Basic commands, like install, readme.  See
+        # mlhub.constants.COMMANDS
 
         logger.info("Parse basic common commands.")
         basic_cmd_parser = argparse.ArgumentParser(
