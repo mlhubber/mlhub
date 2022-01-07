@@ -233,6 +233,10 @@ COMMANDS = {
         "argument": {
             "old": {},
             "new": {},
+            "--force": {
+                "action": "store_true",
+                "help": "don't check if old alreadsy exists",
+            }
         },
         "usage": "  rename <old> <new>  rename an installed model",
         "func": "rename_model",

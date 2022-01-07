@@ -1260,7 +1260,13 @@ def remove_model(args):
 
 
 def rename_model(args):
-    """Rename an installed model."""
+    """Rename an installed model.
+
+OLD is the old package name and NEW the new one.
+
+If the NEW already exists it is overwritten only if --force.
+
+"""
 
     old = args.old
     new = args.new
@@ -1271,7 +1277,10 @@ def rename_model(args):
     newp = utils.get_package_dir(new)
 
     if os.path.exists(newp):
-        raise utils.ModelInstalledException(new)
+        if args.force:
+            shutil.rmtree(newp)
+        else:
+            raise utils.ModelInstalledException(new)
 
     os.rename(oldp, newp)
 
