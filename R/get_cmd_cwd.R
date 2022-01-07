@@ -1,12 +1,12 @@
-#' Get CWD
+#' Get Command's CWD
 #'
-#' Get the commands cwd for local file access.
+#' Get the command's cwd for local file access.
 #' @keywords working directory
 #' @export
 #' @examples
-#' mlcwd()
+#' get_cmd_cwd()
  
-mlcwd <- function()
+get_cmd_cwd <- function()
 {
   cmd_cwd <- Sys.getenv("_MLHUB_CMD_CWD")
   if (cmd_cwd == "") cmd_cwd <- getwd()

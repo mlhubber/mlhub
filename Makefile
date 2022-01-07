@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Friday 2022-01-07 11:50:52 +1100 Graham Williams>
+# Time-stamp: <Friday 2022-01-07 12:06:57 +1100 Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -20,6 +20,7 @@ VER=3.10.2
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
+RTAR = $(APP)_$(VER).tar.gz
 
 BASH_COMPLETION = $(APP)/bash_completion.d/ml.bash
 
@@ -74,7 +75,7 @@ mlhub:
   install	Local install for dev testing cycle.
   version	Update the version number across appropriate files.
   pypi 		Upload new package for pip install.
-  dist		Build the .tar.gz for distribution or pip install.
+  dist		Build the .tar.gz for distribution (R and py) or pip install.
   mlhub		Update mlhub.ai with index and .tar.gz
 
   test		Run series of tests using exactly.
@@ -91,9 +92,9 @@ help::
 	@echo "$$HELP"
 
 .PHONY: mlhub
-mlhub: version $(TAR_GZ) $(BASH_COMPLETION)
+mlhub: version $(RTAR) $(TAR_GZ) $(BASH_COMPLETION)
 	chmod a+r $(TAR_GZ)
-	rsync -avzh $(TAR_GZ) $(BASH_COMPLETION) mlhub.ai:webapps/mlhub2/
+	rsync -avzh $(RTAR) $(TAR_GZ) $(BASH_COMPLETION) mlhub.ai:apps/mlhub2/
 
 .PHONY: version
 version:
@@ -116,8 +117,8 @@ favicon.ico: logo-mlhub.png
 	convert $^ -define icon:auto-resize="256,128,96,64,48,32,16" $@
 
 favicon.install: favicon.ico
-	scp $^ togaware.com:webapps/mlhub2/
-	ssh togaware.com chmod a+r webapps/mlhub2/$^
+	scp $^ togaware.com:apps/mlhub2/
+	ssh togaware.com chmod a+r apps/mlhub2/$^
 
 $(TAR_GZ): $(SOURCE)
 	python3 setup.py sdist
