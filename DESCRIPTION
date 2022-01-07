@@ -13,4 +13,4 @@ Description: MLHub is a project to provide open access to pre-built
 License: GPL (>= 2)
 LazyLoad: yes
 URL: https://mlhub.ai/
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
