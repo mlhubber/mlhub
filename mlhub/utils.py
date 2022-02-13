@@ -1527,9 +1527,13 @@ class RepoTypeURL(ABC):
         if ":" in url:  # Get path
             url, path = url.split(":")
 
-        owner, repo = url.split("/")
+        # 20220214 Split out the owner and the rest. The rest may
+        # include a further '/' as in the branch name so ensure we get
+        # just the first string as the owner.
 
-        #ref = get_default_branch(owner, repo, repo_type)
+        owner, repo = url.split("/", 1)
+
+        # ref = get_default_branch(owner, repo, repo_type)
 
         if "@" in repo:  # Branch or commit: mlhub@dev
             repo, ref = repo.split("@")
