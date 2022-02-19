@@ -8,7 +8,7 @@ mlpreview(
   fname,
   msg = "Close the graphic window using Ctrl-W.\\n",
   begin = "\\n",
-  previewer = "evince"
+  previewer = "xdg-open"
 )
 }
 \arguments{
