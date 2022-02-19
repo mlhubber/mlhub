@@ -12,7 +12,7 @@
 mlpreview <- function(fname,
                       msg="Close the graphic window using Ctrl-W.\n",
                       begin="\n",
-                      previewer="evince")
+                      previewer="xdg-open")
 {
   system(paste(previewer, fname), ignore.stderr=TRUE, wait=FALSE)
   cat(begin, msg, sep="")
