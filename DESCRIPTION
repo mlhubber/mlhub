@@ -1,8 +1,8 @@
 Package: mlhub
 Type: Package
 Title: Support for MLHub package developers
-Version: 3.10.4
-Date: 2022-02-14
+Version: 3.10.5
+Date: 2022-02-19
 Authors@R: c(person("Graham", "Williams", 
 	   	    role=c("aut", "cph", "cre"),
 	            email="Graham.Williams@togaware.com"))
