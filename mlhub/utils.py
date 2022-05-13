@@ -50,6 +50,7 @@ import yaml
 import yamlordereddictloader
 import zipfile
 import subprocess
+import gdown
 
 
 from abc import ABC, abstractmethod
@@ -369,6 +370,11 @@ def is_url(name):
     """Check if name is a url."""
 
     return re.findall("http[s]?:", name)
+
+def is_google_drive_url(url):
+    """Check if name is a google drive / google docs url."""
+
+    return ".google.com" in url
 
 
 def get_url_filename(url):
@@ -1302,10 +1308,13 @@ def install_file_deps(deps, model, downloadir=None, key=None, yes=False):
                     os.makedirs(os.path.dirname(archive), exist_ok=True)
 
                     try:
-                        urllib.request.urlretrieve(location, archive)
+                        if (is_google_drive_url(location)): # Use GDown if its a big file from Google Drive
+                            gdown.download(location, archive, quiet=False, fuzzy= True)
+                        else:
+                            urllib.request.urlretrieve(location, archive)
                     except urllib.error.HTTPError:
                         print(f"\nmlhub: Failed to get file dependency: {location}" +
-                              "\n       Please notify package author.")
+                            "\n       Please notify package author.")
                         continue
 
                 # Install: unzip if necessary and make symbolic links
