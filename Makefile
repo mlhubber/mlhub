@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Thursday 2022-02-24 09:30:49 +1100 Graham Williams>
+# Time-stamp: <Friday 2022-05-13 16:16:30 +1000 Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -16,7 +16,7 @@
 #   Trivial change or bug fix
 
 APP=mlhub
-VER=3.10.5
+VER=3.11.1
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
