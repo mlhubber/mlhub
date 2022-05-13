@@ -24,7 +24,7 @@ with open(path.join(here, 'docs/README.md'), encoding='utf-8') as f:
 
 setup(
     name='mlhub',
-    version='3.10.5',  # DO NOT MODIFY. Managed from Makefile.
+    version='3.11.1',  # DO NOT MODIFY. Managed from Makefile.
     description='Machine learning model repository manager',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -51,6 +51,7 @@ setup(
     entry_points={'console_scripts': ['ml=mlhub:main']},
     install_requires=[
         'distro',
+        'gdown',
         'rapidfuzz',
         'pyyaml',
         'requests',
