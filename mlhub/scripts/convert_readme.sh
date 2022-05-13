@@ -12,7 +12,10 @@
 # Conversion
 
 set -o pipefail
-pandoc -t plain ${1} | awk '/^Usage$$/{exit}{print}' | perl -00pe0 > ${2}
+pandoc -t plain ${1} |
+    awk '/^Usage$$/{exit}{print}' |
+    awk '{if (NR == 1 && substr($0,1,1) == "[") {next} else {print}}' |
+    perl -00pe0 > ${2}
 
 returncode=$?
 if [[ ${returncode} -ne 0 ]]; then

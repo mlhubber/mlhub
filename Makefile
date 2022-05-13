@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line. 
 #
-# Time-stamp: <Saturday 2022-02-19 17:03:35 +1100 Graham Williams>
+# Time-stamp: <Thursday 2022-02-24 09:30:49 +1100 Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -72,7 +72,7 @@ endif
 define HELP
 mlhub:
 
-  install	Local install for dev testing cycle.
+  install	Local in-place install for dev testing cycle (only needed once).
   version	Update the version number across appropriate files.
   pypi 		Upload new package for pip install.
   dist		Build the .tar.gz for distribution (R and py) or pip install.
