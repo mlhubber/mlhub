@@ -6,9 +6,10 @@
 \usage{
 mlpreview(
   fname,
-  msg = "Close the graphic window using Ctrl-W.\\n",
+  msg = "Close the graphic window using Ctrl-W.",
   begin = "\\n",
-  previewer = "xdg-open"
+  previewer = "xdg-open",
+  end = "\\n"
 )
 }
 \arguments{

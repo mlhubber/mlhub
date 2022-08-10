@@ -1,8 +1,8 @@
 Package: mlhub
 Type: Package
 Title: Support for MLHub package developers
-Version: 3.11.1
-Date: 2022-05-13
+Version: 3.11.2
+Date: 2022-08-10
 Authors@R: c(person("Graham", "Williams", 
 	   	    role=c("aut", "cph", "cre"),
 	            email="Graham.Williams@togaware.com"))
@@ -13,4 +13,4 @@ Description: MLHub is a project to provide open access to pre-built
 License: GPL (>= 2)
 LazyLoad: yes
 URL: https://mlhub.ai/
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
