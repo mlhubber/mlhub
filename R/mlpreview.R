@@ -22,6 +22,6 @@ mlpreview <- function(fname,
     system(paste(previewer, fname), ignore.stderr=TRUE, wait=FALSE)
     cat(begin, msg, end, sep="")
   } else {
-    cat("Graphic display not found. Needs to run on a desktop.")
+    cat("\n**** Graphic display not found. Needs to run on a desktop. ****\n")
   }
 }
