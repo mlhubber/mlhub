@@ -37,7 +37,7 @@ import os
 # the command line option --mlhub.
 # ------------------------------------------------------------------------
 
-MLHUB = "https://mlhub.ai/"
+MLHUB = "https://mlhub.au/"
 if "MLHUB" in os.environ:
     # The following adds a trailing "/" as assumed in the code.
     MLHUB = os.path.join(os.getenv("MLHUB"), "")
