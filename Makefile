@@ -1,8 +1,8 @@
 ########################################################################
 #
-# Makefile for mlhub and the ml command line. 
+# Makefile for mlhub and the ml command line.
 #
-# Time-stamp: <Wednesday 2022-08-10 10:07:05 +1000 Graham Williams>
+# Time-stamp: <Friday 2024-12-06 05:47:26 +1100 Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -16,7 +16,7 @@
 #   Trivial change or bug fix
 
 APP=mlhub
-VER=3.11.2
+VER=3.11.3
 DATE=$(shell date +%Y-%m-%d)
 
 TAR_GZ = dist/$(APP)-$(VER).tar.gz
@@ -98,7 +98,7 @@ mlhub: version $(RTAR) $(TAR_GZ) $(BASH_COMPLETION)
 
 .PHONY: version
 version:
-	sed -i -e "s|^    version='.*'|    version='$(VER)'|" setup.py 
+	sed -i -e "s|^    version='.*'|    version='$(VER)'|" setup.py
 	sed -i -e 's|^VERSION = ".*"|VERSION = "$(VER)"|' mlhub/constants.py
 	sed -i -e 's|$(APP)_\d+.\d+.\d+|$(APP)_$(VER)|g' docs/README.md
 	sed -i -e 's|^Version: .*|Version: $(VER)|' DESCRIPTION
@@ -127,7 +127,7 @@ $(TAR_GZ): $(SOURCE)
 tgz: $(TAR_GZ)
 
 .PHONY: pypi
-pypi: docs/README.md version tgz 
+pypi: docs/README.md version tgz
 	twine upload $(TAR_GZ)
 
 .PHONY: pypi.test
@@ -186,4 +186,4 @@ clean::
 	rm -f docs/README.html tests/*~
 
 realclean:: clean
-	rm -f mlhub_*.tar.gz favicon.ico logo-mlhub.png 
+	rm -f mlhub_*.tar.gz favicon.ico logo-mlhub.png
