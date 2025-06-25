@@ -29,7 +29,6 @@
 # THE SOFTWARE.
 
 import base64
-import cgi
 import collections
 import distro
 import json
@@ -54,6 +53,7 @@ import gdown
 
 
 from abc import ABC, abstractmethod
+from email.parser import HeaderParser
 from rapidfuzz import fuzz
 from rapidfuzz import process as fuzzprocess
 from mlhub.constants import (
@@ -395,10 +395,21 @@ def get_url_filename(url):
             print(f"\nmlhub: Missing url: {url}\n       please notify package author.")
             return None
 
+    # The cgi module was deprecated in Python 3.11+. So move to using
+    # email.parser module (20250625 gjw).
+
+    # if info:
+    #     _, params = cgi.parse_header(info)
+    #     if "filename" in params:
+    #         filename = params["filename"]
+
     if info:
-        _, params = cgi.parse_header(info)
+        header = f'Content-Disposition: {info}'
+        parser = HeaderParser()
+        msg = parser.parsestr(header)
+        params = dict(msg.get_params(header='content-disposition'))
         if "filename" in params:
-            filename = params["filename"]
+            filename = params.get('filename')
 
     return filename or None
 
@@ -2640,7 +2651,7 @@ def yes_or_no(msg, *params, yes=True, certain=False, third_choice=False):
 
     if third_choice == True:
         choices  = " [Y/d/n]?" if yes else " [yes/d/N]" if certain else " [y/d/N]?"
-    
+
     print(msg.format(*params) + choices, end=" ")
     choice = input().lower()
 
