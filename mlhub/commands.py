@@ -46,7 +46,13 @@ import yaml
 from mlhub.pkg import generalkey
 import mlhub.constants as constants
 
-from distutils.version import StrictVersion
+# 20250625 gjw deprecated:
+#
+# from distutils.version import StrictVersion
+#
+# Use packaging.version instead.
+
+from packaging.version import Version
 from mlhub.constants import (
     BASH_CMD,
     EXT_MLM,
@@ -414,7 +420,7 @@ def install_model(args):
             installed_version = str(installed_version)
             version = str(version)
             if not YES:
-                if StrictVersion(installed_version) > StrictVersion(version):
+                if Version(installed_version) > Version(version):
                     yes = utils.yes_or_no(
                         "Downgrade '{}' from version '{}' to version '{}'",
                         model,
@@ -422,7 +428,7 @@ def install_model(args):
                         version,
                         yes=True,
                     )
-                elif StrictVersion(installed_version) == StrictVersion(version):
+                elif Version(installed_version) == Version(version):
                     yes = utils.yes_or_no(
                         "Replace '{}' version '{}' with version '{}'",
                         model,

@@ -53,6 +53,7 @@ setup(
         'distro',
         'gdown',
         'rapidfuzz',
+        'packaging',
         'pyyaml',
         'requests',
         'yamlordereddictloader',
