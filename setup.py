@@ -24,7 +24,7 @@ with open(path.join(here, 'docs/README.md'), encoding='utf-8') as f:
 
 setup(
     name='mlhub',
-    version='3.11.3',  # DO NOT MODIFY. Managed from Makefile.
+    version='3.11.7',  # DO NOT MODIFY. Managed from Makefile.
     description='Machine learning model repository manager',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -41,7 +41,7 @@ setup(
     keywords='machine learning models repository',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     package_data={
-        '.': ['LICENSE'],
+        '.': ['LICENSE', 'docs/README.md'],
         'mlhub': [
             'bash_completion.d/ml.bash',
             'scripts/*.sh',

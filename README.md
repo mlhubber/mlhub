@@ -15,9 +15,8 @@ package developers.
 
 The python mlhub package is installed from PyPI:
 
-	$ pip3 install mlhub
+	$ pipx install mlhub
 
 The R mlhub package can be installed from github:
 
 	$ sudo Rscript -e 'devtools::install_github("mlhubber/mlhub@main", quiet=TRUE)'
-
