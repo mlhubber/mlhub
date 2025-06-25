@@ -1,7 +1,7 @@
 Package: mlhub
 Type: Package
 Title: Support for MLHub package developers
-Version: 3.11.7
+Version: 3.11.8
 Date: 2025-06-25
 Authors@R: c(person("Graham", "Williams", 
 	   	    role=c("aut", "cph", "cre"),
