@@ -13,7 +13,7 @@ including _common_setup.xly
 exit-code == 0
 
 stdout equals <<EOF
-The repository 'https://mlhub.ai/' provides the following models:
+The repository 'https://mlhub.au/' provides the following models:
 
 animate      2.1.5  Tell a data narative through animations                 
 audit        4.1.0  Classic financial audit predictive classification model.

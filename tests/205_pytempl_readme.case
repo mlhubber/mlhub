@@ -13,7 +13,7 @@ exit-code == 0
 stdout equals <<EOF
 MLHub Template and Test Package for Python
 
-A test package for https://mlhub.ai based on Python.
+A test package for https://mlhub.au based on Python.
 
 To list the commands supported by the model package:
 

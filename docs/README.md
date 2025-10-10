@@ -8,7 +8,7 @@ capabilities.
 Introduction
 ------------
 
-The [machine learning hub](https://mlhub.ai) is a free and open source
+The [machine learning hub](https://mlhub.au) is a free and open source
 project hosted on [github](https://github.com/mlhubber/mlhub) aimed at
 easily sharing [machine learning, artificial intelligence, and data
 science models and technologies](https://github.com/mlhubber/mlmodels). The
@@ -21,8 +21,8 @@ providing a suite of useful command line tools based on the pre-built
 models. Each model has been tested on Ubuntu (GNU/Linux).
 
 A number of demonstration models have been packaged and are listed in
-the [repository index](https://mlhub.ai/Packages.html) on
-[mlhub.ai](https://mlhub.ai/) where the models themselves can be
+the [repository index](https://mlhub.au/Packages.html) on
+[mlhub.au](https://mlhub.au/) where the models themselves can be
 browsed.
 
 In this blog post we first review how to get started with MLHub and
@@ -112,7 +112,7 @@ Pre-Built Model Archives
 ------------------------
 
 A model is a zip file archived as .mlm files and hosted in a repository.
-The public repository is [mlhub.ai](https://mlhub.ai/). The *ml* command
+The public repository is [mlhub.au](https://mlhub.au/). The *ml* command
 can install the pre-built model locally, ready to run a demo, to print
 and display the model, and to score new data using the model. Some
 models provide ability to retrain the model with user provided data.
@@ -149,18 +149,18 @@ Alternative Install
 
 A tar.gz containing the mlhub package and the command line interface is
 available as
-[mlhub_3.7.0.tar.gz](https://mlhub.ai/dist/mlhub_3.7.0.tar.gz) within
-the [distribution folder](https://mlhub.ai/dist/) of the MLHub.
+[mlhub_3.7.0.tar.gz](https://mlhub.au/dist/mlhub_3.7.0.tar.gz) within
+the [distribution folder](https://mlhub.au/dist/) of the MLHub.
 
 To install from the tar.gz file:
 
-    $ wget https://mlhub.ai/dist/mlhub_3.7.0.tar.gz
+    $ wget https://mlhub.au/dist/mlhub_3.7.0.tar.gz
     $ pip install mlhub_3.7.0.tar.gz
     $ ml
 
 Or extract the above downloaded .tar.gz and install:
 
-    $ wget https://mlhub.ai/dist/mlhub_3.7.0.tar.gz
+    $ wget https://mlhub.au/dist/mlhub_3.7.0.tar.gz
     $ tar xvf mlhub_3.7.0.tar.gz
     $ cd mlhub
     $ python3 setup.py install --user
@@ -200,4 +200,3 @@ MLHub Dev PyPI download statistics: https://pepy.tech/project/mlhubdev
 [![Downloads](https://pepy.tech/badge/mlhubdev)](https://pepy.tech/project/mlhubdev)
 [![Downloads](https://pepy.tech/badge/mlhubdev/month)](https://pepy.tech/project/mlhubdev)
 [![Downloads](https://pepy.tech/badge/mlhubdev/week)](https://pepy.tech/project/mlhubdev)
-

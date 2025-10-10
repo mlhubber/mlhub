@@ -7,7 +7,7 @@ Artificial Intelligence, and Data Science capabilities.
 Introduction
 ------------
 
-The `machine learning hub <https://mlhub.ai>`__ is an open source
+The `machine learning hub <https://mlhub.au>`__ is an open source
 project hosted on `github <https://github.com/mlhubber/mlhub>`__ aimed
 at easily sharing `pre-built machine learning
 models <https://github.com/mlhubber/mlmodels>`__ that may be found on
@@ -19,8 +19,8 @@ providing a suite of useful command line tools based on the pre-built
 models. Each model has been tested on Ubuntu (GNU/Linux).
 
 A number of demonstration models have been packages and are listed in
-the `repository index <https://mlhub.ai/Packages.html>`__ on
-`mlhub.ai <https://mlhub.ai/>`__ where the models themselves can be
+the `repository index <https://mlhub.au/Packages.html>`__ on
+`mlhub.au <https://mlhub.au/>`__ where the models themselves can be
 browsed.
 
 In this blog post we first review how to get started with MLHub and then
@@ -118,7 +118,7 @@ Pre-Built Model Archives
 ------------------------
 
 A model is a zip file archived as .mlm files and hosted in a repository.
-The public repository is `mlhub.ai <https://mlhub.ai/>`__. The *ml*
+The public repository is `mlhub.au <https://mlhub.au/>`__. The *ml*
 command can install the pre-built model locally, ready to run a demo, to
 print and display the model, and to score new data using the model. Some
 models provide ability to retrain the model with user provided data.
@@ -161,15 +161,15 @@ Alternative Install
 
 A tar.gz containing the mlhub package and the command line interface is
 available as
-`mlhub\_3.5.5.tar.gz <https://mlhub.ai/dist/mlhub_3.5.5.tar.gz>`__
-within the `distribution folder <https://mlhub.ai/dist/>`__ of the
+`mlhub\_3.5.5.tar.gz <https://mlhub.au/dist/mlhub_3.5.5.tar.gz>`__
+within the `distribution folder <https://mlhub.au/dist/>`__ of the
 MLHub.
 
 To install from the tar.gz file:
 
 ::
 
-    $ wget https://mlhub.ai/dist/mlhub_3.5.5.tar.gz
+    $ wget https://mlhub.au/dist/mlhub_3.5.5.tar.gz
     $ pip install mlhub_3.5.5.tar.gz
     $ ml
 
@@ -177,7 +177,7 @@ Or extract the above downloaded .tar.gz and install:
 
 ::
 
-    $ wget https://mlhub.ai/dist/mlhub_3.5.5.tar.gz
+    $ wget https://mlhub.au/dist/mlhub_3.5.5.tar.gz
     $ tar xvf mlhub_3.5.5.tar.gz
     $ cd mlhub
     $ python3 setup.py install --user
@@ -214,11 +214,11 @@ MLHub Dev PyPI download statistics: https://pepy.tech/project/mlhubdev
 |Downloads| |Downloads| |Downloads|
 
 .. |MLHub Status| image:: http://badge.kloud51.com/pypi/s/mlhub.svg
-   :target: https://mlhub.ai
+   :target: https://mlhub.au
 .. |PyPi version| image:: https://img.shields.io/pypi/v/mlhub.svg
-   :target: https://mlhub.ai
+   :target: https://mlhub.au
 .. |PyPi downloads| image:: https://pypip.in/d/mlhub/badge.png
-   :target: https://mlhub.ai
+   :target: https://mlhub.au
 .. |Downloads| image:: https://pepy.tech/badge/mlhub
    :target: https://pepy.tech/project/mlhub
 .. |Downloads per Month| image:: https://pepy.tech/badge/mlhub/month

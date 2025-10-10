@@ -30,7 +30,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Graham Williams',
     author_email='mlhub@togaware.com',
-    url='https://mlhub.ai',
+    url='https://mlhub.au',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',

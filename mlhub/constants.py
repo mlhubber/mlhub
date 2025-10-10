@@ -310,7 +310,7 @@ Models are installed into '{{}}'.
 
 This is version {{}} of {{}}.
 
-Support, feedback, comments are welcome: support@mlhub.ai
+Support, feedback, comments are welcome: support@mlhub.au
 
 To ensure the pre-requisites are installed and for a better experience
 with tab completion the sys admin can run the command:

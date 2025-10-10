@@ -2,7 +2,7 @@
 #
 # Makefile for mlhub and the ml command line.
 #
-# Time-stamp: <Wednesday 2025-06-25 10:39:11 +1000 Graham Williams>
+# Time-stamp: <Friday 2025-10-10 20:53:52 +1100 Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -76,7 +76,7 @@ mlhub:
   version	Update the version number across appropriate files.
   pypi 		Upload new package for pip install.
   dist		Build the .tar.gz for distribution (R and py) or pip install.
-  mlhub		Update mlhub.ai with index and .tar.gz
+  mlhub		Update mlhub.au with index and .tar.gz
 
   test		Run series of tests using exactly.
   testNNN	Run an individual test by number.
@@ -94,7 +94,7 @@ help::
 .PHONY: mlhub
 mlhub: version $(RTAR) $(TAR_GZ) $(BASH_COMPLETION)
 	chmod a+r $(TAR_GZ)
-	rsync -avzh $(RTAR) $(TAR_GZ) $(BASH_COMPLETION) mlhub.ai:apps/mlhub2/
+	rsync -avzh $(RTAR) $(TAR_GZ) $(BASH_COMPLETION) mlhub.au:apps/mlhub2/
 
 .PHONY: version
 version:

@@ -22,7 +22,7 @@ stdout equals <<EOF
 
 *** Downloading required files ...
 
-    * https://mlhub.ai/empty.txt
+    * https://mlhub.au/empty.txt
       downloading into /home/gjw/.mlhub/azspeech/private.txt ...
 
 To view the model's README:

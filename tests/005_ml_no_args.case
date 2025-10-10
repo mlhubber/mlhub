@@ -29,13 +29,13 @@ Global commands:
   configure [<model>]  configure the package
   uninstall [<model>]  uninstall a model or all models
 
-The ML Hub repository is 'https://mlhub.ai/'.
+The ML Hub repository is 'https://mlhub.au/'.
 
 Models are installed into '/home/gjw/.mlhub/'.
 
 This is version 3.7.12 of mlhub.
 
-Support, feedback, comments are welcome: support@mlhub.ai
+Support, feedback, comments are welcome: support@mlhub.au
 
 To ensure the pre-requisites are installed and for a better experience
 with tab completion the sys admin can run the command:

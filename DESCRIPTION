@@ -3,7 +3,7 @@ Type: Package
 Title: Support for MLHub package developers
 Version: 3.11.8
 Date: 2025-06-25
-Authors@R: c(person("Graham", "Williams", 
+Authors@R: c(person("Graham", "Williams",
 	   	    role=c("aut", "cph", "cre"),
 	            email="Graham.Williams@togaware.com"))
 Depends: R (>= 3.5.0)
@@ -12,5 +12,5 @@ Description: MLHub is a project to provide open access to pre-built
   functions to support the developer of packages.
 License: GPL (>= 2)
 LazyLoad: yes
-URL: https://mlhub.ai/
+URL: https://mlhub.au/
 RoxygenNote: 7.2.0
